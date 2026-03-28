@@ -427,6 +427,7 @@ header h1{font-size:1.1rem;color:var(--rune-blue);text-shadow:0 0 10px rgba(79,1
         <input type="text" id="ntfy-topic-display" readonly style="flex:1;font-size:.75rem;background:#0e0e1e;cursor:pointer" onclick="copyNtfyTopic()"/>
         <button class="btn-secondary" style="margin:0;padding:6px 10px;font-size:.75rem" onclick="copyNtfyTopic()">Copier</button>
       </div>
+      <button class="btn-secondary" style="margin-top:6px;font-size:.75rem" onclick="testNtfy()">Envoyer une notification test</button>
       <div id="ntfy-status" style="font-size:.7rem;color:var(--text-dim);margin-top:4px"></div>
     </div>
   </div>
@@ -1050,6 +1051,27 @@ function copyFCMToken() {
     navigator.clipboard.writeText(fcmToken).then(() => {
       showToast('Token copié', 'Colle-le dans Firebase Console pour tester.');
     });
+  }
+}
+
+async function testNtfy() {
+  const topic = getNtfyTopic();
+  try {
+    const res = await fetch(`https://ntfy.sh/${topic}`, {
+      method: 'POST',
+      headers: { 'Title': 'Stakr — Test 🪶' },
+      body: 'Kraa ! Si tu vois ceci, les notifications fonctionnent !'
+    });
+    if (res.ok) {
+      $('#ntfy-status').textContent = '✓ Notification envoyée ! Vérifie l\'app ntfy.';
+      $('#ntfy-status').style.color = '#69f0ae';
+    } else {
+      $('#ntfy-status').textContent = '✗ Erreur ' + res.status;
+      $('#ntfy-status').style.color = '#ff5252';
+    }
+  } catch(e) {
+    $('#ntfy-status').textContent = '✗ Erreur réseau : ' + e.message;
+    $('#ntfy-status').style.color = '#ff5252';
   }
 }
 
