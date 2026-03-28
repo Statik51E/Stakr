@@ -419,7 +419,14 @@ header h1{font-size:1.1rem;color:var(--rune-blue);text-shadow:0 0 10px rgba(79,1
     <button class="btn-secondary" id="copy-token-btn" style="display:none;margin-top:4px;font-size:.75rem" onclick="copyFCMToken()">Copier le token FCM</button>
     <div style="margin-top:10px">
       <label style="font-size:.75rem;color:var(--text-dim)">Rappels (même app fermée)</label>
-      <button class="btn-secondary" onclick="subscribeNtfy()" style="margin-top:4px">Activer les rappels push</button>
+      <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">
+        1. Installe l'app <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" style="color:var(--rune-blue)">ntfy (Android)</a> ou <a href="https://apps.apple.com/app/ntfy/id1625396347" target="_blank" style="color:var(--rune-blue)">ntfy (iPhone)</a><br>
+        2. Copie ton topic ci-dessous et abonne-toi dans l'app
+      </div>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <input type="text" id="ntfy-topic-display" readonly style="flex:1;font-size:.75rem;background:#0e0e1e;cursor:pointer" onclick="copyNtfyTopic()"/>
+        <button class="btn-secondary" style="margin:0;padding:6px 10px;font-size:.75rem" onclick="copyNtfyTopic()">Copier</button>
+      </div>
       <div id="ntfy-status" style="font-size:.7rem;color:var(--text-dim);margin-top:4px"></div>
     </div>
   </div>
@@ -591,6 +598,7 @@ function applyConfig() {
   $('#custom-api-key').value = state.config.customApiKey || '';
   $('#api-model').value = state.config.model;
   $('#personality-input').value = state.config.personality;
+  $('#ntfy-topic-display').value = getNtfyTopic();
   updateBackendUI();
 }
 
@@ -1045,22 +1053,18 @@ function copyFCMToken() {
   }
 }
 
-async function subscribeNtfy() {
+function copyNtfyTopic() {
   const topic = getNtfyTopic();
-  try {
-    // Test the topic exists by sending a silent subscription check
-    const res = await fetch(`https://ntfy.sh/${topic}/json?poll=1`);
-    if (res.ok) {
-      // Open ntfy subscription page for push notifications
-      window.open(`https://ntfy.sh/${topic}`, '_blank');
-      $('#ntfy-status').textContent = '→ Clique "S\'abonner" sur la page ntfy.sh, puis autorise les notifications';
-      $('#ntfy-status').style.color = '#ffab40';
-      showToast('Rappels push', 'Abonne-toi sur la page ntfy.sh qui s\'est ouverte pour recevoir les rappels même quand Stakr est fermé.');
-    }
-  } catch(e) {
-    $('#ntfy-status').textContent = '✗ Erreur de connexion';
-    $('#ntfy-status').style.color = '#ff5252';
-  }
+  navigator.clipboard.writeText(topic).then(() => {
+    showToast('Topic copié !', 'Colle-le dans l\'app ntfy pour t\'abonner.');
+    $('#ntfy-status').textContent = '✓ Topic copié — colle-le dans l\'app ntfy';
+    $('#ntfy-status').style.color = '#69f0ae';
+  }).catch(() => {
+    // Fallback: select the text
+    $('#ntfy-topic-display').select();
+    $('#ntfy-status').textContent = '→ Sélectionne et copie le topic manuellement';
+    $('#ntfy-status').style.color = '#ffab40';
+  });
 }
 
 function sendNotification(title, body) {
