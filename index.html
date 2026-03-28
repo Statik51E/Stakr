@@ -932,19 +932,19 @@ async function addReminder(time, message) {
   if (target <= now) target.setDate(target.getDate() + 1);
 
   try {
-    // Calculate delay in seconds from now
-    const delaySec = Math.max(1, Math.round((target.getTime() - Date.now()) / 1000));
+    // Calculate delay in minutes from now (minimum 1 min)
+    const delayMin = Math.max(1, Math.round((target.getTime() - Date.now()) / 60000));
+    const delayStr = delayMin >= 60 ? `${Math.round(delayMin/60)}h` : `${delayMin}m`;
     const res = await fetch(`https://ntfy.sh/${topic}`, {
       method: 'POST',
       headers: {
         'Title': 'Stakr - Rappel',
-        'Tags': 'bird,clock',
-        'Delay': `${delaySec}s`
+        'Delay': delayStr
       },
       body: message
     });
     if (res.ok) {
-      showToast('Rappel programme', `${time} - ${message} (notification push active)`);
+      showToast('Rappel programme', `Dans ${delayStr} - ${message}`);
     } else {
       const errText = await res.text();
       console.error('ntfy error:', res.status, errText);
