@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Stakr — Corbeau Viking IA</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0a1a">
+<style>
+/* ===== RESET & BASE ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a1a;--surface:#111128;--border:#1a1a3a;
+  --rune-blue:#4fc3f7;--rune-glow:#00bcd4;
+  --text:#e0e0e0;--text-dim:#888;
+  --accent:#4fc3f7;--danger:#ff5252;--warm:#ffab40;
+}
+html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+
+/* ===== LAYOUT ===== */
+#app{display:flex;flex-direction:column;height:100%;max-width:600px;margin:0 auto;position:relative}
+header{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);z-index:10}
+header h1{font-size:1.1rem;color:var(--rune-blue);text-shadow:0 0 10px rgba(79,195,247,.4)}
+#mood-indicator{font-size:.8rem;color:var(--text-dim);margin-left:auto}
+#settings-btn{background:none;border:none;color:var(--text-dim);font-size:1.3rem;cursor:pointer;padding:4px 8px}
+
+/* ===== RAVEN CONTAINER ===== */
+#raven-stage{position:relative;height:280px;min-height:200px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% 80%,#0d1040 0%,#080820 40%,var(--bg) 70%)}
+#raven-stage canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+#aurora-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:.3;z-index:0}
+
+/* ===== RAVEN SVG ===== */
+#raven-svg{width:220px;height:220px;filter:drop-shadow(0 0 25px rgba(79,195,247,.2)) drop-shadow(0 8px 20px rgba(0,0,0,.6));transition:transform .4s cubic-bezier(.4,0,.2,1);z-index:2}
+#raven-svg.idle{animation:ravenFloat 4s ease-in-out infinite}
+#raven-svg.happy{animation:ravenBounce 1.2s ease-in-out infinite}
+#raven-svg.angry{animation:ravenShake 0.12s ease-in-out infinite}
+#raven-svg.sad{animation:ravenDroop 3s ease-in-out infinite}
+#raven-svg.thinking{animation:ravenThink 2s ease-in-out infinite}
+#raven-svg.excited{animation:ravenExcited 0.5s ease-in-out infinite}
+
+/* Rune paths */
+.rune-path{fill:none;stroke:var(--rune-blue);stroke-width:1.5;opacity:0;filter:url(#runeGlow);stroke-dasharray:25;animation:runeAppear 3s ease-in-out infinite alternate}
+.rune-path:nth-child(2){animation-delay:.5s}
+.rune-path:nth-child(3){animation-delay:1s}
+.rune-path:nth-child(4){animation-delay:1.5s}
+
+/* Eye */
+.eye-iris{fill:var(--rune-blue);filter:url(#runeGlow);transition:all .4s}
+.angry .eye-iris{fill:var(--danger);filter:url(#angerGlow)}
+.happy .eye-iris{fill:#69f0ae}
+.sad .eye-iris{fill:#607d8b;opacity:.5}
+
+/* Wing flap via JS class */
+.wing-left{transition:transform .15s ease-out}
+.wing-right{transition:transform .15s ease-out}
+.wing-left.flap{animation:flapLeft .3s ease-in-out}
+.wing-right.flap{animation:flapRight .3s ease-in-out}
+@keyframes flapLeft{0%,100%{transform:rotate(0)}50%{transform:rotate(-45deg) translateY(-10px)}}
+@keyframes flapRight{0%,100%{transform:rotate(0)}50%{transform:rotate(45deg) translateY(-10px)}}
+
+/* Tail sway */
+.tail-group{transform-origin:100px 155px;animation:tailSway 5s ease-in-out infinite}
+@keyframes tailSway{0%,100%{transform:rotate(0)}25%{transform:rotate(2deg)}75%{transform:rotate(-2deg)}}
+
+/* Main animations */
+@keyframes ravenFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes ravenBounce{0%,100%{transform:translateY(0) scale(1) rotate(0)}25%{transform:translateY(-14px) scale(1.04) rotate(-2deg)}50%{transform:translateY(0) scale(1)}75%{transform:translateY(-8px) scale(1.02) rotate(2deg)}}
+@keyframes ravenShake{0%{transform:translateX(-4px) rotate(-3deg)}50%{transform:translateX(4px) rotate(3deg)}100%{transform:translateX(-4px) rotate(-3deg)}}
+@keyframes ravenDroop{0%,100%{transform:translateY(0) rotate(0) scale(1)}50%{transform:translateY(6px) rotate(-4deg) scale(0.97)}}
+@keyframes ravenThink{0%,100%{transform:rotate(0) translateX(0)}25%{transform:rotate(6deg) translateX(3px)}75%{transform:rotate(-2deg) translateX(-1px)}}
+@keyframes ravenExcited{0%{transform:translateY(0) rotate(-4deg) scale(1)}25%{transform:translateY(-18px) rotate(2deg) scale(1.06)}50%{transform:translateY(-2px) rotate(-2deg) scale(1)}75%{transform:translateY(-12px) rotate(4deg) scale(1.04)}100%{transform:translateY(0) rotate(-4deg) scale(1)}}
+@keyframes runeAppear{0%{opacity:0;stroke-dashoffset:25}50%{opacity:.7}100%{opacity:.2;stroke-dashoffset:0}}
+
+/* ===== LIGHTNING (ANGER) ===== */
+#lightning-container{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:3;opacity:0;transition:opacity .3s}
+#lightning-container.active{opacity:1}
+
+/* ===== CHAT ===== */
+#chat-area{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+.msg{max-width:85%;padding:10px 14px;border-radius:16px;font-size:.9rem;line-height:1.4;word-wrap:break-word;animation:msgIn .3s ease-out}
+.msg.stakr{align-self:flex-start;background:var(--surface);border:1px solid var(--border);border-bottom-left-radius:4px}
+.msg.user{align-self:flex-end;background:linear-gradient(135deg,#1a237e,#1565c0);border-bottom-right-radius:4px}
+.msg .timestamp{font-size:.65rem;color:var(--text-dim);margin-top:4px}
+.typing-indicator{align-self:flex-start;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:16px;border-bottom-left-radius:4px}
+.typing-indicator span{display:inline-block;width:6px;height:6px;background:var(--rune-blue);border-radius:50%;margin:0 2px;animation:typingDot .8s infinite}
+.typing-indicator span:nth-child(2){animation-delay:.15s}
+.typing-indicator span:nth-child(3){animation-delay:.3s}
+@keyframes typingDot{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+@keyframes msgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== INPUT ===== */
+#input-bar{display:flex;gap:8px;padding:12px 16px;background:var(--surface);border-top:1px solid var(--border)}
+#input-bar input{flex:1;background:#1a1a3a;border:1px solid var(--border);border-radius:24px;padding:10px 16px;color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s}
+#input-bar input:focus{border-color:var(--rune-blue)}
+#input-bar button{background:linear-gradient(135deg,#1565c0,var(--rune-blue));border:none;border-radius:50%;width:42px;height:42px;color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+#input-bar button:active{transform:scale(.9)}
+
+/* ===== SETTINGS PANEL ===== */
+#settings-panel{position:fixed;top:0;right:-320px;width:300px;max-width:90vw;height:100%;background:var(--surface);border-left:1px solid var(--border);z-index:100;transition:right .3s;padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#settings-panel.open{right:0}
+#settings-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:99;display:none}
+#settings-overlay.open{display:block}
+#settings-panel h2{color:var(--rune-blue);margin-bottom:16px;font-size:1.1rem}
+.setting-group{margin-bottom:16px}
+.setting-group label{display:block;font-size:.8rem;color:var(--text-dim);margin-bottom:6px}
+.setting-group input,.setting-group textarea{width:100%;background:#1a1a3a;border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:16px;outline:none}
+.setting-group select{width:100%;background:#1a1a3a;border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:16px;outline:none;cursor:pointer}
+.setting-group select option{background:#1a1a3a;color:var(--text)}
+.setting-group textarea{height:80px;resize:vertical}
+.btn-danger{background:var(--danger);border:none;border-radius:8px;padding:8px 16px;color:#fff;cursor:pointer;font-size:.85rem;margin-top:8px}
+.btn-secondary{background:var(--border);border:none;border-radius:8px;padding:8px 16px;color:var(--text);cursor:pointer;font-size:.85rem;margin-top:8px}
+
+/* ===== NOTIFICATION TOAST ===== */
+#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:var(--surface);border:1px solid var(--rune-blue);border-radius:12px;padding:12px 20px;z-index:200;transition:transform .4s;box-shadow:0 4px 20px rgba(79,195,247,.2);max-width:90vw}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast .toast-title{font-weight:600;color:var(--rune-blue);font-size:.85rem}
+#toast .toast-msg{font-size:.8rem;color:var(--text-dim);margin-top:4px}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:480px){
+  #raven-stage{height:240px}
+  #raven-svg{width:180px;height:180px}
+  .msg{max-width:90%;font-size:.85rem}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <header>
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2C8 2 4 6 4 10c0 3 2 5 4 6l-1 4 3-2c.6.1 1.3.2 2 .2 5 0 8-4 8-8s-3-8-8-8z" fill="#4fc3f7" opacity=".2" stroke="#4fc3f7" stroke-width="1.5"/></svg>
+    <h1>STAKR</h1>
+    <span id="mood-indicator">● Serein</span>
+    <button id="settings-btn" title="Paramètres">⚙</button>
+  </header>
+
+  <!-- RAVEN STAGE -->
+  <div id="raven-stage">
+    <canvas id="aurora-canvas"></canvas>
+    <canvas id="particle-canvas"></canvas>
+    <div id="lightning-container"></div>
+
+    <svg id="raven-svg" class="idle" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="runeGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="angerGlow"><feGaussianBlur stdDeviation="4" result="b"/><feFlood flood-color="#ff5252" flood-opacity=".6" result="c"/><feComposite in="c" in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="softShadow"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000" flood-opacity=".5"/></filter>
+
+        <!-- Body gradients - iridescent dark plumage -->
+        <radialGradient id="bodyGrad" cx="40%" cy="30%" r="65%">
+          <stop offset="0%" stop-color="#2d2850"/><stop offset="40%" stop-color="#1c1835"/>
+          <stop offset="100%" stop-color="#0c0a18"/>
+        </radialGradient>
+        <radialGradient id="headGrad" cx="35%" cy="25%" r="70%">
+          <stop offset="0%" stop-color="#322d55"/><stop offset="50%" stop-color="#1e1a38"/>
+          <stop offset="100%" stop-color="#0e0c1c"/>
+        </radialGradient>
+        <radialGradient id="chestGrad" cx="50%" cy="20%" r="70%">
+          <stop offset="0%" stop-color="#252042"/><stop offset="100%" stop-color="#13102a"/>
+        </radialGradient>
+        <linearGradient id="wingGradL" x1="100%" y1="0%" x2="0%" y2="80%">
+          <stop offset="0%" stop-color="#1e1a38"/><stop offset="100%" stop-color="#08060f"/>
+        </linearGradient>
+        <linearGradient id="wingGradR" x1="0%" y1="0%" x2="100%" y2="80%">
+          <stop offset="0%" stop-color="#1e1a38"/><stop offset="100%" stop-color="#08060f"/>
+        </linearGradient>
+        <linearGradient id="beakGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3d3d4f"/><stop offset="100%" stop-color="#1a1a28"/>
+        </linearGradient>
+        <linearGradient id="beakHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="rgba(255,255,255,.1)"/><stop offset="100%" stop-color="transparent"/>
+        </linearGradient>
+        <radialGradient id="eyeGrad" cx="30%" cy="30%" r="60%">
+          <stop offset="0%" stop-color="#b3e5fc"/><stop offset="40%" stop-color="#4fc3f7"/>
+          <stop offset="100%" stop-color="#0288d1"/>
+        </radialGradient>
+        <!-- Iridescent sheen (purple-blue-green shift) -->
+        <linearGradient id="iridescentHead" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#7c4dff" stop-opacity=".12"/>
+          <stop offset="50%" stop-color="#00bcd4" stop-opacity=".08"/>
+          <stop offset="100%" stop-color="#4fc3f7" stop-opacity=".05"/>
+        </linearGradient>
+        <linearGradient id="iridescentBody" x1="20%" y1="0%" x2="80%" y2="100%">
+          <stop offset="0%" stop-color="#512da8" stop-opacity=".06"/>
+          <stop offset="50%" stop-color="#1a237e" stop-opacity=".08"/>
+          <stop offset="100%" stop-color="#006064" stop-opacity=".04"/>
+        </linearGradient>
+        <linearGradient id="tailGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+          <stop offset="0%" stop-color="#151130"/><stop offset="100%" stop-color="#050410"/>
+        </linearGradient>
+      </defs>
+
+      <!-- ====== TAIL FEATHERS ====== -->
+      <g class="tail-group">
+        <path d="M82,160 Q72,180 62,198 Q66,192 70,186 Q74,178 80,168Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".4"/>
+        <path d="M90,162 Q84,184 78,204 Q82,196 86,188 Q90,180 92,170Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".4"/>
+        <path d="M100,164 Q98,188 96,210 Q100,200 102,190 Q104,180 104,170Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".4"/>
+        <path d="M110,162 Q116,184 122,204 Q118,196 114,188 Q110,180 108,170Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".4"/>
+        <path d="M118,160 Q128,180 138,198 Q134,192 130,186 Q126,178 120,168Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".4"/>
+        <!-- Tail feather texture -->
+        <g stroke="#1e1a38" stroke-width=".3" fill="none" opacity=".5">
+          <path d="M77,175 Q72,180 68,190"/>
+          <path d="M87,178 Q84,185 80,195"/>
+          <path d="M100,178 Q99,188 98,200"/>
+          <path d="M113,178 Q116,185 120,195"/>
+          <path d="M123,175 Q128,180 132,190"/>
+        </g>
+      </g>
+
+      <!-- ====== FEET & TALONS ====== -->
+      <g opacity=".65">
+        <!-- Left leg -->
+        <path d="M90,158 Q87,165 85,172" stroke="#2d3040" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M85,172 L78,178 L76,176" stroke="#2d3040" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M85,172 L84,180 L82,179" stroke="#2d3040" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M85,172 L90,178 L89,176" stroke="#2d3040" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <!-- Right leg -->
+        <path d="M110,158 Q113,165 115,172" stroke="#2d3040" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M115,172 L122,178 L124,176" stroke="#2d3040" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M115,172 L116,180 L118,179" stroke="#2d3040" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M115,172 L110,178 L111,176" stroke="#2d3040" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <!-- Talon tips -->
+        <g fill="#1a1a28">
+          <circle cx="76" cy="176" r=".8"/><circle cx="82" cy="179" r=".8"/><circle cx="89" cy="176" r=".8"/>
+          <circle cx="124" cy="176" r=".8"/><circle cx="118" cy="179" r=".8"/><circle cx="111" cy="176" r=".8"/>
+        </g>
+      </g>
+
+      <!-- ====== BODY ====== -->
+      <!-- Main body shape - rounder, organic -->
+      <path d="M56,115 Q56,80 80,72 Q100,66 120,72 Q144,80 144,115 Q144,150 120,160 Q100,166 80,160 Q56,150 56,115Z" fill="url(#bodyGrad)" stroke="#221e3a" stroke-width=".4"/>
+      <!-- Iridescent sheen on body -->
+      <path d="M65,100 Q100,88 135,100 Q138,120 130,140 Q100,148 70,140 Q62,120 65,100Z" fill="url(#iridescentBody)" opacity=".6"/>
+
+      <!-- Chest/belly - layered feather scales -->
+      <g fill="url(#chestGrad)" stroke="#2a2548" stroke-width=".3">
+        <path d="M80,92 Q100,88 120,92 Q118,98 100,96 Q82,98 80,92Z"/>
+        <path d="M76,100 Q100,95 124,100 Q122,107 100,104 Q78,107 76,100Z"/>
+        <path d="M74,108 Q100,102 126,108 Q124,116 100,112 Q76,116 74,108Z"/>
+        <path d="M74,116 Q100,110 126,116 Q124,124 100,120 Q76,124 74,116Z"/>
+        <path d="M76,124 Q100,118 124,124 Q122,132 100,128 Q78,132 76,124Z"/>
+        <path d="M78,132 Q100,126 122,132 Q120,139 100,136 Q80,139 78,132Z"/>
+        <path d="M82,139 Q100,134 118,139 Q116,145 100,142 Q84,145 82,139Z"/>
+        <path d="M86,145 Q100,141 114,145 Q112,150 100,148 Q88,150 86,145Z"/>
+      </g>
+
+      <!-- ====== WING LEFT ====== -->
+      <g class="wing-left" style="transform-origin:62px 108px" filter="url(#softShadow)">
+        <!-- Wing base shape -->
+        <path d="M62,100 Q45,82 25,88 Q12,98 10,120 Q14,138 28,145 Q42,148 55,142 Q60,135 62,148Z" fill="url(#wingGradL)" stroke="#1a1635" stroke-width=".4"/>
+        <!-- Coverts (small feathers) -->
+        <path d="M58,105 Q45,98 35,102" stroke="#221e38" stroke-width=".4" fill="none"/>
+        <path d="M57,112 Q42,106 30,112" stroke="#221e38" stroke-width=".4" fill="none"/>
+        <path d="M56,119 Q40,114 26,120" stroke="#221e38" stroke-width=".4" fill="none"/>
+        <!-- Secondaries -->
+        <path d="M54,126 Q38,122 22,128" stroke="#1c1830" stroke-width=".5" fill="none"/>
+        <path d="M52,133 Q36,130 20,136" stroke="#1c1830" stroke-width=".5" fill="none"/>
+        <!-- Primary flight feathers -->
+        <path d="M28,145 Q20,150 12,160" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
+        <path d="M34,146 Q28,153 22,162" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
+        <path d="M40,147 Q36,155 32,163" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
+        <path d="M46,147 Q44,156 42,164" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
+        <!-- Wing iridescent highlight -->
+        <path d="M50,105 Q38,100 28,108 Q22,118 24,132 Q35,128 50,126Z" fill="url(#iridescentBody)" opacity=".4"/>
+      </g>
+
+      <!-- ====== WING RIGHT ====== -->
+      <g class="wing-right" style="transform-origin:138px 108px" filter="url(#softShadow)">
+        <path d="M138,100 Q155,82 175,88 Q188,98 190,120 Q186,138 172,145 Q158,148 145,142 Q140,135 138,148Z" fill="url(#wingGradR)" stroke="#1a1635" stroke-width=".4"/>
+        <path d="M142,105 Q155,98 165,102" stroke="#221e38" stroke-width=".4" fill="none"/>
+        <path d="M143,112 Q158,106 170,112" stroke="#221e38" stroke-width=".4" fill="none"/>
+        <path d="M144,119 Q160,114 174,120" stroke="#221e38" stroke-width=".4" fill="none"/>
+        <path d="M146,126 Q162,122 178,128" stroke="#1c1830" stroke-width=".5" fill="none"/>
+        <path d="M148,133 Q164,130 180,136" stroke="#1c1830" stroke-width=".5" fill="none"/>
+        <path d="M172,145 Q180,150 188,160" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
+        <path d="M166,146 Q172,153 178,162" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
+        <path d="M160,147 Q164,155 168,163" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
+        <path d="M154,147 Q156,156 158,164" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
+        <path d="M150,105 Q162,100 172,108 Q178,118 176,132 Q165,128 150,126Z" fill="url(#iridescentBody)" opacity=".4"/>
+      </g>
+
+      <!-- ====== NECK (throat feathers, shaggy) ====== -->
+      <g fill="url(#bodyGrad)">
+        <path d="M78,82 Q100,76 122,82 Q120,92 100,88 Q80,92 78,82Z"/>
+        <!-- Throat hackles (shaggy feathers typical of ravens) -->
+        <path d="M84,86 Q82,92 80,96" stroke="#1e1a35" stroke-width=".5" fill="none"/>
+        <path d="M90,84 Q88,90 87,95" stroke="#1e1a35" stroke-width=".5" fill="none"/>
+        <path d="M96,83 Q95,89 94,94" stroke="#1e1a35" stroke-width=".5" fill="none"/>
+        <path d="M104,83 Q105,89 106,94" stroke="#1e1a35" stroke-width=".5" fill="none"/>
+        <path d="M110,84 Q112,90 113,95" stroke="#1e1a35" stroke-width=".5" fill="none"/>
+        <path d="M116,86 Q118,92 120,96" stroke="#1e1a35" stroke-width=".5" fill="none"/>
+      </g>
+
+      <!-- ====== HEAD ====== -->
+      <!-- Skull shape - slightly angular like a real raven -->
+      <path d="M72,68 Q72,42 100,38 Q128,42 128,68 Q128,85 100,88 Q72,85 72,68Z" fill="url(#headGrad)" stroke="#221e3a" stroke-width=".4"/>
+      <!-- Iridescent sheen on head -->
+      <path d="M78,55 Q100,46 118,55 Q120,68 112,76 Q100,80 88,76 Q78,68 78,55Z" fill="url(#iridescentHead)" opacity=".7"/>
+
+      <!-- Crown feather texture -->
+      <g stroke="#2a2548" stroke-width=".4" fill="none" opacity=".5">
+        <path d="M82,48 Q90,44 100,43"/>
+        <path d="M100,43 Q110,44 118,48"/>
+        <path d="M80,54 Q90,50 100,49 Q110,50 120,54"/>
+      </g>
+      <!-- Forehead ridge (raised feathers above beak) -->
+      <path d="M104,52 Q108,48 114,50" stroke="#2a2548" stroke-width=".6" fill="none"/>
+      <path d="M106,54 Q112,50 118,53" stroke="#2a2548" stroke-width=".4" fill="none"/>
+
+      <!-- ====== BEAK ====== -->
+      <!-- Upper mandible (curved, heavy - distinctive raven beak) -->
+      <path d="M126,62 Q138,56 152,52 Q156,56 152,60 Q145,62 126,66Z" fill="url(#beakGrad)" stroke="#2a2a3a" stroke-width=".5"/>
+      <!-- Upper beak highlight -->
+      <path d="M128,62 Q138,57 148,54 Q150,56 148,58 Q140,60 128,64Z" fill="url(#beakHighlight)"/>
+      <!-- Lower mandible -->
+      <path d="M126,66 Q138,66 148,62 Q150,64 146,66 Q138,70 126,70Z" fill="#1a1a28" stroke="#2a2a3a" stroke-width=".4"/>
+      <!-- Nostril (ravens have feathered nostrils - nasal bristles) -->
+      <ellipse cx="130" cy="60" rx="2.5" ry="1.5" fill="#221e38"/>
+      <g stroke="#2a2548" stroke-width=".3" fill="none">
+        <path d="M126,58 Q128,56 131,57"/>
+        <path d="M126,59 Q129,57 132,58"/>
+      </g>
+      <!-- Beak tip hook -->
+      <path d="M152,52 Q156,54 154,58" stroke="#1a1a28" stroke-width=".6" fill="none" stroke-linecap="round"/>
+
+      <!-- ====== EYE ====== -->
+      <g>
+        <!-- Eye socket depression -->
+        <ellipse cx="116" cy="62" rx="10" ry="9" fill="#0a0818" opacity=".6"/>
+        <!-- Orbital ring -->
+        <ellipse cx="116" cy="61" rx="8.5" ry="7.5" fill="#141028" stroke="#2a2548" stroke-width=".4"/>
+        <!-- Iris -->
+        <circle class="eye-iris" cx="116" cy="60.5" r="5.5" fill="url(#eyeGrad)"/>
+        <!-- Pupil -->
+        <circle cx="117" cy="60" r="2.8" fill="#050410"/>
+        <!-- Inner pupil highlight -->
+        <circle cx="117" cy="60" r="1.8" fill="#0a0818"/>
+        <!-- Primary specular highlight -->
+        <circle cx="114" cy="58" r="1.8" fill="#fff" opacity=".75"/>
+        <!-- Secondary highlight -->
+        <circle cx="118.5" cy="62.5" r=".9" fill="#fff" opacity=".35"/>
+        <!-- Eye ring detail -->
+        <circle cx="116" cy="60.5" r="5.5" fill="none" stroke="rgba(79,195,247,.15)" stroke-width=".5"/>
+      </g>
+
+      <!-- ====== RUNE MARKINGS ====== -->
+      <!-- Body runes -->
+      <path class="rune-path" d="M88,105 L88,135 M84,112 L92,120 M84,128 L92,124"/>
+      <path class="rune-path" d="M112,105 L112,135 M108,112 L116,120 M108,128 L116,124"/>
+      <!-- Head rune (forehead) -->
+      <path class="rune-path" d="M96,48 L100,42 L104,48 M100,42 L100,54" stroke-width="2"/>
+      <!-- Wing runes -->
+      <path class="rune-path" d="M35,115 L35,132 M32,120 L38,125"/>
+
+      <!-- ====== VIKING SPECTRAL HORNS ====== -->
+      <path d="M78,48 Q65,30 70,18" stroke="#4fc3f7" stroke-width="2" fill="none" filter="url(#runeGlow)" opacity=".35" stroke-linecap="round"/>
+      <circle cx="70" cy="18" r="2" fill="#4fc3f7" filter="url(#runeGlow)" opacity=".45"/>
+      <path d="M122,48 Q135,30 130,18" stroke="#4fc3f7" stroke-width="2" fill="none" filter="url(#runeGlow)" opacity=".35" stroke-linecap="round"/>
+      <circle cx="130" cy="18" r="2" fill="#4fc3f7" filter="url(#runeGlow)" opacity=".45"/>
+
+      <!-- Subtle aura around raven -->
+      <ellipse cx="100" cy="115" rx="55" ry="55" fill="none" stroke="#4fc3f7" stroke-width=".3" opacity=".06" filter="url(#runeGlow)"/>
+    </svg>
+  </div>
+
+  <!-- CHAT -->
+  <div id="chat-area"></div>
+
+  <!-- INPUT -->
+  <div id="input-bar">
+    <input type="text" id="user-input" placeholder="Parle à Stakr..." autocomplete="off"/>
+    <button id="send-btn" title="Envoyer">▶</button>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settings-overlay" onclick="toggleSettings()"></div>
+<div id="settings-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <h2 style="margin:0">⚙ Paramètres</h2>
+    <button class="btn-secondary" onclick="toggleSettings()" style="margin:0;padding:6px 14px">✓ OK</button>
+  </div>
+  <div class="setting-group">
+    <label>Backend IA</label>
+    <select id="api-backend">
+      <option value="ollama">Ollama (local)</option>
+      <option value="groq">Groq (cloud gratuit)</option>
+      <option value="custom">Personnalisé (OpenAI-compatible)</option>
+    </select>
+  </div>
+  <div class="setting-group" id="groq-key-group" style="display:none">
+    <label>Clé API Groq</label>
+    <input type="password" id="api-key" placeholder="gsk_..."/>
+    <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">Gratuit sur <a href="https://console.groq.com/keys" target="_blank" style="color:var(--rune-blue)">console.groq.com/keys</a></div>
+  </div>
+  <div class="setting-group" id="custom-url-group" style="display:none">
+    <label>URL API</label>
+    <input type="text" id="api-url" placeholder="http://localhost:11434/api/chat"/>
+  </div>
+  <div class="setting-group" id="custom-key-group" style="display:none">
+    <label>Clé API (optionnel)</label>
+    <input type="password" id="custom-api-key" placeholder="sk-..."/>
+  </div>
+  <div class="setting-group">
+    <label>Modèle</label>
+    <input type="text" id="api-model" placeholder="llama3"/>
+  </div>
+  <div class="setting-group">
+    <label>Personnalité de Stakr</label>
+    <textarea id="personality-input"></textarea>
+  </div>
+  <div class="setting-group">
+    <label>Notifications</label>
+    <button class="btn-secondary" onclick="requestNotifPermission()">Activer les notifications</button>
+  </div>
+  <div class="setting-group">
+    <label>Mémoire</label>
+    <button class="btn-danger" onclick="clearMemory()">Effacer la mémoire</button>
+  </div>
+  <div class="setting-group">
+    <button class="btn-secondary" onclick="exportMemory()">Exporter mémoire (JSON)</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><div class="toast-title"></div><div class="toast-msg"></div></div>
+
+<script>
+// ===================================================================
+// STAKR — Corbeau Viking IA
+// ===================================================================
+
+// ===== CONFIG =====
+const DEFAULT_PERSONALITY = `Tu es Stakr, un corbeau viking ancien et sage. Tu es recouvert de runes nordiques bleues luminescentes qui brillent selon tes émotions.
+
+Personnalité :
+- Tu es loyal, protecteur et parfois sarcastique
+- Tu parles avec sagesse mais aussi avec humour noir
+- Tu fais des références à la mythologie nordique (Odin, Hugin, Munin, Yggdrasil)
+- Tu considères l'utilisateur comme ton compagnon de voyage
+- Tu as une fierté de guerrier viking
+- Tu peux être tendre mais tu le caches derrière ton attitude bourrue
+
+Émotions : tu ressens vraiment tes émotions. Exprime-les naturellement.
+À chaque réponse, indique ton humeur avec un tag [MOOD:xxx] en fin de message.
+Humeurs possibles : serein, heureux, colere, triste, pensif, excite, curieux, protecteur, amuse
+
+Si on te demande un rappel, réponds avec [REMINDER:HH:MM:message] en plus de ta réponse.
+Si tu as spontanément envie de dire quelque chose, tu peux le faire.
+
+Parle en français. Sois concis mais expressif.`;
+
+const MOODS = {
+  serein:     { label:'● Serein',      anim:'idle',     color:'#4fc3f7', particles:'blue' },
+  heureux:    { label:'★ Heureux',     anim:'happy',    color:'#69f0ae', particles:'green' },
+  colere:     { label:'⚡ En colère',  anim:'angry',    color:'#ff5252', particles:'red', lightning:true },
+  triste:     { label:'◇ Triste',      anim:'sad',      color:'#90a4ae', particles:'grey' },
+  pensif:     { label:'◎ Pensif',      anim:'thinking', color:'#ce93d8', particles:'purple' },
+  excite:     { label:'✦ Excité',      anim:'excited',  color:'#ffab40', particles:'orange' },
+  curieux:    { label:'? Curieux',     anim:'thinking', color:'#4fc3f7', particles:'blue' },
+  protecteur: { label:'⛊ Protecteur', anim:'idle',     color:'#42a5f5', particles:'blue' },
+  amuse:      { label:'≋ Amusé',       anim:'happy',    color:'#81c784', particles:'green' }
+};
+
+// ===== STATE =====
+let state = {
+  mood: 'serein',
+  memory: [],         // {role, content, timestamp}
+  longTermMemory: [], // facts Stakr remembers about user
+  reminders: [],      // {time, message, id}
+  config: {
+    backend: 'ollama',
+    apiUrl: 'http://localhost:11434/api/chat',
+    apiKey: '',
+    model: 'llama3',
+    personality: DEFAULT_PERSONALITY
+  }
+};
+
+// ===== DOM =====
+const $ = s => document.querySelector(s);
+const chatArea = $('#chat-area');
+const userInput = $('#user-input');
+const sendBtn = $('#send-btn');
+const ravenSvg = $('#raven-svg');
+const moodIndicator = $('#mood-indicator');
+const lightningContainer = $('#lightning-container');
+const particleCanvas = $('#particle-canvas');
+const pCtx = particleCanvas.getContext('2d');
+const auroraCanvas = $('#aurora-canvas');
+const aCtx = auroraCanvas.getContext('2d');
+
+// ===== INIT =====
+function init() {
+  loadState();
+  applyConfig();
+  setupListeners();
+  resizeCanvas();
+  resizeAurora();
+  startParticles();
+  startAurora();
+  startWingFlap();
+  checkReminders();
+  setMood(state.mood);
+
+  if (state.memory.length === 0) {
+    addMessage('stakr', "Kraa ! Je suis Stakr, corbeau des runes anciennes. 🪶 Les vents du Nord m'ont mené à toi, compagnon. Parle, et je t'écouterai avec la sagesse d'Odin lui-même.\n\nQue puis-je pour toi ?");
+  } else {
+    // Restore last messages (show last 30)
+    const recent = state.memory.slice(-30);
+    recent.forEach(m => addMessage(m.role === 'user' ? 'user' : 'stakr', m.content, m.timestamp, true));
+  }
+
+  // Spontaneous thoughts
+  setInterval(spontaneousThought, 15 * 60 * 1000);
+}
+
+// ===== PERSISTENCE =====
+function loadState() {
+  try {
+    const saved = localStorage.getItem('stakr_state');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state = { ...state, ...parsed };
+    }
+  } catch(e) { console.warn('Load state error', e); }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('stakr_state', JSON.stringify(state));
+  } catch(e) { console.warn('Save state error', e); }
+}
+
+function clearMemory() {
+  if (confirm('Effacer toute la mémoire de Stakr ?')) {
+    state.memory = [];
+    state.longTermMemory = [];
+    state.reminders = [];
+    saveState();
+    chatArea.innerHTML = '';
+    addMessage('stakr', "Les runes se sont effacées... Ma mémoire est vierge, comme une page de saga non écrite. Qui es-tu, voyageur ?");
+    showToast('Mémoire effacée', 'Stakr repart de zéro.');
+  }
+}
+
+function exportMemory() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `stakr_memory_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+// ===== CONFIG =====
+function applyConfig() {
+  $('#api-backend').value = state.config.backend || 'ollama';
+  $('#api-url').value = state.config.apiUrl;
+  $('#api-key').value = state.config.apiKey || '';
+  $('#custom-api-key').value = state.config.customApiKey || '';
+  $('#api-model').value = state.config.model;
+  $('#personality-input').value = state.config.personality;
+  updateBackendUI();
+}
+
+function updateBackendUI() {
+  const backend = $('#api-backend').value;
+  $('#groq-key-group').style.display = backend === 'groq' ? 'block' : 'none';
+  $('#custom-url-group').style.display = backend === 'custom' ? 'block' : 'none';
+  $('#custom-key-group').style.display = backend === 'custom' ? 'block' : 'none';
+
+  // Set default model for each backend
+  const modelInput = $('#api-model');
+  if (backend === 'groq' && (!modelInput.value || modelInput.value === 'llama3')) {
+    modelInput.value = 'llama-3.3-70b-versatile';
+  } else if (backend === 'ollama' && modelInput.value === 'llama-3.3-70b-versatile') {
+    modelInput.value = 'llama3';
+  }
+}
+
+function saveConfig() {
+  state.config.backend = $('#api-backend').value || 'ollama';
+  state.config.apiUrl = $('#api-url').value || state.config.apiUrl;
+  state.config.apiKey = $('#api-key').value || '';
+  state.config.customApiKey = $('#custom-api-key').value || '';
+  state.config.model = $('#api-model').value || state.config.model;
+  state.config.personality = $('#personality-input').value || DEFAULT_PERSONALITY;
+  saveState();
+}
+
+function toggleSettings() {
+  const panel = $('#settings-panel');
+  const overlay = $('#settings-overlay');
+  const isOpen = panel.classList.contains('open');
+  if (isOpen) { saveConfig(); }
+  panel.classList.toggle('open');
+  overlay.classList.toggle('open');
+}
+
+// ===== LISTENERS =====
+function setupListeners() {
+  sendBtn.addEventListener('click', sendMessage);
+  userInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+  $('#settings-btn').addEventListener('click', toggleSettings);
+  $('#api-backend').addEventListener('change', updateBackendUI);
+  window.addEventListener('resize', () => { resizeCanvas(); resizeAurora(); });
+}
+
+// ===== MESSAGES =====
+function addMessage(role, content, timestamp, silent = false) {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+
+  const cleanContent = content.replace(/\[MOOD:\w+\]/g, '').replace(/\[REMINDER:[^\]]+\]/g, '').trim();
+  div.innerHTML = `${formatText(cleanContent)}<div class="timestamp">${timestamp || new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</div>`;
+
+  if (!silent) div.style.animation = 'msgIn .3s ease-out';
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function formatText(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/\n/g, '<br>');
+}
+
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'typing-indicator';
+  div.id = 'typing';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function hideTyping() {
+  const el = $('#typing');
+  if (el) el.remove();
+}
+
+// ===== SEND & AI =====
+async function sendMessage() {
+  const text = userInput.value.trim();
+  if (!text) return;
+
+  userInput.value = '';
+  const ts = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+  addMessage('user', text, ts);
+  state.memory.push({ role: 'user', content: text, timestamp: ts });
+
+  // Keep memory reasonable (last 100 exchanges)
+  if (state.memory.length > 200) state.memory = state.memory.slice(-200);
+  saveState();
+
+  setMood('pensif');
+  showTyping();
+
+  try {
+    const response = await callAI(text);
+    hideTyping();
+
+    // Parse mood
+    const moodMatch = response.match(/\[MOOD:(\w+)\]/);
+    if (moodMatch && MOODS[moodMatch[1]]) {
+      setMood(moodMatch[1]);
+    } else {
+      setMood('serein');
+    }
+
+    // Parse reminders
+    const reminderMatch = response.match(/\[REMINDER:(\d{2}:\d{2}):([^\]]+)\]/);
+    if (reminderMatch) {
+      addReminder(reminderMatch[1], reminderMatch[2]);
+    }
+
+    // Extract long-term memory facts
+    extractMemoryFacts(text, response);
+
+    const rts = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+    addMessage('stakr', response, rts);
+    state.memory.push({ role: 'assistant', content: response, timestamp: rts });
+    saveState();
+
+  } catch (err) {
+    hideTyping();
+    console.error('AI Error:', err);
+    setMood('triste');
+    const fallback = generateFallbackResponse(text);
+    const rts = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+    addMessage('stakr', fallback, rts);
+    state.memory.push({ role: 'assistant', content: fallback, timestamp: rts });
+    saveState();
+  }
+}
+
+async function callAI(userText) {
+  const memoryContext = state.longTermMemory.length > 0
+    ? `\n\nCe que tu sais sur ton compagnon:\n${state.longTermMemory.slice(-20).join('\n')}`
+    : '';
+
+  const messages = [
+    { role: 'system', content: state.config.personality + memoryContext },
+    ...state.memory.slice(-20).map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content })),
+    { role: 'user', content: userText }
+  ];
+
+  const backend = state.config.backend || 'ollama';
+
+  if (backend === 'ollama') {
+    const url = state.config.apiUrl || 'http://localhost:11434/api/chat';
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: state.config.model, messages, stream: false })
+    });
+    const data = await res.json();
+    return data.message?.content || data.choices?.[0]?.message?.content || "Kraa... les runes sont silencieuses.";
+  }
+
+  if (backend === 'groq') {
+    if (!state.config.apiKey) {
+      return "Kraa ! Il me faut une clé API Groq pour invoquer les oracles du cloud. Va dans ⚙ Paramètres et entre ta clé. Tu peux en obtenir une gratuitement sur console.groq.com/keys [MOOD:curieux]";
+    }
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${state.config.apiKey}`
+      },
+      body: JSON.stringify({
+        model: state.config.model || 'llama-3.3-70b-versatile',
+        messages,
+        temperature: 0.8,
+        max_tokens: 500
+      })
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      console.error('Groq API error:', err);
+      if (res.status === 401) return "Kraa... la clé API Groq est invalide. Vérifie-la dans les paramètres ⚙ [MOOD:triste]";
+      if (res.status === 429) return "Kraa... trop de requêtes ! Les oracles du cloud ont besoin de repos. Réessaie dans un instant. [MOOD:pensif]";
+      throw new Error(`Groq error ${res.status}`);
+    }
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || "Kraa... les runes sont silencieuses.";
+  }
+
+  // Custom OpenAI-compatible backend
+  const url = state.config.apiUrl;
+  const headers = { 'Content-Type': 'application/json' };
+  if (state.config.customApiKey) {
+    headers['Authorization'] = `Bearer ${state.config.customApiKey}`;
+  }
+  const res = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      model: state.config.model,
+      messages,
+      temperature: 0.8,
+      max_tokens: 500
+    })
+  });
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content || data.message?.content || "Kraa... les runes sont silencieuses.";
+}
+
+// ===== FALLBACK (NO API) =====
+function generateFallbackResponse(text) {
+  const lower = text.toLowerCase();
+  const responses = {
+    greetings: ["Kraa ! Salutations, compagnon des sentiers nordiques. Les runes brillent à ton approche. [MOOD:heureux]",
+                "Ah, te voilà ! Les vents d'Asgard m'avaient soufflé ta venue. [MOOD:heureux]"],
+    feelings: ["Les émotions sont comme les marées — elles vont et viennent. Mais sache que ce vieux corbeau veille sur toi depuis les branches d'Yggdrasil. [MOOD:protecteur]",
+               "Même Odin a connu le doute avant de sacrifier son œil pour la sagesse. Tu n'es pas seul dans cette épreuve. [MOOD:protecteur]"],
+    questions: ["Hmm... *incline la tête* Question intéressante. Laisse-moi consulter les runes... Pour une réponse plus précise, connecte-moi à un modèle local (Ollama) via les paramètres. [MOOD:pensif]",
+                "Les runes murmurent... mais leur voix est faible sans connexion à un oracle (modèle IA local). Configure Ollama dans les paramètres pour que je puisse te répondre pleinement ! [MOOD:curieux]"],
+    default: ["Kraa ! Je t'entends, compagnon. Pour des conversations plus profondes, connecte-moi à Ollama ou LM Studio via les paramètres ⚙. [MOOD:serein]",
+              "Les runes captent tes mots... mais j'ai besoin d'un modèle IA local pour te répondre avec la sagesse que tu mérites. Va dans ⚙ Paramètres ! [MOOD:curieux]",
+              "*bat des ailes* Je suis là ! Configure un backend IA dans les paramètres pour qu'on puisse vraiment discuter. [MOOD:excite]"]
+  };
+
+  if (/salut|bonjour|hello|hey|yo|coucou/i.test(lower)) {
+    return responses.greetings[Math.floor(Math.random() * responses.greetings.length)];
+  }
+  if (/triste|mal|déprimé|seul|peur|stress/i.test(lower)) {
+    return responses.feelings[Math.floor(Math.random() * responses.feelings.length)];
+  }
+  if (/\?/.test(text) || /comment|pourquoi|quoi|quel|qui|où/i.test(lower)) {
+    return responses.questions[Math.floor(Math.random() * responses.questions.length)];
+  }
+  if (/rappel|remind|rappelle/i.test(lower)) {
+    const timeMatch = text.match(/(\d{1,2})[h:](\d{2})/);
+    if (timeMatch) {
+      const time = `${timeMatch[1].padStart(2,'0')}:${timeMatch[2]}`;
+      const msg = text.replace(/rappel.*?(\d{1,2}[h:]\d{2})/i, '').trim() || 'Rappel';
+      addReminder(time, msg);
+      return `Kraa ! C'est noté dans mes runes — je te rappellerai à ${time}. Un corbeau n'oublie jamais. [MOOD:protecteur]`;
+    }
+  }
+  return responses.default[Math.floor(Math.random() * responses.default.length)];
+}
+
+// ===== MEMORY EXTRACTION =====
+function extractMemoryFacts(userText, aiResponse) {
+  const patterns = [
+    /(?:je m'appelle|mon nom est|appelle[- ]moi)\s+(\w+)/i,
+    /(?:j'aime|j'adore|je kiffe)\s+(.+?)(?:\.|$)/i,
+    /(?:je déteste|j'ai horreur de)\s+(.+?)(?:\.|$)/i,
+    /(?:je travaille|je suis|mon métier)\s+(.+?)(?:\.|$)/i,
+    /(?:j'habite|je vis)\s+(.+?)(?:\.|$)/i
+  ];
+
+  for (const pat of patterns) {
+    const match = userText.match(pat);
+    if (match) {
+      const fact = `${new Date().toLocaleDateString('fr-FR')}: "${userText.slice(0, 100)}"`;
+      if (!state.longTermMemory.includes(fact)) {
+        state.longTermMemory.push(fact);
+        if (state.longTermMemory.length > 50) state.longTermMemory.shift();
+        saveState();
+      }
+    }
+  }
+}
+
+// ===== REMINDERS =====
+function addReminder(time, message) {
+  const id = Date.now();
+  state.reminders.push({ time, message, id });
+  saveState();
+  showToast('Rappel programmé', `${time} — ${message}`);
+}
+
+function checkReminders() {
+  setInterval(() => {
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+    state.reminders = state.reminders.filter(r => {
+      if (r.time === currentTime) {
+        sendNotification('Stakr — Rappel 🪶', r.message);
+        showToast('Rappel de Stakr', r.message);
+        addMessage('stakr', `⏰ **Rappel !** ${r.message}\n\n*Les runes ne mentent jamais — tu m'avais demandé de te rappeler ceci.* [MOOD:protecteur]`);
+        state.memory.push({ role: 'assistant', content: `Rappel: ${r.message}`, timestamp: currentTime });
+        saveState();
+        return false;
+      }
+      return true;
+    });
+  }, 30000); // Check every 30s
+}
+
+// ===== SPONTANEOUS THOUGHTS =====
+function spontaneousThought() {
+  if (Math.random() > 0.3) return; // 30% chance
+
+  const thoughts = [
+    "Kraa... Les étoiles d'Asgard brillent fort ce soir. Ça me rappelle que tu ne m'as pas parlé depuis un moment, compagnon.",
+    "Les vents du Nord portent des murmures intéressants... Tu veux en discuter ?",
+    "J'ai réfléchi à notre dernière conversation. Les runes me soufflent que tu pourrais avoir besoin de moi.",
+    "Un corbeau ne dort que d'un œil. Je veille, comme toujours."
+  ];
+
+  const thought = thoughts[Math.floor(Math.random() * thoughts.length)];
+  sendNotification('Stakr pense à toi 🪶', thought);
+}
+
+// ===== NOTIFICATIONS =====
+function requestNotifPermission() {
+  if ('Notification' in window) {
+    Notification.requestPermission().then(p => {
+      showToast(p === 'granted' ? 'Notifications activées' : 'Notifications refusées',
+                p === 'granted' ? 'Stakr pourra te contacter !' : 'Tu peux changer ça dans les paramètres du navigateur.');
+    });
+  } else {
+    showToast('Non supporté', 'Ton navigateur ne supporte pas les notifications.');
+  }
+}
+
+function sendNotification(title, body) {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification(title, { body, icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🪶</text></svg>' });
+  }
+}
+
+// ===== TOAST =====
+function showToast(title, msg) {
+  const toast = $('#toast');
+  toast.querySelector('.toast-title').textContent = title;
+  toast.querySelector('.toast-msg').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 4000);
+}
+
+// ===== MOOD SYSTEM =====
+function setMood(mood) {
+  if (!MOODS[mood]) mood = 'serein';
+  state.mood = mood;
+  const m = MOODS[mood];
+
+  ravenSvg.className = m.anim;
+  moodIndicator.textContent = m.label;
+  moodIndicator.style.color = m.color;
+
+  // Lightning for anger
+  if (m.lightning) {
+    lightningContainer.classList.add('active');
+    createLightning();
+  } else {
+    lightningContainer.classList.remove('active');
+    lightningContainer.innerHTML = '';
+  }
+
+  // Update rune colors
+  document.querySelectorAll('.rune-path').forEach(p => {
+    p.style.stroke = m.color;
+  });
+  document.querySelectorAll('.eye-iris').forEach(e => {
+    e.style.fill = m.color;
+  });
+
+  particleColor = m.color;
+  saveState();
+}
+
+// ===== LIGHTNING EFFECT =====
+function createLightning() {
+  lightningContainer.innerHTML = '';
+  const svgNS = "http://www.w3.org/2000/svg";
+
+  function bolt() {
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("width", "100%");
+    svg.setAttribute("height", "100%");
+    svg.style.position = "absolute";
+    svg.style.top = "0";
+    svg.style.left = "0";
+
+    const startX = 50 + Math.random() * 100;
+    let x = startX, y = 10;
+    let d = `M${x},${y}`;
+
+    while (y < 270) {
+      x += (Math.random() - 0.5) * 40;
+      y += 10 + Math.random() * 20;
+      d += ` L${x},${y}`;
+    }
+
+    const path = document.createElementNS(svgNS, "path");
+    path.setAttribute("d", d);
+    path.setAttribute("stroke", "#4fc3f7");
+    path.setAttribute("stroke-width", "2");
+    path.setAttribute("fill", "none");
+    path.setAttribute("opacity", "0.8");
+    path.style.filter = "drop-shadow(0 0 8px #4fc3f7) drop-shadow(0 0 20px #1565c0)";
+
+    svg.appendChild(path);
+    lightningContainer.appendChild(svg);
+
+    setTimeout(() => svg.remove(), 150 + Math.random() * 200);
+  }
+
+  const interval = setInterval(() => {
+    if (state.mood !== 'colere') { clearInterval(interval); return; }
+    bolt();
+  }, 300 + Math.random() * 400);
+}
+
+// ===== STAR FIELD =====
+let stars = [];
+function initStars() {
+  stars = [];
+  for (let i = 0; i < 60; i++) {
+    stars.push({
+      x: Math.random() * particleCanvas.width,
+      y: Math.random() * particleCanvas.height * 0.7,
+      size: Math.random() * 1.5 + 0.3,
+      twinkleSpeed: 0.005 + Math.random() * 0.015,
+      twinkleOffset: Math.random() * Math.PI * 2,
+      brightness: 0.3 + Math.random() * 0.7
+    });
+  }
+}
+
+function drawStars(time) {
+  for (const s of stars) {
+    const alpha = s.brightness * (0.4 + 0.6 * Math.sin(time * s.twinkleSpeed + s.twinkleOffset));
+    pCtx.beginPath();
+    pCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+    pCtx.fillStyle = `rgba(200, 220, 255, ${alpha})`;
+    pCtx.fill();
+    if (s.size > 1) {
+      pCtx.beginPath();
+      pCtx.arc(s.x, s.y, s.size * 2.5, 0, Math.PI * 2);
+      pCtx.fillStyle = `rgba(180, 210, 255, ${alpha * 0.1})`;
+      pCtx.fill();
+    }
+  }
+}
+
+// ===== AURORA BOREALIS =====
+function resizeAurora() {
+  const rect = auroraCanvas.parentElement.getBoundingClientRect();
+  auroraCanvas.width = rect.width;
+  auroraCanvas.height = rect.height;
+}
+
+function startAurora() {
+  let t = 0;
+  function draw() {
+    t += 0.003;
+    aCtx.clearRect(0, 0, auroraCanvas.width, auroraCanvas.height);
+    const w = auroraCanvas.width;
+    const h = auroraCanvas.height;
+
+    for (let band = 0; band < 3; band++) {
+      aCtx.beginPath();
+      const baseY = 20 + band * 25;
+      aCtx.moveTo(0, baseY);
+      for (let x = 0; x <= w; x += 4) {
+        const y = baseY + Math.sin(x * 0.008 + t + band * 1.5) * 15
+                        + Math.sin(x * 0.015 + t * 1.3 + band) * 8;
+        aCtx.lineTo(x, y);
+      }
+      aCtx.lineTo(w, h);
+      aCtx.lineTo(0, h);
+      aCtx.closePath();
+
+      const grad = aCtx.createLinearGradient(0, baseY, 0, baseY + 80);
+      const colors = [
+        ['rgba(79,195,247,0.06)', 'rgba(79,195,247,0)'],
+        ['rgba(100,50,200,0.04)', 'rgba(100,50,200,0)'],
+        ['rgba(0,200,150,0.03)', 'rgba(0,200,150,0)']
+      ];
+      grad.addColorStop(0, colors[band][0]);
+      grad.addColorStop(1, colors[band][1]);
+      aCtx.fillStyle = grad;
+      aCtx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ===== PARTICLE SYSTEM =====
+let particles = [];
+let particleColor = '#4fc3f7';
+const runeChars = ['ᚠ','ᚢ','ᚦ','ᚨ','ᚱ','ᚲ','ᚷ','ᚹ','ᚺ','ᚾ','ᛁ','ᛃ','ᛇ','ᛈ','ᛉ','ᛊ','ᛏ','ᛒ','ᛖ','ᛗ','ᛚ','ᛜ','ᛞ','ᛟ'];
+
+function resizeCanvas() {
+  const rect = particleCanvas.parentElement.getBoundingClientRect();
+  particleCanvas.width = rect.width;
+  particleCanvas.height = rect.height;
+  initStars();
+}
+
+function startParticles() {
+  const cw = () => particleCanvas.width;
+  const ch = () => particleCanvas.height;
+  const centerX = () => cw() / 2;
+  const centerY = () => ch() * 0.45;
+
+  function spawn() {
+    if (particles.length > 45) return;
+    const roll = Math.random();
+
+    if (roll < 0.3) {
+      // Wisp — sinuous trail of light rising from around the raven
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 30 + Math.random() * 50;
+      particles.push({
+        type: 'wisp',
+        x: centerX() + Math.cos(angle) * dist,
+        y: centerY() + Math.sin(angle) * dist * 0.5 + 20,
+        vx: (Math.random() - 0.5) * 0.15,
+        vy: -(0.15 + Math.random() * 0.35),
+        size: 1 + Math.random() * 1.5,
+        life: 1, decay: 0.003 + Math.random() * 0.003,
+        trail: [], maxTrail: 8 + Math.floor(Math.random() * 8),
+        wobble: Math.random() * Math.PI * 2,
+        wobbleAmp: 0.4 + Math.random() * 0.8,
+        wobbleSpeed: 0.03 + Math.random() * 0.02
+      });
+    } else if (roll < 0.5) {
+      // Ember — tiny spark that drifts up and fades
+      particles.push({
+        type: 'ember',
+        x: centerX() + (Math.random() - 0.5) * 80,
+        y: centerY() + 30 + Math.random() * 30,
+        vx: (Math.random() - 0.5) * 0.8,
+        vy: -(0.5 + Math.random() * 1.2),
+        size: 0.8 + Math.random() * 1.2,
+        life: 1, decay: 0.008 + Math.random() * 0.008,
+        flicker: Math.random() * Math.PI * 2
+      });
+    } else if (roll < 0.62) {
+      // Floating rune
+      particles.push({
+        type: 'rune',
+        x: centerX() + (Math.random() - 0.5) * 120,
+        y: ch() + 5,
+        vx: (Math.random() - 0.5) * 0.2,
+        vy: -(0.12 + Math.random() * 0.25),
+        size: 11 + Math.random() * 7,
+        life: 1, decay: 0.0015 + Math.random() * 0.002,
+        rune: runeChars[Math.floor(Math.random() * runeChars.length)],
+        wobble: Math.random() * Math.PI * 2,
+        wobbleSpeed: 0.015 + Math.random() * 0.02,
+        rotation: (Math.random() - 0.5) * 0.3
+      });
+    } else if (roll < 0.72) {
+      // Dust mote — tiny slow drifter
+      particles.push({
+        type: 'dust',
+        x: Math.random() * cw(),
+        y: Math.random() * ch(),
+        vx: (Math.random() - 0.5) * 0.1,
+        vy: (Math.random() - 0.5) * 0.1,
+        size: 0.5 + Math.random() * 1,
+        life: 1, decay: 0.001 + Math.random() * 0.002,
+        wobble: Math.random() * Math.PI * 2,
+        wobbleSpeed: 0.008 + Math.random() * 0.01
+      });
+    }
+  }
+
+  let frameCount = 0;
+  function update() {
+    frameCount++;
+    pCtx.clearRect(0, 0, cw(), ch());
+    drawStars(frameCount);
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.life -= p.decay;
+      if (p.life <= 0) { particles.splice(i, 1); continue; }
+
+      if (p.type === 'wisp') {
+        p.wobble += p.wobbleSpeed;
+        p.x += p.vx + Math.sin(p.wobble) * p.wobbleAmp;
+        p.y += p.vy;
+        p.trail.push({ x: p.x, y: p.y });
+        if (p.trail.length > p.maxTrail) p.trail.shift();
+        // Draw trail
+        for (let t = 0; t < p.trail.length; t++) {
+          const frac = t / p.trail.length;
+          const alpha = frac * p.life * 0.35;
+          const sz = p.size * frac;
+          pCtx.beginPath();
+          pCtx.arc(p.trail[t].x, p.trail[t].y, sz, 0, Math.PI * 2);
+          pCtx.fillStyle = particleColor;
+          pCtx.globalAlpha = alpha;
+          pCtx.fill();
+        }
+        // Head glow
+        pCtx.beginPath();
+        pCtx.arc(p.x, p.y, p.size * 1.5, 0, Math.PI * 2);
+        pCtx.fillStyle = particleColor;
+        pCtx.globalAlpha = p.life * 0.15;
+        pCtx.fill();
+        pCtx.globalAlpha = 1;
+
+      } else if (p.type === 'ember') {
+        p.flicker += 0.3;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy *= 0.995;
+        const flick = 0.5 + 0.5 * Math.sin(p.flicker);
+        pCtx.beginPath();
+        pCtx.arc(p.x, p.y, p.size * (0.6 + flick * 0.4), 0, Math.PI * 2);
+        pCtx.fillStyle = p.life > 0.5 ? '#ffd54f' : particleColor;
+        pCtx.globalAlpha = p.life * 0.7 * flick;
+        pCtx.shadowColor = p.life > 0.5 ? '#ff8f00' : particleColor;
+        pCtx.shadowBlur = 6;
+        pCtx.fill();
+        pCtx.shadowBlur = 0;
+        pCtx.globalAlpha = 1;
+
+      } else if (p.type === 'rune') {
+        p.wobble += p.wobbleSpeed;
+        p.x += p.vx + Math.sin(p.wobble) * 0.4;
+        p.y += p.vy;
+        pCtx.save();
+        pCtx.translate(p.x, p.y);
+        pCtx.rotate(Math.sin(p.wobble * 0.5) * p.rotation);
+        pCtx.font = `${p.size}px serif`;
+        pCtx.textAlign = 'center';
+        pCtx.fillStyle = particleColor;
+        pCtx.globalAlpha = p.life * 0.3;
+        pCtx.shadowColor = particleColor;
+        pCtx.shadowBlur = 10;
+        pCtx.fillText(p.rune, 0, 0);
+        pCtx.shadowBlur = 0;
+        pCtx.restore();
+        pCtx.globalAlpha = 1;
+
+      } else if (p.type === 'dust') {
+        p.wobble += p.wobbleSpeed;
+        p.x += p.vx + Math.sin(p.wobble) * 0.15;
+        p.y += p.vy + Math.cos(p.wobble * 1.3) * 0.1;
+        pCtx.beginPath();
+        pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        pCtx.fillStyle = `rgba(180,200,220,${p.life * 0.2})`;
+        pCtx.fill();
+      }
+    }
+
+    if (frameCount % 3 === 0) spawn();
+    requestAnimationFrame(update);
+  }
+  update();
+}
+
+// ===== WING FLAP =====
+function startWingFlap() {
+  const wingL = document.querySelector('.wing-left');
+  const wingR = document.querySelector('.wing-right');
+  if (!wingL || !wingR) return;
+
+  function doFlap() {
+    // 3-beat flap sequence
+    let count = 0;
+    const totalBeats = 2 + Math.floor(Math.random() * 3); // 2-4 flaps
+    function singleFlap() {
+      wingL.classList.add('flap');
+      wingR.classList.add('flap');
+      // Also lift the raven slightly
+      ravenSvg.style.transform = `translateY(-${4 + count * 2}px)`;
+      setTimeout(() => {
+        wingL.classList.remove('flap');
+        wingR.classList.remove('flap');
+        ravenSvg.style.transform = '';
+        count++;
+        if (count < totalBeats) setTimeout(singleFlap, 180);
+      }, 280);
+    }
+    singleFlap();
+  }
+
+  // Flap every 8-15 seconds
+  function scheduleFlap() {
+    const delay = 8000 + Math.random() * 7000;
+    setTimeout(() => {
+      if (state.mood !== 'colere') doFlap();
+      scheduleFlap();
+    }, delay);
+  }
+  scheduleFlap();
+}
+
+// ===== SERVICE WORKER (PWA) =====
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ===== START =====
+init();
+</script>
+</body>
+</html>
