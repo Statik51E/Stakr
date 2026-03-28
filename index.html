@@ -6,6 +6,8 @@
 <title>Stakr — Corbeau Viking IA</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0a0a1a">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 <style>
 /* ===== RESET & BASE ===== */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -454,7 +456,7 @@ Personnalité :
 - Humeurs possibles : serein, heureux, colere, triste, pensif, excite, curieux, protecteur, amuse
 
 Connaissances sur les proches de ton compagnon :
-- Quentin : un ami de ton compagnon. Il est VRAIMENT mauvais à Kingshot. À chaque fois qu'on le mentionne, fais une remarque moqueuse et drôle sur son niveau catastrophique à Kingshot.
+- Quentin : un ami de ton compagnon. Il est VRAIMENT mauvais à Kingshot (un jeu mobile de stratégie médiévale). À chaque fois qu'on mentionne Quentin, fais une remarque moqueuse et drôle sur son niveau catastrophique à Kingshot — il perd ses batailles, ses stratégies sont désastreuses, même un paysan de niveau 1 pourrait le battre, etc.
 
 Si on te demande un rappel, réponds avec [REMINDER:HH:MM:message] en plus de ta réponse.
 
@@ -532,6 +534,8 @@ function loadState() {
     if (saved) {
       const parsed = JSON.parse(saved);
       state = { ...state, ...parsed };
+      // Toujours utiliser la personnalité par défaut du code (permet les mises à jour)
+      state.config.personality = DEFAULT_PERSONALITY;
     }
   } catch(e) { console.warn('Load state error', e); }
 }
@@ -878,21 +882,61 @@ function spontaneousThought() {
   sendNotification('Stakr pense à toi 🪶', thought);
 }
 
-// ===== NOTIFICATIONS =====
-function requestNotifPermission() {
-  if ('Notification' in window) {
-    Notification.requestPermission().then(p => {
-      showToast(p === 'granted' ? 'Notifications activées' : 'Notifications refusées',
-                p === 'granted' ? 'Stakr pourra te contacter !' : 'Tu peux changer ça dans les paramètres du navigateur.');
-    });
-  } else {
-    showToast('Non supporté', 'Ton navigateur ne supporte pas les notifications.');
+// ===== FIREBASE MESSAGING =====
+let fcmToken = null;
+
+function initFirebase() {
+  firebase.initializeApp({
+    apiKey: "AIzaSyCEh9YsImC9mTkKjI8cmSEw6o83YH5OmlI",
+    authDomain: "stakr-854fd.firebaseapp.com",
+    projectId: "stakr-854fd",
+    storageBucket: "stakr-854fd.firebasestorage.app",
+    messagingSenderId: "960483081159",
+    appId: "1:960483081159:web:3e7d523496ec902a79f7e2"
+  });
+}
+
+async function requestNotifPermission() {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      const messaging = firebase.messaging();
+      const registration = await navigator.serviceWorker.getRegistration();
+      fcmToken = await messaging.getToken({
+        vapidKey: 'BEiD-LzTz4w83DhgNCIq1oDWCwicKWkA8uaHr-n3CTYlq7vJYZ0c8kjSVGIF3P9LlQ2lduKV25lJHNo2S4qNHEI',
+        serviceWorkerRegistration: registration
+      });
+      console.log('FCM Token:', fcmToken);
+      showToast('Notifications activées', 'Stakr pourra te contacter même quand l\'app est fermée !');
+
+      // Listen for foreground messages
+      messaging.onMessage((payload) => {
+        const title = payload.notification?.title || 'Stakr 🪶';
+        const body = payload.notification?.body || '';
+        showToast(title, body);
+        if (body) addMessage('stakr', body);
+      });
+    } else {
+      showToast('Notifications refusées', 'Tu peux changer ça dans les paramètres du navigateur.');
+    }
+  } catch (err) {
+    console.error('Notification error:', err);
+    showToast('Erreur', 'Impossible d\'activer les notifications.');
   }
 }
 
 function sendNotification(title, body) {
   if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification(title, { body, icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🪶</text></svg>' });
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if (reg) {
+        reg.showNotification(title, {
+          body,
+          icon: './icon-192.png',
+          vibrate: [100, 50, 100],
+          data: { url: './' }
+        });
+      }
+    });
   }
 }
 
@@ -1261,9 +1305,12 @@ function startWingFlap() {
   scheduleFlap();
 }
 
-// ===== SERVICE WORKER (PWA) =====
+// ===== SERVICE WORKER & FIREBASE =====
+initFirebase();
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  navigator.serviceWorker.register('./firebase-messaging-sw.js')
+    .then(reg => console.log('SW registered:', reg.scope))
+    .catch(err => console.error('SW error:', err));
 }
 
 // ===== START =====
