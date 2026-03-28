@@ -1,4 +1,4 @@
-// Firebase Messaging Service Worker + Stakr PWA Cache
+// Firebase Messaging Service Worker + Stakr PWA Cache + Reminders
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
 
@@ -26,6 +26,53 @@ messaging.onBackgroundMessage((payload) => {
   self.registration.showNotification(title, options);
 });
 
+// ===== REMINDER SYSTEM IN SERVICE WORKER =====
+let reminders = [];
+
+// Receive reminders from the main page
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SET_REMINDERS') {
+    reminders = event.data.reminders || [];
+    // Start checking if not already
+    startReminderCheck();
+  }
+});
+
+let reminderInterval = null;
+function startReminderCheck() {
+  if (reminderInterval) return;
+  reminderInterval = setInterval(() => {
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+    const triggered = [];
+    reminders = reminders.filter(r => {
+      if (r.time === currentTime) {
+        self.registration.showNotification('Stakr — Rappel 🪶', {
+          body: r.message,
+          icon: './icon-192.png',
+          badge: './icon-192.png',
+          vibrate: [200, 100, 200, 100, 200],
+          tag: 'stakr-reminder-' + r.id,
+          data: { url: './' }
+        });
+        triggered.push(r.id);
+        return false;
+      }
+      return true;
+    });
+
+    // Notify the page that reminders were triggered
+    if (triggered.length > 0) {
+      self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({ type: 'REMINDERS_TRIGGERED', ids: triggered });
+        });
+      });
+    }
+  }, 15000); // Check every 15 seconds
+}
+
 // Click on notification → open app
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
@@ -40,7 +87,7 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 // PWA Cache
-const CACHE_NAME = 'stakr-v3';
+const CACHE_NAME = 'stakr-v4';
 const CACHE_FILES = ['./index.html'];
 
 self.addEventListener('install', (e) => {
