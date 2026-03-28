@@ -415,6 +415,8 @@ header h1{font-size:1.1rem;color:var(--rune-blue);text-shadow:0 0 10px rgba(79,1
   <div class="setting-group">
     <label>Notifications</label>
     <button class="btn-secondary" onclick="requestNotifPermission()">Activer les notifications</button>
+    <div id="notif-status" style="font-size:.7rem;color:var(--text-dim);margin-top:6px"></div>
+    <button class="btn-secondary" id="copy-token-btn" style="display:none;margin-top:4px;font-size:.75rem" onclick="copyFCMToken()">Copier le token FCM</button>
   </div>
   <div class="setting-group">
     <label>Mémoire</label>
@@ -907,6 +909,9 @@ async function requestNotifPermission() {
         serviceWorkerRegistration: registration
       });
       console.log('FCM Token:', fcmToken);
+      $('#notif-status').textContent = '✓ Token obtenu';
+      $('#notif-status').style.color = '#69f0ae';
+      $('#copy-token-btn').style.display = 'block';
       showToast('Notifications activées', 'Stakr pourra te contacter même quand l\'app est fermée !');
 
       // Listen for foreground messages
@@ -921,7 +926,17 @@ async function requestNotifPermission() {
     }
   } catch (err) {
     console.error('Notification error:', err);
+    $('#notif-status').textContent = '✗ Erreur : ' + err.message;
+    $('#notif-status').style.color = '#ff5252';
     showToast('Erreur', 'Impossible d\'activer les notifications.');
+  }
+}
+
+function copyFCMToken() {
+  if (fcmToken) {
+    navigator.clipboard.writeText(fcmToken).then(() => {
+      showToast('Token copié', 'Colle-le dans Firebase Console pour tester.');
+    });
   }
 }
 
