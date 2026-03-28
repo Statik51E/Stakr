@@ -908,7 +908,7 @@ async function addReminder(time, message) {
     await fetch(`https://ntfy.sh/${topic}`, {
       method: 'POST',
       headers: {
-        'Title': 'Stakr — Rappel 🪶',
+        'Title': 'Stakr - Rappel',
         'Tags': 'bird,clock',
         'At': target.toISOString()
       },
@@ -1059,7 +1059,7 @@ async function testNtfy() {
   try {
     const res = await fetch(`https://ntfy.sh/${topic}`, {
       method: 'POST',
-      headers: { 'Title': 'Stakr — Test 🪶' },
+      headers: { 'Title': 'Stakr - Test' },
       body: 'Kraa ! Si tu vois ceci, les notifications fonctionnent !'
     });
     if (res.ok) {
