@@ -417,6 +417,11 @@ header h1{font-size:1.1rem;color:var(--rune-blue);text-shadow:0 0 10px rgba(79,1
     <button class="btn-secondary" onclick="requestNotifPermission()">Activer les notifications</button>
     <div id="notif-status" style="font-size:.7rem;color:var(--text-dim);margin-top:6px"></div>
     <button class="btn-secondary" id="copy-token-btn" style="display:none;margin-top:4px;font-size:.75rem" onclick="copyFCMToken()">Copier le token FCM</button>
+    <div style="margin-top:10px">
+      <label style="font-size:.75rem;color:var(--text-dim)">Rappels (même app fermée)</label>
+      <button class="btn-secondary" onclick="subscribeNtfy()" style="margin-top:4px">Activer les rappels push</button>
+      <div id="ntfy-status" style="font-size:.7rem;color:var(--text-dim);margin-top:4px"></div>
+    </div>
   </div>
   <div class="setting-group">
     <label>Mémoire</label>
@@ -866,49 +871,73 @@ function extractMemoryFacts(userText, aiResponse) {
   }
 }
 
-// ===== REMINDERS =====
-function addReminder(time, message) {
+// ===== REMINDERS (via ntfy.sh) =====
+function getNtfyTopic() {
+  let topic = localStorage.getItem('stakr_ntfy_topic');
+  if (!topic) {
+    topic = 'stakr_' + Math.random().toString(36).substring(2, 12);
+    localStorage.setItem('stakr_ntfy_topic', topic);
+  }
+  return topic;
+}
+
+async function addReminder(time, message) {
   const id = Date.now();
   state.reminders.push({ time, message, id });
   saveState();
-  syncRemindersToSW();
-  showToast('Rappel programmé', `${time} — ${message}`);
-}
 
-// Send reminders to Service Worker so they work even when page is closed
-function syncRemindersToSW() {
-  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage({
-      type: 'SET_REMINDERS',
-      reminders: state.reminders
+  // Schedule push notification via ntfy.sh
+  try {
+    const topic = getNtfyTopic();
+    const [hours, minutes] = time.split(':');
+    const now = new Date();
+    const target = new Date();
+    target.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+    // If time already passed today, schedule for tomorrow
+    if (target <= now) target.setDate(target.getDate() + 1);
+
+    await fetch(`https://ntfy.sh/${topic}`, {
+      method: 'POST',
+      headers: {
+        'Title': 'Stakr — Rappel 🪶',
+        'Tags': 'bird,clock',
+        'At': target.toISOString()
+      },
+      body: message
     });
+    console.log('Reminder scheduled via ntfy.sh:', time, message);
+    showToast('Rappel programmé', `${time} — ${message}`);
+  } catch (err) {
+    console.error('ntfy.sh error:', err);
+    showToast('Rappel enregistré', `${time} — ${message} (notification locale uniquement)`);
   }
 }
 
-// Listen for reminders triggered by the Service Worker
-function listenForSWReminders() {
-  if (navigator.serviceWorker) {
-    navigator.serviceWorker.addEventListener('message', (event) => {
-      if (event.data && event.data.type === 'REMINDERS_TRIGGERED') {
-        const triggeredIds = event.data.ids;
-        state.reminders = state.reminders.filter(r => !triggeredIds.includes(r.id));
-        saveState();
-        triggeredIds.forEach(() => {
-          addMessage('stakr', `⏰ **Rappel !**\n\n*Les runes ne mentent jamais — tu m'avais demandé de te rappeler ceci.* [MOOD:protecteur]`);
-        });
-      }
-    });
-  }
+function setupNtfySubscription() {
+  const topic = getNtfyTopic();
+  // Subscribe to ntfy via EventSource for live notifications when app is open
+  try {
+    const evtSource = new EventSource(`https://ntfy.sh/${topic}/sse`);
+    evtSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.event === 'message') {
+          sendNotification('Stakr — Rappel 🪶', data.message);
+          showToast('Rappel de Stakr', data.message);
+          addMessage('stakr', `⏰ **Rappel !** ${data.message}\n\n*Les runes ne mentent jamais — tu m'avais demandé de te rappeler ceci.* [MOOD:protecteur]`);
+          // Remove from state
+          state.reminders = state.reminders.filter(r => r.message !== data.message);
+          saveState();
+        }
+      } catch(e) {}
+    };
+  } catch(e) { console.warn('ntfy SSE error:', e); }
 }
 
 function checkReminders() {
-  // Sync reminders to SW on startup
-  navigator.serviceWorker?.ready.then(() => {
-    syncRemindersToSW();
-    listenForSWReminders();
-  });
+  setupNtfySubscription();
 
-  // Also check in page as fallback
+  // Fallback: also check locally when page is open
   setInterval(() => {
     const now = new Date();
     const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
@@ -924,7 +953,7 @@ function checkReminders() {
       }
       return true;
     });
-  }, 15000); // Check every 15s
+  }, 15000);
 }
 
 // ===== SPONTANEOUS THOUGHTS =====
@@ -1013,6 +1042,24 @@ function copyFCMToken() {
     navigator.clipboard.writeText(fcmToken).then(() => {
       showToast('Token copié', 'Colle-le dans Firebase Console pour tester.');
     });
+  }
+}
+
+async function subscribeNtfy() {
+  const topic = getNtfyTopic();
+  try {
+    // Test the topic exists by sending a silent subscription check
+    const res = await fetch(`https://ntfy.sh/${topic}/json?poll=1`);
+    if (res.ok) {
+      // Open ntfy subscription page for push notifications
+      window.open(`https://ntfy.sh/${topic}`, '_blank');
+      $('#ntfy-status').textContent = '→ Clique "S\'abonner" sur la page ntfy.sh, puis autorise les notifications';
+      $('#ntfy-status').style.color = '#ffab40';
+      showToast('Rappels push', 'Abonne-toi sur la page ntfy.sh qui s\'est ouverte pour recevoir les rappels même quand Stakr est fermé.');
+    }
+  } catch(e) {
+    $('#ntfy-status').textContent = '✗ Erreur de connexion';
+    $('#ntfy-status').style.color = '#ff5252';
   }
 }
 
