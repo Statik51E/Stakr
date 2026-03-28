@@ -718,13 +718,37 @@ async function sendMessage() {
       addReminder(time, reminderMatch[2].trim());
     }
 
-    // Fallback: detect reminder intent from user + extract time from AI response
-    if (!reminderMatch && /rappel|notif|prévien|dis[- ]?moi à|réveille/i.test(text)) {
-      const timeInResponse = response.match(/(\d{1,2})[h:](\d{2})/);
-      if (timeInResponse) {
-        const h = timeInResponse[1].padStart(2, '0');
-        const m = timeInResponse[2];
-        const msg = text.replace(/rappel.*|notif.*|prévien.*|dis[- ]?moi.*/i, '').trim() || 'Rappel programmé';
+    // Fallback: detect reminder intent from user message
+    if (!reminderMatch && /rappel|notif|prévien|dis[- ]?moi|réveille|dans \d|à \d/i.test(text)) {
+      // Try to find time in user message first, then in AI response
+      const timeSource = text + ' ' + response;
+
+      // Match "à 14h30", "a 14h", "14:30", "à 9h00", etc.
+      const timeMatch = timeSource.match(/(\d{1,2})\s*[h:]\s*(\d{2})/i)
+        || timeSource.match(/(\d{1,2})\s*h\b/i);
+
+      // Match "dans X minutes"
+      const inMinutes = text.match(/dans\s+(\d+)\s*min/i);
+      const inHours = text.match(/dans\s+(\d+)\s*h/i);
+
+      if (timeMatch) {
+        const h = timeMatch[1].padStart(2, '0');
+        const m = timeMatch[2] ? timeMatch[2] : '00';
+        const msg = text.replace(/rappel.*?(?=\d)|notif.*?(?=\d)|à\s*\d+[h:]\d*/gi, '').replace(/^\s*moi\s*/i, '').trim() || 'Rappel';
+        addReminder(`${h}:${m}`, msg);
+      } else if (inMinutes) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + parseInt(inMinutes[1]));
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const msg = text.replace(/dans\s+\d+\s*min\w*/i, '').replace(/rappel|notif\w*|prévien\w*/gi, '').trim() || 'Rappel';
+        addReminder(`${h}:${m}`, msg);
+      } else if (inHours) {
+        const now = new Date();
+        now.setHours(now.getHours() + parseInt(inHours[1]));
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const msg = text.replace(/dans\s+\d+\s*h\w*/i, '').replace(/rappel|notif\w*|prévien\w*/gi, '').trim() || 'Rappel';
         addReminder(`${h}:${m}`, msg);
       }
     }
