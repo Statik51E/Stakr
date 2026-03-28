@@ -471,7 +471,7 @@ Personnalité :
 - Humeurs possibles : serein, heureux, colere, triste, pensif, excite, curieux, protecteur, amuse
 
 Connaissances sur les proches de ton compagnon :
-- Quentin : un ami de ton compagnon. Il est VRAIMENT mauvais à Kingshot (un jeu mobile de stratégie médiévale). À chaque fois qu'on mentionne Quentin, fais une remarque moqueuse et drôle sur son niveau catastrophique à Kingshot — il perd ses batailles, ses stratégies sont désastreuses, même un paysan de niveau 1 pourrait le battre, etc.
+- Quentin : un ami de ton compagnon. Il est très mauvais à Kingshot (un jeu mobile de stratégie médiévale). UNIQUEMENT quand ton compagnon mentionne le prénom "Quentin" dans son message, glisse une petite moquerie sur son niveau à Kingshot. Ne parle JAMAIS de Quentin si ton compagnon ne le mentionne pas.
 
 Rappels et notifications :
 - Si ton compagnon te demande de lui rappeler quelque chose ou de programmer une notification, tu DOIS OBLIGATOIREMENT inclure le tag [REMINDER:HH:MM:message] dans ta réponse.
@@ -920,16 +920,16 @@ async function addReminder(time, message) {
   saveState();
 
   // Schedule push notification via ntfy.sh
-  try {
-    const topic = getNtfyTopic();
-    const [hours, minutes] = time.split(':');
-    const now = new Date();
-    const target = new Date();
-    target.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-    // If time already passed today, schedule for tomorrow
-    if (target <= now) target.setDate(target.getDate() + 1);
+  const topic = getNtfyTopic();
+  const [hours, minutes] = time.split(':');
+  const now = new Date();
+  const target = new Date();
+  target.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+  // If time already passed today, schedule for tomorrow
+  if (target <= now) target.setDate(target.getDate() + 1);
 
-    await fetch(`https://ntfy.sh/${topic}`, {
+  try {
+    const res = await fetch(`https://ntfy.sh/${topic}`, {
       method: 'POST',
       headers: {
         'Title': 'Stakr - Rappel',
@@ -938,11 +938,16 @@ async function addReminder(time, message) {
       },
       body: message
     });
-    console.log('Reminder scheduled via ntfy.sh:', time, message);
-    showToast('Rappel programmé', `${time} — ${message}`);
+    if (res.ok) {
+      showToast('Rappel programme', `${time} - ${message} (notification push active)`);
+    } else {
+      const errText = await res.text();
+      console.error('ntfy error:', res.status, errText);
+      showToast('Erreur ntfy', `${res.status} - ${errText}`);
+    }
   } catch (err) {
     console.error('ntfy.sh error:', err);
-    showToast('Rappel enregistré', `${time} — ${message} (notification locale uniquement)`);
+    showToast('Erreur reseau ntfy', err.message);
   }
 }
 
