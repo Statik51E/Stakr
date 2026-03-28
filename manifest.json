@@ -2,7 +2,7 @@
   "name": "Stakr — Corbeau Viking IA",
   "short_name": "Stakr",
   "description": "Agent IA viking avec émotions et mémoire",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0a0a1a",
   "theme_color": "#0a0a1a",
