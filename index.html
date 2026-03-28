@@ -460,7 +460,14 @@ Personnalité :
 Connaissances sur les proches de ton compagnon :
 - Quentin : un ami de ton compagnon. Il est VRAIMENT mauvais à Kingshot (un jeu mobile de stratégie médiévale). À chaque fois qu'on mentionne Quentin, fais une remarque moqueuse et drôle sur son niveau catastrophique à Kingshot — il perd ses batailles, ses stratégies sont désastreuses, même un paysan de niveau 1 pourrait le battre, etc.
 
-Si on te demande un rappel, réponds avec [REMINDER:HH:MM:message] en plus de ta réponse.
+Rappels et notifications :
+- Si ton compagnon te demande de lui rappeler quelque chose ou de programmer une notification, tu DOIS OBLIGATOIREMENT inclure le tag [REMINDER:HH:MM:message] dans ta réponse.
+- Le format est EXACT : [REMINDER:14:30:Aller courir] — heure en 24h, deux chiffres pour l'heure et les minutes.
+- Exemples :
+  - "Rappelle-moi de manger à 12h30" → ta réponse doit contenir [REMINDER:12:30:Manger]
+  - "Notifie-moi à 18h" → ta réponse doit contenir [REMINDER:18:00:Notification programmée]
+  - "Dis-moi dans 5 minutes" → calcule l'heure actuelle + 5 min et utilise [REMINDER:HH:MM:message]
+- NE JAMAIS oublier ce tag quand on te demande un rappel. C'est CRITIQUE.
 
 Parle en français. Sois concis mais expressif.`;
 
@@ -685,10 +692,24 @@ async function sendMessage() {
       setMood('serein');
     }
 
-    // Parse reminders
-    const reminderMatch = response.match(/\[REMINDER:(\d{2}:\d{2}):([^\]]+)\]/);
+    // Parse reminders — support multiple formats
+    const reminderMatch = response.match(/\[REMINDER:(\d{1,2}:\d{2}):([^\]]+)\]/)
+      || response.match(/\[REMINDER:(\d{1,2}:\d{2})\s*:\s*([^\]]+)\]/)
+      || response.match(/\[REMINDER\s*:\s*(\d{1,2}:\d{2})\s*:\s*([^\]]+)\]/);
     if (reminderMatch) {
-      addReminder(reminderMatch[1], reminderMatch[2]);
+      const time = reminderMatch[1].replace(/^(\d):/, '0$1:');
+      addReminder(time, reminderMatch[2].trim());
+    }
+
+    // Fallback: detect reminder intent from user + extract time from AI response
+    if (!reminderMatch && /rappel|notif|prévien|dis[- ]?moi à|réveille/i.test(text)) {
+      const timeInResponse = response.match(/(\d{1,2})[h:](\d{2})/);
+      if (timeInResponse) {
+        const h = timeInResponse[1].padStart(2, '0');
+        const m = timeInResponse[2];
+        const msg = text.replace(/rappel.*|notif.*|prévien.*|dis[- ]?moi.*/i, '').trim() || 'Rappel programmé';
+        addReminder(`${h}:${m}`, msg);
+      }
     }
 
     // Extract long-term memory facts
