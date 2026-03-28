@@ -929,12 +929,14 @@ async function addReminder(time, message) {
   if (target <= now) target.setDate(target.getDate() + 1);
 
   try {
+    // Calculate delay in seconds from now
+    const delaySec = Math.max(1, Math.round((target.getTime() - Date.now()) / 1000));
     const res = await fetch(`https://ntfy.sh/${topic}`, {
       method: 'POST',
       headers: {
         'Title': 'Stakr - Rappel',
         'Tags': 'bird,clock',
-        'At': target.toISOString()
+        'Delay': `${delaySec}s`
       },
       body: message
     });
