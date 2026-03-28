@@ -778,8 +778,11 @@ async function callAI(userText) {
     ? `\n\nCe que tu sais sur ton compagnon:\n${state.longTermMemory.slice(-20).join('\n')}`
     : '';
 
+  const now = new Date();
+  const timeInfo = `\n\nInformations actuelles : il est exactement ${String(now.getHours()).padStart(2,'0')}h${String(now.getMinutes()).padStart(2,'0')}, nous sommes le ${now.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric'})}.`;
+
   const messages = [
-    { role: 'system', content: state.config.personality + memoryContext },
+    { role: 'system', content: state.config.personality + memoryContext + timeInfo },
     ...state.memory.slice(-20).map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content })),
     { role: 'user', content: userText }
   ];
