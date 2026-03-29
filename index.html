@@ -1009,14 +1009,31 @@ function loadState() {
           state.appearance.stageBgImage = localStorage.getItem('stakr_stageBgImg') || '';
         }
       }
+      // Restore message images from separate storage
+      try {
+        const imgStore = JSON.parse(localStorage.getItem('stakr_msgImages') || '{}');
+        function restoreImages(msgs) {
+          if (!msgs) return;
+          msgs.forEach(m => {
+            if (m.image && m.image.startsWith('__img__')) {
+              const key = m.image.slice(7);
+              m.image = imgStore[key] || null;
+            }
+          });
+        }
+        restoreImages(state.memory);
+        (state.projects || []).forEach(p => restoreImages(p.messages));
+      } catch(e2) {}
     }
   } catch(e) { console.warn('Load state error', e); }
 }
 
 function saveState() {
   try {
-    // Separate large bg images to avoid filling localStorage quota
+    // Deep clone to strip large data before saving
     const toSave = JSON.parse(JSON.stringify(state));
+
+    // Strip bg images from appearance — store separately
     let chatBgImg = '', stageBgImg = '';
     if (toSave.appearance) {
       chatBgImg = toSave.appearance.chatBgImage || '';
@@ -1024,12 +1041,35 @@ function saveState() {
       toSave.appearance.chatBgImage = chatBgImg ? '__stored__' : '';
       toSave.appearance.stageBgImage = stageBgImg ? '__stored__' : '';
     }
+
+    // Strip inline images from messages — store separately
+    const imgStore = {};
+    function stripImages(msgs) {
+      if (!msgs) return;
+      msgs.forEach((m, i) => {
+        if (m.image && m.image.startsWith('data:')) {
+          const key = 'img_' + (m.timestamp || i) + '_' + i;
+          imgStore[key] = m.image;
+          m.image = '__img__' + key;
+        }
+      });
+    }
+    stripImages(toSave.memory);
+    (toSave.projects || []).forEach(p => stripImages(p.messages));
+
     localStorage.setItem('stakr_state', JSON.stringify(toSave));
-    // Store images separately (may fail if too large — that's ok)
+
+    // Store bg images separately
     try { if (chatBgImg && chatBgImg !== '__stored__') localStorage.setItem('stakr_chatBgImg', chatBgImg); } catch(e2) {}
     try { if (stageBgImg && stageBgImg !== '__stored__') localStorage.setItem('stakr_stageBgImg', stageBgImg); } catch(e2) {}
     if (!chatBgImg) localStorage.removeItem('stakr_chatBgImg');
     if (!stageBgImg) localStorage.removeItem('stakr_stageBgImg');
+
+    // Store message images separately (best effort)
+    try { localStorage.setItem('stakr_msgImages', JSON.stringify(imgStore)); } catch(e2) {
+      // If too large, just drop the images — messages text is saved
+      console.warn('Could not save chat images, dropping them');
+    }
   } catch(e) { console.warn('Save state error', e); }
 }
 
