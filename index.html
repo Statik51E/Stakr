@@ -46,7 +46,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 #aurora-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:.3;z-index:0}
 
 /* ===== RAVEN SVG ===== */
-#raven-svg{width:220px;height:220px;filter:drop-shadow(0 0 25px rgba(79,195,247,.12)) drop-shadow(0 8px 20px rgba(0,0,0,.8));transition:transform .4s cubic-bezier(.4,0,.2,1);z-index:2}
+#raven-svg{width:240px;height:240px;filter:drop-shadow(0 0 30px rgba(79,195,247,.15)) drop-shadow(0 10px 25px rgba(0,0,0,.7));transition:transform .4s cubic-bezier(.4,0,.2,1);z-index:2}
 #raven-svg.idle{animation:ravenFloat 4s ease-in-out infinite}
 #raven-svg.happy{animation:ravenBounce 1.2s ease-in-out infinite}
 #raven-svg.angry{animation:ravenShake 0.12s ease-in-out infinite}
@@ -55,26 +55,26 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 #raven-svg.excited{animation:ravenExcited 0.5s ease-in-out infinite}
 
 /* Rune glow animations */
-.rune{fill:none;stroke:#4fc3f7;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;filter:url(#runeGlow);opacity:0;stroke-dasharray:40;stroke-dashoffset:40}
-.rune-1{animation:runeReveal 5s ease-in-out infinite}
-.rune-2{animation:runeReveal 5s ease-in-out 1s infinite}
-.rune-3{animation:runeReveal 5s ease-in-out 2s infinite}
-.rune-4{animation:runeReveal 5s ease-in-out 3s infinite}
-.rune-5{animation:runeReveal 5s ease-in-out 1.5s infinite}
-.rune-6{animation:runeReveal 5s ease-in-out 3.5s infinite}
-@keyframes runeReveal{0%{opacity:0;stroke-dashoffset:40}15%{opacity:.9;stroke-dashoffset:0}45%{opacity:.5;stroke-dashoffset:0}75%{opacity:.8;stroke-dashoffset:0}100%{opacity:0;stroke-dashoffset:-40}}
+.rune{fill:none;stroke:#4fc3f7;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;filter:url(#runeGlow);opacity:0;stroke-dasharray:60;stroke-dashoffset:60}
+.rune-1{animation:runeReveal 4s ease-in-out infinite}
+.rune-2{animation:runeReveal 4s ease-in-out .8s infinite}
+.rune-3{animation:runeReveal 4s ease-in-out 1.6s infinite}
+.rune-4{animation:runeReveal 4s ease-in-out 2.4s infinite}
+.rune-5{animation:runeReveal 4s ease-in-out 3.2s infinite}
+.rune-6{animation:runeReveal 4s ease-in-out 1.2s infinite}
+@keyframes runeReveal{0%{opacity:0;stroke-dashoffset:60}20%{opacity:.9;stroke-dashoffset:0}50%{opacity:.6;stroke-dashoffset:0}80%{opacity:.9;stroke-dashoffset:0}100%{opacity:0;stroke-dashoffset:-60}}
 
 /* Rune ambient glow layer */
-.rune-glow-bg{fill:none;stroke:#4fc3f7;stroke-width:5;stroke-linecap:round;filter:url(#runeBlur);opacity:0}
-.rune-glow-1{animation:runeGlowPulse 5s ease-in-out infinite}
-.rune-glow-2{animation:runeGlowPulse 5s ease-in-out 1s infinite}
-.rune-glow-3{animation:runeGlowPulse 5s ease-in-out 2s infinite}
-.rune-glow-4{animation:runeGlowPulse 5s ease-in-out 3s infinite}
-@keyframes runeGlowPulse{0%,100%{opacity:0}15%{opacity:.35}45%{opacity:.12}75%{opacity:.3}}
+.rune-glow-bg{fill:none;stroke:#4fc3f7;stroke-width:6;stroke-linecap:round;filter:url(#runeBlur);opacity:0}
+.rune-1 ~ .rune-glow-bg,.rune-glow-1{animation:runeGlowPulse 4s ease-in-out infinite}
+.rune-glow-2{animation:runeGlowPulse 4s ease-in-out .8s infinite}
+.rune-glow-3{animation:runeGlowPulse 4s ease-in-out 1.6s infinite}
+.rune-glow-4{animation:runeGlowPulse 4s ease-in-out 2.4s infinite}
+@keyframes runeGlowPulse{0%,100%{opacity:0}20%{opacity:.3}50%{opacity:.15}80%{opacity:.3}}
 
 /* Eye glow */
 .eye-glow{animation:eyePulse 3s ease-in-out infinite}
-@keyframes eyePulse{0%,100%{opacity:.5;filter:url(#runeGlow)}50%{opacity:1;filter:url(#eyeIntenseGlow)}}
+@keyframes eyePulse{0%,100%{opacity:.6;filter:url(#runeGlow)}50%{opacity:1;filter:url(#eyeIntenseGlow)}}
 
 /* Eye colors per mood */
 .eye-iris{fill:url(#eyeGrad);transition:all .4s}
@@ -82,25 +82,21 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 .happy .eye-iris{fill:#69f0ae}
 .sad .eye-iris{fill:#607d8b}
 
-/* Body breathing */
-.body-group{transform-origin:50px 55px;animation:breathe 4.5s ease-in-out infinite}
-@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.008,1.012)}}
-
-/* Head tilt */
-.head-group{transform-origin:56px 26px;animation:headTilt 7s ease-in-out infinite}
-@keyframes headTilt{0%,100%{transform:rotate(0)}35%{transform:rotate(1.5deg)}65%{transform:rotate(-1deg)}}
-
-/* Tail sway */
-.tail-group{transform-origin:30px 72px;animation:tailSway 6s ease-in-out infinite}
-@keyframes tailSway{0%,100%{transform:rotate(0)}30%{transform:rotate(2deg)}70%{transform:rotate(-1.5deg)}}
-
-/* Wing flap — applied via JS */
-.wing-left{transition:transform .15s ease-out;transform-origin:38px 48px}
-.wing-right{transition:transform .15s ease-out;transform-origin:38px 48px}
+/* Wing flap */
+.wing-left{transition:transform .15s ease-out}
+.wing-right{transition:transform .15s ease-out}
 .wing-left.flap{animation:flapLeft .35s ease-in-out}
 .wing-right.flap{animation:flapRight .35s ease-in-out}
-@keyframes flapLeft{0%,100%{transform:rotate(0)}30%{transform:rotate(-15deg) translateY(-3px)}60%{transform:rotate(-6deg)}}
-@keyframes flapRight{0%,100%{transform:rotate(0)}30%{transform:rotate(15deg) translateY(-3px)}60%{transform:rotate(6deg)}}
+@keyframes flapLeft{0%,100%{transform:rotate(0)}30%{transform:rotate(-45deg) translateY(-10px)}60%{transform:rotate(-20deg) translateY(-4px)}}
+@keyframes flapRight{0%,100%{transform:rotate(0)}30%{transform:rotate(45deg) translateY(-10px)}60%{transform:rotate(20deg) translateY(-4px)}}
+
+/* Tail sway */
+.tail-group{transform-origin:110px 180px;animation:tailSway 6s ease-in-out infinite}
+@keyframes tailSway{0%,100%{transform:rotate(0)}30%{transform:rotate(1.5deg)}70%{transform:rotate(-1.5deg)}}
+
+/* Breathing */
+.body-group{transform-origin:108px 130px;animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.01)}}
 
 /* Main animations */
 @keyframes ravenFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
@@ -185,6 +181,25 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 #lightbox.active{display:flex}
 #lightbox img{max-width:95%;max-height:90%;object-fit:contain;border-radius:4px}
 
+/* ===== CUSTOMIZE PANEL ===== */
+#customize-panel{position:fixed;top:0;right:-340px;width:320px;max-width:92vw;height:100%;background:linear-gradient(180deg,#1a1208,#120d07);border-left:2px solid var(--border);z-index:101;transition:right .3s;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#customize-panel.open{right:0}
+#customize-panel h2{color:var(--gold);margin-bottom:14px;font-size:1rem;font-variant:small-caps;letter-spacing:1px}
+.cust-section{margin-bottom:14px;padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:4px}
+.cust-section h3{font-size:.8rem;color:var(--gold-dim);margin-bottom:8px;font-variant:small-caps}
+.cust-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.cust-row label{font-size:.72rem;color:var(--text-dim);min-width:65px}
+.cust-row input[type="color"]{width:36px;height:28px;border:1px solid var(--border);border-radius:4px;background:var(--wood-mid);cursor:pointer;padding:1px}
+.cust-row input[type="range"]{flex:1;accent-color:var(--gold);height:4px}
+.cust-row select{flex:1;background:var(--wood-mid);border:1px solid var(--border);border-radius:4px;padding:4px 8px;color:var(--text);font-size:.75rem;cursor:pointer}
+.cust-preview{width:100%;height:60px;border-radius:4px;border:1px solid var(--border);margin-top:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% 80%,#1a0e05,#0e0a06)}
+.cust-presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.cust-preset{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);cursor:pointer;transition:all .2s;position:relative}
+.cust-preset:hover,.cust-preset.active{border-color:var(--gold);transform:scale(1.15)}
+.cust-preset::after{content:'';position:absolute;inset:3px;border-radius:50%}
+.btn-gold{background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:4px;padding:8px 16px;color:#0e0a06;cursor:pointer;font-size:.85rem;font-weight:600;margin-top:8px;transition:transform .15s}
+.btn-gold:active{transform:scale(.95)}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width:480px){
   #raven-stage{height:200px}
@@ -203,6 +218,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <button id="project-btn" title="Projets">&#9776;</button>
     <h1>STAKR</h1>
     <span id="mood-indicator">&#9679; Serein</span>
+    <button id="customize-btn" title="Personnaliser Stakr" style="background:none;border:none;color:var(--gold-dim);font-size:1.2rem;cursor:pointer;padding:4px 6px">&#9998;</button>
     <button id="settings-btn" title="Paramètres">&#9881;</button>
   </header>
 
@@ -221,27 +237,68 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <canvas id="particle-canvas"></canvas>
     <div id="lightning-container"></div>
 
-    <svg id="raven-svg" class="idle" viewBox="0 0 102 128" xmlns="http://www.w3.org/2000/svg">
+    <svg id="raven-svg" class="idle" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <filter id="runeGlow"><feGaussianBlur stdDeviation="1.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="runeBlur"><feGaussianBlur stdDeviation="2.5"/></filter>
-        <filter id="eyeIntenseGlow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="softShadow"><feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#000" flood-opacity=".6"/></filter>
-        <!-- Iridescent body gradient overlay -->
-        <linearGradient id="bodySheen" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#4a148c" stop-opacity=".12"/>
-          <stop offset="30%" stop-color="#1a237e" stop-opacity=".08"/>
-          <stop offset="60%" stop-color="#006064" stop-opacity=".06"/>
-          <stop offset="100%" stop-color="#1b5e20" stop-opacity=".04"/>
-        </linearGradient>
-        <radialGradient id="bodyGrad" cx="40%" cy="30%" r="65%">
-          <stop offset="0%" stop-color="#2a2350"/><stop offset="40%" stop-color="#18143a"/>
-          <stop offset="100%" stop-color="#08061a"/>
+        <!-- Filters -->
+        <filter id="runeGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="runeBlur"><feGaussianBlur stdDeviation="5"/></filter>
+        <filter id="eyeIntenseGlow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="angerGlow"><feGaussianBlur stdDeviation="4" result="b"/><feFlood flood-color="#ff5252" flood-opacity=".6" result="c"/><feComposite in="c" in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="softShadow"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity=".6"/></filter>
+        <filter id="featherEdge"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" xChannelSelector="R" yChannelSelector="G"/></filter>
+
+        <!-- Body gradients -->
+        <radialGradient id="bodyGrad" cx="45%" cy="35%" r="60%">
+          <stop offset="0%" stop-color="#302858"/><stop offset="35%" stop-color="#1e1840"/>
+          <stop offset="70%" stop-color="#120e28"/><stop offset="100%" stop-color="#080614"/>
         </radialGradient>
+        <radialGradient id="headGrad" cx="40%" cy="30%" r="65%">
+          <stop offset="0%" stop-color="#38305e"/><stop offset="40%" stop-color="#221c42"/>
+          <stop offset="100%" stop-color="#0e0c1c"/>
+        </radialGradient>
+        <radialGradient id="chestGrad" cx="50%" cy="25%" r="70%">
+          <stop offset="0%" stop-color="#282248"/><stop offset="100%" stop-color="#14102c"/>
+        </radialGradient>
+        <linearGradient id="wingGradL" x1="100%" y1="0%" x2="0%" y2="90%">
+          <stop offset="0%" stop-color="#221e40"/><stop offset="50%" stop-color="#121028"/>
+          <stop offset="100%" stop-color="#06050c"/>
+        </linearGradient>
+        <linearGradient id="wingGradR" x1="0%" y1="0%" x2="100%" y2="90%">
+          <stop offset="0%" stop-color="#221e40"/><stop offset="50%" stop-color="#121028"/>
+          <stop offset="100%" stop-color="#06050c"/>
+        </linearGradient>
+        <linearGradient id="beakGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#454558"/><stop offset="100%" stop-color="#1c1c2c"/>
+        </linearGradient>
+        <linearGradient id="beakHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="rgba(255,255,255,.12)"/><stop offset="100%" stop-color="transparent"/>
+        </linearGradient>
         <radialGradient id="eyeGrad" cx="35%" cy="30%" r="55%">
           <stop offset="0%" stop-color="#e0f7fa"/><stop offset="25%" stop-color="#80deea"/>
           <stop offset="60%" stop-color="#4fc3f7"/><stop offset="100%" stop-color="#0288d1"/>
         </radialGradient>
+        <linearGradient id="tailGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+          <stop offset="0%" stop-color="#161232"/><stop offset="100%" stop-color="#060412"/>
+        </linearGradient>
+        <!-- Iridescent sheens -->
+        <linearGradient id="iridescentHead" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#9c27b0" stop-opacity=".1"/>
+          <stop offset="35%" stop-color="#7c4dff" stop-opacity=".08"/>
+          <stop offset="65%" stop-color="#00bcd4" stop-opacity=".06"/>
+          <stop offset="100%" stop-color="#4fc3f7" stop-opacity=".04"/>
+        </linearGradient>
+        <linearGradient id="iridescentBody" x1="20%" y1="0%" x2="80%" y2="100%">
+          <stop offset="0%" stop-color="#673ab7" stop-opacity=".06"/>
+          <stop offset="40%" stop-color="#283593" stop-opacity=".08"/>
+          <stop offset="70%" stop-color="#006064" stop-opacity=".05"/>
+          <stop offset="100%" stop-color="#1b5e20" stop-opacity=".03"/>
+        </linearGradient>
+        <linearGradient id="iridescentWing" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4a148c" stop-opacity=".08"/>
+          <stop offset="50%" stop-color="#1a237e" stop-opacity=".06"/>
+          <stop offset="100%" stop-color="#004d40" stop-opacity=".04"/>
+        </linearGradient>
+        <!-- Rune energy gradient -->
         <linearGradient id="runeEnergy" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stop-color="#80deea"/><stop offset="50%" stop-color="#4fc3f7"/>
           <stop offset="100%" stop-color="#0288d1"/>
@@ -249,181 +306,273 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
       </defs>
 
       <!-- ====== SUBTLE AURA ====== -->
-      <ellipse cx="50" cy="55" rx="35" ry="40" fill="none" stroke="#4fc3f7" stroke-width=".15" opacity=".04" filter="url(#runeGlow)"/>
+      <ellipse cx="120" cy="120" rx="65" ry="60" fill="none" stroke="#4fc3f7" stroke-width=".4" opacity=".04" filter="url(#runeGlow)"/>
+      <ellipse cx="120" cy="120" rx="75" ry="70" fill="none" stroke="#4fc3f7" stroke-width=".2" opacity=".02" filter="url(#runeBlur)"/>
 
       <!-- ====== BODY GROUP (breathing) ====== -->
       <g class="body-group">
 
-        <!-- Raven silhouette from imported SVG — flipped & scaled to viewBox -->
-        <g transform="translate(0,128) scale(0.01,-0.01)" filter="url(#softShadow)">
-          <!-- Main body fill -->
-          <path fill="url(#bodyGrad)" stroke="#1a1635" stroke-width="8" d="M2570 12749 c-60 -47 -323 -233 -416 -293 -36 -23 -49 -44 -108 -170
-l-68 -144 -67 -4 c-54 -3 -73 -9 -108 -35 -35 -25 -58 -32 -134 -42 -162 -21
--388 -107 -694 -265 -213 -110 -312 -169 -580 -343 -185 -120 -300 -186 -367
--212 -30 -11 -37 -41 -16 -58 8 -6 203 -15 448 -22 806 -22 1157 -50 1486
--119 l82 -17 55 -72 56 -72 -9 -123 c-6 -68 -14 -177 -19 -244 l-9 -121 -173
--239 c-199 -274 -245 -347 -324 -505 -77 -153 -123 -275 -131 -346 -4 -32 -21
--96 -39 -143 -68 -180 -97 -330 -116 -609 -21 -306 -5 -417 125 -843 125 -412
-307 -727 615 -1067 108 -119 225 -220 474 -410 287 -219 373 -277 614 -415
-227 -129 361 -214 508 -321 l101 -73 42 -134 c50 -157 68 -244 81 -393 11
--121 36 -204 121 -400 26 -60 68 -157 93 -215 84 -193 110 -343 84 -485 -29
--158 -95 -289 -374 -735 l-179 -285 -224 -7 c-124 -3 -387 -11 -585 -17 -197
--6 -391 -11 -430 -11 l-71 0 -157 -94 c-251 -151 -323 -214 -382 -335 l-37
--74 39 -39 40 -39 89 35 c113 44 162 53 170 31 8 -20 -34 -83 -111 -165 -78
--83 -144 -172 -202 -273 -25 -43 -67 -101 -93 -130 -79 -87 -97 -138 -60 -172
-20 -18 22 -18 58 -1 20 10 66 39 102 66 119 87 233 132 388 150 102 13 158 0
-182 -43 13 -23 13 -29 -3 -59 -9 -18 -42 -64 -73 -103 -60 -75 -58 -65 -32
--170 16 -69 21 -161 9 -183 -22 -41 -36 -223 -24 -302 6 -40 17 -78 23 -84 6
--6 42 -13 80 -16 l70 -5 57 79 c101 142 201 252 300 332 113 93 196 187 298
-339 245 365 698 694 927 673 48 -5 57 -10 142 -77 27 -22 79 -54 115 -71 181
--88 216 -107 252 -138 43 -37 69 -79 69 -111 0 -35 -59 -89 -160 -146 -122
--69 -209 -132 -281 -206 -71 -72 -110 -128 -176 -254 l-53 -100 37 -33 c66
--57 63 -57 146 7 142 109 217 140 217 89 0 -40 -48 -128 -149 -272 -125 -179
--167 -245 -191 -302 -27 -62 -26 -90 6 -111 25 -16 30 -16 98 1 39 10 132 48
-206 83 200 96 302 134 381 140 38 3 69 4 69 2 0 -5 -45 -232 -64 -324 -7 -38
--17 -130 -20 -203 l-7 -132 56 0 c70 0 91 11 110 57 27 64 92 140 183 213 107
-87 196 134 285 151 l68 13 76 125 c173 289 385 522 615 682 107 73 197 117
-263 126 45 6 49 5 37 -10 -12 -14 -6 -24 45 -75 63 -64 86 -78 178 -110 68
--24 337 -82 377 -82 36 0 111 76 134 135 34 90 3 189 -107 335 -125 165 -231
-213 -572 255 -69 8 -137 19 -150 24 -79 30 -76 118 17 471 219 830 240 932
-240 1200 1 221 -7 265 -99 549 -91 282 -115 385 -115 497 l0 94 80 0 c97 0
-169 -25 303 -104 51 -31 144 -78 207 -106 63 -28 153 -76 200 -107 125 -83
-587 -434 757 -577 296 -247 675 -596 821 -756 53 -58 110 -116 128 -130 44
--34 65 -61 186 -240 122 -179 184 -284 193 -322 4 -16 10 -28 12 -28 26 0 194
-105 254 158 211 186 283 299 484 752 87 195 163 371 171 392 13 39 64 109 149
-209 l45 53 0 132 0 133 -198 137 c-493 343 -537 376 -833 627 -207 175 -312
-255 -391 297 -64 34 -91 65 -136 156 l-31 61 -128 36 c-189 54 -230 64 -318
-77 -150 21 -183 28 -257 59 -78 33 -148 83 -148 107 0 24 44 37 95 30 45 -7
-65 -20 95 -62 14 -20 20 -21 110 -13 52 4 157 12 232 19 l137 11 78 -40 c102
--51 396 -210 406 -220 4 -4 -9 -28 -29 -54 -20 -25 -34 -54 -32 -64 6 -30 85
--42 340 -49 260 -8 258 -8 258 47 0 30 -37 68 -95 97 -22 11 -51 31 -65 44
--24 23 -24 23 -3 26 12 2 60 -13 108 -33 48 -20 95 -33 105 -30 19 6 53 -18
-130 -92 l45 -43 228 -11 c125 -7 230 -9 233 -6 5 5 34 121 31 123 -1 1 -74 37
--162 81 -88 43 -237 127 -332 186 -94 59 -198 118 -230 131 -150 59 -481 298
--603 435 -36 40 -103 103 -150 141 -72 57 -395 278 -510 347 -29 18 -354 351
--725 743 -218 230 -365 403 -547 644 -213 281 -320 401 -772 870 -356 368
--550 547 -745 685 -341 243 -458 346 -637 559 l-104 123 0 90 c0 67 -5 101
--19 132 -24 52 -37 203 -51 576 -12 309 -23 412 -50 491 -11 30 -26 101 -35
-158 -17 119 -49 203 -131 339 -138 233 -325 439 -509 562 -60 41 -126 89 -146
-108 l-37 35 -133 9 c-74 4 -316 8 -539 8 l-405 1 -65 -51z"/>
-          <!-- Iridescent sheen overlay (same path, different fill) -->
-          <path fill="url(#bodySheen)" d="M2570 12749 c-60 -47 -323 -233 -416 -293 -36 -23 -49 -44 -108 -170
-l-68 -144 -67 -4 c-54 -3 -73 -9 -108 -35 -35 -25 -58 -32 -134 -42 -162 -21
--388 -107 -694 -265 -213 -110 -312 -169 -580 -343 -185 -120 -300 -186 -367
--212 -30 -11 -37 -41 -16 -58 8 -6 203 -15 448 -22 806 -22 1157 -50 1486
--119 l82 -17 55 -72 56 -72 -9 -123 c-6 -68 -14 -177 -19 -244 l-9 -121 -173
--239 c-199 -274 -245 -347 -324 -505 -77 -153 -123 -275 -131 -346 -4 -32 -21
--96 -39 -143 -68 -180 -97 -330 -116 -609 -21 -306 -5 -417 125 -843 125 -412
-307 -727 615 -1067 108 -119 225 -220 474 -410 287 -219 373 -277 614 -415
-227 -129 361 -214 508 -321 l101 -73 42 -134 c50 -157 68 -244 81 -393 11
--121 36 -204 121 -400 26 -60 68 -157 93 -215 84 -193 110 -343 84 -485 -29
--158 -95 -289 -374 -735 l-179 -285 -224 -7 c-124 -3 -387 -11 -585 -17 -197
--6 -391 -11 -430 -11 l-71 0 -157 -94 c-251 -151 -323 -214 -382 -335 l-37
--74 39 -39 40 -39 89 35 c113 44 162 53 170 31 8 -20 -34 -83 -111 -165 -78
--83 -144 -172 -202 -273 -25 -43 -67 -101 -93 -130 -79 -87 -97 -138 -60 -172
-20 -18 22 -18 58 -1 20 10 66 39 102 66 119 87 233 132 388 150 102 13 158 0
-182 -43 13 -23 13 -29 -3 -59 -9 -18 -42 -64 -73 -103 -60 -75 -58 -65 -32
--170 16 -69 21 -161 9 -183 -22 -41 -36 -223 -24 -302 6 -40 17 -78 23 -84 6
--6 42 -13 80 -16 l70 -5 57 79 c101 142 201 252 300 332 113 93 196 187 298
-339 245 365 698 694 927 673 48 -5 57 -10 142 -77 27 -22 79 -54 115 -71 181
--88 216 -107 252 -138 43 -37 69 -79 69 -111 0 -35 -59 -89 -160 -146 -122
--69 -209 -132 -281 -206 -71 -72 -110 -128 -176 -254 l-53 -100 37 -33 c66
--57 63 -57 146 7 142 109 217 140 217 89 0 -40 -48 -128 -149 -272 -125 -179
--167 -245 -191 -302 -27 -62 -26 -90 6 -111 25 -16 30 -16 98 1 39 10 132 48
-206 83 200 96 302 134 381 140 38 3 69 4 69 2 0 -5 -45 -232 -64 -324 -7 -38
--17 -130 -20 -203 l-7 -132 56 0 c70 0 91 11 110 57 27 64 92 140 183 213 107
-87 196 134 285 151 l68 13 76 125 c173 289 385 522 615 682 107 73 197 117
-263 126 45 6 49 5 37 -10 -12 -14 -6 -24 45 -75 63 -64 86 -78 178 -110 68
--24 337 -82 377 -82 36 0 111 76 134 135 34 90 3 189 -107 335 -125 165 -231
-213 -572 255 -69 8 -137 19 -150 24 -79 30 -76 118 17 471 219 830 240 932
-240 1200 1 221 -7 265 -99 549 -91 282 -115 385 -115 497 l0 94 80 0 c97 0
-169 -25 303 -104 51 -31 144 -78 207 -106 63 -28 153 -76 200 -107 125 -83
-587 -434 757 -577 296 -247 675 -596 821 -756 53 -58 110 -116 128 -130 44
--34 65 -61 186 -240 122 -179 184 -284 193 -322 4 -16 10 -28 12 -28 26 0 194
-105 254 158 211 186 283 299 484 752 87 195 163 371 171 392 13 39 64 109 149
-209 l45 53 0 132 0 133 -198 137 c-493 343 -537 376 -833 627 -207 175 -312
-255 -391 297 -64 34 -91 65 -136 156 l-31 61 -128 36 c-189 54 -230 64 -318
-77 -150 21 -183 28 -257 59 -78 33 -148 83 -148 107 0 24 44 37 95 30 45 -7
-65 -20 95 -62 14 -20 20 -21 110 -13 52 4 157 12 232 19 l137 11 78 -40 c102
--51 396 -210 406 -220 4 -4 -9 -28 -29 -54 -20 -25 -34 -54 -32 -64 6 -30 85
--42 340 -49 260 -8 258 -8 258 47 0 30 -37 68 -95 97 -22 11 -51 31 -65 44
--24 23 -24 23 -3 26 12 2 60 -13 108 -33 48 -20 95 -33 105 -30 19 6 53 -18
-130 -92 l45 -43 228 -11 c125 -7 230 -9 233 -6 5 5 34 121 31 123 -1 1 -74 37
--162 81 -88 43 -237 127 -332 186 -94 59 -198 118 -230 131 -150 59 -481 298
--603 435 -36 40 -103 103 -150 141 -72 57 -395 278 -510 347 -29 18 -354 351
--725 743 -218 230 -365 403 -547 644 -213 281 -320 401 -772 870 -356 368
--550 547 -745 685 -341 243 -458 346 -637 559 l-104 123 0 90 c0 67 -5 101
--19 132 -24 52 -37 203 -51 576 -12 309 -23 412 -50 491 -11 30 -26 101 -35
-158 -17 119 -49 203 -131 339 -138 233 -325 439 -509 562 -60 41 -126 89 -146
-108 l-37 35 -133 9 c-74 4 -316 8 -539 8 l-405 1 -65 -51z"/>
-        </g>
-
-        <!-- ====== GLOWING EYE (positioned on the raven's head) ====== -->
-        <g class="head-group">
-          <g>
-            <!-- Eye socket shadow -->
-            <ellipse cx="53.5" cy="22" rx="3.5" ry="3" fill="#050410" opacity=".6"/>
-            <!-- Eye glow aura -->
-            <g class="eye-glow">
-              <circle cx="53.5" cy="21.8" r="2.4" fill="url(#eyeGrad)" filter="url(#runeGlow)"/>
-            </g>
-            <!-- Iris (JS mood color target) -->
-            <circle class="eye-iris" cx="53.5" cy="21.8" r="2.2" fill="url(#eyeGrad)" opacity=".9"/>
-            <!-- Pupil -->
-            <circle cx="54" cy="21.5" r="1.1" fill="#030208"/>
-            <circle cx="54.2" cy="21.3" r=".7" fill="#0a0818" opacity=".7"/>
-            <!-- Specular highlights -->
-            <circle cx="52.5" cy="20.5" r=".8" fill="#fff" opacity=".85"/>
-            <circle cx="54.8" cy="22.8" r=".4" fill="#fff" opacity=".3"/>
-            <circle cx="52.8" cy="21.2" r=".25" fill="#e0f7fa" opacity=".5"/>
-            <!-- Eye ring -->
-            <circle cx="53.5" cy="21.8" r="2.2" fill="none" stroke="rgba(79,195,247,.2)" stroke-width=".25"/>
+        <!-- ====== TAIL FEATHERS ====== -->
+        <g class="tail-group">
+          <!-- Long spread tail feathers -->
+          <path d="M88,165 Q76,185 60,208 Q66,198 72,188 Q78,178 84,170Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path d="M96,167 Q88,190 78,216 Q84,204 90,192 Q94,182 98,172Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path d="M106,168 Q104,194 100,222 Q104,208 108,194 Q110,184 110,174Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path d="M116,168 Q120,194 126,222 Q122,208 118,194 Q116,184 114,174Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path d="M126,167 Q134,190 144,216 Q138,204 132,192 Q128,182 124,172Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path d="M134,165 Q146,185 162,208 Q156,198 150,188 Q144,178 138,170Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <!-- Barb texture -->
+          <g stroke="#1e1a38" stroke-width=".25" fill="none" opacity=".45">
+            <path d="M74,185 Q70,192 64,200"/><path d="M84,190 Q80,198 76,208"/>
+            <path d="M96,192 Q94,200 90,212"/><path d="M108,194 Q106,204 102,216"/>
+            <path d="M120,194 Q122,204 126,216"/><path d="M132,190 Q136,198 140,208"/>
+            <path d="M148,185 Q152,192 158,200"/>
+          </g>
+          <!-- Central rachis lines -->
+          <g stroke="#141030" stroke-width=".5" fill="none" opacity=".4">
+            <path d="M86,168 Q76,184 62,206"/><path d="M97,170 Q88,190 80,214"/>
+            <path d="M108,170 Q105,194 102,220"/><path d="M115,170 Q118,194 124,220"/>
+            <path d="M125,170 Q134,190 142,214"/><path d="M136,168 Q146,184 160,206"/>
           </g>
         </g>
 
-        <!-- ====== RUNE MARKINGS (glowing on body) ====== -->
-        <!-- Chest rune — Fehu (wealth/power) -->
-        <g>
-          <path class="rune-glow-bg rune-glow-1" d="M40,48 L40,58 M38,51 L42,55"/>
-          <path class="rune rune-1 rune-path" d="M40,48 L40,58 M38,51 L42,55"/>
+        <!-- ====== FEET & TALONS ====== -->
+        <g opacity=".6">
+          <!-- Left leg -->
+          <path d="M100,160 Q96,168 92,176" stroke="#2a2838" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+          <path d="M92,176 L82,183 M82,183 L79,181" stroke="#2a2838" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M92,176 L90,185 M90,185 L87,184" stroke="#2a2838" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M92,176 L98,183 M98,183 L97,180" stroke="#2a2838" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M92,176 L86,184" stroke="#2a2838" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Right leg -->
+          <path d="M122,160 Q126,168 130,176" stroke="#2a2838" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+          <path d="M130,176 L140,183 M140,183 L143,181" stroke="#2a2838" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M130,176 L132,185 M132,185 L135,184" stroke="#2a2838" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M130,176 L124,183 M124,183 L125,180" stroke="#2a2838" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M130,176 L136,184" stroke="#2a2838" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Talon tips (sharp) -->
+          <g fill="#161620" stroke="#0e0e18" stroke-width=".3">
+            <path d="M79,181 L77,179 L80,180Z"/><path d="M87,184 L85,182 L88,183Z"/>
+            <path d="M97,180 L96,178 L98,179Z"/><path d="M86,184 L84,182 L87,183Z"/>
+            <path d="M143,181 L145,179 L142,180Z"/><path d="M135,184 L137,182 L134,183Z"/>
+            <path d="M125,180 L126,178 L124,179Z"/><path d="M136,184 L138,182 L135,183Z"/>
+          </g>
+          <!-- Scaly texture on legs -->
+          <g stroke="#363648" stroke-width=".3" fill="none" opacity=".4">
+            <path d="M98,163 Q96,164 94,163"/><path d="M97,166 Q95,167 93,166"/>
+            <path d="M96,169 Q94,170 92,169"/><path d="M95,172 Q93,173 91,172"/>
+            <path d="M124,163 Q126,164 128,163"/><path d="M125,166 Q127,167 129,166"/>
+            <path d="M126,169 Q128,170 130,169"/><path d="M127,172 Q129,173 131,172"/>
+          </g>
         </g>
-        <!-- Back rune — Ansuz (wisdom/Odin) -->
+
+        <!-- ====== BODY ====== -->
+        <!-- Main body shape — muscular, slightly asymmetric for realism -->
+        <path d="M62,118 Q58,85 84,74 Q105,67 128,74 Q154,85 152,118 Q152,148 134,162 Q118,170 105,170 Q90,170 78,162 Q62,148 62,118Z" fill="url(#bodyGrad)" stroke="#1e1a35" stroke-width=".5"/>
+        <!-- Iridescent body sheen -->
+        <path d="M72,100 Q108,86 142,100 Q148,122 138,146 Q108,156 76,146 Q66,122 72,100Z" fill="url(#iridescentBody)" opacity=".5"/>
+
+        <!-- Chest feather scales — overlapping rows -->
+        <g fill="url(#chestGrad)" stroke="#262244" stroke-width=".25" opacity=".9">
+          <path d="M86,92 Q108,87 130,92 Q128,99 108,96 Q88,99 86,92Z"/>
+          <path d="M82,100 Q108,94 134,100 Q132,108 108,104 Q84,108 82,100Z"/>
+          <path d="M78,108 Q108,101 138,108 Q136,117 108,112 Q80,117 78,108Z"/>
+          <path d="M76,116 Q108,109 140,116 Q138,125 108,120 Q78,125 76,116Z"/>
+          <path d="M78,124 Q108,117 138,124 Q136,133 108,128 Q80,133 78,124Z"/>
+          <path d="M80,132 Q108,125 136,132 Q134,140 108,136 Q82,140 80,132Z"/>
+          <path d="M84,139 Q108,133 132,139 Q130,146 108,143 Q86,146 84,139Z"/>
+          <path d="M88,146 Q108,141 128,146 Q126,152 108,149 Q90,152 88,146Z"/>
+          <path d="M92,152 Q108,148 124,152 Q122,157 108,155 Q94,157 92,152Z"/>
+        </g>
+        <!-- Belly fluff detail -->
+        <g stroke="#201c3a" stroke-width=".3" fill="none" opacity=".35">
+          <path d="M94,155 Q92,160 90,164"/><path d="M102,156 Q101,161 100,165"/>
+          <path d="M110,156 Q111,161 112,165"/><path d="M118,155 Q120,160 122,164"/>
+        </g>
+
+        <!-- ====== WING LEFT ====== -->
+        <g class="wing-left" style="transform-origin:68px 110px" filter="url(#softShadow)">
+          <!-- Wing base shape -->
+          <path d="M68,102 Q52,82 30,86 Q14,96 10,122 Q14,142 30,150 Q48,154 60,146 Q66,138 68,155Z" fill="url(#wingGradL)" stroke="#161230" stroke-width=".4"/>
+          <!-- Marginal coverts -->
+          <path d="M64,106 Q52,98 38,102" stroke="#222040" stroke-width=".4" fill="none"/>
+          <path d="M62,112 Q48,106 32,110" stroke="#222040" stroke-width=".4" fill="none"/>
+          <path d="M60,118 Q44,112 28,118" stroke="#222040" stroke-width=".4" fill="none"/>
+          <!-- Greater coverts -->
+          <path d="M58,124 Q42,119 24,124" stroke="#1c1835" stroke-width=".45" fill="none"/>
+          <path d="M56,130 Q38,126 20,132" stroke="#1c1835" stroke-width=".45" fill="none"/>
+          <!-- Secondary flight feathers -->
+          <path d="M52,136 Q34,133 16,140" stroke="#161230" stroke-width=".5" fill="none"/>
+          <path d="M48,142 Q30,140 14,148" stroke="#161230" stroke-width=".5" fill="none"/>
+          <!-- Primary flight feathers (long, separated) -->
+          <path d="M30,150 Q20,156 10,168" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M36,151 Q28,158 20,170" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M42,152 Q36,160 30,172" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M48,153 Q44,162 40,173" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M54,153 Q52,163 50,173" stroke="#0e0c1c" stroke-width=".7" fill="none" stroke-linecap="round"/>
+          <!-- Iridescent sheen on wing -->
+          <path d="M56,108 Q40,102 28,112 Q20,124 24,138 Q38,134 56,128Z" fill="url(#iridescentWing)" opacity=".5"/>
+          <!-- Feather edge detail -->
+          <g stroke="#2a2648" stroke-width=".2" fill="none" opacity=".3">
+            <path d="M30,150 Q26,148 22,150"/><path d="M36,151 Q32,150 28,152"/>
+            <path d="M42,152 Q38,151 34,153"/><path d="M48,153 Q44,152 40,154"/>
+          </g>
+        </g>
+
+        <!-- ====== WING RIGHT ====== -->
+        <g class="wing-right" style="transform-origin:148px 110px" filter="url(#softShadow)">
+          <path d="M148,102 Q164,82 186,86 Q202,96 206,122 Q202,142 186,150 Q168,154 156,146 Q150,138 148,155Z" fill="url(#wingGradR)" stroke="#161230" stroke-width=".4"/>
+          <path d="M152,106 Q164,98 178,102" stroke="#222040" stroke-width=".4" fill="none"/>
+          <path d="M154,112 Q168,106 184,110" stroke="#222040" stroke-width=".4" fill="none"/>
+          <path d="M156,118 Q172,112 188,118" stroke="#222040" stroke-width=".4" fill="none"/>
+          <path d="M158,124 Q174,119 192,124" stroke="#1c1835" stroke-width=".45" fill="none"/>
+          <path d="M160,130 Q178,126 196,132" stroke="#1c1835" stroke-width=".45" fill="none"/>
+          <path d="M164,136 Q182,133 200,140" stroke="#161230" stroke-width=".5" fill="none"/>
+          <path d="M168,142 Q186,140 202,148" stroke="#161230" stroke-width=".5" fill="none"/>
+          <path d="M186,150 Q196,156 206,168" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M180,151 Q188,158 196,170" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M174,152 Q180,160 186,172" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M168,153 Q172,162 176,173" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M162,153 Q164,163 166,173" stroke="#0e0c1c" stroke-width=".7" fill="none" stroke-linecap="round"/>
+          <path d="M160,108 Q176,102 188,112 Q196,124 192,138 Q178,134 160,128Z" fill="url(#iridescentWing)" opacity=".5"/>
+          <g stroke="#2a2648" stroke-width=".2" fill="none" opacity=".3">
+            <path d="M186,150 Q190,148 194,150"/><path d="M180,151 Q184,150 188,152"/>
+            <path d="M174,152 Q178,151 182,153"/><path d="M168,153 Q172,152 176,154"/>
+          </g>
+        </g>
+
+        <!-- ====== NECK (shaggy hackle feathers) ====== -->
+        <g fill="url(#bodyGrad)">
+          <path d="M82,84 Q108,77 132,84 Q130,95 108,90 Q86,95 82,84Z"/>
+          <!-- Hackle feathers (shaggy throat typical of corvids) -->
+          <g stroke="#1c1832" stroke-width=".5" fill="none">
+            <path d="M88,88 Q85,95 82,100"/><path d="M94,86 Q91,93 89,98"/>
+            <path d="M100,85 Q98,92 97,98"/><path d="M108,85 Q108,92 108,98"/>
+            <path d="M114,86 Q116,93 118,98"/><path d="M120,88 Q123,95 126,100"/>
+          </g>
+          <!-- Extra hackle tufts -->
+          <g stroke="#201c38" stroke-width=".35" fill="none" opacity=".5">
+            <path d="M86,90 Q84,96 83,101"/><path d="M92,88 Q90,94 89,99"/>
+            <path d="M104,85 Q103,92 102,98"/><path d="M112,85 Q113,92 114,98"/>
+            <path d="M118,88 Q120,94 122,99"/><path d="M124,90 Q126,96 127,101"/>
+          </g>
+        </g>
+
+        <!-- ====== HEAD ====== -->
+        <!-- Skull — angular flat forehead, rounded occiput -->
+        <path d="M78,70 Q76,44 108,38 Q140,44 138,70 Q138,88 108,92 Q78,88 78,70Z" fill="url(#headGrad)" stroke="#1e1a35" stroke-width=".5"/>
+        <!-- Iridescent head sheen -->
+        <path d="M84,55 Q108,45 128,55 Q132,70 122,80 Q108,84 94,80 Q84,70 84,55Z" fill="url(#iridescentHead)" opacity=".65"/>
+        <!-- Crown feather texture -->
+        <g stroke="#2a2548" stroke-width=".35" fill="none" opacity=".45">
+          <path d="M88,48 Q98,43 108,42"/><path d="M108,42 Q118,43 128,48"/>
+          <path d="M86,54 Q98,49 108,48 Q118,49 130,54"/>
+          <path d="M84,60 Q96,55 108,54 Q120,55 132,60"/>
+        </g>
+        <!-- Forehead ridge (bristly feathers above beak) -->
+        <g stroke="#2a2548" fill="none" opacity=".6">
+          <path d="M112,54 Q118,49 124,52" stroke-width=".6"/>
+          <path d="M114,56 Q120,52 128,55" stroke-width=".4"/>
+          <path d="M110,58 Q116,54 122,57" stroke-width=".35"/>
+        </g>
+        <!-- Nasal tuft (feathered nostrils) -->
+        <g stroke="#262244" stroke-width=".3" fill="none" opacity=".5">
+          <path d="M134,60 Q138,57 142,58"/><path d="M134,62 Q140,59 144,60"/>
+          <path d="M136,58 Q140,55 143,57"/>
+        </g>
+
+        <!-- ====== BEAK ====== -->
+        <!-- Upper mandible (heavy, curved — distinctive raven beak) -->
+        <path d="M136,64 Q150,56 168,52 Q174,58 168,62 Q158,64 136,68Z" fill="url(#beakGrad)" stroke="#28283c" stroke-width=".5"/>
+        <!-- Culmen ridge (top edge highlight) -->
+        <path d="M138,64 Q150,57 164,53 Q166,56 164,58 Q154,60 138,66Z" fill="url(#beakHighlight)"/>
+        <!-- Lower mandible -->
+        <path d="M136,68 Q150,68 162,64 Q165,66 160,68 Q150,72 136,72Z" fill="#1a1a28" stroke="#28283c" stroke-width=".4"/>
+        <!-- Beak tip hook (raven-specific downward curve) -->
+        <path d="M168,52 Q174,56 170,62" stroke="#181828" stroke-width=".8" fill="none" stroke-linecap="round"/>
+        <!-- Nostril area -->
+        <ellipse cx="142" cy="62" rx="2.8" ry="1.5" fill="#1e1c34"/>
+        <!-- Beak commissure line -->
+        <path d="M136,68 Q145,67 156,64" stroke="#12101e" stroke-width=".3" fill="none"/>
+        <!-- Beak texture lines -->
+        <g stroke="#2a2a3e" stroke-width=".2" fill="none" opacity=".3">
+          <path d="M140,60 Q150,57 160,55"/><path d="M140,62 Q150,59 160,57"/>
+          <path d="M140,64 Q150,62 158,60"/>
+        </g>
+
+        <!-- ====== EYE ====== -->
         <g>
-          <path class="rune-glow-bg rune-glow-2" d="M50,45 L50,55 M48,48 L52,52"/>
-          <path class="rune rune-2 rune-path" d="M50,45 L50,55 M48,48 L52,52"/>
+          <!-- Deep eye socket -->
+          <ellipse cx="126" cy="64" rx="11" ry="10" fill="#080618" opacity=".7"/>
+          <!-- Orbital ring -->
+          <ellipse cx="126" cy="63" rx="9" ry="8" fill="#141028" stroke="#252244" stroke-width=".4"/>
+          <!-- Iris with glow -->
+          <g class="eye-glow">
+            <circle cx="126" cy="62.5" r="6" fill="url(#eyeGrad)" filter="url(#runeGlow)"/>
+          </g>
+          <!-- Iris (for JS mood color changes) -->
+          <circle class="eye-iris" cx="126" cy="62.5" r="6" fill="url(#eyeGrad)" opacity=".9"/>
+          <!-- Pupil -->
+          <circle cx="127" cy="62" r="3" fill="#040310"/>
+          <!-- Inner pupil depth -->
+          <circle cx="127.5" cy="61.5" r="2" fill="#0a0818" opacity=".8"/>
+          <!-- Primary specular highlight -->
+          <circle cx="123.5" cy="59.5" r="2" fill="#fff" opacity=".8"/>
+          <!-- Secondary highlight -->
+          <circle cx="129" cy="64.5" r="1" fill="#fff" opacity=".3"/>
+          <!-- Tertiary tiny highlight -->
+          <circle cx="124.5" cy="61" r=".6" fill="#e0f7fa" opacity=".5"/>
+          <!-- Eye ring glow -->
+          <circle cx="126" cy="62.5" r="6" fill="none" stroke="rgba(79,195,247,.2)" stroke-width=".6"/>
+          <!-- Eyelid shadow (upper) -->
+          <path d="M118,58 Q126,54 134,58" stroke="#0a0818" stroke-width="1.2" fill="none" opacity=".4" stroke-linecap="round"/>
+        </g>
+
+        <!-- ====== RUNE MARKINGS (with draw-on animation) ====== -->
+        <!-- Body runes — Fehu (wealth/power) -->
+        <g>
+          <path class="rune-glow-bg rune-glow-1" d="M94,108 L94,138 M90,115 L98,123 M90,131 L98,127"/>
+          <path class="rune rune-1 rune-path" d="M94,108 L94,138 M90,115 L98,123 M90,131 L98,127"/>
+        </g>
+        <!-- Body rune — Ansuz (wisdom/Odin) -->
+        <g>
+          <path class="rune-glow-bg rune-glow-2" d="M122,108 L122,138 M118,115 L126,123 M118,131 L126,127"/>
+          <path class="rune rune-2 rune-path" d="M122,108 L122,138 M118,115 L126,123 M118,131 L126,127"/>
         </g>
         <!-- Head rune — Algiz (protection) -->
         <g>
-          <path class="rune-glow-bg rune-glow-3" d="M44,18 L47,14 L50,18 M47,14 L47,22" stroke-width="1.5"/>
-          <path class="rune rune-3 rune-path" d="M44,18 L47,14 L50,18 M47,14 L47,22" stroke-width="1.5"/>
+          <path class="rune-glow-bg rune-glow-3" d="M104,48 L108,40 L112,48 M108,40 L108,56" stroke-width="2.5"/>
+          <path class="rune rune-3 rune-path" d="M104,48 L108,40 L112,48 M108,40 L108,56" stroke-width="2.5"/>
         </g>
-        <!-- Wing rune — Raidho (journey) -->
+        <!-- Left wing rune — Raidho (journey) -->
         <g>
-          <path class="rune-glow-bg rune-glow-4" d="M28,52 L28,60 M26,55 L30,58"/>
-          <path class="rune rune-4 rune-path" d="M28,52 L28,60 M26,55 L30,58"/>
+          <path class="rune-glow-bg rune-glow-4" d="M38,118 L38,136 M35,122 L42,128"/>
+          <path class="rune rune-4 rune-path" d="M38,118 L38,136 M35,122 L42,128"/>
         </g>
-        <!-- Tail rune — Kenaz (knowledge/fire) -->
+        <!-- Right wing rune — Kenaz (knowledge/fire) -->
         <g>
-          <path class="rune-glow-bg rune-glow-2" d="M34,68 L34,76 M32,70 L36,74"/>
-          <path class="rune rune-5 rune-path" d="M34,68 L34,76 M32,70 L36,74"/>
+          <path class="rune-glow-bg rune-glow-3" d="M178,118 L178,136 M175,122 L182,128"/>
+          <path class="rune rune-5 rune-path" d="M178,118 L178,136 M175,122 L182,128"/>
         </g>
-        <!-- Neck rune — Dagaz (dawn) -->
+        <!-- Chest rune — Dagaz (dawn/transformation) -->
         <g>
-          <path class="rune-glow-bg rune-glow-3" d="M46,32 L50,28 L46,36 L50,32"/>
-          <path class="rune rune-6 rune-path" d="M46,32 L50,28 L46,36 L50,32"/>
+          <path class="rune-glow-bg rune-glow-2" d="M104,126 L112,120 L104,132 L112,126"/>
+          <path class="rune rune-6 rune-path" d="M104,126 L112,120 L104,132 L112,126"/>
         </g>
 
         <!-- ====== VIKING SPECTRAL HORNS ====== -->
-        <g opacity=".35">
-          <path d="M40,16 Q34,8 37,2" stroke="url(#runeEnergy)" stroke-width=".9" fill="none" filter="url(#runeGlow)" stroke-linecap="round"/>
-          <path d="M40,16 Q35,10 38,4" stroke="#4fc3f7" stroke-width=".3" fill="none" filter="url(#runeBlur)" opacity=".5"/>
-          <circle cx="37" cy="2" r="1" fill="#80deea" filter="url(#runeGlow)" opacity=".6"/>
-          <path d="M56,16 Q62,8 59,2" stroke="url(#runeEnergy)" stroke-width=".9" fill="none" filter="url(#runeGlow)" stroke-linecap="round"/>
-          <path d="M56,16 Q61,10 58,4" stroke="#4fc3f7" stroke-width=".3" fill="none" filter="url(#runeBlur)" opacity=".5"/>
-          <circle cx="59" cy="2" r="1" fill="#80deea" filter="url(#runeGlow)" opacity=".6"/>
-          <!-- Horn rune marks -->
-          <path d="M36,9 L38,7 L36,5" stroke="#4fc3f7" stroke-width=".5" fill="none" filter="url(#runeGlow)" opacity=".3"/>
-          <path d="M60,9 L58,7 L60,5" stroke="#4fc3f7" stroke-width=".5" fill="none" filter="url(#runeGlow)" opacity=".3"/>
+        <g class="horn-group" opacity=".4">
+          <!-- Left horn -->
+          <path d="M84,48 Q70,28 76,12" stroke="url(#runeEnergy)" stroke-width="2.2" fill="none" filter="url(#runeGlow)" stroke-linecap="round"/>
+          <path d="M84,48 Q72,32 78,16" stroke="#4fc3f7" stroke-width=".8" fill="none" filter="url(#runeBlur)" opacity=".5"/>
+          <circle cx="76" cy="12" r="2.5" fill="#80deea" filter="url(#runeGlow)" opacity=".6"/>
+          <!-- Right horn -->
+          <path d="M132,48 Q146,28 140,12" stroke="url(#runeEnergy)" stroke-width="2.2" fill="none" filter="url(#runeGlow)" stroke-linecap="round"/>
+          <path d="M132,48 Q144,32 138,16" stroke="#4fc3f7" stroke-width=".8" fill="none" filter="url(#runeBlur)" opacity=".5"/>
+          <circle cx="140" cy="12" r="2.5" fill="#80deea" filter="url(#runeGlow)" opacity=".6"/>
+          <!-- Horn rune markings -->
+          <path d="M78,30 L82,26 L78,22" stroke="#4fc3f7" stroke-width="1" fill="none" filter="url(#runeGlow)" opacity=".3"/>
+          <path d="M138,30 L134,26 L138,22" stroke="#4fc3f7" stroke-width="1" fill="none" filter="url(#runeGlow)" opacity=".3"/>
         </g>
 
       </g><!-- end body-group -->
@@ -522,6 +671,100 @@ l-68 -144 -67 -4 c-54 -3 -73 -9 -108 -35 -35 -25 -58 -32 -134 -42 -162 -21
   </div>
 </div>
 
+<!-- CUSTOMIZE PANEL -->
+<div id="customize-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h2 style="margin:0">&#9998; Personnaliser Stakr</h2>
+    <button class="btn-secondary" onclick="toggleCustomize()" style="margin:0;padding:6px 14px">&#10003; OK</button>
+  </div>
+
+  <!-- PRESETS -->
+  <div class="cust-section">
+    <h3>Presets</h3>
+    <div class="cust-presets" id="preset-list"></div>
+  </div>
+
+  <!-- PLUMAGE / BODY -->
+  <div class="cust-section">
+    <h3>Plumage / Corps</h3>
+    <div class="cust-row"><label>Base</label><input type="color" id="cust-body-base" value="#1e1840"/></div>
+    <div class="cust-row"><label>Reflets</label><input type="color" id="cust-body-sheen" value="#302858"/></div>
+    <div class="cust-row"><label>Poitrine</label><input type="color" id="cust-chest" value="#14102c"/></div>
+    <div class="cust-row"><label>Iridescence</label>
+      <select id="cust-iridescence">
+        <option value="purple">Violet-bleu</option>
+        <option value="green">Vert-emeraude</option>
+        <option value="red">Rouge-braise</option>
+        <option value="gold">Or ancien</option>
+        <option value="ice">Glace nordique</option>
+        <option value="none">Aucune</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- AILES -->
+  <div class="cust-section">
+    <h3>Ailes</h3>
+    <div class="cust-row"><label>Couleur</label><input type="color" id="cust-wing" value="#121028"/></div>
+    <div class="cust-row"><label>Pointes</label><input type="color" id="cust-wing-tip" value="#06050c"/></div>
+  </div>
+
+  <!-- QUEUE -->
+  <div class="cust-section">
+    <h3>Queue</h3>
+    <div class="cust-row"><label>Couleur</label><input type="color" id="cust-tail" value="#161232"/></div>
+  </div>
+
+  <!-- BEC -->
+  <div class="cust-section">
+    <h3>Bec</h3>
+    <div class="cust-row"><label>Couleur</label><input type="color" id="cust-beak" value="#454558"/></div>
+    <div class="cust-row"><label>Pointe</label><input type="color" id="cust-beak-tip" value="#1c1c2c"/></div>
+  </div>
+
+  <!-- YEUX -->
+  <div class="cust-section">
+    <h3>Yeux</h3>
+    <div class="cust-row"><label>Couleur</label><input type="color" id="cust-eye" value="#4fc3f7"/></div>
+    <div class="cust-row"><label>Centre</label><input type="color" id="cust-eye-center" value="#e0f7fa"/></div>
+    <div class="cust-row"><label>Intensite</label><input type="range" id="cust-eye-glow" min="0" max="100" value="60"/></div>
+  </div>
+
+  <!-- RUNES -->
+  <div class="cust-section">
+    <h3>Runes</h3>
+    <div class="cust-row"><label>Couleur</label><input type="color" id="cust-rune" value="#4fc3f7"/></div>
+    <div class="cust-row"><label>Intensite</label><input type="range" id="cust-rune-glow" min="0" max="100" value="70"/></div>
+    <div class="cust-row"><label>Vitesse</label>
+      <select id="cust-rune-speed">
+        <option value="slow">Lente</option>
+        <option value="normal" selected>Normale</option>
+        <option value="fast">Rapide</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- CORNES -->
+  <div class="cust-section">
+    <h3>Cornes spectrales</h3>
+    <div class="cust-row"><label>Couleur</label><input type="color" id="cust-horn" value="#4fc3f7"/></div>
+    <div class="cust-row"><label>Visible</label>
+      <select id="cust-horn-visible">
+        <option value="yes">Oui</option>
+        <option value="no">Non</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- TAILLE -->
+  <div class="cust-section">
+    <h3>Taille du corbeau</h3>
+    <div class="cust-row"><label>Echelle</label><input type="range" id="cust-scale" min="60" max="140" value="100"/><span id="cust-scale-val" style="font-size:.7rem;color:var(--text-dim);min-width:30px">100%</span></div>
+  </div>
+
+  <button class="btn-gold" onclick="resetAppearance()" style="width:100%">Reinitialiser par defaut</button>
+</div>
+
 <!-- TOAST -->
 <div id="toast"><div class="toast-title"></div><div class="toast-msg"></div></div>
 
@@ -602,8 +845,9 @@ let state = {
   longTermMemory: [], // facts Stakr remembers about user
   reminders: [],      // {time, message, id}
   currentMode: 'conversation',
-  currentProject: null, // null = general, or project id
-  projects: [],         // [{id, name, messages:[], createdAt}]
+  currentProject: null,
+  projects: [],
+  appearance: null, // custom appearance overrides
   stakrLife: {
     messageCount: 0,
     lastSeen: null,
@@ -644,6 +888,7 @@ function init() {
   setupListeners();
   setupModes();
   setupImageInput();
+  setupCustomize();
   renderProjectList();
   resizeCanvas();
   resizeAurora();
@@ -680,6 +925,7 @@ function loadState() {
       if (!state.projects) state.projects = [];
       if (!state.currentProject) state.currentProject = null;
       if (!state.currentMode) state.currentMode = 'conversation';
+      if (!state.appearance) state.appearance = null;
     }
   } catch(e) { console.warn('Load state error', e); }
 }
@@ -881,6 +1127,234 @@ function autoDetectProject(text) {
   }
 }
 
+// ===== APPEARANCE CUSTOMIZATION =====
+const DEFAULT_APPEARANCE = {
+  bodyBase:'#1e1840', bodySheen:'#302858', chest:'#14102c',
+  iridescence:'purple',
+  wing:'#121028', wingTip:'#06050c',
+  tail:'#161232',
+  beak:'#454558', beakTip:'#1c1c2c',
+  eye:'#4fc3f7', eyeCenter:'#e0f7fa', eyeGlow:60,
+  rune:'#4fc3f7', runeGlow:70, runeSpeed:'normal',
+  horn:'#4fc3f7', hornVisible:'yes',
+  scale:100
+};
+
+const APPEARANCE_PRESETS = [
+  { name:'Classique', colors:{ ...DEFAULT_APPEARANCE }, swatch:'#4fc3f7' },
+  { name:'Sang de Dragon', colors:{ bodyBase:'#2a0a0a', bodySheen:'#4a1515', chest:'#1a0808', iridescence:'red', wing:'#1e0808', wingTip:'#0a0303', tail:'#1a0505', beak:'#3a2020', beakTip:'#1a0e0e', eye:'#ff5252', eyeCenter:'#ffcdd2', eyeGlow:80, rune:'#ff5252', runeGlow:80, runeSpeed:'fast', horn:'#ff5252', hornVisible:'yes', scale:100 }, swatch:'#ff5252' },
+  { name:'Givre d\'Helheim', colors:{ bodyBase:'#0a1a2a', bodySheen:'#1a3050', chest:'#081420', iridescence:'ice', wing:'#081828', wingTip:'#040c14', tail:'#0a1828', beak:'#3a4a5a', beakTip:'#1c2a3a', eye:'#80deea', eyeCenter:'#e0f7fa', eyeGlow:90, rune:'#80deea', runeGlow:85, runeSpeed:'slow', horn:'#80deea', hornVisible:'yes', scale:100 }, swatch:'#80deea' },
+  { name:'Or d\'Asgard', colors:{ bodyBase:'#1a1508', bodySheen:'#3a2a10', chest:'#141008', iridescence:'gold', wing:'#1a1408', wingTip:'#0a0a04', tail:'#181208', beak:'#5a4a20', beakTip:'#2a2010', eye:'#ffd54f', eyeCenter:'#fff9c4', eyeGlow:75, rune:'#daa520', runeGlow:70, runeSpeed:'normal', horn:'#daa520', hornVisible:'yes', scale:100 }, swatch:'#daa520' },
+  { name:'Ombre de Nidhogg', colors:{ bodyBase:'#0a0a0a', bodySheen:'#1a1a1a', chest:'#080808', iridescence:'none', wing:'#0a0a0a', wingTip:'#030303', tail:'#080808', beak:'#2a2a2a', beakTip:'#111111', eye:'#69f0ae', eyeCenter:'#b9f6ca', eyeGlow:100, rune:'#69f0ae', runeGlow:90, runeSpeed:'fast', horn:'#69f0ae', hornVisible:'no', scale:105 }, swatch:'#69f0ae' },
+  { name:'Esprit d\'Odin', colors:{ bodyBase:'#1a1030', bodySheen:'#3a2060', chest:'#120a20', iridescence:'purple', wing:'#160c28', wingTip:'#08040c', tail:'#1a1030', beak:'#4a3a5a', beakTip:'#2a1c3a', eye:'#ce93d8', eyeCenter:'#f3e5f5', eyeGlow:70, rune:'#ce93d8', runeGlow:75, runeSpeed:'slow', horn:'#ce93d8', hornVisible:'yes', scale:100 }, swatch:'#ce93d8' },
+  { name:'Feu de Muspelheim', colors:{ bodyBase:'#1a0e00', bodySheen:'#3a2000', chest:'#140a00', iridescence:'red', wing:'#1a0c00', wingTip:'#0a0500', tail:'#180c00', beak:'#5a3a10', beakTip:'#2a1a08', eye:'#ff9800', eyeCenter:'#fff3e0', eyeGlow:85, rune:'#ff6f00', runeGlow:90, runeSpeed:'fast', horn:'#ff6f00', hornVisible:'yes', scale:100 }, swatch:'#ff6f00' }
+];
+
+const IRIDESCENCE_MAP = {
+  purple: { c1:'#9c27b0', c2:'#7c4dff', c3:'#00bcd4', c4:'#4fc3f7' },
+  green:  { c1:'#1b5e20', c2:'#4caf50', c3:'#00bcd4', c4:'#26a69a' },
+  red:    { c1:'#b71c1c', c2:'#e53935', c3:'#ff8a65', c4:'#ffab91' },
+  gold:   { c1:'#5d4037', c2:'#8d6e63', c3:'#daa520', c4:'#ffd54f' },
+  ice:    { c1:'#0d47a1', c2:'#42a5f5', c3:'#80deea', c4:'#e0f7fa' },
+  none:   { c1:'transparent', c2:'transparent', c3:'transparent', c4:'transparent' }
+};
+
+function setupCustomize() {
+  renderPresets();
+  if (state.appearance) {
+    loadAppearanceToUI(state.appearance);
+    applyAppearanceToSVG(state.appearance);
+  }
+}
+
+function renderPresets() {
+  const list = $('#preset-list');
+  list.innerHTML = '';
+  APPEARANCE_PRESETS.forEach((p, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'cust-preset';
+    btn.title = p.name;
+    btn.style.background = p.swatch;
+    btn.onclick = () => {
+      loadAppearanceToUI(p.colors);
+      applyAppearanceLive();
+      showToast('Preset applique', p.name);
+    };
+    list.appendChild(btn);
+  });
+}
+
+function loadAppearanceToUI(a) {
+  $('#cust-body-base').value = a.bodyBase;
+  $('#cust-body-sheen').value = a.bodySheen;
+  $('#cust-chest').value = a.chest;
+  $('#cust-iridescence').value = a.iridescence;
+  $('#cust-wing').value = a.wing;
+  $('#cust-wing-tip').value = a.wingTip;
+  $('#cust-tail').value = a.tail;
+  $('#cust-beak').value = a.beak;
+  $('#cust-beak-tip').value = a.beakTip;
+  $('#cust-eye').value = a.eye;
+  $('#cust-eye-center').value = a.eyeCenter;
+  $('#cust-eye-glow').value = a.eyeGlow;
+  $('#cust-rune').value = a.rune;
+  $('#cust-rune-glow').value = a.runeGlow;
+  $('#cust-rune-speed').value = a.runeSpeed;
+  $('#cust-horn').value = a.horn;
+  $('#cust-horn-visible').value = a.hornVisible;
+  $('#cust-scale').value = a.scale;
+  $('#cust-scale-val').textContent = a.scale + '%';
+}
+
+function getAppearanceFromUI() {
+  return {
+    bodyBase: $('#cust-body-base').value,
+    bodySheen: $('#cust-body-sheen').value,
+    chest: $('#cust-chest').value,
+    iridescence: $('#cust-iridescence').value,
+    wing: $('#cust-wing').value,
+    wingTip: $('#cust-wing-tip').value,
+    tail: $('#cust-tail').value,
+    beak: $('#cust-beak').value,
+    beakTip: $('#cust-beak-tip').value,
+    eye: $('#cust-eye').value,
+    eyeCenter: $('#cust-eye-center').value,
+    eyeGlow: parseInt($('#cust-eye-glow').value),
+    rune: $('#cust-rune').value,
+    runeGlow: parseInt($('#cust-rune-glow').value),
+    runeSpeed: $('#cust-rune-speed').value,
+    horn: $('#cust-horn').value,
+    hornVisible: $('#cust-horn-visible').value,
+    scale: parseInt($('#cust-scale').value)
+  };
+}
+
+function applyAppearanceLive() {
+  const a = getAppearanceFromUI();
+  applyAppearanceToSVG(a);
+  state.appearance = a;
+  saveState();
+}
+
+function applyAppearanceToSVG(a) {
+  const svg = document.getElementById('raven-svg');
+  if (!svg) return;
+
+  // Helper to update gradient stops
+  function setGradStops(id, stops) {
+    const el = svg.querySelector('#' + id);
+    if (!el) return;
+    const s = el.querySelectorAll('stop');
+    stops.forEach((c, i) => { if (s[i]) s[i].setAttribute('stop-color', c); });
+  }
+
+  // Body
+  setGradStops('bodyGrad', [a.bodySheen, mixColor(a.bodyBase, a.bodySheen, 0.5), a.bodyBase, darken(a.bodyBase, 0.4)]);
+  setGradStops('headGrad', [lighten(a.bodySheen, 0.1), a.bodyBase, darken(a.bodyBase, 0.3)]);
+  setGradStops('chestGrad', [lighten(a.chest, 0.1), a.chest]);
+
+  // Wings
+  setGradStops('wingGradL', [lighten(a.wing, 0.1), a.wing, a.wingTip]);
+  setGradStops('wingGradR', [lighten(a.wing, 0.1), a.wing, a.wingTip]);
+
+  // Tail
+  setGradStops('tailGrad', [a.tail, darken(a.tail, 0.6)]);
+
+  // Beak
+  setGradStops('beakGrad', [a.beak, a.beakTip]);
+
+  // Eye
+  const iri = IRIDESCENCE_MAP[a.iridescence] || IRIDESCENCE_MAP.purple;
+  setGradStops('eyeGrad', [a.eyeCenter, mixColor(a.eyeCenter, a.eye, 0.5), a.eye, darken(a.eye, 0.3)]);
+
+  // Iridescence
+  setGradStops('iridescentHead', [iri.c1, iri.c2, iri.c3, iri.c4]);
+  setGradStops('iridescentBody', [iri.c1, iri.c2, iri.c3, iri.c4]);
+  setGradStops('iridescentWing', [iri.c1, iri.c2, iri.c4]);
+
+  // Eye iris (direct fill for non-mood state)
+  svg.querySelectorAll('.eye-iris').forEach(el => { el.setAttribute('fill', 'url(#eyeGrad)'); });
+
+  // Eye glow intensity
+  const glowEls = svg.querySelectorAll('.eye-glow');
+  glowEls.forEach(el => { el.style.opacity = a.eyeGlow / 100; });
+
+  // Runes
+  const runeColor = a.rune;
+  svg.querySelectorAll('.rune').forEach(el => { el.style.stroke = runeColor; });
+  svg.querySelectorAll('.rune-glow-bg').forEach(el => { el.style.stroke = runeColor; });
+  svg.querySelectorAll('.rune-path').forEach(el => { el.style.stroke = runeColor; });
+
+  // Rune speed
+  const speeds = { slow: '7s', normal: '5s', fast: '3s' };
+  const spd = speeds[a.runeSpeed] || '5s';
+  svg.querySelectorAll('.rune').forEach(el => { el.style.animationDuration = spd; });
+  svg.querySelectorAll('.rune-glow-bg').forEach(el => { el.style.animationDuration = spd; });
+
+  // Rune glow intensity
+  svg.querySelectorAll('.rune').forEach(el => { el.style.filter = `url(#runeGlow)`; });
+
+  // Horns
+  const hornGroup = svg.querySelector('.horn-group');
+  if (hornGroup) {
+    hornGroup.style.display = a.hornVisible === 'no' ? 'none' : '';
+    hornGroup.querySelectorAll('path').forEach(p => {
+      if (p.getAttribute('stroke') && p.getAttribute('stroke') !== 'url(#runeEnergy)') {
+        p.setAttribute('stroke', a.horn);
+      }
+    });
+    hornGroup.querySelectorAll('circle').forEach(c => { c.setAttribute('fill', lighten(a.horn, 0.3)); });
+  }
+
+  // Scale
+  svg.style.width = (240 * a.scale / 100) + 'px';
+  svg.style.height = (240 * a.scale / 100) + 'px';
+
+  // Horn colors
+  setGradStops('runeEnergy', [lighten(a.horn, 0.2), a.horn, darken(a.horn, 0.3)]);
+}
+
+// Color utility functions
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+  return { r: parseInt(hex.slice(0,2),16), g: parseInt(hex.slice(2,4),16), b: parseInt(hex.slice(4,6),16) };
+}
+function rgbToHex(r,g,b) {
+  return '#' + [r,g,b].map(c => Math.max(0,Math.min(255,Math.round(c))).toString(16).padStart(2,'0')).join('');
+}
+function lighten(hex, amt) {
+  const c = hexToRgb(hex);
+  return rgbToHex(c.r + (255-c.r)*amt, c.g + (255-c.g)*amt, c.b + (255-c.b)*amt);
+}
+function darken(hex, amt) {
+  const c = hexToRgb(hex);
+  return rgbToHex(c.r*(1-amt), c.g*(1-amt), c.b*(1-amt));
+}
+function mixColor(hex1, hex2, ratio) {
+  const a = hexToRgb(hex1), b = hexToRgb(hex2);
+  return rgbToHex(a.r*(1-ratio)+b.r*ratio, a.g*(1-ratio)+b.g*ratio, a.b*(1-ratio)+b.b*ratio);
+}
+
+function resetAppearance() {
+  loadAppearanceToUI(DEFAULT_APPEARANCE);
+  applyAppearanceLive();
+  showToast('Apparence reinitialise', 'Stakr retrouve ses couleurs originales.');
+}
+
+function toggleCustomize() {
+  const panel = $('#customize-panel');
+  const overlay = $('#settings-overlay');
+  const isOpen = panel.classList.contains('open');
+  panel.classList.toggle('open');
+  if (!isOpen) {
+    overlay.classList.add('open');
+    overlay.onclick = () => { panel.classList.remove('open'); overlay.classList.remove('open'); };
+  } else {
+    overlay.classList.remove('open');
+  }
+}
+
 function toggleSettings() {
   const panel = $('#settings-panel');
   const overlay = $('#settings-overlay');
@@ -896,8 +1370,15 @@ function setupListeners() {
   userInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
   $('#settings-btn').addEventListener('click', toggleSettings);
   $('#project-btn').addEventListener('click', toggleProjectPanel);
+  $('#customize-btn').addEventListener('click', toggleCustomize);
   $('#api-backend').addEventListener('change', updateBackendUI);
   window.addEventListener('resize', () => { resizeCanvas(); resizeAurora(); });
+  // Live preview for all customize inputs
+  document.querySelectorAll('#customize-panel input, #customize-panel select').forEach(el => {
+    el.addEventListener('input', applyAppearanceLive);
+    el.addEventListener('change', applyAppearanceLive);
+  });
+  $('#cust-scale').addEventListener('input', () => { $('#cust-scale-val').textContent = $('#cust-scale').value + '%'; });
 }
 
 // ===== MESSAGES =====
@@ -1897,28 +2378,31 @@ function startParticles() {
 
 // ===== WING FLAP =====
 function startWingFlap() {
-  const bodyGroup = document.querySelector('.body-group');
-  if (!bodyGroup) return;
+  const wingL = document.querySelector('.wing-left');
+  const wingR = document.querySelector('.wing-right');
+  if (!wingL || !wingR) return;
 
   function doFlap() {
+    // 3-beat flap sequence
     let count = 0;
-    const totalBeats = 2 + Math.floor(Math.random() * 3);
+    const totalBeats = 2 + Math.floor(Math.random() * 3); // 2-4 flaps
     function singleFlap() {
-      // Quick scale-x pulse to simulate wing spread + lift
-      bodyGroup.style.transition = 'transform .15s ease-out';
-      bodyGroup.style.transform = `scaleX(1.04) scaleY(0.97) translateY(-${1 + count}px)`;
-      ravenSvg.style.transform = `translateY(-${3 + count * 2}px)`;
+      wingL.classList.add('flap');
+      wingR.classList.add('flap');
+      // Also lift the raven slightly
+      ravenSvg.style.transform = `translateY(-${4 + count * 2}px)`;
       setTimeout(() => {
-        bodyGroup.style.transform = '';
+        wingL.classList.remove('flap');
+        wingR.classList.remove('flap');
         ravenSvg.style.transform = '';
         count++;
-        if (count < totalBeats) setTimeout(singleFlap, 200);
-        else bodyGroup.style.transition = '';
-      }, 200);
+        if (count < totalBeats) setTimeout(singleFlap, 180);
+      }, 280);
     }
     singleFlap();
   }
 
+  // Flap every 8-15 seconds
   function scheduleFlap() {
     const delay = 8000 + Math.random() * 7000;
     setTimeout(() => {
