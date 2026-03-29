@@ -2160,8 +2160,9 @@ async function speakMessage(btn, text) {
     return;
   }
 
-  // Stop any current speech
+  // Stop any current speech + browser TTS
   if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
+  if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
   if (currentTtsBtn) currentTtsBtn.classList.remove('speaking');
 
   // Clean text for speech
@@ -2177,60 +2178,83 @@ async function speakMessage(btn, text) {
 
   if (!cleanText) return;
 
-  const groqKey = getGroqKey();
-  if (!groqKey) {
-    showToast('Pas de cle API', 'Ajoute une cle Groq dans les Parametres pour la voix.');
-    return;
-  }
-
   btn.classList.add('speaking');
   currentTtsBtn = btn;
 
-  try {
-    // Parse selected voice (format: "model|voiceId")
-    const voiceSetting = state.config.ttsVoice || 'playai-tts|Thunder-PlayAI';
-    const [ttsModel, ttsVoice] = voiceSetting.split('|');
+  // Parse selected voice (format: "model|voiceId")
+  const voiceSetting = state.config.ttsVoice || 'playai-tts|Thunder-PlayAI';
+  const [ttsModel, ttsVoice] = voiceSetting.split('|');
 
-    const res = await fetch('https://api.groq.com/openai/v1/audio/speech', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${groqKey}`
-      },
-      body: JSON.stringify({
-        model: ttsModel,
-        input: cleanText,
-        voice: ttsVoice,
-        response_format: 'wav'
-      })
-    });
+  // Try each API key until one works
+  const keys = state.config.apiKeys || [];
+  if (keys.length === 0 && state.config.apiKey) keys.push(state.config.apiKey);
 
-    if (!res.ok) {
-      console.error('TTS error:', res.status, await res.text());
-      // Fallback to browser TTS
-      fallbackSpeak(btn, cleanText);
-      return;
+  if (keys.length === 0) {
+    showToast('Pas de cle API', 'Ajoute une cle Groq dans les Parametres pour la voix.');
+    btn.classList.remove('speaking');
+    currentTtsBtn = null;
+    return;
+  }
+
+  let ttsSuccess = false;
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[(groqKeyIndex + i) % keys.length];
+    try {
+      console.log('TTS attempt with key:', key.slice(0, 8) + '...', 'model:', ttsModel, 'voice:', ttsVoice);
+      const res = await fetch('https://api.groq.com/openai/v1/audio/speech', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${key}`
+        },
+        body: JSON.stringify({
+          model: ttsModel,
+          input: cleanText,
+          voice: ttsVoice,
+          response_format: 'wav'
+        })
+      });
+
+      if (res.status === 429) {
+        console.warn('TTS key rate limited, trying next...', key.slice(0, 8));
+        continue;
+      }
+
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error('TTS error:', res.status, errText);
+        continue;
+      }
+
+      const blob = await res.blob();
+      const audioUrl = URL.createObjectURL(blob);
+      currentAudio = new Audio(audioUrl);
+      currentAudio.playbackRate = 0.95;
+
+      currentAudio.onended = () => {
+        btn.classList.remove('speaking');
+        currentTtsBtn = null;
+        URL.revokeObjectURL(audioUrl);
+      };
+      currentAudio.onerror = () => {
+        btn.classList.remove('speaking');
+        currentTtsBtn = null;
+      };
+
+      await currentAudio.play();
+      ttsSuccess = true;
+      groqKeyIndex = (groqKeyIndex + i) % keys.length; // Remember which key worked
+      break;
+    } catch(e) {
+      console.error('TTS error with key', i, ':', e);
+      continue;
     }
+  }
 
-    const blob = await res.blob();
-    const audioUrl = URL.createObjectURL(blob);
-    currentAudio = new Audio(audioUrl);
-    currentAudio.playbackRate = 0.95;
-
-    currentAudio.onended = () => {
-      btn.classList.remove('speaking');
-      currentTtsBtn = null;
-      URL.revokeObjectURL(audioUrl);
-    };
-    currentAudio.onerror = () => {
-      btn.classList.remove('speaking');
-      currentTtsBtn = null;
-    };
-
-    await currentAudio.play();
-  } catch(e) {
-    console.error('TTS error:', e);
-    // Fallback to browser TTS
+  // If all keys failed, fall back to browser TTS with a toast
+  if (!ttsSuccess) {
+    console.warn('All Groq TTS keys failed, falling back to browser TTS');
+    showToast('Voix Groq indisponible', 'Utilisation de la voix du navigateur...');
     fallbackSpeak(btn, cleanText);
   }
 }
