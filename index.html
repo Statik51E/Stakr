@@ -250,78 +250,258 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 
     <svg id="raven-svg" class="idle" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <!-- Filters -->
+        <!-- Advanced Filters -->
         <filter id="runeGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         <filter id="runeBlur"><feGaussianBlur stdDeviation="5"/></filter>
+        <filter id="runeIncandescent"><feGaussianBlur stdDeviation="4" result="b"/><feFlood flood-color="#ffb300" flood-opacity=".8" result="c"/><feComposite in="c" in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="rudeRedGlow"><feGaussianBlur stdDeviation="3.5" result="b"/><feFlood flood-color="#ff4444" flood-opacity=".7" result="c"/><feComposite in="c" in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         <filter id="eyeIntenseGlow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="angerGlow"><feGaussianBlur stdDeviation="4" result="b"/><feFlood flood-color="#ff5252" flood-opacity=".6" result="c"/><feComposite in="c" in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="softShadow"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity=".6"/></filter>
-        <filter id="featherEdge"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" xChannelSelector="R" yChannelSelector="G"/></filter>
-
-        <!-- Body gradients -->
-        <radialGradient id="bodyGrad" cx="45%" cy="35%" r="60%">
-          <stop offset="0%" stop-color="#302858"/><stop offset="35%" stop-color="#1e1840"/>
-          <stop offset="70%" stop-color="#120e28"/><stop offset="100%" stop-color="#080614"/>
+        <filter id="softShadow"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity=".7"/></filter>
+        <filter id="deepShadow"><feDropShadow dx="2" dy="8" stdDeviation="8" flood-color="#000" flood-opacity=".8"/></filter>
+        
+        <!-- Realistic Plumage Gradients -->
+        <radialGradient id="bodyGrad" cx="40%" cy="35%" r="65%">
+          <stop offset="0%" stop-color="#3a3a3a"/><stop offset="20%" stop-color="#1f1f2a"/>
+          <stop offset="50%" stop-color="#0f0f1a"/><stop offset="100%" stop-color="#050508"/>
         </radialGradient>
-        <radialGradient id="headGrad" cx="40%" cy="30%" r="65%">
-          <stop offset="0%" stop-color="#38305e"/><stop offset="40%" stop-color="#221c42"/>
-          <stop offset="100%" stop-color="#0e0c1c"/>
+        <radialGradient id="headGrad" cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#2a2a35"/><stop offset="30%" stop-color="#181825"/>
+          <stop offset="70%" stop-color="#0d0d15"/><stop offset="100%" stop-color="#040408"/>
         </radialGradient>
-        <radialGradient id="chestGrad" cx="50%" cy="25%" r="70%">
-          <stop offset="0%" stop-color="#282248"/><stop offset="100%" stop-color="#14102c"/>
+        <linearGradient id="plumageDeep" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1a1a1f"/><stop offset="50%" stop-color="#0d0d12"/>
+          <stop offset="100%" stop-color="#050506"/>
+        </linearGradient>
+        <linearGradient id="plumageIridescent" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1f2a3a" stop-opacity=".3"/><stop offset="40%" stop-color="#2a1f3a" stop-opacity=".2"/>
+          <stop offset="70%" stop-color="#1a2f3f" stop-opacity=".15"/><stop offset="100%" stop-color="#0f0f1a" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="beakDark" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3a3a42"/><stop offset="50%" stop-color="#1f1f28"/>
+          <stop offset="100%" stop-color="#0f0f16"/>
+        </linearGradient>
+        <radialGradient id="eyeRealistic" cx="40%" cy="35%" r="60%">
+          <stop offset="0%" stop-color="#f0f8ff"/><stop offset="20%" stop-color="#a8d8ff"/>
+          <stop offset="50%" stop-color="#4fc3f7"/><stop offset="75%" stop-color="#01579b"/>
+          <stop offset="100%" stop-color="#000033"/>
         </radialGradient>
-        <linearGradient id="wingGradL" x1="100%" y1="0%" x2="0%" y2="90%">
-          <stop offset="0%" stop-color="#221e40"/><stop offset="50%" stop-color="#121028"/>
-          <stop offset="100%" stop-color="#06050c"/>
+        <linearGradient id="runeGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffd700"/><stop offset="50%" stop-color="#ffb300"/>
+          <stop offset="100%" stop-color="#cc8800"/>
         </linearGradient>
-        <linearGradient id="wingGradR" x1="0%" y1="0%" x2="100%" y2="90%">
-          <stop offset="0%" stop-color="#221e40"/><stop offset="50%" stop-color="#121028"/>
-          <stop offset="100%" stop-color="#06050c"/>
-        </linearGradient>
-        <linearGradient id="beakGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#454558"/><stop offset="100%" stop-color="#1c1c2c"/>
-        </linearGradient>
-        <linearGradient id="beakHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="rgba(255,255,255,.12)"/><stop offset="100%" stop-color="transparent"/>
-        </linearGradient>
-        <radialGradient id="eyeGrad" cx="35%" cy="30%" r="55%">
-          <stop offset="0%" stop-color="#e0f7fa"/><stop offset="25%" stop-color="#80deea"/>
-          <stop offset="60%" stop-color="#4fc3f7"/><stop offset="100%" stop-color="#0288d1"/>
-        </radialGradient>
-        <linearGradient id="tailGrad" x1="50%" y1="0%" x2="50%" y2="100%">
-          <stop offset="0%" stop-color="#161232"/><stop offset="100%" stop-color="#060412"/>
-        </linearGradient>
-        <!-- Iridescent sheens -->
-        <linearGradient id="iridescentHead" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#9c27b0" stop-opacity=".1"/>
-          <stop offset="35%" stop-color="#7c4dff" stop-opacity=".08"/>
-          <stop offset="65%" stop-color="#00bcd4" stop-opacity=".06"/>
-          <stop offset="100%" stop-color="#4fc3f7" stop-opacity=".04"/>
-        </linearGradient>
-        <linearGradient id="iridescentBody" x1="20%" y1="0%" x2="80%" y2="100%">
-          <stop offset="0%" stop-color="#673ab7" stop-opacity=".06"/>
-          <stop offset="40%" stop-color="#283593" stop-opacity=".08"/>
-          <stop offset="70%" stop-color="#006064" stop-opacity=".05"/>
-          <stop offset="100%" stop-color="#1b5e20" stop-opacity=".03"/>
-        </linearGradient>
-        <linearGradient id="iridescentWing" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#4a148c" stop-opacity=".08"/>
-          <stop offset="50%" stop-color="#1a237e" stop-opacity=".06"/>
-          <stop offset="100%" stop-color="#004d40" stop-opacity=".04"/>
-        </linearGradient>
-        <!-- Rune energy gradient -->
-        <linearGradient id="runeEnergy" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#80deea"/><stop offset="50%" stop-color="#4fc3f7"/>
-          <stop offset="100%" stop-color="#0288d1"/>
+        <linearGradient id="runeCyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#4fc3f7"/>
+          <stop offset="100%" stop-color="#0096d1"/>
         </linearGradient>
       </defs>
 
-      <!-- ====== SUBTLE AURA ====== -->
-      <ellipse cx="120" cy="120" rx="65" ry="60" fill="none" stroke="#4fc3f7" stroke-width=".4" opacity=".04" filter="url(#runeGlow)"/>
-      <ellipse cx="120" cy="120" rx="75" ry="70" fill="none" stroke="#4fc3f7" stroke-width=".2" opacity=".02" filter="url(#runeBlur)"/>
+      <!-- ====== HALO RUNIQUE (BACKDROP) ====== -->
+      <circle cx="120" cy="90" r="55" fill="none" stroke="url(#runeCyanGrad)" stroke-width="1.5" opacity=".15" filter="url(#runeGlow)"/>
+      <circle cx="120" cy="90" r="60" fill="none" stroke="url(#runeCyanGrad)" stroke-width=".8" opacity=".08" filter="url(#runeBlur)"/>
 
-      <!-- ====== BODY GROUP (breathing) ====== -->
-      <g class="body-group">
+      <!-- ====== BODY GROUP ====== -->
+      <g class="body-group" filter="url(#deepShadow)">
+
+        <!-- ====== PLUMAGE RÉALISTE - COUCHES DE PROFONDEUR ====== -->
+        <!-- Base sombre du corps -->
+        <path d="M65,115 Q58,85 90,68 Q120,55 150,68 Q182,85 175,115 Q175,152 148,170 Q120,185 92,170 Q65,152 65,115Z" fill="url(#bodyGrad)" stroke="#0a0a0f" stroke-width="1.5"/>
+        
+        <!-- Couche supérieure : plumes de couverture du ventre -->
+        <g opacity=".85">
+          <ellipse cx="108" cy="100" rx="35" ry="28" fill="url(#plumageDeep)"/>
+          <path d="M85,105 Q100,95 125,100 Q130,125 115,145 Q95,148 80,135Z" fill="#1a1a20" opacity=".6"/>
+        </g>
+        
+        <!-- Reflets iridescents (bleu/violet subtil) -->
+        <path d="M75,105 Q110,82 150,105 Q160,130 140,155 Q110,165 85,150Z" fill="url(#plumageIridescent)"/>
+        
+        <!-- Détails des plumes individuelles sur le corps -->
+        <g stroke="#0f0f14" stroke-width=".7" fill="none" opacity=".4">
+          <path d="M90,90 Q92,110 88,125"/><path d="M105,82 Q107,105 103,130"/>
+          <path d="M120,80 Q122,108 120,135"/><path d="M135,82 Q137,105 133,130"/>
+          <path d="M150,90 Q152,110 148,125"/>
+        </g>
+
+        <!-- ====== POITRINE VOLUMINEUSE ====== -->
+        <ellipse cx="120" cy="130" rx="32" ry="35" fill="url(#plumageDeep)" opacity=".9"/>
+        <path d="M95,125 Q120,115 145,125 Q145,155 120,165 Q95,155 95,125Z" fill="#0a0a12" opacity=".5"/>
+        
+        <!-- Texture de plumes sur la poitrine -->
+        <g stroke="#151520" stroke-width=".5" fill="none" opacity=".5">
+          <path d="M105,128 L105,155"/><path d="M115,123 L115,160"/>
+          <path d="M125,123 L125,160"/><path d="M135,128 L135,155"/>
+        </g>
+
+        <!-- ====== AILES MAJESTUEUSES ====== -->
+        <!-- Aile gauche -->
+        <g class="wing-left" style="transform-origin:75px 115px" filter="url(#softShadow)">
+          <path d="M75,108 Q48,78 15,82 Q-5,95 -2,130 Q5,158 35,165 Q65,165 70,145 Q72,135 75,160Z" fill="url(#plumageDeep)" stroke="#050508" stroke-width="1.5"/>
+          <!-- Plumes primaires (longues, espacées) -->
+          <g stroke="#0a0a12" stroke-width="1.2" fill="none" opacity=".7">
+            <path d="M35,165 Q20,175 5,195"/><path d="M45,166 Q32,178 20,200"/>
+            <path d="M55,166 Q44,180 35,205"/><path d="M65,165 Q58,180 52,205"/>
+          </g>
+          <!-- Reflet iridescent sur l'aile -->
+          <path d="M50,105 Q35,95 20,110 Q12,130 25,150 Q45,140 55,125Z" fill="url(#plumageIridescent)" opacity=".6"/>
+        </g>
+
+        <!-- Aile droite -->
+        <g class="wing-right" style="transform-origin:165px 115px" filter="url(#softShadow)">
+          <path d="M165,108 Q192,78 225,82 Q245,95 242,130 Q235,158 205,165 Q175,165 170,145 Q168,135 165,160Z" fill="url(#plumageDeep)" stroke="#050508" stroke-width="1.5"/>
+          <!-- Plumes primaires (longues, espacées) -->
+          <g stroke="#0a0a12" stroke-width="1.2" fill="none" opacity=".7">
+            <path d="M205,165 Q220,175 235,195"/><path d="M195,166 Q208,178 220,200"/>
+            <path d="M185,166 Q196,180 205,205"/><path d="M175,165 Q182,180 188,205"/>
+          </g>
+          <!-- Reflet iridescent sur l'aile -->
+          <path d="M190,105 Q205,95 220,110 Q228,130 215,150 Q195,140 185,125Z" fill="url(#plumageIridescent)" opacity=".6"/>
+        </g>
+
+        <!-- ====== QUEUE MAJESTUEUSE ====== -->
+        <g filter="url(#softShadow)">
+          <!-- Base de la queue -->
+          <path d="M90,170 Q105,185 120,210 Q135,185 150,170" fill="url(#plumageDeep)" opacity=".8"/>
+          <!-- Plumes de queue individuelles -->
+          <g stroke="#0f0f18" stroke-width="1.8" fill="none" opacity=".8">
+            <path d="M85,175 Q75,195 68,225"/><path d="M95,180 Q88,200 82,230"/>
+            <path d="M110,182 Q105,205 102,235"/><path d="M120,183 Q120,208 120,238"/>
+            <path d="M130,182 Q135,205 138,235"/><path d="M145,180 Q152,200 158,230"/>
+            <path d="M155,175 Q165,195 172,225"/>
+          </g>
+          <!-- Texture de barbes sur les plumes de queue -->
+          <g stroke="#1a1a22" stroke-width=".4" fill="none" opacity=".3">
+            <path d="M68,225 L75,220"/><path d="M82,230 L90,225"/>
+            <path d="M102,235 L108,230"/><path d="M138,235 L144,230"/>
+            <path d="M158,230 L166,225"/><path d="M172,225 L179,220"/>
+          </g>
+        </g>
+
+        <!-- ====== JAMBES ET SERRES ACÉRÉES ====== -->
+        <g opacity=".7" filter="url(#softShadow)">
+          <!-- Jambe gauche -->
+          <path d="M105,170 Q100,182 95,195" stroke="#2a2a30" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <g stroke="#2a2a30" stroke-width="2.2" fill="none" stroke-linecap="round">
+            <path d="M95,195 L80,210"/><path d="M95,195 L92,208"/><path d="M95,195 L103,210"/>
+            <path d="M95,195 L88,214"/>
+          </g>
+          <!-- Jambe droite -->
+          <path d="M135,170 Q140,182 145,195" stroke="#2a2a30" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <g stroke="#2a2a30" stroke-width="2.2" fill="none" stroke-linecap="round">
+            <path d="M145,195 L160,210"/><path d="M145,195 L148,208"/><path d="M145,195 L137,210"/>
+            <path d="M145,195 L152,214"/>
+          </g>
+          <!-- Pointes acérées des serres -->
+          <g fill="#1a1a20" stroke="#0f0f15" stroke-width=".4">
+            <polygon points="80,210 77,205 82,208"/><polygon points="92,208 89,203 94,206"/>
+            <polygon points="103,210 100,205 105,208"/><polygon points="88,214 85,209 90,212"/>
+            <polygon points="160,210 163,205 158,208"/><polygon points="148,208 151,203 146,206"/>
+            <polygon points="137,210 140,205 135,208"/><polygon points="152,214 155,209 150,212"/>
+          </g>
+        </g>
+
+        <!-- ====== CŒUR - DÉTAIL INTERNE LUMINESCENT ====== -->
+        <ellipse cx="120" cy="135" rx="6" ry="8" fill="#1a1a28" opacity=".3"/>
+        <circle cx="120" cy="135" r="3" fill="#4fc3f7" opacity=".2"/>
+
+        <!-- ====== COU VOLUMINEUX ====== -->
+        <path d="M105,90 Q120,78 135,90 Q133,108 120,110 Q107,108 105,90Z" fill="url(#bodyGrad)"/>
+        <!-- Texture du cou -->
+        <g stroke="#0f0f18" stroke-width=".4" fill="none" opacity=".5">
+          <path d="M108,88 Q115,82 122,85"/><path d="M110,95 Q118,92 125,95"/>
+          <path d="M112,102 Q120,100 128,102"/>
+        </g>
+
+        <!-- ====== TÊTE MAJESTUEUSE ====== -->
+        <!-- Crâne avec volume -->
+        <ellipse cx="120" cy="72" rx="28" ry="32" fill="url(#headGrad)" stroke="#050508" stroke-width="1.5"/>
+        
+        <!-- Reflets sur le crâne (bleu-violet subtil) -->
+        <ellipse cx="110" cy="58" rx="15" ry="12" fill="url(#plumageIridescent)" opacity=".5"/>
+        
+        <!-- Texture de plumes sur la tête (plumes pointues du sommet) -->
+        <g stroke="#0f0f18" stroke-width=".6" fill="none" opacity=".6">
+          <path d="M95,52 Q100,42 105,48"/><path d="M108,45 Q112,35 116,42"/>
+          <path d="M120,42 Q124,32 128,40"/><path d="M132,45 Q136,35 141,42"/>
+          <path d="M145,52 Q150,42 155,48"/>
+        </g>
+
+        <!-- ====== BEC TEXTURÉ ET ACÉRÉ ====== -->
+        <!-- Base du bec -->
+        <path d="M140,75 Q168,65 188,58 Q194,68 185,75 Q170,80 140,82Z" fill="url(#beakDark)" stroke="#0a0a0f" stroke-width="1"/>
+        
+        <!-- Arête supérieure du bec (texture) -->
+        <g stroke="#2a2a32" stroke-width=".5" fill="none" opacity=".6">
+          <path d="M145,73 Q160,68 175,63"/><path d="M145,75 Q160,71 175,67"/>
+        </g>
+        
+        <!-- Mandibule inférieure -->
+        <path d="M140,82 Q165,82 180,80 Q183,84 178,87 Q165,88 140,87Z" fill="#1a1a22" stroke="#0a0a0f" stroke-width=".8"/>
+        
+        <!-- Pointe du bec (acérée) -->
+        <path d="M185,75 Q195,74 200,80 Q195,82 185,80Z" fill="#0f0f14" stroke="#050508" stroke-width=".5"/>
+        
+        <!-- Ouverture nasale -->
+        <ellipse cx="155" cy="75" rx="2.5" ry="1.8" fill="#0a0a0f"/>
+
+        <!-- ====== OEIL PERÇANT ET DÉTAILLÉ ====== -->
+        <!-- Orbite sombre -->
+        <ellipse cx="135" cy="68" rx="10" ry="11" fill="#0a0a0f" opacity=".8"/>
+        
+        <!-- Blanc de l'oeil avec volume -->
+        <circle cx="134" cy="67" r="7.5" fill="#e5f2ff" opacity=".9"/>
+        
+        <!-- Iris avec gradient réaliste -->
+        <circle cx="134" cy="67.5" r="5.2" fill="url(#eyeRealistic)"/>
+        
+        <!-- Pupille profonde -->
+        <circle cx="135" cy="68" r="2.8" fill="#000033" opacity=".95"/>
+        
+        <!-- Reflet scléral (highlight primaire) fort -->
+        <circle cx="131" cy="64.5" r="2.2" fill="#ffffff" opacity=".85" filter="url(#eyeIntenseGlow)"/>
+        
+        <!-- Highlight secondaire -->
+        <circle cx="137" cy="70" r="1" fill="#ffffff" opacity=".4"/>
+        
+        <!-- Reflet quaternaire (microscopique) -->
+        <circle cx="132" cy="66" r=".5" fill="#ffff99" opacity=".6"/>
+        
+        <!-- Cerne et relief orbitaire -->
+        <path d="M125,62 Q135,58 145,63" stroke="#0a0a0f" stroke-width="1.2" fill="none" opacity=".5" stroke-linecap="round"/>
+        <circle cx="134" cy="67" r="5.2" fill="none" stroke="rgba(79,195,247,.25)" stroke-width=".8"/>
+
+        <!-- ====== RUNES VIKINGS INCANDESCENTES (HALO CIRCULAIRE) ====== -->
+        <!-- Rune ALGIZ (Protection) - Sommet -->
+        <g filter="url(#runeIncandescent)">
+          <path d="M120,38 L128,50 L112,50 Z M120,50 L120,58" stroke="url(#runeGoldGrad)" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
+          <path d="M120,38 L128,50 L112,50 Z M120,50 L120,58" stroke="#ffb300" stroke-width=".8" fill="none" stroke-linecap="round" opacity=".6" filter="url(#runeGlow)"/>
+        </g>
+
+        <!-- Rune TIWAZ (Guerrier/Direction) - Gauche -->
+        <g filter="url(#runeCyanGrad)">
+          <path d="M95,60 L95,78 M90,70 L100,78" stroke="url(#runeCyanGrad)" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".85"/>
+          <path d="M95,60 L95,78 M90,70 L100,78" stroke="#00ffff" stroke-width=".6" fill="none" opacity=".5" filter="url(#runeGlow)"/>
+        </g>
+
+        <!-- Rune RAIDHO (Voyage/Chemin) - Droite -->
+        <g filter="url(#runeCyanGrad)">
+          <path d="M145,60 L145,78 M140,70 L150,78" stroke="url(#runeCyanGrad)" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".85"/>
+          <path d="M145,60 L145,78 M140,70 L150,78" stroke="#00ffff" stroke-width=".6" fill="none" opacity=".5" filter="url(#runeGlow)"/>
+        </g>
+
+        <!-- Rune FEHU (Richesse/Pouvoir) - Bas-Gauche -->
+        <g filter="url(#rudeRedGlow)">
+          <path d="M105,95 L105,110 M100,100 L110,103 M100,107 L110,110" stroke="url(#runeGoldGrad)" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".8"/>
+          <path d="M105,95 L105,110 M100,100 L110,103 M100,107 L110,110" stroke="#ff6644" stroke-width=".5" fill="none" opacity=".4" filter="url(#runeGlow)"/>
+        </g>
+
+        <!-- Rune OTHALA (Héritage/Patrie) - Bas-Droite -->
+        <g filter="url(#rudeRedGlow)">
+          <path d="M135,95 L135,110 M130,100 L140,103 M130,107 L140,110" stroke="url(#runeGoldGrad)" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".8"/>
+          <path d="M135,95 L135,110 M130,100 L140,103 M130,107 L140,110" stroke="#ff6644" stroke-width=".5" fill="none" opacity=".4" filter="url(#runeGlow)"/>
+        </g>
+
+      </g><!-- end body-group -->
+    </svg>
 
         <!-- ====== TAIL FEATHERS ====== -->
         <g class="tail-group">
