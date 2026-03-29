@@ -248,72 +248,137 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <canvas id="particle-canvas"></canvas>
     <div id="lightning-container"></div>
 
-    <svg id="raven-svg" class="idle" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+    <svg id="raven-svg" class="idle" viewBox="0 0 300 380" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <!-- ===== ADVANCED FILTERS ===== -->
-        <filter id="eyeGlowOrange"><feGaussianBlur stdDeviation="6" result="b"/><feFlood flood-color="#ff9933" flood-opacity=".95" result="c"/><feComposite in="c" in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="plumageTexture"><feTurbulence type="fractalNoise" baseFrequency="2" numOctaves="4" result="noise" seed="2"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" xChannelSelector="R"/></filter>
-        <filter id="shadowDepth"><feDropShadow dx="0" dy="25" stdDeviation="15" flood-color="#000" flood-opacity=".5"/></filter>
+        <!-- Filtres simples mais efficaces -->
+        <filter id="softGlow"><feGaussianBlur stdDeviation="2"/></filter>
+        <filter id="eyeGlow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="shadow"><feDropShadow dx="0" dy="3" stdDeviation="8" flood-color="#000" flood-opacity=".4"/></filter>
         
-        <!-- ===== GRADIENTS ===== -->
-        <!-- Deep raven plumage black with texture -->
-        <linearGradient id="ravenPlumage" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#1a1a1e"/><stop offset="25%" stop-color="#0f0f14"/>
-          <stop offset="50%" stop-color="#0a0a0f"/><stop offset="75%" stop-color="#050507"/>
-          <stop offset="100%" stop-color="#020203"/>
+        <!-- Gradients simples et efficaces -->
+        <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#2a2a2e"/><stop offset="100%" stop-color="#0a0a0c"/>
         </linearGradient>
         
-        <!-- Eye amber/orange intense -->
-        <radialGradient id="eyeAmber" cx="35%" cy="35%" r="70%">
-          <stop offset="0%" stop-color="#ffff99" stop-opacity="1"/>
-          <stop offset="20%" stop-color="#ffdd00"/><stop offset="40%" stop-color="#ffaa00"/>
-          <stop offset="65%" stop-color="#ff7700"/><stop offset="85%" stop-color="#cc5500"/>
-          <stop offset="100%" stop-color="#663300"/>
+        <radialGradient id="eyeAmber" cx="40%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#ffcc44"/><stop offset="50%" stop-color="#ff9933"/>
+          <stop offset="100%" stop-color="#dd6611"/>
         </radialGradient>
-        
-        <!-- Eye white (sclera) -->
-        <radialGradient id="eyeWhite" cx="40%" cy="40%" r="60%">
-          <stop offset="0%" stop-color="#ffffff" stop-opacity=".95"/>
-          <stop offset="80%" stop-color="#f0f8ff"/><stop offset="100%" stop-color="#ddd"/>
-        </radialGradient>
-        
-        <!-- Beak grey -->
-        <linearGradient id="beakGrey" x1="0%" y1="0%" x2="100%" y2="50%">
-          <stop offset="0%" stop-color="#5a5a60"/><stop offset="50%" stop-color="#3a3a40"/>
-          <stop offset="100%" stop-color="#1a1a20"/>
-        </linearGradient>
-        
-        <!-- Head highlight -->
-        <radialGradient id="headLight" cx="25%" cy="25%" r="80%">
-          <stop offset="0%" stop-color="#ffffff" stop-opacity=".15"/>
-          <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
-        </radialGradient>
-        
-        <!-- Leg dark -->
-        <linearGradient id="legDark" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#2a2a30"/><stop offset="100%" stop-color="#0a0a0f"/>
-        </linearGradient>
       </defs>
 
-      <!-- ===== CORBEAU VUE DE FACE ===== -->
-      <g filter="url(#shadowDepth)">
+      <!-- Ombre sol -->
+      <ellipse cx="150" cy="350" rx="65" ry="15" fill="#000" opacity=".2" filter="url(#softGlow)"/>
 
-        <!-- ===== OMBRE PORTÉE RÉALISTE ===== -->
-        <ellipse cx="150" cy="360" rx="70" ry="18" fill="#000000" opacity=".35"/>
-
-        <!-- ========== QUEUE/PLUMAGE ARRIÈRE ========== -->
-        <g id="back-plumage" opacity=".85">
-          <!-- Plumes de queue arrière gauche -->
-          <path d="M65,180 Q40,220 35,310" stroke="#0a0a0f" stroke-width="12" fill="none" stroke-linecap="round" filter="url(#plumageTexture)"/>
-          <path d="M80,160 Q55,210 50,300" stroke="#0a0a0f" stroke-width="10" fill="none" stroke-linecap="round" opacity=".9"/>
-          
-          <!-- Plumes de queue arrière droite -->
-          <path d="M235,180 Q260,220 265,310" stroke="#0a0a0f" stroke-width="12" fill="none" stroke-linecap="round" filter="url(#plumageTexture)"/>
-          <path d="M220,160 Q245,210 250,300" stroke="#0a0a0f" stroke-width="10" fill="none" stroke-linecap="round" opacity=".9"/>
+      <!-- CORBEAU SIMPLE & BEAU -->
+      <g filter="url(#shadow)">
+        
+        <!-- QUEUE (arrière-plan) -->
+        <path d="M80,200 Q60,260 55,340" stroke="#1a1a1e" stroke-width="14" fill="none" stroke-linecap="round" opacity=".7"/>
+        <path d="M220,200 Q240,260 245,340" stroke="#1a1a1e" stroke-width="14" fill="none" stroke-linecap="round" opacity=".7"/>
+        
+        <!-- CORPS (simple ellipse) -->
+        <ellipse cx="150" cy="200" rx="70" ry="95" fill="url(#bodyGrad)" stroke="#0a0a0c" stroke-width="1.5"/>
+        
+        <!-- Reflet léger sur le corps -->
+        <ellipse cx="125" cy="160" rx="30" ry="50" fill="#fff" opacity=".08"/>
+        
+        <!-- COL/CRINIÈRE -->
+        <ellipse cx="150" cy="100" rx="55" ry="50" fill="#1a1a1e" stroke="#0a0a0c" stroke-width="1"/>
+        
+        <!-- Plumes crinière hérissées (simple) -->
+        <g stroke="#0a0a0c" stroke-width="1.2" fill="none" opacity=".5">
+          <path d="M105,70 L100,50"/><path d="M120,60 L115,38"/>
+          <path d="M140,55 L140,32"/><path d="M160,55 L160,32"/>
+          <path d="M180,60 L185,38"/><path d="M195,70 L200,50"/>
         </g>
+        
+        <!-- TÊTE (rond simple) -->
+        <circle cx="150" cy="65" r="42" fill="#1a1a1e" stroke="#0a0a0c" stroke-width="1.5"/>
+        
+        <!-- Reflet tête -->
+        <ellipse cx="130" cy="50" rx="16" ry="18" fill="#fff" opacity=".06"/>
+        
+        <!-- ===== YEUX - LA STAR ===== -->
+        
+        <!-- ŒIL GAUCHE -->
+        <!-- Orbite -->
+        <circle cx="125" cy="58" r="13" fill="#000" opacity=".8" stroke="#050506" stroke-width=".5"/>
+        <!-- Blanc -->
+        <circle cx="125" cy="58" r="10" fill="#fafafa" opacity=".9"/>
+        <!-- Iris ambre -->
+        <circle cx="125" cy="58" r="8" fill="url(#eyeAmber)" filter="url(#eyeGlow)"/>
+        <!-- Pupille -->
+        <circle cx="125" cy="58" r="5" fill="#000"/>
+        <!-- Highlight -->
+        <circle cx="122" cy="54" r="2.5" fill="#fff" filter="url(#eyeGlow)"/>
+        
+        <!-- ŒIL DROIT -->
+        <!-- Orbite -->
+        <circle cx="175" cy="58" r="13" fill="#000" opacity=".8" stroke="#050506" stroke-width=".5"/>
+        <!-- Blanc -->
+        <circle cx="175" cy="58" r="10" fill="#fafafa" opacity=".9"/>
+        <!-- Iris ambre -->
+        <circle cx="175" cy="58" r="8" fill="url(#eyeAmber)" filter="url(#eyeGlow)"/>
+        <!-- Pupille -->
+        <circle cx="175" cy="58" r="5" fill="#000"/>
+        <!-- Highlight -->
+        <circle cx="172" cy="54" r="2.5" fill="#fff" filter="url(#eyeGlow)"/>
+        
+        <!-- BEC (simple & acéré) -->
+        <!-- Pointe bec -->
+        <path d="M140,75 L155,75 L150,92 Z" fill="#4a4a50" stroke="#2a2a2e" stroke-width="1"/>
+        <!-- Arête bec -->
+        <line x1="150" y1="75" x2="150" y2="92" stroke="#2a2a2e" stroke-width="1.2" opacity=".6"/>
+        <!-- Narine gauche -->
+        <circle cx="145" cy="78" r="1.5" fill="#0a0a0c" opacity=".7"/>
+        <!-- Narine droite -->
+        <circle cx="155" cy="78" r="1.5" fill="#0a0a0c" opacity=".7"/>
+        
+        <!-- PATTES SIMPLES -->
+        <!-- Jambe gauche -->
+        <path d="M125,275 Q120,305 118,340" stroke="#3a3a40" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <!-- Jambe droite -->
+        <path d="M175,275 Q180,305 182,340" stroke="#3a3a40" stroke-width="4" fill="none" stroke-linecap="round"/>
+        
+        <!-- GRIFFES -->
+        <!-- Serres gauche -->
+        <g stroke="#2a2a30" stroke-width="2.2" fill="none" stroke-linecap="round">
+          <path d="M118,340 L102,362"/><path d="M118,340 L112,364"/>
+          <path d="M118,340 L124,364"/><path d="M118,340 L138,362"/>
+        </g>
+        <!-- Serres droite -->
+        <g stroke="#2a2a30" stroke-width="2.2" fill="none" stroke-linecap="round">
+          <path d="M182,340 L198,362"/><path d="M182,340 L188,364"/>
+          <path d="M182,340 L176,364"/><path d="M182,340 L162,362"/>
+        </g>
+        
+        <!-- Pointes griffes -->
+        <g fill="#1a1a1e">
+          <polygon points="102,362 98,356 106,360"/><polygon points="112,364 108,358 116,362"/>
+          <polygon points="124,364 120,358 128,362"/><polygon points="138,362 142,356 134,360"/>
+          <polygon points="198,362 202,356 194,360"/><polygon points="188,364 192,358 184,362"/>
+          <polygon points="176,364 180,358 172,362"/><polygon points="162,362 158,356 166,360"/>
+        </g>
+        
+      </g>
+    </svg>
+  </div>
 
-        <!-- ========== CORPS & POITRINE (VIEW FACE) ========== -->
-        <!-- Silhouette corps principale -->
+  <!-- CHAT -->
+  <div id="chat-area"></div>
+
+  <!-- INPUT -->
+  <div id="input-bar">
+    <div id="image-preview-bar"><img id="img-preview-thumb" src="" alt=""/><button class="remove-img" onclick="clearImagePreview()">&#10005;</button><span style="font-size:.75rem;color:var(--text-dim)">Image jointe</span></div>
+    <input type="file" id="image-input" accept="image/*" style="display:none"/>
+    <button id="img-btn" title="Envoyer une image" onclick="document.getElementById('image-input').click()">&#128247;</button>
+    <input type="text" id="user-input" placeholder="Parle &#224; Stakr..." autocomplete="off"/>
+    <button id="mic-btn" title="Parler" onclick="toggleVoiceInput()">&#127908;</button>
+    <button id="send-btn" title="Envoyer">&#9654;</button>
+  </div>
+</div>
+
+  <!-- TOAST -->
         <ellipse cx="150" cy="200" rx="85" ry="110" fill="url(#ravenPlumage)" stroke="#0a0a0f" stroke-width="2" filter="url(#plumageTexture)"/>
         
         <!-- Poitrine prominente -->
