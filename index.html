@@ -260,10 +260,15 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
           <stop offset="0%" stop-color="#2a2a2e"/><stop offset="100%" stop-color="#0a0a0c"/>
         </linearGradient>
         
-        <radialGradient id="eyeAmber" cx="40%" cy="40%" r="60%">
-          <stop offset="0%" stop-color="#ffcc44"/><stop offset="50%" stop-color="#ff9933"/>
-          <stop offset="100%" stop-color="#dd6611"/>
+        <radialGradient id="eyeBlue" cx="40%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#66ddff"/><stop offset="50%" stop-color="#00aaff"/>
+          <stop offset="100%" stop-color="#0077cc"/>
         </radialGradient>
+        
+        <linearGradient id="runeBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#0099ff"/>
+          <stop offset="100%" stop-color="#0055cc"/>
+        </linearGradient>
       </defs>
 
       <!-- Ombre sol -->
@@ -305,8 +310,8 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
         <circle cx="125" cy="58" r="13" fill="#000" opacity=".8" stroke="#050506" stroke-width=".5"/>
         <!-- Blanc -->
         <circle cx="125" cy="58" r="10" fill="#fafafa" opacity=".9"/>
-        <!-- Iris ambre -->
-        <circle cx="125" cy="58" r="8" fill="url(#eyeAmber)" filter="url(#eyeGlow)"/>
+        <!-- Iris bleu -->
+        <circle cx="125" cy="58" r="8" fill="url(#eyeBlue)" filter="url(#eyeGlow)"/>
         <!-- Pupille -->
         <circle cx="125" cy="58" r="5" fill="#000"/>
         <!-- Highlight -->
@@ -317,8 +322,8 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
         <circle cx="175" cy="58" r="13" fill="#000" opacity=".8" stroke="#050506" stroke-width=".5"/>
         <!-- Blanc -->
         <circle cx="175" cy="58" r="10" fill="#fafafa" opacity=".9"/>
-        <!-- Iris ambre -->
-        <circle cx="175" cy="58" r="8" fill="url(#eyeAmber)" filter="url(#eyeGlow)"/>
+        <!-- Iris bleu -->
+        <circle cx="175" cy="58" r="8" fill="url(#eyeBlue)" filter="url(#eyeGlow)"/>
         <!-- Pupille -->
         <circle cx="175" cy="58" r="5" fill="#000"/>
         <!-- Highlight -->
@@ -359,6 +364,36 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
           <polygon points="198,362 202,356 194,360"/><polygon points="188,364 192,358 184,362"/>
           <polygon points="176,364 180,358 172,362"/><polygon points="162,362 158,356 166,360"/>
         </g>
+        
+        <!-- ===== RUNES VIKINGS BLEU ===== -->
+        <!-- ANSUZ - Haut (Communication/Souffle) -->
+        <g filter="url(#eyeGlow)" opacity=".7">
+          <path d="M150,20 L155,35 L145,35 Z M150,35 L150,42" stroke="url(#runeBlue)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        
+        <!-- TIWAZ - Gauche (Guerrier/Courage) -->
+        <g filter="url(#eyeGlow)" opacity=".7">
+          <path d="M105,60 L105,80 M100,70 L110,80" stroke="url(#runeBlue)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        </g>
+        
+        <!-- RAIDHO - Droite (Voyage/Chemin) -->
+        <g filter="url(#eyeGlow)" opacity=".7">
+          <path d="M195,60 L195,80 M190,70 L200,80" stroke="url(#runeBlue)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        </g>
+        
+        <!-- FEHU - Bas-Gauche (Richesse/Pouvoir) -->
+        <g filter="url(#eyeGlow)" opacity=".65">
+          <path d="M125,310 L125,330 M120,318 L130,322 M120,328 L130,333" stroke="url(#runeBlue)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </g>
+        
+        <!-- OTHALA - Bas-Droite (Héritage/Terre) -->
+        <g filter="url(#eyeGlow)" opacity=".65">
+          <path d="M175,310 L175,330 M170,318 L180,322 M170,328 L180,333" stroke="url(#runeBlue)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </g>
+        
+        <!-- HAGALAZ - Halo mystique autour du corbeau (Protection) -->
+        <circle cx="150" cy="180" r="95" fill="none" stroke="url(#runeBlue)" stroke-width="1" opacity=".15" filter="url(#eyeGlow)"/>
+        <circle cx="150" cy="180" r="105" fill="none" stroke="url(#runeBlue)" stroke-width=".5" opacity=".08" filter="url(#eyeGlow)"/>
         
       </g>
     </svg>
