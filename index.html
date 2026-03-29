@@ -248,7 +248,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <canvas id="particle-canvas"></canvas>
     <div id="lightning-container"></div>
 
-    <svg id="raven-svg" class="idle" viewBox="0 0 300 380" xmlns="http://www.w3.org/2000/svg">
+    <svg id="raven-svg" class="idle" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <!-- Filtres simples mais efficaces -->
         <filter id="softGlow"><feGaussianBlur stdDeviation="2"/></filter>
@@ -272,128 +272,132 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
       </defs>
 
       <!-- Ombre sol -->
-      <ellipse cx="150" cy="350" rx="65" ry="15" fill="#000" opacity=".2" filter="url(#softGlow)"/>
+      <ellipse cx="150" cy="420" rx="70" ry="18" fill="#000" opacity=".2" filter="url(#softGlow)"/>
 
       <!-- CORBEAU SIMPLE & BEAU -->
       <g filter="url(#shadow)">
         
         <!-- QUEUE (arrière-plan) -->
-        <path d="M80,200 Q60,260 55,340" stroke="#1a1a1e" stroke-width="14" fill="none" stroke-linecap="round" opacity=".7"/>
-        <path d="M220,200 Q240,260 245,340" stroke="#1a1a1e" stroke-width="14" fill="none" stroke-linecap="round" opacity=".7"/>
+        <path d="M75,220 Q50,280 45,360" stroke="#1a1a1e" stroke-width="18" fill="none" stroke-linecap="round" opacity=".7"/>
+        <path d="M225,220 Q250,280 255,360" stroke="#1a1a1e" stroke-width="18" fill="none" stroke-linecap="round" opacity=".7"/>
         
-        <!-- CORPS (simple ellipse) -->
-        <ellipse cx="150" cy="200" rx="70" ry="95" fill="url(#bodyGrad)" stroke="#0a0a0c" stroke-width="1.5"/>
+        <!-- CORPS VOLUMINEUX (corbeau corpulent) -->
+        <ellipse cx="150" cy="210" rx="85" ry="130" fill="url(#bodyGrad)" stroke="#0a0a0c" stroke-width="2"/>
         
         <!-- Reflet léger sur le corps -->
-        <ellipse cx="125" cy="160" rx="30" ry="50" fill="#fff" opacity=".08"/>
+        <ellipse cx="120" cy="160" rx="40" ry="70" fill="#fff" opacity=".08"/>
         
-        <!-- COL/CRINIÈRE -->
-        <ellipse cx="150" cy="100" rx="55" ry="50" fill="#1a1a1e" stroke="#0a0a0c" stroke-width="1"/>
+        <!-- COL/CRINIÈRE IMPOSANT -->
+        <ellipse cx="150" cy="95" rx="65" ry="60" fill="#1a1a1e" stroke="#0a0a0c" stroke-width="1.2"/>
         
-        <!-- Plumes crinière hérissées (simple) -->
-        <g stroke="#0a0a0c" stroke-width="1.2" fill="none" opacity=".5">
-          <path d="M105,70 L100,50"/><path d="M120,60 L115,38"/>
-          <path d="M140,55 L140,32"/><path d="M160,55 L160,32"/>
-          <path d="M180,60 L185,38"/><path d="M195,70 L200,50"/>
+        <!-- Plumes crinière hérissées (plus volumineuses) -->
+        <g stroke="#0a0a0c" stroke-width="1.5" fill="none" opacity=".6">
+          <path d="M95,60 L85,35"/><path d="M110,45 L100,20"/>
+          <path d="M135,40 L135,12"/><path d="M150,38 L150,8"/>
+          <path d="M165,40 L165,12"/><path d="M190,45 L200,20"/>
+          <path d="M205,60 L215,35"/>
         </g>
         
-        <!-- TÊTE (rond simple) -->
-        <circle cx="150" cy="65" r="42" fill="#1a1a1e" stroke="#0a0a0c" stroke-width="1.5"/>
+        <!-- TÊTE IMPOSANTE & ROBUSTE -->
+        <circle cx="150" cy="60" r="52" fill="#1a1a1e" stroke="#0a0a0c" stroke-width="2"/>
         
         <!-- Reflet tête -->
-        <ellipse cx="130" cy="50" rx="16" ry="18" fill="#fff" opacity=".06"/>
+        <ellipse cx="125" cy="40" rx="22" ry="28" fill="#fff" opacity=".07"/>
         
         <!-- ===== YEUX - LA STAR ===== -->
         
         <!-- ŒIL GAUCHE -->
         <!-- Orbite -->
-        <circle cx="125" cy="58" r="13" fill="#000" opacity=".8" stroke="#050506" stroke-width=".5"/>
+        <circle cx="125" cy="55" r="16" fill="#000" opacity=".85" stroke="#050506" stroke-width=".5"/>
         <!-- Blanc -->
-        <circle cx="125" cy="58" r="10" fill="#fafafa" opacity=".9"/>
+        <circle cx="125" cy="55" r="12" fill="#fafafa" opacity=".92"/>
         <!-- Iris bleu -->
-        <circle cx="125" cy="58" r="8" fill="url(#eyeBlue)" filter="url(#eyeGlow)"/>
+        <circle cx="125" cy="55" r="10" fill="url(#eyeBlue)" filter="url(#eyeGlow)"/>
         <!-- Pupille -->
-        <circle cx="125" cy="58" r="5" fill="#000"/>
+        <circle cx="125" cy="55" r="6" fill="#000"/>
         <!-- Highlight -->
-        <circle cx="122" cy="54" r="2.5" fill="#fff" filter="url(#eyeGlow)"/>
+        <circle cx="121" cy="50" r="3" fill="#fff" filter="url(#eyeGlow)"/>
         
         <!-- ŒIL DROIT -->
         <!-- Orbite -->
-        <circle cx="175" cy="58" r="13" fill="#000" opacity=".8" stroke="#050506" stroke-width=".5"/>
+        <circle cx="175" cy="55" r="16" fill="#000" opacity=".85" stroke="#050506" stroke-width=".5"/>
         <!-- Blanc -->
-        <circle cx="175" cy="58" r="10" fill="#fafafa" opacity=".9"/>
+        <circle cx="175" cy="55" r="12" fill="#fafafa" opacity=".92"/>
         <!-- Iris bleu -->
-        <circle cx="175" cy="58" r="8" fill="url(#eyeBlue)" filter="url(#eyeGlow)"/>
+        <circle cx="175" cy="55" r="10" fill="url(#eyeBlue)" filter="url(#eyeGlow)"/>
         <!-- Pupille -->
-        <circle cx="175" cy="58" r="5" fill="#000"/>
+        <circle cx="175" cy="55" r="6" fill="#000"/>
         <!-- Highlight -->
-        <circle cx="172" cy="54" r="2.5" fill="#fff" filter="url(#eyeGlow)"/>
+        <circle cx="171" cy="50" r="3" fill="#fff" filter="url(#eyeGlow)"/>
         
-        <!-- BEC (simple & acéré) -->
-        <!-- Pointe bec -->
-        <path d="M140,75 L155,75 L150,92 Z" fill="#4a4a50" stroke="#2a2a2e" stroke-width="1"/>
-        <!-- Arête bec -->
-        <line x1="150" y1="75" x2="150" y2="92" stroke="#2a2a2e" stroke-width="1.2" opacity=".6"/>
-        <!-- Narine gauche -->
-        <circle cx="145" cy="78" r="1.5" fill="#0a0a0c" opacity=".7"/>
-        <!-- Narine droite -->
-        <circle cx="155" cy="78" r="1.5" fill="#0a0a0c" opacity=".7"/>
+        <!-- BEC MASSIF & COURBÉ (corbeau féroce) -->
+        <!-- Mandibule supérieure courbée -->
+        <path d="M135,72 Q150,65 168,68 Q175,78 168,88 Q150,92 135,85 Z" fill="#4a4a50" stroke="#2a2a2e" stroke-width="1.3"/>
+        <!-- Mandibule inférieure -->
+        <path d="M135,85 Q150,88 168,88 Q172,92 165,96 Q150,95 135,92 Z" fill="#2a2a30" stroke="#1a1a20" stroke-width="1"/>
+        <!-- Arête acérée du bec -->
+        <path d="M135,77 Q150,75 168,78" stroke="#1a1a20" stroke-width="1.5" opacity=".7" stroke-linecap="round"/>
+        <!-- Pointe crochue -->
+        <path d="M168,78 Q180,77 185,88 Q175,90 168,83 Z" fill="#2a2a30" opacity=".9"/>
+        <!-- Narines -->
+        <circle cx="155" cy="76" r="2" fill="#0a0a0c" opacity=".8"/>
+        <circle cx="162" cy="77" r="2" fill="#0a0a0c" opacity=".8"/>
         
-        <!-- PATTES SIMPLES -->
+        <!-- PATTES ROBUSTES -->
         <!-- Jambe gauche -->
-        <path d="M125,275 Q120,305 118,340" stroke="#3a3a40" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M120,325 Q110,360 108,385" stroke="#3a3a40" stroke-width="5.5" fill="none" stroke-linecap="round"/>
         <!-- Jambe droite -->
-        <path d="M175,275 Q180,305 182,340" stroke="#3a3a40" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M180,325 Q190,360 192,385" stroke="#3a3a40" stroke-width="5.5" fill="none" stroke-linecap="round"/>
         
-        <!-- GRIFFES -->
+        <!-- GRIFFES PUISSANTES -->
         <!-- Serres gauche -->
-        <g stroke="#2a2a30" stroke-width="2.2" fill="none" stroke-linecap="round">
-          <path d="M118,340 L102,362"/><path d="M118,340 L112,364"/>
-          <path d="M118,340 L124,364"/><path d="M118,340 L138,362"/>
+        <g stroke="#2a2a30" stroke-width="2.8" fill="none" stroke-linecap="round">
+          <path d="M108,385 L85,410"/><path d="M108,385 L100,415"/>
+          <path d="M108,385 L120,415"/><path d="M108,385 L135,410"/>
         </g>
         <!-- Serres droite -->
-        <g stroke="#2a2a30" stroke-width="2.2" fill="none" stroke-linecap="round">
-          <path d="M182,340 L198,362"/><path d="M182,340 L188,364"/>
-          <path d="M182,340 L176,364"/><path d="M182,340 L162,362"/>
+        <g stroke="#2a2a30" stroke-width="2.8" fill="none" stroke-linecap="round">
+          <path d="M192,385 L215,410"/><path d="M192,385 L200,415"/>
+          <path d="M192,385 L180,415"/><path d="M192,385 L165,410"/>
         </g>
         
         <!-- Pointes griffes -->
         <g fill="#1a1a1e">
-          <polygon points="102,362 98,356 106,360"/><polygon points="112,364 108,358 116,362"/>
-          <polygon points="124,364 120,358 128,362"/><polygon points="138,362 142,356 134,360"/>
-          <polygon points="198,362 202,356 194,360"/><polygon points="188,364 192,358 184,362"/>
-          <polygon points="176,364 180,358 172,362"/><polygon points="162,362 158,356 166,360"/>
+          <polygon points="85,410 80,402 92,408"/><polygon points="100,415 96,405 108,412"/>
+          <polygon points="120,415 116,405 128,412"/><polygon points="135,410 140,402 128,408"/>
+          <polygon points="215,410 220,402 208,408"/><polygon points="200,415 204,405 192,412"/>
+          <polygon points="180,415 184,405 172,412"/><polygon points="165,410 160,402 172,408"/>
         </g>
         
         <!-- ===== RUNES VIKINGS BLEU ===== -->
-        <!-- ANSUZ - Haut (Communication/Souffle) -->
+        <!-- ANSUZ - Haut (Communication/Souffle du destin) -->
         <g filter="url(#eyeGlow)" opacity=".7">
-          <path d="M150,20 L155,35 L145,35 Z M150,35 L150,42" stroke="url(#runeBlue)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M150,15 L156,32 L144,32 Z M150,32 L150,40" stroke="url(#runeBlue)" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </g>
         
         <!-- TIWAZ - Gauche (Guerrier/Courage) -->
         <g filter="url(#eyeGlow)" opacity=".7">
-          <path d="M105,60 L105,80 M100,70 L110,80" stroke="url(#runeBlue)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M100,70 L100,95 M94,82 L106,95" stroke="url(#runeBlue)" stroke-width="2" fill="none" stroke-linecap="round"/>
         </g>
         
         <!-- RAIDHO - Droite (Voyage/Chemin) -->
         <g filter="url(#eyeGlow)" opacity=".7">
-          <path d="M195,60 L195,80 M190,70 L200,80" stroke="url(#runeBlue)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M200,70 L200,95 M194,82 L206,95" stroke="url(#runeBlue)" stroke-width="2" fill="none" stroke-linecap="round"/>
         </g>
         
         <!-- FEHU - Bas-Gauche (Richesse/Pouvoir) -->
         <g filter="url(#eyeGlow)" opacity=".65">
-          <path d="M125,310 L125,330 M120,318 L130,322 M120,328 L130,333" stroke="url(#runeBlue)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M125,330 L125,355 M120,340 L130,345 M120,350 L130,355" stroke="url(#runeBlue)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
         </g>
         
         <!-- OTHALA - Bas-Droite (Héritage/Terre) -->
         <g filter="url(#eyeGlow)" opacity=".65">
-          <path d="M175,310 L175,330 M170,318 L180,322 M170,328 L180,333" stroke="url(#runeBlue)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M175,330 L175,355 M170,340 L180,345 M170,350 L180,355" stroke="url(#runeBlue)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
         </g>
         
         <!-- HAGALAZ - Halo mystique autour du corbeau (Protection) -->
-        <circle cx="150" cy="180" r="95" fill="none" stroke="url(#runeBlue)" stroke-width="1" opacity=".15" filter="url(#eyeGlow)"/>
-        <circle cx="150" cy="180" r="105" fill="none" stroke="url(#runeBlue)" stroke-width=".5" opacity=".08" filter="url(#eyeGlow)"/>
+        <circle cx="150" cy="200" r="110" fill="none" stroke="url(#runeBlue)" stroke-width="1.2" opacity=".15" filter="url(#eyeGlow)"/>
+        <circle cx="150" cy="200" r="122" fill="none" stroke="url(#runeBlue)" stroke-width=".6" opacity=".08" filter="url(#eyeGlow)"/>
         
       </g>
     </svg>
