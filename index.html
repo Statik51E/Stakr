@@ -657,6 +657,26 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <label>Modèle</label>
     <input type="text" id="api-model" placeholder="llama3"/>
   </div>
+  <div class="setting-group" id="tts-voice-group" style="display:none">
+    <label>Voix de Stakr</label>
+    <select id="tts-voice">
+      <optgroup label="PlayAI — Voix graves">
+        <option value="playai-tts|Thunder-PlayAI">Thunder (tres grave)</option>
+        <option value="playai-tts|Briggs-PlayAI">Briggs (grave)</option>
+        <option value="playai-tts|Atlas-PlayAI">Atlas (grave)</option>
+        <option value="playai-tts|Cillian-PlayAI">Cillian (grave)</option>
+        <option value="playai-tts|Angelo-PlayAI">Angelo (moyen)</option>
+        <option value="playai-tts|Fritz-PlayAI">Fritz (moyen)</option>
+        <option value="playai-tts|Mitch-PlayAI">Mitch (moyen)</option>
+      </optgroup>
+      <optgroup label="Orpheus — Voix expressives">
+        <option value="canopylabs/orpheus-v1-english|troy">Troy (grave, expressif)</option>
+        <option value="canopylabs/orpheus-v1-english|daniel">Daniel (moyen)</option>
+        <option value="canopylabs/orpheus-v1-english|austin">Austin (moyen)</option>
+      </optgroup>
+    </select>
+    <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">Voix anglaises uniquement (Groq). Clique 🔊 sur un message pour tester.</div>
+  </div>
   <div class="setting-group">
     <label>Personnalité de Stakr</label>
     <textarea id="personality-input"></textarea>
@@ -1118,6 +1138,7 @@ function applyConfig() {
   $('#api-keys').value = keys.join('\n');
   $('#custom-api-key').value = state.config.customApiKey || '';
   $('#pollinations-key').value = state.config.pollinationsKey || '';
+  $('#tts-voice').value = state.config.ttsVoice || 'playai-tts|Thunder-PlayAI';
   updateGroqKeyStatus();
   $('#api-model').value = state.config.model;
   $('#personality-input').value = state.config.personality;
@@ -1131,6 +1152,7 @@ function updateBackendUI() {
   const backend = $('#api-backend').value;
   $('#groq-key-group').style.display = backend === 'groq' ? 'block' : 'none';
   $('#pollinations-key-group').style.display = backend === 'groq' ? 'block' : 'none';
+  $('#tts-voice-group').style.display = backend === 'groq' ? 'block' : 'none';
   $('#custom-url-group').style.display = backend === 'custom' ? 'block' : 'none';
   $('#custom-key-group').style.display = backend === 'custom' ? 'block' : 'none';
 
@@ -1173,6 +1195,7 @@ function saveConfig() {
   state.config.apiKey = rawKeys[0] || '';
   state.config.customApiKey = $('#custom-api-key').value || '';
   state.config.pollinationsKey = $('#pollinations-key').value || '';
+  state.config.ttsVoice = $('#tts-voice').value || 'playai-tts|Thunder-PlayAI';
   updateGroqKeyStatus();
   state.config.model = $('#api-model').value || state.config.model;
   state.config.personality = $('#personality-input').value || DEFAULT_PERSONALITY;
@@ -2164,6 +2187,10 @@ async function speakMessage(btn, text) {
   currentTtsBtn = btn;
 
   try {
+    // Parse selected voice (format: "model|voiceId")
+    const voiceSetting = state.config.ttsVoice || 'playai-tts|Thunder-PlayAI';
+    const [ttsModel, ttsVoice] = voiceSetting.split('|');
+
     const res = await fetch('https://api.groq.com/openai/v1/audio/speech', {
       method: 'POST',
       headers: {
@@ -2171,9 +2198,9 @@ async function speakMessage(btn, text) {
         'Authorization': `Bearer ${groqKey}`
       },
       body: JSON.stringify({
-        model: 'playai-tts',
+        model: ttsModel,
         input: cleanText,
-        voice: 'Fritz-PlayAI',
+        voice: ttsVoice,
         response_format: 'wav'
       })
     });
