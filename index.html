@@ -12,27 +12,41 @@
 /* ===== RESET & BASE ===== */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#0a0a1a;--surface:#111128;--border:#1a1a3a;
+  --bg:#0e0a06;--surface:#1a1208;--surface2:#231a0e;
+  --border:#3d2b1a;--border-glow:#5a3f24;
   --rune-blue:#4fc3f7;--rune-glow:#00bcd4;
-  --text:#e0e0e0;--text-dim:#888;
-  --accent:#4fc3f7;--danger:#ff5252;--warm:#ffab40;
+  --gold:#c49a3c;--gold-dim:#8a6d2a;--gold-bright:#daa520;
+  --text:#d4c5a0;--text-dim:#8a7a5a;
+  --accent:#c49a3c;--danger:#c0392b;--warm:#d4a030;
+  --wood-dark:#120d07;--wood-mid:#1e150c;--wood-light:#2a1c10;
+  --leather:#1a1a30;
 }
 html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
 
 /* ===== LAYOUT ===== */
-#app{display:flex;flex-direction:column;height:100%;max-width:600px;margin:0 auto;position:relative}
-header{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);z-index:10}
-header h1{font-size:1.1rem;color:var(--rune-blue);text-shadow:0 0 10px rgba(79,195,247,.4)}
-#mood-indicator{font-size:.8rem;color:var(--text-dim);margin-left:auto}
-#settings-btn{background:none;border:none;color:var(--text-dim);font-size:1.3rem;cursor:pointer;padding:4px 8px}
+#app{display:flex;flex-direction:column;height:100%;max-width:600px;margin:0 auto;position:relative;background:var(--wood-dark);border-left:1px solid var(--border);border-right:1px solid var(--border)}
+header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:linear-gradient(180deg,#1e150a,#150f08);border-bottom:2px solid var(--border);z-index:10;position:relative}
+header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)}
+header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,60,.4);font-variant:small-caps;letter-spacing:2px}
+#mood-indicator{font-size:.75rem;color:var(--text-dim);margin-left:auto}
+#settings-btn,#project-btn{background:none;border:none;color:var(--gold-dim);font-size:1.3rem;cursor:pointer;padding:4px 8px;transition:color .2s}
+#settings-btn:hover,#project-btn:hover{color:var(--gold)}
+
+/* ===== MODE BAR ===== */
+#mode-bar{display:flex;gap:0;background:var(--wood-dark);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+#mode-bar::-webkit-scrollbar{display:none}
+.mode-btn{flex:1;min-width:0;padding:7px 4px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-size:.68rem;cursor:pointer;transition:all .2s;text-align:center;white-space:nowrap}
+.mode-btn.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(196,154,60,.05)}
+.mode-btn:hover{color:var(--gold-bright)}
+.mode-btn .mode-icon{display:block;font-size:.95rem;margin-bottom:1px}
 
 /* ===== RAVEN CONTAINER ===== */
-#raven-stage{position:relative;height:280px;min-height:200px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% 80%,#0d1040 0%,#080820 40%,var(--bg) 70%)}
+#raven-stage{position:relative;height:250px;min-height:180px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% 80%,#1a0e05 0%,#0e0a06 40%,var(--bg) 70%)}
 #raven-stage canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
 #aurora-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:.3;z-index:0}
 
 /* ===== RAVEN SVG ===== */
-#raven-svg{width:220px;height:220px;filter:drop-shadow(0 0 25px rgba(79,195,247,.2)) drop-shadow(0 8px 20px rgba(0,0,0,.6));transition:transform .4s cubic-bezier(.4,0,.2,1);z-index:2}
+#raven-svg{width:240px;height:240px;filter:drop-shadow(0 0 30px rgba(79,195,247,.15)) drop-shadow(0 10px 25px rgba(0,0,0,.7));transition:transform .4s cubic-bezier(.4,0,.2,1);z-index:2}
 #raven-svg.idle{animation:ravenFloat 4s ease-in-out infinite}
 #raven-svg.happy{animation:ravenBounce 1.2s ease-in-out infinite}
 #raven-svg.angry{animation:ravenShake 0.12s ease-in-out infinite}
@@ -40,29 +54,49 @@ header h1{font-size:1.1rem;color:var(--rune-blue);text-shadow:0 0 10px rgba(79,1
 #raven-svg.thinking{animation:ravenThink 2s ease-in-out infinite}
 #raven-svg.excited{animation:ravenExcited 0.5s ease-in-out infinite}
 
-/* Rune paths */
-.rune-path{fill:none;stroke:var(--rune-blue);stroke-width:1.5;opacity:0;filter:url(#runeGlow);stroke-dasharray:25;animation:runeAppear 3s ease-in-out infinite alternate}
-.rune-path:nth-child(2){animation-delay:.5s}
-.rune-path:nth-child(3){animation-delay:1s}
-.rune-path:nth-child(4){animation-delay:1.5s}
+/* Rune glow animations */
+.rune{fill:none;stroke:#4fc3f7;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;filter:url(#runeGlow);opacity:0;stroke-dasharray:60;stroke-dashoffset:60}
+.rune-1{animation:runeReveal 4s ease-in-out infinite}
+.rune-2{animation:runeReveal 4s ease-in-out .8s infinite}
+.rune-3{animation:runeReveal 4s ease-in-out 1.6s infinite}
+.rune-4{animation:runeReveal 4s ease-in-out 2.4s infinite}
+.rune-5{animation:runeReveal 4s ease-in-out 3.2s infinite}
+.rune-6{animation:runeReveal 4s ease-in-out 1.2s infinite}
+@keyframes runeReveal{0%{opacity:0;stroke-dashoffset:60}20%{opacity:.9;stroke-dashoffset:0}50%{opacity:.6;stroke-dashoffset:0}80%{opacity:.9;stroke-dashoffset:0}100%{opacity:0;stroke-dashoffset:-60}}
 
-/* Eye */
-.eye-iris{fill:var(--rune-blue);filter:url(#runeGlow);transition:all .4s}
-.angry .eye-iris{fill:var(--danger);filter:url(#angerGlow)}
+/* Rune ambient glow layer */
+.rune-glow-bg{fill:none;stroke:#4fc3f7;stroke-width:6;stroke-linecap:round;filter:url(#runeBlur);opacity:0}
+.rune-1 ~ .rune-glow-bg,.rune-glow-1{animation:runeGlowPulse 4s ease-in-out infinite}
+.rune-glow-2{animation:runeGlowPulse 4s ease-in-out .8s infinite}
+.rune-glow-3{animation:runeGlowPulse 4s ease-in-out 1.6s infinite}
+.rune-glow-4{animation:runeGlowPulse 4s ease-in-out 2.4s infinite}
+@keyframes runeGlowPulse{0%,100%{opacity:0}20%{opacity:.3}50%{opacity:.15}80%{opacity:.3}}
+
+/* Eye glow */
+.eye-glow{animation:eyePulse 3s ease-in-out infinite}
+@keyframes eyePulse{0%,100%{opacity:.6;filter:url(#runeGlow)}50%{opacity:1;filter:url(#eyeIntenseGlow)}}
+
+/* Eye colors per mood */
+.eye-iris{fill:url(#eyeGrad);transition:all .4s}
+.angry .eye-iris{fill:#ff5252}
 .happy .eye-iris{fill:#69f0ae}
-.sad .eye-iris{fill:#607d8b;opacity:.5}
+.sad .eye-iris{fill:#607d8b}
 
-/* Wing flap via JS class */
+/* Wing flap */
 .wing-left{transition:transform .15s ease-out}
 .wing-right{transition:transform .15s ease-out}
-.wing-left.flap{animation:flapLeft .3s ease-in-out}
-.wing-right.flap{animation:flapRight .3s ease-in-out}
-@keyframes flapLeft{0%,100%{transform:rotate(0)}50%{transform:rotate(-45deg) translateY(-10px)}}
-@keyframes flapRight{0%,100%{transform:rotate(0)}50%{transform:rotate(45deg) translateY(-10px)}}
+.wing-left.flap{animation:flapLeft .35s ease-in-out}
+.wing-right.flap{animation:flapRight .35s ease-in-out}
+@keyframes flapLeft{0%,100%{transform:rotate(0)}30%{transform:rotate(-45deg) translateY(-10px)}60%{transform:rotate(-20deg) translateY(-4px)}}
+@keyframes flapRight{0%,100%{transform:rotate(0)}30%{transform:rotate(45deg) translateY(-10px)}60%{transform:rotate(20deg) translateY(-4px)}}
 
 /* Tail sway */
-.tail-group{transform-origin:100px 155px;animation:tailSway 5s ease-in-out infinite}
-@keyframes tailSway{0%,100%{transform:rotate(0)}25%{transform:rotate(2deg)}75%{transform:rotate(-2deg)}}
+.tail-group{transform-origin:110px 180px;animation:tailSway 6s ease-in-out infinite}
+@keyframes tailSway{0%,100%{transform:rotate(0)}30%{transform:rotate(1.5deg)}70%{transform:rotate(-1.5deg)}}
+
+/* Breathing */
+.body-group{transform-origin:108px 130px;animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.01)}}
 
 /* Main animations */
 @keyframes ravenFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
@@ -71,58 +105,89 @@ header h1{font-size:1.1rem;color:var(--rune-blue);text-shadow:0 0 10px rgba(79,1
 @keyframes ravenDroop{0%,100%{transform:translateY(0) rotate(0) scale(1)}50%{transform:translateY(6px) rotate(-4deg) scale(0.97)}}
 @keyframes ravenThink{0%,100%{transform:rotate(0) translateX(0)}25%{transform:rotate(6deg) translateX(3px)}75%{transform:rotate(-2deg) translateX(-1px)}}
 @keyframes ravenExcited{0%{transform:translateY(0) rotate(-4deg) scale(1)}25%{transform:translateY(-18px) rotate(2deg) scale(1.06)}50%{transform:translateY(-2px) rotate(-2deg) scale(1)}75%{transform:translateY(-12px) rotate(4deg) scale(1.04)}100%{transform:translateY(0) rotate(-4deg) scale(1)}}
-@keyframes runeAppear{0%{opacity:0;stroke-dashoffset:25}50%{opacity:.7}100%{opacity:.2;stroke-dashoffset:0}}
 
 /* ===== LIGHTNING (ANGER) ===== */
 #lightning-container{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:3;opacity:0;transition:opacity .3s}
 #lightning-container.active{opacity:1}
 
 /* ===== CHAT ===== */
-#chat-area{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
-.msg{max-width:85%;padding:10px 14px;border-radius:16px;font-size:.9rem;line-height:1.4;word-wrap:break-word;animation:msgIn .3s ease-out}
-.msg.stakr{align-self:flex-start;background:var(--surface);border:1px solid var(--border);border-bottom-left-radius:4px}
-.msg.user{align-self:flex-end;background:linear-gradient(135deg,#1a237e,#1565c0);border-bottom-right-radius:4px}
-.msg .timestamp{font-size:.65rem;color:var(--text-dim);margin-top:4px}
-.typing-indicator{align-self:flex-start;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:16px;border-bottom-left-radius:4px}
-.typing-indicator span{display:inline-block;width:6px;height:6px;background:var(--rune-blue);border-radius:50%;margin:0 2px;animation:typingDot .8s infinite}
+#chat-area{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth;background:linear-gradient(180deg,var(--wood-dark),#0c0804)}
+.msg{max-width:85%;padding:10px 14px;border-radius:4px;font-size:.88rem;line-height:1.45;word-wrap:break-word;animation:msgIn .3s ease-out;position:relative}
+.msg.stakr{align-self:flex-start;background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border);border-left:3px solid var(--gold-dim);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.msg.user{align-self:flex-end;background:linear-gradient(135deg,#14142e,#1a1a3a);border:1px solid #2a2a4a;border-right:3px solid var(--rune-blue);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.msg .timestamp{font-size:.6rem;color:var(--text-dim);margin-top:6px;opacity:.6}
+.msg img.chat-img{max-width:100%;max-height:200px;border-radius:4px;margin:6px 0;cursor:pointer;border:1px solid var(--border)}
+.typing-indicator{align-self:flex-start;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:4px;border-left:3px solid var(--gold-dim)}
+.typing-indicator span{display:inline-block;width:6px;height:6px;background:var(--gold);border-radius:50%;margin:0 2px;animation:typingDot .8s infinite}
 .typing-indicator span:nth-child(2){animation-delay:.15s}
 .typing-indicator span:nth-child(3){animation-delay:.3s}
 @keyframes typingDot{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
 @keyframes msgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 /* ===== INPUT ===== */
-#input-bar{display:flex;gap:8px;padding:12px 16px;background:var(--surface);border-top:1px solid var(--border)}
-#input-bar input{flex:1;background:#1a1a3a;border:1px solid var(--border);border-radius:24px;padding:10px 16px;color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s}
-#input-bar input:focus{border-color:var(--rune-blue)}
-#input-bar button{background:linear-gradient(135deg,#1565c0,var(--rune-blue));border:none;border-radius:50%;width:42px;height:42px;color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s}
-#input-bar button:active{transform:scale(.9)}
+#input-bar{display:flex;gap:6px;padding:10px 14px;background:linear-gradient(180deg,var(--surface),var(--wood-dark));border-top:2px solid var(--border);position:relative;align-items:flex-end}
+#input-bar::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)}
+#image-preview-bar{display:none;position:absolute;bottom:100%;left:0;right:0;padding:8px 14px;background:var(--surface);border-top:1px solid var(--border);gap:8px;align-items:center}
+#image-preview-bar.active{display:flex}
+#image-preview-bar img{height:50px;border-radius:4px;border:1px solid var(--border)}
+#image-preview-bar .remove-img{background:var(--danger);border:none;color:#fff;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:.7rem;display:flex;align-items:center;justify-content:center;margin-left:-10px;margin-top:-20px}
+#img-btn{background:none;border:1px solid var(--border);border-radius:50%;width:38px;height:38px;color:var(--text-dim);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+#img-btn:hover{border-color:var(--gold);color:var(--gold)}
+#input-bar input{flex:1;background:var(--wood-mid);border:1px solid var(--border);border-radius:20px;padding:10px 16px;color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s}
+#input-bar input:focus{border-color:var(--gold)}
+#input-bar input::placeholder{color:var(--text-dim)}
+#send-btn{background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:50%;width:40px;height:40px;color:#0e0a06;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s;flex-shrink:0;font-weight:bold}
+#send-btn:active{transform:scale(.9)}
+
+/* ===== PROJECT PANEL ===== */
+#project-panel{position:fixed;top:0;left:-320px;width:300px;max-width:85vw;height:100%;background:linear-gradient(180deg,#1a1208,#120d07);border-right:2px solid var(--border);z-index:100;transition:left .3s;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#project-panel.open{left:0}
+#project-panel h2{color:var(--gold);margin-bottom:12px;font-size:1rem;font-variant:small-caps;letter-spacing:1px}
+.project-item{padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:8px;cursor:pointer;transition:all .2s;display:flex;justify-content:space-between;align-items:center}
+.project-item:hover,.project-item.active{border-color:var(--gold);background:var(--surface2)}
+.project-item .proj-name{font-size:.85rem;color:var(--text)}
+.project-item .proj-count{font-size:.65rem;color:var(--text-dim)}
+.project-item .proj-delete{background:none;border:none;color:var(--danger);cursor:pointer;font-size:.8rem;opacity:.5;transition:opacity .2s;padding:2px 6px}
+.project-item .proj-delete:hover{opacity:1}
+#new-project-btn{width:100%;padding:10px;background:none;border:1px dashed var(--border);border-radius:4px;color:var(--gold-dim);cursor:pointer;font-size:.85rem;transition:all .2s;margin-bottom:12px}
+#new-project-btn:hover{border-color:var(--gold);color:var(--gold)}
+.proj-general{border-left:3px solid var(--rune-blue) !important}
 
 /* ===== SETTINGS PANEL ===== */
-#settings-panel{position:fixed;top:0;right:-320px;width:300px;max-width:90vw;height:100%;background:var(--surface);border-left:1px solid var(--border);z-index:100;transition:right .3s;padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#settings-panel{position:fixed;top:0;right:-320px;width:300px;max-width:90vw;height:100%;background:linear-gradient(180deg,#1a1208,#120d07);border-left:2px solid var(--border);z-index:100;transition:right .3s;padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #settings-panel.open{right:0}
-#settings-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:99;display:none}
+#settings-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:99;display:none}
 #settings-overlay.open{display:block}
-#settings-panel h2{color:var(--rune-blue);margin-bottom:16px;font-size:1.1rem}
+#settings-panel h2{color:var(--gold);margin-bottom:16px;font-size:1.05rem;font-variant:small-caps;letter-spacing:1px}
 .setting-group{margin-bottom:16px}
-.setting-group label{display:block;font-size:.8rem;color:var(--text-dim);margin-bottom:6px}
-.setting-group input,.setting-group textarea{width:100%;background:#1a1a3a;border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:16px;outline:none}
-.setting-group select{width:100%;background:#1a1a3a;border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:16px;outline:none;cursor:pointer}
-.setting-group select option{background:#1a1a3a;color:var(--text)}
+.setting-group label{display:block;font-size:.78rem;color:var(--text-dim);margin-bottom:6px}
+.setting-group input,.setting-group textarea{width:100%;background:var(--wood-mid);border:1px solid var(--border);border-radius:4px;padding:10px 12px;color:var(--text);font-size:16px;outline:none;transition:border-color .2s}
+.setting-group input:focus,.setting-group textarea:focus{border-color:var(--gold)}
+.setting-group select{width:100%;background:var(--wood-mid);border:1px solid var(--border);border-radius:4px;padding:10px 12px;color:var(--text);font-size:16px;outline:none;cursor:pointer}
+.setting-group select option{background:var(--wood-mid);color:var(--text)}
 .setting-group textarea{height:80px;resize:vertical}
-.btn-danger{background:var(--danger);border:none;border-radius:8px;padding:8px 16px;color:#fff;cursor:pointer;font-size:.85rem;margin-top:8px}
-.btn-secondary{background:var(--border);border:none;border-radius:8px;padding:8px 16px;color:var(--text);cursor:pointer;font-size:.85rem;margin-top:8px}
+.btn-danger{background:var(--danger);border:none;border-radius:4px;padding:8px 16px;color:#fff;cursor:pointer;font-size:.85rem;margin-top:8px}
+.btn-secondary{background:var(--border);border:none;border-radius:4px;padding:8px 16px;color:var(--text);cursor:pointer;font-size:.85rem;margin-top:8px;transition:all .2s}
+.btn-secondary:hover{background:var(--border-glow)}
 
 /* ===== NOTIFICATION TOAST ===== */
-#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:var(--surface);border:1px solid var(--rune-blue);border-radius:12px;padding:12px 20px;z-index:200;transition:transform .4s;box-shadow:0 4px 20px rgba(79,195,247,.2);max-width:90vw}
+#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:var(--surface);border:1px solid var(--gold-dim);border-radius:4px;padding:12px 20px;z-index:200;transition:transform .4s;box-shadow:0 4px 20px rgba(196,154,60,.15);max-width:90vw}
 #toast.show{transform:translateX(-50%) translateY(0)}
-#toast .toast-title{font-weight:600;color:var(--rune-blue);font-size:.85rem}
+#toast .toast-title{font-weight:600;color:var(--gold);font-size:.85rem}
 #toast .toast-msg{font-size:.8rem;color:var(--text-dim);margin-top:4px}
+
+/* ===== IMAGE LIGHTBOX ===== */
+#lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:300;align-items:center;justify-content:center;cursor:pointer}
+#lightbox.active{display:flex}
+#lightbox img{max-width:95%;max-height:90%;object-fit:contain;border-radius:4px}
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:480px){
-  #raven-stage{height:240px}
-  #raven-svg{width:180px;height:180px}
-  .msg{max-width:90%;font-size:.85rem}
+  #raven-stage{height:200px}
+  #raven-svg{width:160px;height:160px}
+  .msg{max-width:92%;font-size:.83rem}
+  .mode-btn{font-size:.63rem;padding:5px 2px}
+  .mode-btn .mode-icon{font-size:.85rem}
 }
 </style>
 </head>
@@ -131,11 +196,20 @@ header h1{font-size:1.1rem;color:var(--rune-blue);text-shadow:0 0 10px rgba(79,1
 <div id="app">
   <!-- HEADER -->
   <header>
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2C8 2 4 6 4 10c0 3 2 5 4 6l-1 4 3-2c.6.1 1.3.2 2 .2 5 0 8-4 8-8s-3-8-8-8z" fill="#4fc3f7" opacity=".2" stroke="#4fc3f7" stroke-width="1.5"/></svg>
+    <button id="project-btn" title="Projets">&#9776;</button>
     <h1>STAKR</h1>
-    <span id="mood-indicator">● Serein</span>
-    <button id="settings-btn" title="Paramètres">⚙</button>
+    <span id="mood-indicator">&#9679; Serein</span>
+    <button id="settings-btn" title="Paramètres">&#9881;</button>
   </header>
+
+  <!-- MODE BAR -->
+  <div id="mode-bar">
+    <button class="mode-btn active" data-mode="conversation"><span class="mode-icon">&#9781;</span>Chat</button>
+    <button class="mode-btn" data-mode="recherche"><span class="mode-icon">&#128269;</span>Recherche</button>
+    <button class="mode-btn" data-mode="creation"><span class="mode-icon">&#9998;</span>Cr&#233;ation</button>
+    <button class="mode-btn" data-mode="design"><span class="mode-icon">&#9670;</span>Design</button>
+    <button class="mode-btn" data-mode="code"><span class="mode-icon">&lt;/&gt;</span>Code</button>
+  </div>
 
   <!-- RAVEN STAGE -->
   <div id="raven-stage">
@@ -145,224 +219,343 @@ header h1{font-size:1.1rem;color:var(--rune-blue);text-shadow:0 0 10px rgba(79,1
 
     <svg id="raven-svg" class="idle" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
       <defs>
+        <!-- Filters -->
         <filter id="runeGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="runeBlur"><feGaussianBlur stdDeviation="5"/></filter>
+        <filter id="eyeIntenseGlow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         <filter id="angerGlow"><feGaussianBlur stdDeviation="4" result="b"/><feFlood flood-color="#ff5252" flood-opacity=".6" result="c"/><feComposite in="c" in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="softShadow"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000" flood-opacity=".5"/></filter>
+        <filter id="softShadow"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity=".6"/></filter>
+        <filter id="featherEdge"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" xChannelSelector="R" yChannelSelector="G"/></filter>
 
-        <!-- Body gradients - iridescent dark plumage -->
-        <radialGradient id="bodyGrad" cx="40%" cy="30%" r="65%">
-          <stop offset="0%" stop-color="#2d2850"/><stop offset="40%" stop-color="#1c1835"/>
-          <stop offset="100%" stop-color="#0c0a18"/>
+        <!-- Body gradients -->
+        <radialGradient id="bodyGrad" cx="45%" cy="35%" r="60%">
+          <stop offset="0%" stop-color="#302858"/><stop offset="35%" stop-color="#1e1840"/>
+          <stop offset="70%" stop-color="#120e28"/><stop offset="100%" stop-color="#080614"/>
         </radialGradient>
-        <radialGradient id="headGrad" cx="35%" cy="25%" r="70%">
-          <stop offset="0%" stop-color="#322d55"/><stop offset="50%" stop-color="#1e1a38"/>
+        <radialGradient id="headGrad" cx="40%" cy="30%" r="65%">
+          <stop offset="0%" stop-color="#38305e"/><stop offset="40%" stop-color="#221c42"/>
           <stop offset="100%" stop-color="#0e0c1c"/>
         </radialGradient>
-        <radialGradient id="chestGrad" cx="50%" cy="20%" r="70%">
-          <stop offset="0%" stop-color="#252042"/><stop offset="100%" stop-color="#13102a"/>
+        <radialGradient id="chestGrad" cx="50%" cy="25%" r="70%">
+          <stop offset="0%" stop-color="#282248"/><stop offset="100%" stop-color="#14102c"/>
         </radialGradient>
-        <linearGradient id="wingGradL" x1="100%" y1="0%" x2="0%" y2="80%">
-          <stop offset="0%" stop-color="#1e1a38"/><stop offset="100%" stop-color="#08060f"/>
+        <linearGradient id="wingGradL" x1="100%" y1="0%" x2="0%" y2="90%">
+          <stop offset="0%" stop-color="#221e40"/><stop offset="50%" stop-color="#121028"/>
+          <stop offset="100%" stop-color="#06050c"/>
         </linearGradient>
-        <linearGradient id="wingGradR" x1="0%" y1="0%" x2="100%" y2="80%">
-          <stop offset="0%" stop-color="#1e1a38"/><stop offset="100%" stop-color="#08060f"/>
+        <linearGradient id="wingGradR" x1="0%" y1="0%" x2="100%" y2="90%">
+          <stop offset="0%" stop-color="#221e40"/><stop offset="50%" stop-color="#121028"/>
+          <stop offset="100%" stop-color="#06050c"/>
         </linearGradient>
         <linearGradient id="beakGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#3d3d4f"/><stop offset="100%" stop-color="#1a1a28"/>
+          <stop offset="0%" stop-color="#454558"/><stop offset="100%" stop-color="#1c1c2c"/>
         </linearGradient>
         <linearGradient id="beakHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="rgba(255,255,255,.1)"/><stop offset="100%" stop-color="transparent"/>
+          <stop offset="0%" stop-color="rgba(255,255,255,.12)"/><stop offset="100%" stop-color="transparent"/>
         </linearGradient>
-        <radialGradient id="eyeGrad" cx="30%" cy="30%" r="60%">
-          <stop offset="0%" stop-color="#b3e5fc"/><stop offset="40%" stop-color="#4fc3f7"/>
-          <stop offset="100%" stop-color="#0288d1"/>
+        <radialGradient id="eyeGrad" cx="35%" cy="30%" r="55%">
+          <stop offset="0%" stop-color="#e0f7fa"/><stop offset="25%" stop-color="#80deea"/>
+          <stop offset="60%" stop-color="#4fc3f7"/><stop offset="100%" stop-color="#0288d1"/>
         </radialGradient>
-        <!-- Iridescent sheen (purple-blue-green shift) -->
+        <linearGradient id="tailGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+          <stop offset="0%" stop-color="#161232"/><stop offset="100%" stop-color="#060412"/>
+        </linearGradient>
+        <!-- Iridescent sheens -->
         <linearGradient id="iridescentHead" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#7c4dff" stop-opacity=".12"/>
-          <stop offset="50%" stop-color="#00bcd4" stop-opacity=".08"/>
-          <stop offset="100%" stop-color="#4fc3f7" stop-opacity=".05"/>
+          <stop offset="0%" stop-color="#9c27b0" stop-opacity=".1"/>
+          <stop offset="35%" stop-color="#7c4dff" stop-opacity=".08"/>
+          <stop offset="65%" stop-color="#00bcd4" stop-opacity=".06"/>
+          <stop offset="100%" stop-color="#4fc3f7" stop-opacity=".04"/>
         </linearGradient>
         <linearGradient id="iridescentBody" x1="20%" y1="0%" x2="80%" y2="100%">
-          <stop offset="0%" stop-color="#512da8" stop-opacity=".06"/>
-          <stop offset="50%" stop-color="#1a237e" stop-opacity=".08"/>
-          <stop offset="100%" stop-color="#006064" stop-opacity=".04"/>
+          <stop offset="0%" stop-color="#673ab7" stop-opacity=".06"/>
+          <stop offset="40%" stop-color="#283593" stop-opacity=".08"/>
+          <stop offset="70%" stop-color="#006064" stop-opacity=".05"/>
+          <stop offset="100%" stop-color="#1b5e20" stop-opacity=".03"/>
         </linearGradient>
-        <linearGradient id="tailGrad" x1="50%" y1="0%" x2="50%" y2="100%">
-          <stop offset="0%" stop-color="#151130"/><stop offset="100%" stop-color="#050410"/>
+        <linearGradient id="iridescentWing" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4a148c" stop-opacity=".08"/>
+          <stop offset="50%" stop-color="#1a237e" stop-opacity=".06"/>
+          <stop offset="100%" stop-color="#004d40" stop-opacity=".04"/>
+        </linearGradient>
+        <!-- Rune energy gradient -->
+        <linearGradient id="runeEnergy" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#80deea"/><stop offset="50%" stop-color="#4fc3f7"/>
+          <stop offset="100%" stop-color="#0288d1"/>
         </linearGradient>
       </defs>
 
-      <!-- ====== TAIL FEATHERS ====== -->
-      <g class="tail-group">
-        <path d="M82,160 Q72,180 62,198 Q66,192 70,186 Q74,178 80,168Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".4"/>
-        <path d="M90,162 Q84,184 78,204 Q82,196 86,188 Q90,180 92,170Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".4"/>
-        <path d="M100,164 Q98,188 96,210 Q100,200 102,190 Q104,180 104,170Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".4"/>
-        <path d="M110,162 Q116,184 122,204 Q118,196 114,188 Q110,180 108,170Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".4"/>
-        <path d="M118,160 Q128,180 138,198 Q134,192 130,186 Q126,178 120,168Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".4"/>
-        <!-- Tail feather texture -->
-        <g stroke="#1e1a38" stroke-width=".3" fill="none" opacity=".5">
-          <path d="M77,175 Q72,180 68,190"/>
-          <path d="M87,178 Q84,185 80,195"/>
-          <path d="M100,178 Q99,188 98,200"/>
-          <path d="M113,178 Q116,185 120,195"/>
-          <path d="M123,175 Q128,180 132,190"/>
+      <!-- ====== SUBTLE AURA ====== -->
+      <ellipse cx="120" cy="120" rx="65" ry="60" fill="none" stroke="#4fc3f7" stroke-width=".4" opacity=".04" filter="url(#runeGlow)"/>
+      <ellipse cx="120" cy="120" rx="75" ry="70" fill="none" stroke="#4fc3f7" stroke-width=".2" opacity=".02" filter="url(#runeBlur)"/>
+
+      <!-- ====== BODY GROUP (breathing) ====== -->
+      <g class="body-group">
+
+        <!-- ====== TAIL FEATHERS ====== -->
+        <g class="tail-group">
+          <!-- Long spread tail feathers -->
+          <path d="M88,165 Q76,185 60,208 Q66,198 72,188 Q78,178 84,170Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path d="M96,167 Q88,190 78,216 Q84,204 90,192 Q94,182 98,172Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path d="M106,168 Q104,194 100,222 Q104,208 108,194 Q110,184 110,174Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path d="M116,168 Q120,194 126,222 Q122,208 118,194 Q116,184 114,174Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path d="M126,167 Q134,190 144,216 Q138,204 132,192 Q128,182 124,172Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path d="M134,165 Q146,185 162,208 Q156,198 150,188 Q144,178 138,170Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <!-- Barb texture -->
+          <g stroke="#1e1a38" stroke-width=".25" fill="none" opacity=".45">
+            <path d="M74,185 Q70,192 64,200"/><path d="M84,190 Q80,198 76,208"/>
+            <path d="M96,192 Q94,200 90,212"/><path d="M108,194 Q106,204 102,216"/>
+            <path d="M120,194 Q122,204 126,216"/><path d="M132,190 Q136,198 140,208"/>
+            <path d="M148,185 Q152,192 158,200"/>
+          </g>
+          <!-- Central rachis lines -->
+          <g stroke="#141030" stroke-width=".5" fill="none" opacity=".4">
+            <path d="M86,168 Q76,184 62,206"/><path d="M97,170 Q88,190 80,214"/>
+            <path d="M108,170 Q105,194 102,220"/><path d="M115,170 Q118,194 124,220"/>
+            <path d="M125,170 Q134,190 142,214"/><path d="M136,168 Q146,184 160,206"/>
+          </g>
         </g>
-      </g>
 
-      <!-- ====== FEET & TALONS ====== -->
-      <g opacity=".65">
-        <!-- Left leg -->
-        <path d="M90,158 Q87,165 85,172" stroke="#2d3040" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <path d="M85,172 L78,178 L76,176" stroke="#2d3040" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-        <path d="M85,172 L84,180 L82,179" stroke="#2d3040" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-        <path d="M85,172 L90,178 L89,176" stroke="#2d3040" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-        <!-- Right leg -->
-        <path d="M110,158 Q113,165 115,172" stroke="#2d3040" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <path d="M115,172 L122,178 L124,176" stroke="#2d3040" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-        <path d="M115,172 L116,180 L118,179" stroke="#2d3040" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-        <path d="M115,172 L110,178 L111,176" stroke="#2d3040" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-        <!-- Talon tips -->
-        <g fill="#1a1a28">
-          <circle cx="76" cy="176" r=".8"/><circle cx="82" cy="179" r=".8"/><circle cx="89" cy="176" r=".8"/>
-          <circle cx="124" cy="176" r=".8"/><circle cx="118" cy="179" r=".8"/><circle cx="111" cy="176" r=".8"/>
+        <!-- ====== FEET & TALONS ====== -->
+        <g opacity=".6">
+          <!-- Left leg -->
+          <path d="M100,160 Q96,168 92,176" stroke="#2a2838" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+          <path d="M92,176 L82,183 M82,183 L79,181" stroke="#2a2838" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M92,176 L90,185 M90,185 L87,184" stroke="#2a2838" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M92,176 L98,183 M98,183 L97,180" stroke="#2a2838" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M92,176 L86,184" stroke="#2a2838" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Right leg -->
+          <path d="M122,160 Q126,168 130,176" stroke="#2a2838" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+          <path d="M130,176 L140,183 M140,183 L143,181" stroke="#2a2838" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M130,176 L132,185 M132,185 L135,184" stroke="#2a2838" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M130,176 L124,183 M124,183 L125,180" stroke="#2a2838" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M130,176 L136,184" stroke="#2a2838" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Talon tips (sharp) -->
+          <g fill="#161620" stroke="#0e0e18" stroke-width=".3">
+            <path d="M79,181 L77,179 L80,180Z"/><path d="M87,184 L85,182 L88,183Z"/>
+            <path d="M97,180 L96,178 L98,179Z"/><path d="M86,184 L84,182 L87,183Z"/>
+            <path d="M143,181 L145,179 L142,180Z"/><path d="M135,184 L137,182 L134,183Z"/>
+            <path d="M125,180 L126,178 L124,179Z"/><path d="M136,184 L138,182 L135,183Z"/>
+          </g>
+          <!-- Scaly texture on legs -->
+          <g stroke="#363648" stroke-width=".3" fill="none" opacity=".4">
+            <path d="M98,163 Q96,164 94,163"/><path d="M97,166 Q95,167 93,166"/>
+            <path d="M96,169 Q94,170 92,169"/><path d="M95,172 Q93,173 91,172"/>
+            <path d="M124,163 Q126,164 128,163"/><path d="M125,166 Q127,167 129,166"/>
+            <path d="M126,169 Q128,170 130,169"/><path d="M127,172 Q129,173 131,172"/>
+          </g>
         </g>
-      </g>
 
-      <!-- ====== BODY ====== -->
-      <!-- Main body shape - rounder, organic -->
-      <path d="M56,115 Q56,80 80,72 Q100,66 120,72 Q144,80 144,115 Q144,150 120,160 Q100,166 80,160 Q56,150 56,115Z" fill="url(#bodyGrad)" stroke="#221e3a" stroke-width=".4"/>
-      <!-- Iridescent sheen on body -->
-      <path d="M65,100 Q100,88 135,100 Q138,120 130,140 Q100,148 70,140 Q62,120 65,100Z" fill="url(#iridescentBody)" opacity=".6"/>
+        <!-- ====== BODY ====== -->
+        <!-- Main body shape — muscular, slightly asymmetric for realism -->
+        <path d="M62,118 Q58,85 84,74 Q105,67 128,74 Q154,85 152,118 Q152,148 134,162 Q118,170 105,170 Q90,170 78,162 Q62,148 62,118Z" fill="url(#bodyGrad)" stroke="#1e1a35" stroke-width=".5"/>
+        <!-- Iridescent body sheen -->
+        <path d="M72,100 Q108,86 142,100 Q148,122 138,146 Q108,156 76,146 Q66,122 72,100Z" fill="url(#iridescentBody)" opacity=".5"/>
 
-      <!-- Chest/belly - layered feather scales -->
-      <g fill="url(#chestGrad)" stroke="#2a2548" stroke-width=".3">
-        <path d="M80,92 Q100,88 120,92 Q118,98 100,96 Q82,98 80,92Z"/>
-        <path d="M76,100 Q100,95 124,100 Q122,107 100,104 Q78,107 76,100Z"/>
-        <path d="M74,108 Q100,102 126,108 Q124,116 100,112 Q76,116 74,108Z"/>
-        <path d="M74,116 Q100,110 126,116 Q124,124 100,120 Q76,124 74,116Z"/>
-        <path d="M76,124 Q100,118 124,124 Q122,132 100,128 Q78,132 76,124Z"/>
-        <path d="M78,132 Q100,126 122,132 Q120,139 100,136 Q80,139 78,132Z"/>
-        <path d="M82,139 Q100,134 118,139 Q116,145 100,142 Q84,145 82,139Z"/>
-        <path d="M86,145 Q100,141 114,145 Q112,150 100,148 Q88,150 86,145Z"/>
-      </g>
+        <!-- Chest feather scales — overlapping rows -->
+        <g fill="url(#chestGrad)" stroke="#262244" stroke-width=".25" opacity=".9">
+          <path d="M86,92 Q108,87 130,92 Q128,99 108,96 Q88,99 86,92Z"/>
+          <path d="M82,100 Q108,94 134,100 Q132,108 108,104 Q84,108 82,100Z"/>
+          <path d="M78,108 Q108,101 138,108 Q136,117 108,112 Q80,117 78,108Z"/>
+          <path d="M76,116 Q108,109 140,116 Q138,125 108,120 Q78,125 76,116Z"/>
+          <path d="M78,124 Q108,117 138,124 Q136,133 108,128 Q80,133 78,124Z"/>
+          <path d="M80,132 Q108,125 136,132 Q134,140 108,136 Q82,140 80,132Z"/>
+          <path d="M84,139 Q108,133 132,139 Q130,146 108,143 Q86,146 84,139Z"/>
+          <path d="M88,146 Q108,141 128,146 Q126,152 108,149 Q90,152 88,146Z"/>
+          <path d="M92,152 Q108,148 124,152 Q122,157 108,155 Q94,157 92,152Z"/>
+        </g>
+        <!-- Belly fluff detail -->
+        <g stroke="#201c3a" stroke-width=".3" fill="none" opacity=".35">
+          <path d="M94,155 Q92,160 90,164"/><path d="M102,156 Q101,161 100,165"/>
+          <path d="M110,156 Q111,161 112,165"/><path d="M118,155 Q120,160 122,164"/>
+        </g>
 
-      <!-- ====== WING LEFT ====== -->
-      <g class="wing-left" style="transform-origin:62px 108px" filter="url(#softShadow)">
-        <!-- Wing base shape -->
-        <path d="M62,100 Q45,82 25,88 Q12,98 10,120 Q14,138 28,145 Q42,148 55,142 Q60,135 62,148Z" fill="url(#wingGradL)" stroke="#1a1635" stroke-width=".4"/>
-        <!-- Coverts (small feathers) -->
-        <path d="M58,105 Q45,98 35,102" stroke="#221e38" stroke-width=".4" fill="none"/>
-        <path d="M57,112 Q42,106 30,112" stroke="#221e38" stroke-width=".4" fill="none"/>
-        <path d="M56,119 Q40,114 26,120" stroke="#221e38" stroke-width=".4" fill="none"/>
-        <!-- Secondaries -->
-        <path d="M54,126 Q38,122 22,128" stroke="#1c1830" stroke-width=".5" fill="none"/>
-        <path d="M52,133 Q36,130 20,136" stroke="#1c1830" stroke-width=".5" fill="none"/>
-        <!-- Primary flight feathers -->
-        <path d="M28,145 Q20,150 12,160" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
-        <path d="M34,146 Q28,153 22,162" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
-        <path d="M40,147 Q36,155 32,163" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
-        <path d="M46,147 Q44,156 42,164" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
-        <!-- Wing iridescent highlight -->
-        <path d="M50,105 Q38,100 28,108 Q22,118 24,132 Q35,128 50,126Z" fill="url(#iridescentBody)" opacity=".4"/>
-      </g>
+        <!-- ====== WING LEFT ====== -->
+        <g class="wing-left" style="transform-origin:68px 110px" filter="url(#softShadow)">
+          <!-- Wing base shape -->
+          <path d="M68,102 Q52,82 30,86 Q14,96 10,122 Q14,142 30,150 Q48,154 60,146 Q66,138 68,155Z" fill="url(#wingGradL)" stroke="#161230" stroke-width=".4"/>
+          <!-- Marginal coverts -->
+          <path d="M64,106 Q52,98 38,102" stroke="#222040" stroke-width=".4" fill="none"/>
+          <path d="M62,112 Q48,106 32,110" stroke="#222040" stroke-width=".4" fill="none"/>
+          <path d="M60,118 Q44,112 28,118" stroke="#222040" stroke-width=".4" fill="none"/>
+          <!-- Greater coverts -->
+          <path d="M58,124 Q42,119 24,124" stroke="#1c1835" stroke-width=".45" fill="none"/>
+          <path d="M56,130 Q38,126 20,132" stroke="#1c1835" stroke-width=".45" fill="none"/>
+          <!-- Secondary flight feathers -->
+          <path d="M52,136 Q34,133 16,140" stroke="#161230" stroke-width=".5" fill="none"/>
+          <path d="M48,142 Q30,140 14,148" stroke="#161230" stroke-width=".5" fill="none"/>
+          <!-- Primary flight feathers (long, separated) -->
+          <path d="M30,150 Q20,156 10,168" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M36,151 Q28,158 20,170" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M42,152 Q36,160 30,172" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M48,153 Q44,162 40,173" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M54,153 Q52,163 50,173" stroke="#0e0c1c" stroke-width=".7" fill="none" stroke-linecap="round"/>
+          <!-- Iridescent sheen on wing -->
+          <path d="M56,108 Q40,102 28,112 Q20,124 24,138 Q38,134 56,128Z" fill="url(#iridescentWing)" opacity=".5"/>
+          <!-- Feather edge detail -->
+          <g stroke="#2a2648" stroke-width=".2" fill="none" opacity=".3">
+            <path d="M30,150 Q26,148 22,150"/><path d="M36,151 Q32,150 28,152"/>
+            <path d="M42,152 Q38,151 34,153"/><path d="M48,153 Q44,152 40,154"/>
+          </g>
+        </g>
 
-      <!-- ====== WING RIGHT ====== -->
-      <g class="wing-right" style="transform-origin:138px 108px" filter="url(#softShadow)">
-        <path d="M138,100 Q155,82 175,88 Q188,98 190,120 Q186,138 172,145 Q158,148 145,142 Q140,135 138,148Z" fill="url(#wingGradR)" stroke="#1a1635" stroke-width=".4"/>
-        <path d="M142,105 Q155,98 165,102" stroke="#221e38" stroke-width=".4" fill="none"/>
-        <path d="M143,112 Q158,106 170,112" stroke="#221e38" stroke-width=".4" fill="none"/>
-        <path d="M144,119 Q160,114 174,120" stroke="#221e38" stroke-width=".4" fill="none"/>
-        <path d="M146,126 Q162,122 178,128" stroke="#1c1830" stroke-width=".5" fill="none"/>
-        <path d="M148,133 Q164,130 180,136" stroke="#1c1830" stroke-width=".5" fill="none"/>
-        <path d="M172,145 Q180,150 188,160" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
-        <path d="M166,146 Q172,153 178,162" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
-        <path d="M160,147 Q164,155 168,163" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
-        <path d="M154,147 Q156,156 158,164" stroke="#12101e" stroke-width=".7" fill="none" stroke-linecap="round"/>
-        <path d="M150,105 Q162,100 172,108 Q178,118 176,132 Q165,128 150,126Z" fill="url(#iridescentBody)" opacity=".4"/>
-      </g>
+        <!-- ====== WING RIGHT ====== -->
+        <g class="wing-right" style="transform-origin:148px 110px" filter="url(#softShadow)">
+          <path d="M148,102 Q164,82 186,86 Q202,96 206,122 Q202,142 186,150 Q168,154 156,146 Q150,138 148,155Z" fill="url(#wingGradR)" stroke="#161230" stroke-width=".4"/>
+          <path d="M152,106 Q164,98 178,102" stroke="#222040" stroke-width=".4" fill="none"/>
+          <path d="M154,112 Q168,106 184,110" stroke="#222040" stroke-width=".4" fill="none"/>
+          <path d="M156,118 Q172,112 188,118" stroke="#222040" stroke-width=".4" fill="none"/>
+          <path d="M158,124 Q174,119 192,124" stroke="#1c1835" stroke-width=".45" fill="none"/>
+          <path d="M160,130 Q178,126 196,132" stroke="#1c1835" stroke-width=".45" fill="none"/>
+          <path d="M164,136 Q182,133 200,140" stroke="#161230" stroke-width=".5" fill="none"/>
+          <path d="M168,142 Q186,140 202,148" stroke="#161230" stroke-width=".5" fill="none"/>
+          <path d="M186,150 Q196,156 206,168" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M180,151 Q188,158 196,170" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M174,152 Q180,160 186,172" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M168,153 Q172,162 176,173" stroke="#0e0c1c" stroke-width=".8" fill="none" stroke-linecap="round"/>
+          <path d="M162,153 Q164,163 166,173" stroke="#0e0c1c" stroke-width=".7" fill="none" stroke-linecap="round"/>
+          <path d="M160,108 Q176,102 188,112 Q196,124 192,138 Q178,134 160,128Z" fill="url(#iridescentWing)" opacity=".5"/>
+          <g stroke="#2a2648" stroke-width=".2" fill="none" opacity=".3">
+            <path d="M186,150 Q190,148 194,150"/><path d="M180,151 Q184,150 188,152"/>
+            <path d="M174,152 Q178,151 182,153"/><path d="M168,153 Q172,152 176,154"/>
+          </g>
+        </g>
 
-      <!-- ====== NECK (throat feathers, shaggy) ====== -->
-      <g fill="url(#bodyGrad)">
-        <path d="M78,82 Q100,76 122,82 Q120,92 100,88 Q80,92 78,82Z"/>
-        <!-- Throat hackles (shaggy feathers typical of ravens) -->
-        <path d="M84,86 Q82,92 80,96" stroke="#1e1a35" stroke-width=".5" fill="none"/>
-        <path d="M90,84 Q88,90 87,95" stroke="#1e1a35" stroke-width=".5" fill="none"/>
-        <path d="M96,83 Q95,89 94,94" stroke="#1e1a35" stroke-width=".5" fill="none"/>
-        <path d="M104,83 Q105,89 106,94" stroke="#1e1a35" stroke-width=".5" fill="none"/>
-        <path d="M110,84 Q112,90 113,95" stroke="#1e1a35" stroke-width=".5" fill="none"/>
-        <path d="M116,86 Q118,92 120,96" stroke="#1e1a35" stroke-width=".5" fill="none"/>
-      </g>
+        <!-- ====== NECK (shaggy hackle feathers) ====== -->
+        <g fill="url(#bodyGrad)">
+          <path d="M82,84 Q108,77 132,84 Q130,95 108,90 Q86,95 82,84Z"/>
+          <!-- Hackle feathers (shaggy throat typical of corvids) -->
+          <g stroke="#1c1832" stroke-width=".5" fill="none">
+            <path d="M88,88 Q85,95 82,100"/><path d="M94,86 Q91,93 89,98"/>
+            <path d="M100,85 Q98,92 97,98"/><path d="M108,85 Q108,92 108,98"/>
+            <path d="M114,86 Q116,93 118,98"/><path d="M120,88 Q123,95 126,100"/>
+          </g>
+          <!-- Extra hackle tufts -->
+          <g stroke="#201c38" stroke-width=".35" fill="none" opacity=".5">
+            <path d="M86,90 Q84,96 83,101"/><path d="M92,88 Q90,94 89,99"/>
+            <path d="M104,85 Q103,92 102,98"/><path d="M112,85 Q113,92 114,98"/>
+            <path d="M118,88 Q120,94 122,99"/><path d="M124,90 Q126,96 127,101"/>
+          </g>
+        </g>
 
-      <!-- ====== HEAD ====== -->
-      <!-- Skull shape - slightly angular like a real raven -->
-      <path d="M72,68 Q72,42 100,38 Q128,42 128,68 Q128,85 100,88 Q72,85 72,68Z" fill="url(#headGrad)" stroke="#221e3a" stroke-width=".4"/>
-      <!-- Iridescent sheen on head -->
-      <path d="M78,55 Q100,46 118,55 Q120,68 112,76 Q100,80 88,76 Q78,68 78,55Z" fill="url(#iridescentHead)" opacity=".7"/>
+        <!-- ====== HEAD ====== -->
+        <!-- Skull — angular flat forehead, rounded occiput -->
+        <path d="M78,70 Q76,44 108,38 Q140,44 138,70 Q138,88 108,92 Q78,88 78,70Z" fill="url(#headGrad)" stroke="#1e1a35" stroke-width=".5"/>
+        <!-- Iridescent head sheen -->
+        <path d="M84,55 Q108,45 128,55 Q132,70 122,80 Q108,84 94,80 Q84,70 84,55Z" fill="url(#iridescentHead)" opacity=".65"/>
+        <!-- Crown feather texture -->
+        <g stroke="#2a2548" stroke-width=".35" fill="none" opacity=".45">
+          <path d="M88,48 Q98,43 108,42"/><path d="M108,42 Q118,43 128,48"/>
+          <path d="M86,54 Q98,49 108,48 Q118,49 130,54"/>
+          <path d="M84,60 Q96,55 108,54 Q120,55 132,60"/>
+        </g>
+        <!-- Forehead ridge (bristly feathers above beak) -->
+        <g stroke="#2a2548" fill="none" opacity=".6">
+          <path d="M112,54 Q118,49 124,52" stroke-width=".6"/>
+          <path d="M114,56 Q120,52 128,55" stroke-width=".4"/>
+          <path d="M110,58 Q116,54 122,57" stroke-width=".35"/>
+        </g>
+        <!-- Nasal tuft (feathered nostrils) -->
+        <g stroke="#262244" stroke-width=".3" fill="none" opacity=".5">
+          <path d="M134,60 Q138,57 142,58"/><path d="M134,62 Q140,59 144,60"/>
+          <path d="M136,58 Q140,55 143,57"/>
+        </g>
 
-      <!-- Crown feather texture -->
-      <g stroke="#2a2548" stroke-width=".4" fill="none" opacity=".5">
-        <path d="M82,48 Q90,44 100,43"/>
-        <path d="M100,43 Q110,44 118,48"/>
-        <path d="M80,54 Q90,50 100,49 Q110,50 120,54"/>
-      </g>
-      <!-- Forehead ridge (raised feathers above beak) -->
-      <path d="M104,52 Q108,48 114,50" stroke="#2a2548" stroke-width=".6" fill="none"/>
-      <path d="M106,54 Q112,50 118,53" stroke="#2a2548" stroke-width=".4" fill="none"/>
+        <!-- ====== BEAK ====== -->
+        <!-- Upper mandible (heavy, curved — distinctive raven beak) -->
+        <path d="M136,64 Q150,56 168,52 Q174,58 168,62 Q158,64 136,68Z" fill="url(#beakGrad)" stroke="#28283c" stroke-width=".5"/>
+        <!-- Culmen ridge (top edge highlight) -->
+        <path d="M138,64 Q150,57 164,53 Q166,56 164,58 Q154,60 138,66Z" fill="url(#beakHighlight)"/>
+        <!-- Lower mandible -->
+        <path d="M136,68 Q150,68 162,64 Q165,66 160,68 Q150,72 136,72Z" fill="#1a1a28" stroke="#28283c" stroke-width=".4"/>
+        <!-- Beak tip hook (raven-specific downward curve) -->
+        <path d="M168,52 Q174,56 170,62" stroke="#181828" stroke-width=".8" fill="none" stroke-linecap="round"/>
+        <!-- Nostril area -->
+        <ellipse cx="142" cy="62" rx="2.8" ry="1.5" fill="#1e1c34"/>
+        <!-- Beak commissure line -->
+        <path d="M136,68 Q145,67 156,64" stroke="#12101e" stroke-width=".3" fill="none"/>
+        <!-- Beak texture lines -->
+        <g stroke="#2a2a3e" stroke-width=".2" fill="none" opacity=".3">
+          <path d="M140,60 Q150,57 160,55"/><path d="M140,62 Q150,59 160,57"/>
+          <path d="M140,64 Q150,62 158,60"/>
+        </g>
 
-      <!-- ====== BEAK ====== -->
-      <!-- Upper mandible (curved, heavy - distinctive raven beak) -->
-      <path d="M126,62 Q138,56 152,52 Q156,56 152,60 Q145,62 126,66Z" fill="url(#beakGrad)" stroke="#2a2a3a" stroke-width=".5"/>
-      <!-- Upper beak highlight -->
-      <path d="M128,62 Q138,57 148,54 Q150,56 148,58 Q140,60 128,64Z" fill="url(#beakHighlight)"/>
-      <!-- Lower mandible -->
-      <path d="M126,66 Q138,66 148,62 Q150,64 146,66 Q138,70 126,70Z" fill="#1a1a28" stroke="#2a2a3a" stroke-width=".4"/>
-      <!-- Nostril (ravens have feathered nostrils - nasal bristles) -->
-      <ellipse cx="130" cy="60" rx="2.5" ry="1.5" fill="#221e38"/>
-      <g stroke="#2a2548" stroke-width=".3" fill="none">
-        <path d="M126,58 Q128,56 131,57"/>
-        <path d="M126,59 Q129,57 132,58"/>
-      </g>
-      <!-- Beak tip hook -->
-      <path d="M152,52 Q156,54 154,58" stroke="#1a1a28" stroke-width=".6" fill="none" stroke-linecap="round"/>
+        <!-- ====== EYE ====== -->
+        <g>
+          <!-- Deep eye socket -->
+          <ellipse cx="126" cy="64" rx="11" ry="10" fill="#080618" opacity=".7"/>
+          <!-- Orbital ring -->
+          <ellipse cx="126" cy="63" rx="9" ry="8" fill="#141028" stroke="#252244" stroke-width=".4"/>
+          <!-- Iris with glow -->
+          <g class="eye-glow">
+            <circle cx="126" cy="62.5" r="6" fill="url(#eyeGrad)" filter="url(#runeGlow)"/>
+          </g>
+          <!-- Iris (for JS mood color changes) -->
+          <circle class="eye-iris" cx="126" cy="62.5" r="6" fill="url(#eyeGrad)" opacity=".9"/>
+          <!-- Pupil -->
+          <circle cx="127" cy="62" r="3" fill="#040310"/>
+          <!-- Inner pupil depth -->
+          <circle cx="127.5" cy="61.5" r="2" fill="#0a0818" opacity=".8"/>
+          <!-- Primary specular highlight -->
+          <circle cx="123.5" cy="59.5" r="2" fill="#fff" opacity=".8"/>
+          <!-- Secondary highlight -->
+          <circle cx="129" cy="64.5" r="1" fill="#fff" opacity=".3"/>
+          <!-- Tertiary tiny highlight -->
+          <circle cx="124.5" cy="61" r=".6" fill="#e0f7fa" opacity=".5"/>
+          <!-- Eye ring glow -->
+          <circle cx="126" cy="62.5" r="6" fill="none" stroke="rgba(79,195,247,.2)" stroke-width=".6"/>
+          <!-- Eyelid shadow (upper) -->
+          <path d="M118,58 Q126,54 134,58" stroke="#0a0818" stroke-width="1.2" fill="none" opacity=".4" stroke-linecap="round"/>
+        </g>
 
-      <!-- ====== EYE ====== -->
-      <g>
-        <!-- Eye socket depression -->
-        <ellipse cx="116" cy="62" rx="10" ry="9" fill="#0a0818" opacity=".6"/>
-        <!-- Orbital ring -->
-        <ellipse cx="116" cy="61" rx="8.5" ry="7.5" fill="#141028" stroke="#2a2548" stroke-width=".4"/>
-        <!-- Iris -->
-        <circle class="eye-iris" cx="116" cy="60.5" r="5.5" fill="url(#eyeGrad)"/>
-        <!-- Pupil -->
-        <circle cx="117" cy="60" r="2.8" fill="#050410"/>
-        <!-- Inner pupil highlight -->
-        <circle cx="117" cy="60" r="1.8" fill="#0a0818"/>
-        <!-- Primary specular highlight -->
-        <circle cx="114" cy="58" r="1.8" fill="#fff" opacity=".75"/>
-        <!-- Secondary highlight -->
-        <circle cx="118.5" cy="62.5" r=".9" fill="#fff" opacity=".35"/>
-        <!-- Eye ring detail -->
-        <circle cx="116" cy="60.5" r="5.5" fill="none" stroke="rgba(79,195,247,.15)" stroke-width=".5"/>
-      </g>
+        <!-- ====== RUNE MARKINGS (with draw-on animation) ====== -->
+        <!-- Body runes — Fehu (wealth/power) -->
+        <g>
+          <path class="rune-glow-bg rune-glow-1" d="M94,108 L94,138 M90,115 L98,123 M90,131 L98,127"/>
+          <path class="rune rune-1 rune-path" d="M94,108 L94,138 M90,115 L98,123 M90,131 L98,127"/>
+        </g>
+        <!-- Body rune — Ansuz (wisdom/Odin) -->
+        <g>
+          <path class="rune-glow-bg rune-glow-2" d="M122,108 L122,138 M118,115 L126,123 M118,131 L126,127"/>
+          <path class="rune rune-2 rune-path" d="M122,108 L122,138 M118,115 L126,123 M118,131 L126,127"/>
+        </g>
+        <!-- Head rune — Algiz (protection) -->
+        <g>
+          <path class="rune-glow-bg rune-glow-3" d="M104,48 L108,40 L112,48 M108,40 L108,56" stroke-width="2.5"/>
+          <path class="rune rune-3 rune-path" d="M104,48 L108,40 L112,48 M108,40 L108,56" stroke-width="2.5"/>
+        </g>
+        <!-- Left wing rune — Raidho (journey) -->
+        <g>
+          <path class="rune-glow-bg rune-glow-4" d="M38,118 L38,136 M35,122 L42,128"/>
+          <path class="rune rune-4 rune-path" d="M38,118 L38,136 M35,122 L42,128"/>
+        </g>
+        <!-- Right wing rune — Kenaz (knowledge/fire) -->
+        <g>
+          <path class="rune-glow-bg rune-glow-3" d="M178,118 L178,136 M175,122 L182,128"/>
+          <path class="rune rune-5 rune-path" d="M178,118 L178,136 M175,122 L182,128"/>
+        </g>
+        <!-- Chest rune — Dagaz (dawn/transformation) -->
+        <g>
+          <path class="rune-glow-bg rune-glow-2" d="M104,126 L112,120 L104,132 L112,126"/>
+          <path class="rune rune-6 rune-path" d="M104,126 L112,120 L104,132 L112,126"/>
+        </g>
 
-      <!-- ====== RUNE MARKINGS ====== -->
-      <!-- Body runes -->
-      <path class="rune-path" d="M88,105 L88,135 M84,112 L92,120 M84,128 L92,124"/>
-      <path class="rune-path" d="M112,105 L112,135 M108,112 L116,120 M108,128 L116,124"/>
-      <!-- Head rune (forehead) -->
-      <path class="rune-path" d="M96,48 L100,42 L104,48 M100,42 L100,54" stroke-width="2"/>
-      <!-- Wing runes -->
-      <path class="rune-path" d="M35,115 L35,132 M32,120 L38,125"/>
+        <!-- ====== VIKING SPECTRAL HORNS ====== -->
+        <g opacity=".4">
+          <!-- Left horn -->
+          <path d="M84,48 Q70,28 76,12" stroke="url(#runeEnergy)" stroke-width="2.2" fill="none" filter="url(#runeGlow)" stroke-linecap="round"/>
+          <path d="M84,48 Q72,32 78,16" stroke="#4fc3f7" stroke-width=".8" fill="none" filter="url(#runeBlur)" opacity=".5"/>
+          <circle cx="76" cy="12" r="2.5" fill="#80deea" filter="url(#runeGlow)" opacity=".6"/>
+          <!-- Right horn -->
+          <path d="M132,48 Q146,28 140,12" stroke="url(#runeEnergy)" stroke-width="2.2" fill="none" filter="url(#runeGlow)" stroke-linecap="round"/>
+          <path d="M132,48 Q144,32 138,16" stroke="#4fc3f7" stroke-width=".8" fill="none" filter="url(#runeBlur)" opacity=".5"/>
+          <circle cx="140" cy="12" r="2.5" fill="#80deea" filter="url(#runeGlow)" opacity=".6"/>
+          <!-- Horn rune markings -->
+          <path d="M78,30 L82,26 L78,22" stroke="#4fc3f7" stroke-width="1" fill="none" filter="url(#runeGlow)" opacity=".3"/>
+          <path d="M138,30 L134,26 L138,22" stroke="#4fc3f7" stroke-width="1" fill="none" filter="url(#runeGlow)" opacity=".3"/>
+        </g>
 
-      <!-- ====== VIKING SPECTRAL HORNS ====== -->
-      <path d="M78,48 Q65,30 70,18" stroke="#4fc3f7" stroke-width="2" fill="none" filter="url(#runeGlow)" opacity=".35" stroke-linecap="round"/>
-      <circle cx="70" cy="18" r="2" fill="#4fc3f7" filter="url(#runeGlow)" opacity=".45"/>
-      <path d="M122,48 Q135,30 130,18" stroke="#4fc3f7" stroke-width="2" fill="none" filter="url(#runeGlow)" opacity=".35" stroke-linecap="round"/>
-      <circle cx="130" cy="18" r="2" fill="#4fc3f7" filter="url(#runeGlow)" opacity=".45"/>
-
-      <!-- Subtle aura around raven -->
-      <ellipse cx="100" cy="115" rx="55" ry="55" fill="none" stroke="#4fc3f7" stroke-width=".3" opacity=".06" filter="url(#runeGlow)"/>
+      </g><!-- end body-group -->
     </svg>
   </div>
 
@@ -371,17 +564,35 @@ header h1{font-size:1.1rem;color:var(--rune-blue);text-shadow:0 0 10px rgba(79,1
 
   <!-- INPUT -->
   <div id="input-bar">
-    <input type="text" id="user-input" placeholder="Parle à Stakr..." autocomplete="off"/>
-    <button id="send-btn" title="Envoyer">▶</button>
+    <div id="image-preview-bar"><img id="img-preview-thumb" src="" alt=""/><button class="remove-img" onclick="clearImagePreview()">&#10005;</button><span style="font-size:.75rem;color:var(--text-dim)">Image jointe</span></div>
+    <input type="file" id="image-input" accept="image/*" style="display:none"/>
+    <button id="img-btn" title="Envoyer une image" onclick="document.getElementById('image-input').click()">&#128247;</button>
+    <input type="text" id="user-input" placeholder="Parle &#224; Stakr..." autocomplete="off"/>
+    <button id="send-btn" title="Envoyer">&#9654;</button>
   </div>
 </div>
+
+<!-- PROJECT PANEL -->
+<div id="project-panel">
+  <h2>&#128193; Projets</h2>
+  <button id="new-project-btn" onclick="createProject()">+ Nouveau projet</button>
+  <div id="project-list"></div>
+  <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
+    <div class="project-item proj-general" onclick="switchProject(null)" style="border-left:3px solid var(--rune-blue)">
+      <div><div class="proj-name" style="color:var(--rune-blue)">&#9679; Conversation g&#233;n&#233;rale</div><div class="proj-count">Discussion libre</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="this.classList.remove('active')"><img id="lightbox-img" src="" alt=""/></div>
 
 <!-- SETTINGS -->
 <div id="settings-overlay" onclick="toggleSettings()"></div>
 <div id="settings-panel">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-    <h2 style="margin:0">⚙ Paramètres</h2>
-    <button class="btn-secondary" onclick="toggleSettings()" style="margin:0;padding:6px 14px">✓ OK</button>
+    <h2 style="margin:0">&#9881; Param&#232;tres</h2>
+    <button class="btn-secondary" onclick="toggleSettings()" style="margin:0;padding:6px 14px">&#10003; OK</button>
   </div>
   <div class="setting-group">
     <label>Backend IA</label>
@@ -394,7 +605,7 @@ header h1{font-size:1.1rem;color:var(--rune-blue);text-shadow:0 0 10px rgba(79,1
   <div class="setting-group" id="groq-key-group" style="display:none">
     <label>Clé API Groq</label>
     <input type="password" id="api-key" placeholder="gsk_..."/>
-    <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">Gratuit sur <a href="https://console.groq.com/keys" target="_blank" style="color:var(--rune-blue)">console.groq.com/keys</a></div>
+    <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">Gratuit sur <a href="https://console.groq.com/keys" target="_blank" style="color:var(--gold)">console.groq.com/keys</a></div>
   </div>
   <div class="setting-group" id="custom-url-group" style="display:none">
     <label>URL API</label>
@@ -420,7 +631,7 @@ header h1{font-size:1.1rem;color:var(--rune-blue);text-shadow:0 0 10px rgba(79,1
     <div style="margin-top:10px">
       <label style="font-size:.75rem;color:var(--text-dim)">Rappels (même app fermée)</label>
       <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">
-        1. Installe l'app <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" style="color:var(--rune-blue)">ntfy (Android)</a> ou <a href="https://apps.apple.com/app/ntfy/id1625396347" target="_blank" style="color:var(--rune-blue)">ntfy (iPhone)</a><br>
+        1. Installe l'app <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" style="color:var(--gold)">ntfy (Android)</a> ou <a href="https://apps.apple.com/app/ntfy/id1625396347" target="_blank" style="color:var(--gold)">ntfy (iPhone)</a><br>
         2. Copie ton topic ci-dessous et abonne-toi dans l'app
       </div>
       <div style="display:flex;gap:6px;margin-top:6px">
@@ -504,19 +715,31 @@ const MOODS = {
   amuse:      { label:'≋ Amusé',       anim:'happy',    color:'#81c784', particles:'green' }
 };
 
+// ===== MODES =====
+const MODES = {
+  conversation: { label:'Chat', prompt:'' },
+  recherche: { label:'Recherche', prompt:'\n\nMODE RECHERCHE : Tu es en mode recherche. Sois analytique, précis, cite des sources quand possible. Structure tes réponses avec des listes et des faits vérifiables. Privilégie la profondeur et l\'exactitude.' },
+  creation: { label:'Création', prompt:'\n\nMODE CRÉATION : Tu es en mode créatif. Sois inventif, inspiré, propose des idées originales. N\'hésite pas à être audacieux et poétique. Utilise des métaphores vikings pour enrichir tes créations.' },
+  design: { label:'Design', prompt:'\n\nMODE DESIGN : Tu es en mode design/visuel. Donne des conseils UI/UX, décris des palettes de couleurs, des mises en page, des styles visuels. Sois précis sur les dimensions, couleurs (hex), et tendances.' },
+  code: { label:'Code', prompt:'\n\nMODE CODE : Tu es en mode programmation. Écris du code propre et commenté. Explique ta logique. Utilise des blocs de code formatés. Sois technique et précis.' }
+};
+
 // ===== STATE =====
 let state = {
   mood: 'serein',
   memory: [],         // {role, content, timestamp}
   longTermMemory: [], // facts Stakr remembers about user
   reminders: [],      // {time, message, id}
+  currentMode: 'conversation',
+  currentProject: null, // null = general, or project id
+  projects: [],         // [{id, name, messages:[], createdAt}]
   stakrLife: {
-    messageCount: 0,        // total messages exchanged
-    lastSeen: null,         // last time user was active
-    relationshipLevel: 0,   // grows with each conversation
-    stakrMood: 'serein',    // Stakr's own independent mood
-    lastSpontaneous: null,  // last time a spontaneous thought was sent
-    topics: []              // topics discussed (for spontaneous references)
+    messageCount: 0,
+    lastSeen: null,
+    relationshipLevel: 0,
+    stakrMood: 'serein',
+    lastSpontaneous: null,
+    topics: []
   },
   config: {
     backend: 'ollama',
@@ -539,12 +762,18 @@ const particleCanvas = $('#particle-canvas');
 const pCtx = particleCanvas.getContext('2d');
 const auroraCanvas = $('#aurora-canvas');
 const aCtx = auroraCanvas.getContext('2d');
+const imageInput = $('#image-input');
+const imagePreviewBar = $('#image-preview-bar');
+let pendingImage = null; // {dataUrl, base64}
 
 // ===== INIT =====
 function init() {
   loadState();
   applyConfig();
   setupListeners();
+  setupModes();
+  setupImageInput();
+  renderProjectList();
   resizeCanvas();
   resizeAurora();
   startParticles();
@@ -553,12 +782,12 @@ function init() {
   checkReminders();
   setMood(state.mood);
 
-  if (state.memory.length === 0) {
-    addMessage('stakr', "Kraa ! Je suis Stakr, corbeau des runes anciennes. 🪶 Les vents du Nord m'ont mené à toi, compagnon. Parle, et je t'écouterai avec la sagesse d'Odin lui-même.\n\nQue puis-je pour toi ?");
+  const msgs = getCurrentMessages();
+  if (msgs.length === 0) {
+    addMessage('stakr', "Kraa ! Je suis Stakr, corbeau des runes anciennes. Les vents du Nord m'ont mene a toi, compagnon. Parle, et je t'ecouterai avec la sagesse d'Odin lui-meme.");
   } else {
-    // Restore last messages (show last 30)
-    const recent = state.memory.slice(-30);
-    recent.forEach(m => addMessage(m.role === 'user' ? 'user' : 'stakr', m.content, m.timestamp, true));
+    const recent = msgs.slice(-30);
+    recent.forEach(m => addMessage(m.role === 'user' ? 'user' : 'stakr', m.content, m.timestamp, true, m.image || null));
   }
 
   // Auto-activate push notifications
@@ -575,8 +804,11 @@ function loadState() {
     if (saved) {
       const parsed = JSON.parse(saved);
       state = { ...state, ...parsed };
-      // Toujours utiliser la personnalité par défaut du code (permet les mises à jour)
       state.config.personality = DEFAULT_PERSONALITY;
+      // Ensure new fields exist
+      if (!state.projects) state.projects = [];
+      if (!state.currentProject) state.currentProject = null;
+      if (!state.currentMode) state.currentMode = 'conversation';
     }
   } catch(e) { console.warn('Load state error', e); }
 }
@@ -617,6 +849,8 @@ function applyConfig() {
   $('#personality-input').value = state.config.personality;
   $('#ntfy-topic-display').value = getNtfyTopic();
   updateBackendUI();
+  // Apply saved mode
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === state.currentMode));
 }
 
 function updateBackendUI() {
@@ -644,6 +878,138 @@ function saveConfig() {
   saveState();
 }
 
+// ===== IMAGE HANDLING =====
+function setupImageInput() {
+  imageInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { showToast('Erreur', 'Seules les images sont acceptees.'); return; }
+    if (file.size > 10 * 1024 * 1024) { showToast('Erreur', 'Image trop lourde (max 10 Mo).'); return; }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target.result;
+      const base64 = dataUrl.split(',')[1];
+      pendingImage = { dataUrl, base64 };
+      $('#img-preview-thumb').src = dataUrl;
+      imagePreviewBar.classList.add('active');
+    };
+    reader.readAsDataURL(file);
+    imageInput.value = '';
+  });
+}
+
+function clearImagePreview() {
+  pendingImage = null;
+  imagePreviewBar.classList.remove('active');
+  $('#img-preview-thumb').src = '';
+}
+
+// ===== MODES =====
+function setupModes() {
+  // Set active mode from state
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === state.currentMode);
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.currentMode = btn.dataset.mode;
+      saveState();
+      showToast('Mode ' + (MODES[state.currentMode]?.label || ''), 'Stakr adapte ses reponses.');
+    });
+  });
+}
+
+// ===== PROJECTS =====
+function createProject() {
+  const name = prompt('Nom du projet :');
+  if (!name || !name.trim()) return;
+  const proj = { id: 'proj_' + Date.now(), name: name.trim(), messages: [], createdAt: Date.now(), updatedAt: Date.now() };
+  state.projects.push(proj);
+  saveState();
+  switchProject(proj.id);
+  renderProjectList();
+  showToast('Projet cree', name);
+}
+
+function deleteProject(id, e) {
+  e.stopPropagation();
+  if (!confirm('Supprimer ce projet et ses messages ?')) return;
+  state.projects = state.projects.filter(p => p.id !== id);
+  if (state.currentProject === id) switchProject(null);
+  saveState();
+  renderProjectList();
+}
+
+function switchProject(id) {
+  state.currentProject = id;
+  saveState();
+
+  // Reload chat
+  chatArea.innerHTML = '';
+  const msgs = getCurrentMessages();
+  if (msgs.length === 0) {
+    if (id) {
+      const proj = state.projects.find(p => p.id === id);
+      addMessage('stakr', `Projet "${proj?.name}" ouvert. Que veux-tu travailler dessus ?`);
+    } else {
+      addMessage('stakr', "Retour a la conversation generale. De quoi veux-tu parler, compagnon ?");
+    }
+  } else {
+    msgs.slice(-30).forEach(m => addMessage(m.role === 'user' ? 'user' : 'stakr', m.content, m.timestamp, true, m.image || null));
+  }
+
+  renderProjectList();
+  toggleProjectPanel();
+}
+
+function renderProjectList() {
+  const list = $('#project-list');
+  list.innerHTML = '';
+  state.projects.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'project-item' + (state.currentProject === p.id ? ' active' : '');
+    div.onclick = () => switchProject(p.id);
+    div.innerHTML = `<div><div class="proj-name">${p.name}</div><div class="proj-count">${p.messages.length} messages</div></div><button class="proj-delete" onclick="deleteProject('${p.id}',event)" title="Supprimer">&#10005;</button>`;
+    list.appendChild(div);
+  });
+  // Highlight general conversation
+  const gen = document.querySelector('.proj-general');
+  if (gen) gen.classList.toggle('active', !state.currentProject);
+}
+
+function toggleProjectPanel() {
+  const panel = $('#project-panel');
+  const overlay = $('#settings-overlay');
+  const isOpen = panel.classList.contains('open');
+  panel.classList.toggle('open');
+  // Reuse overlay
+  if (!isOpen) {
+    overlay.classList.add('open');
+    overlay.onclick = () => { panel.classList.remove('open'); overlay.classList.remove('open'); overlay.onclick = () => toggleSettings(); };
+  } else {
+    overlay.classList.remove('open');
+    overlay.onclick = () => toggleSettings();
+  }
+}
+
+function autoDetectProject(text) {
+  if (state.currentProject) return; // already in a project
+  if (state.projects.length === 0) return;
+  const lower = text.toLowerCase();
+  for (const proj of state.projects) {
+    const projWords = proj.name.toLowerCase().split(/\s+/);
+    const match = projWords.some(w => w.length > 2 && lower.includes(w));
+    if (match) {
+      state.currentProject = proj.id;
+      saveState();
+      renderProjectList();
+      showToast('Projet detecte', `Bascule vers "${proj.name}"`);
+      return;
+    }
+  }
+}
+
 function toggleSettings() {
   const panel = $('#settings-panel');
   const overlay = $('#settings-overlay');
@@ -658,21 +1024,33 @@ function setupListeners() {
   sendBtn.addEventListener('click', sendMessage);
   userInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
   $('#settings-btn').addEventListener('click', toggleSettings);
+  $('#project-btn').addEventListener('click', toggleProjectPanel);
   $('#api-backend').addEventListener('change', updateBackendUI);
   window.addEventListener('resize', () => { resizeCanvas(); resizeAurora(); });
 }
 
 // ===== MESSAGES =====
-function addMessage(role, content, timestamp, silent = false) {
+function addMessage(role, content, timestamp, silent = false, imageUrl = null) {
   const div = document.createElement('div');
   div.className = `msg ${role}`;
 
+  let html = '';
+  if (imageUrl) {
+    html += `<img class="chat-img" src="${imageUrl}" alt="image" onclick="openLightbox(this.src)"/>`;
+  }
   const cleanContent = content.replace(/\[MOOD:\w+\]/g, '').replace(/\[REMINDER:[^\]]+\]/g, '').trim();
-  div.innerHTML = `${formatText(cleanContent)}<div class="timestamp">${timestamp || new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</div>`;
+  if (cleanContent) html += formatText(cleanContent);
+  html += `<div class="timestamp">${timestamp || new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</div>`;
+  div.innerHTML = html;
 
   if (!silent) div.style.animation = 'msgIn .3s ease-out';
   chatArea.appendChild(div);
   chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function openLightbox(src) {
+  $('#lightbox-img').src = src;
+  $('#lightbox').classList.add('active');
 }
 
 function formatText(text) {
@@ -696,25 +1074,56 @@ function hideTyping() {
   if (el) el.remove();
 }
 
+// ===== HELPERS =====
+function getTS() { return new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}); }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function getCurrentMessages() {
+  if (state.currentProject) {
+    const proj = state.projects.find(p => p.id === state.currentProject);
+    return proj ? proj.messages : [];
+  }
+  return state.memory;
+}
+
+function pushMessage(msg) {
+  if (state.currentProject) {
+    const proj = state.projects.find(p => p.id === state.currentProject);
+    if (proj) { proj.messages.push(msg); proj.updatedAt = Date.now(); }
+  } else {
+    state.memory.push(msg);
+  }
+}
+
 // ===== SEND & AI =====
 async function sendMessage() {
   const text = userInput.value.trim();
-  if (!text) return;
+  const hasImage = !!pendingImage;
+  if (!text && !hasImage) return;
 
   userInput.value = '';
-  const ts = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-  addMessage('user', text, ts);
-  state.memory.push({ role: 'user', content: text, timestamp: ts });
+  const ts = getTS();
 
-  // Keep memory reasonable (last 100 exchanges)
-  if (state.memory.length > 200) state.memory = state.memory.slice(-200);
+  // Show user message with optional image
+  addMessage('user', text || '(image)', ts, false, hasImage ? pendingImage.dataUrl : null);
+  pushMessage({ role: 'user', content: text || '[Image envoyee]', timestamp: ts, image: hasImage ? pendingImage.dataUrl : null });
+
+  const imageForAI = pendingImage;
+  clearImagePreview();
+
+  // Auto-detect project context
+  autoDetectProject(text);
+
+  // Keep memory reasonable
+  const msgs = getCurrentMessages();
+  if (msgs.length > 200) msgs.splice(0, msgs.length - 200);
   saveState();
 
   setMood('pensif');
   showTyping();
 
   try {
-    const response = await callAI(text);
+    const response = await callAI(text, imageForAI);
     hideTyping();
 
     // Parse mood
@@ -725,7 +1134,7 @@ async function sendMessage() {
       setMood('serein');
     }
 
-    // Parse reminders — support multiple formats
+    // Parse reminders
     const reminderMatch = response.match(/\[REMINDER:(\d{1,2}:\d{2}):([^\]]+)\]/)
       || response.match(/\[REMINDER:(\d{1,2}:\d{2})\s*:\s*([^\]]+)\]/)
       || response.match(/\[REMINDER\s*:\s*(\d{1,2}:\d{2})\s*:\s*([^\]]+)\]/);
@@ -734,112 +1143,141 @@ async function sendMessage() {
       addReminder(time, reminderMatch[2].trim());
     }
 
-    // Fallback: detect reminder intent from user message
+    // Fallback reminder detection
     if (!reminderMatch && /rappel|notif|prévien|dis[- ]?moi|réveille|dans \d|à \d/i.test(text)) {
-      // Try to find time in user message first, then in AI response
       const timeSource = text + ' ' + response;
-
-      // Match "à 14h30", "a 14h", "14:30", "à 9h00", etc.
-      const timeMatch = timeSource.match(/(\d{1,2})\s*[h:]\s*(\d{2})/i)
-        || timeSource.match(/(\d{1,2})\s*h\b/i);
-
-      // Match "dans X minutes"
+      const timeMatch = timeSource.match(/(\d{1,2})\s*[h:]\s*(\d{2})/i) || timeSource.match(/(\d{1,2})\s*h\b/i);
       const inMinutes = text.match(/dans\s+(\d+)\s*min/i);
       const inHours = text.match(/dans\s+(\d+)\s*h/i);
-
       if (timeMatch) {
-        const h = timeMatch[1].padStart(2, '0');
-        const m = timeMatch[2] ? timeMatch[2] : '00';
-        const msg = text.replace(/rappel.*?(?=\d)|notif.*?(?=\d)|à\s*\d+[h:]\d*/gi, '').replace(/^\s*moi\s*/i, '').trim() || 'Rappel';
-        addReminder(`${h}:${m}`, msg);
+        addReminder(`${timeMatch[1].padStart(2,'0')}:${timeMatch[2]||'00'}`, text.replace(/rappel.*?(?=\d)|notif.*?(?=\d)|à\s*\d+[h:]\d*/gi,'').replace(/^\s*moi\s*/i,'').trim()||'Rappel');
       } else if (inMinutes) {
-        const now = new Date();
-        now.setMinutes(now.getMinutes() + parseInt(inMinutes[1]));
-        const h = String(now.getHours()).padStart(2, '0');
-        const m = String(now.getMinutes()).padStart(2, '0');
-        const msg = text.replace(/dans\s+\d+\s*min\w*/i, '').replace(/rappel|notif\w*|prévien\w*/gi, '').trim() || 'Rappel';
-        addReminder(`${h}:${m}`, msg);
+        const n=new Date(); n.setMinutes(n.getMinutes()+parseInt(inMinutes[1]));
+        addReminder(`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`, text.replace(/dans\s+\d+\s*min\w*/i,'').replace(/rappel|notif\w*|prévien\w*/gi,'').trim()||'Rappel');
       } else if (inHours) {
-        const now = new Date();
-        now.setHours(now.getHours() + parseInt(inHours[1]));
-        const h = String(now.getHours()).padStart(2, '0');
-        const m = String(now.getMinutes()).padStart(2, '0');
-        const msg = text.replace(/dans\s+\d+\s*h\w*/i, '').replace(/rappel|notif\w*|prévien\w*/gi, '').trim() || 'Rappel';
-        addReminder(`${h}:${m}`, msg);
+        const n=new Date(); n.setHours(n.getHours()+parseInt(inHours[1]));
+        addReminder(`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`, text.replace(/dans\s+\d+\s*h\w*/i,'').replace(/rappel|notif\w*|prévien\w*/gi,'').trim()||'Rappel');
       }
     }
 
-    // Extract long-term memory facts
     extractMemoryFacts(text, response);
 
-    const rts = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-    addMessage('stakr', response, rts);
-    state.memory.push({ role: 'assistant', content: response, timestamp: rts });
+    // ===== MULTI-MESSAGE DELIVERY =====
+    const parts = response.split(/\n\n+/).filter(p => p.trim().replace(/\[MOOD:\w+\]/g,'').replace(/\[REMINDER:[^\]]+\]/g,'').trim());
+    if (parts.length > 1) {
+      // Deliver as multiple bubbles like a real person
+      for (let i = 0; i < parts.length; i++) {
+        if (i > 0) {
+          showTyping();
+          await sleep(500 + Math.random() * 1000);
+          hideTyping();
+        }
+        addMessage('stakr', parts[i], getTS());
+        await sleep(150);
+      }
+    } else {
+      addMessage('stakr', response, getTS());
+    }
+    pushMessage({ role: 'assistant', content: response, timestamp: getTS() });
 
-    // Track Stakr's life
+    // Track life
     state.stakrLife.messageCount++;
     state.stakrLife.lastSeen = Date.now();
     state.stakrLife.relationshipLevel = Math.min(100, (state.stakrLife.relationshipLevel || 0) + 1);
-    // Remember topics
     const keywords = text.match(/\b[A-ZÀ-Ü][a-zà-ü]{3,}\b/g);
     if (keywords) {
       state.stakrLife.topics = [...new Set([...(state.stakrLife.topics || []), ...keywords])].slice(-20);
     }
     saveState();
 
-    // Maybe schedule a spontaneous thought (30% chance, max once per 2h)
-    const lastSpontaneous = state.stakrLife.lastSpontaneous || 0;
-    if (Math.random() < 0.3 && Date.now() - lastSpontaneous > 2 * 60 * 60 * 1000) {
-      scheduleSpontaneousThought();
-    }
+    // Maybe spontaneous thought
+    const lastSp = state.stakrLife.lastSpontaneous || 0;
+    if (Math.random() < 0.3 && Date.now() - lastSp > 2*60*60*1000) scheduleSpontaneousThought();
 
   } catch (err) {
     hideTyping();
     console.error('AI Error:', err);
     setMood('triste');
     const fallback = generateFallbackResponse(text);
-    const rts = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-    addMessage('stakr', fallback, rts);
-    state.memory.push({ role: 'assistant', content: fallback, timestamp: rts });
+    addMessage('stakr', fallback, getTS());
+    pushMessage({ role: 'assistant', content: fallback, timestamp: getTS() });
     saveState();
   }
 }
 
-async function callAI(userText) {
+async function callAI(userText, imageData = null) {
   const memoryContext = state.longTermMemory.length > 0
     ? `\n\nCe que tu sais sur ton compagnon:\n${state.longTermMemory.slice(-20).join('\n')}`
+    : '';
+
+  const modePrompt = MODES[state.currentMode]?.prompt || '';
+  const projectContext = state.currentProject
+    ? `\n\nPROJET ACTIF : "${(state.projects.find(p=>p.id===state.currentProject)||{}).name||''}". Concentre tes reponses sur ce projet.`
     : '';
 
   const now = new Date();
   const level = state.stakrLife.relationshipLevel || 0;
   const msgCount = state.stakrLife.messageCount || 0;
   let relationDesc = 'Tu viens de le rencontrer, sois accueillant mais garde tes distances.';
-  if (level > 10) relationDesc = 'Vous commencez à vous connaitre. Tu es plus ouvert.';
-  if (level > 30) relationDesc = 'Vous êtes devenus proches. Tu es plus personnel, tu poses des questions sur sa vie.';
-  if (level > 50) relationDesc = 'C\'est un vrai ami maintenant. Tu es direct, honnête, tu le taquines parfois.';
-  if (level > 75) relationDesc = 'C\'est ton meilleur compagnon. Tu lui confies des choses, tu es vulnérable parfois. Vous avez des blagues internes.';
+  if (level > 10) relationDesc = 'Vous commencez a vous connaitre. Tu es plus ouvert.';
+  if (level > 30) relationDesc = 'Vous etes devenus proches. Tu es plus personnel.';
+  if (level > 50) relationDesc = 'C\'est un vrai ami. Tu es direct, honnete, tu le taquines parfois.';
+  if (level > 75) relationDesc = 'C\'est ton meilleur compagnon. Tu lui confies des choses, tu es vulnerable parfois.';
 
   const timeInfo = `\n\nContexte actuel :
 - Heure : ${String(now.getHours()).padStart(2,'0')}h${String(now.getMinutes()).padStart(2,'0')}
 - Date : ${now.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric'})}
-- Messages échangés : ${msgCount}
-- Niveau de complicité : ${level}/100 — ${relationDesc}
-- Adapte ton ton selon l'heure (plus calme la nuit, plus énergique le matin/après-midi)`;
+- Messages echanges : ${msgCount}
+- Niveau de complicite : ${level}/100 - ${relationDesc}`;
+
+  const systemContent = state.config.personality + memoryContext + timeInfo + modePrompt + projectContext;
+  const msgs = getCurrentMessages();
+
+  // Build message history
+  const history = msgs.slice(-20).map(m => {
+    if (m.role === 'user') return { role: 'user', content: m.content };
+    return { role: 'assistant', content: m.content };
+  });
+
+  // Build current user message (with optional image for vision)
+  let userMsg;
+  const backend = state.config.backend || 'ollama';
+
+  if (imageData && backend !== 'ollama') {
+    // OpenAI-compatible vision format (Groq, custom)
+    userMsg = {
+      role: 'user',
+      content: [
+        { type: 'text', text: userText || 'Decris cette image.' },
+        { type: 'image_url', image_url: { url: imageData.dataUrl } }
+      ]
+    };
+  } else if (imageData && backend === 'ollama') {
+    // Ollama vision format
+    userMsg = { role: 'user', content: userText || 'Decris cette image.', images: [imageData.base64] };
+  } else {
+    userMsg = { role: 'user', content: userText };
+  }
 
   const messages = [
-    { role: 'system', content: state.config.personality + memoryContext + timeInfo },
-    ...state.memory.slice(-20).map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content })),
-    { role: 'user', content: userText }
+    { role: 'system', content: systemContent },
+    ...history,
+    userMsg
   ];
 
-  const backend = state.config.backend || 'ollama';
+  // Auto-select vision model if image is attached
+  let model = state.config.model;
+  if (imageData) {
+    if (backend === 'groq' && !model.includes('vision')) model = 'llama-3.2-90b-vision-preview';
+    if (backend === 'ollama' && !model.includes('llava') && !model.includes('vision')) model = 'llava';
+  }
 
   if (backend === 'ollama') {
     const url = state.config.apiUrl || 'http://localhost:11434/api/chat';
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: state.config.model, messages, stream: false })
+      body: JSON.stringify({ model, messages, stream: false })
     });
     const data = await res.json();
     return data.message?.content || data.choices?.[0]?.message?.content || "Kraa... les runes sont silencieuses.";
@@ -847,47 +1285,31 @@ async function callAI(userText) {
 
   if (backend === 'groq') {
     if (!state.config.apiKey) {
-      return "Kraa ! Il me faut une clé API Groq pour invoquer les oracles du cloud. Va dans ⚙ Paramètres et entre ta clé. Tu peux en obtenir une gratuitement sur console.groq.com/keys [MOOD:curieux]";
+      return "Kraa ! Il me faut une cle API Groq. Va dans les Parametres et entre ta cle. console.groq.com/keys [MOOD:curieux]";
     }
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${state.config.apiKey}`
-      },
-      body: JSON.stringify({
-        model: state.config.model || 'llama-3.3-70b-versatile',
-        messages,
-        temperature: 0.8,
-        max_tokens: 500
-      })
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.config.apiKey}` },
+      body: JSON.stringify({ model, messages, temperature: 0.8, max_tokens: 800 })
     });
     if (!res.ok) {
       const err = await res.text();
       console.error('Groq API error:', err);
-      if (res.status === 401) return "Kraa... la clé API Groq est invalide. Vérifie-la dans les paramètres ⚙ [MOOD:triste]";
-      if (res.status === 429) return "Kraa... trop de requêtes ! Les oracles du cloud ont besoin de repos. Réessaie dans un instant. [MOOD:pensif]";
+      if (res.status === 401) return "Kraa... la cle API Groq est invalide. [MOOD:triste]";
+      if (res.status === 429) return "Kraa... trop de requetes ! Reessaie dans un instant. [MOOD:pensif]";
       throw new Error(`Groq error ${res.status}`);
     }
     const data = await res.json();
     return data.choices?.[0]?.message?.content || "Kraa... les runes sont silencieuses.";
   }
 
-  // Custom OpenAI-compatible backend
+  // Custom backend
   const url = state.config.apiUrl;
   const headers = { 'Content-Type': 'application/json' };
-  if (state.config.customApiKey) {
-    headers['Authorization'] = `Bearer ${state.config.customApiKey}`;
-  }
+  if (state.config.customApiKey) headers['Authorization'] = `Bearer ${state.config.customApiKey}`;
   const res = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      model: state.config.model,
-      messages,
-      temperature: 0.8,
-      max_tokens: 500
-    })
+    method: 'POST', headers,
+    body: JSON.stringify({ model, messages, temperature: 0.8, max_tokens: 800 })
   });
   const data = await res.json();
   return data.choices?.[0]?.message?.content || data.message?.content || "Kraa... les runes sont silencieuses.";
