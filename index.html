@@ -6,6 +6,9 @@
 <title>Stakr — Corbeau Viking IA</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0a0a1a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 <style>
@@ -21,7 +24,7 @@
   --wood-dark:#120d07;--wood-mid:#1e150c;--wood-light:#2a1c10;
   --leather:#1a1a30;
 }
-html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+html,body{height:100%;font-family:'Cinzel','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
 
 /* ===== LAYOUT ===== */
 #app{display:flex;flex-direction:column;height:100%;max-width:600px;margin:0 auto;position:relative;background:var(--wood-dark);border-left:1px solid var(--border);border-right:1px solid var(--border)}
@@ -111,7 +114,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 #lightning-container.active{opacity:1}
 
 /* ===== CHAT ===== */
-#chat-area{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth;background:linear-gradient(180deg,var(--wood-dark),#0c0804)}
+#chat-area{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth;background:linear-gradient(180deg,var(--wood-dark),#0c0804);background-size:cover;background-position:center;background-repeat:no-repeat}
 .msg{max-width:85%;padding:10px 14px;border-radius:4px;font-size:.88rem;line-height:1.45;word-wrap:break-word;animation:msgIn .3s ease-out;position:relative}
 .msg.stakr{align-self:flex-start;background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border);border-left:3px solid var(--gold-dim);box-shadow:0 2px 8px rgba(0,0,0,.3)}
 .msg.user{align-self:flex-end;background:linear-gradient(135deg,#14142e,#1a1a3a);border:1px solid #2a2a4a;border-right:3px solid var(--rune-blue);box-shadow:0 2px 8px rgba(0,0,0,.3)}
@@ -782,6 +785,36 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <div class="cust-row"><label>Echelle</label><input type="range" id="cust-scale" min="60" max="140" value="100"/><span id="cust-scale-val" style="font-size:.7rem;color:var(--text-dim);min-width:30px">100%</span></div>
   </div>
 
+  <!-- MESSAGES STAKR -->
+  <div class="cust-section">
+    <h3>Messages Stakr</h3>
+    <div class="cust-row"><label>Bulle</label><input type="color" id="cust-msg-stakr-bg" value="#1a1208"/></div>
+    <div class="cust-row"><label>Bordure</label><input type="color" id="cust-msg-stakr-border" value="#8a6d2a"/></div>
+    <div class="cust-row"><label>Texte</label><input type="color" id="cust-msg-stakr-text" value="#d4c5a0"/></div>
+  </div>
+
+  <!-- MESSAGES USER -->
+  <div class="cust-section">
+    <h3>Messages Utilisateur</h3>
+    <div class="cust-row"><label>Bulle</label><input type="color" id="cust-msg-user-bg" value="#14142e"/></div>
+    <div class="cust-row"><label>Bordure</label><input type="color" id="cust-msg-user-border" value="#4fc3f7"/></div>
+    <div class="cust-row"><label>Texte</label><input type="color" id="cust-msg-user-text" value="#d4c5a0"/></div>
+  </div>
+
+  <!-- ARRIERE-PLAN MESSAGERIE -->
+  <div class="cust-section">
+    <h3>Arriere-plan messagerie</h3>
+    <div class="cust-row">
+      <label>Image</label>
+      <label class="btn-secondary" style="cursor:pointer;padding:4px 10px;font-size:.72rem;margin:0;text-align:center">
+        Choisir...
+        <input type="file" id="cust-chat-bg" accept="image/*" style="display:none"/>
+      </label>
+      <button class="btn-secondary" onclick="removeChatBg()" style="padding:4px 10px;font-size:.72rem;margin:0">&#10005;</button>
+    </div>
+    <div class="cust-row"><label>Opacite</label><input type="range" id="cust-chat-bg-opacity" min="10" max="100" value="30"/><span id="cust-chat-bg-opacity-val" style="font-size:.7rem;color:var(--text-dim);min-width:30px">30%</span></div>
+  </div>
+
   <button class="btn-gold" onclick="resetAppearance()" style="width:100%">Reinitialiser par defaut</button>
 </div>
 
@@ -1159,7 +1192,10 @@ const DEFAULT_APPEARANCE = {
   horn:'#4fc3f7', hornVisible:'yes',
   scale:100,
   shapeBody:'classique', shapeHead:'classique', shapeBeak:'classique',
-  shapeWings:'classique', shapeTail:'classique'
+  shapeWings:'classique', shapeTail:'classique',
+  msgStakrBg:'#1a1208', msgStakrBorder:'#8a6d2a', msgStakrText:'#d4c5a0',
+  msgUserBg:'#14142e', msgUserBorder:'#4fc3f7', msgUserText:'#d4c5a0',
+  chatBgImage:'', chatBgOpacity:30
 };
 
 const APPEARANCE_PRESETS = [
@@ -1376,6 +1412,16 @@ function loadAppearanceToUI(a) {
   if ($('#cust-shape-beak')) $('#cust-shape-beak').value = a.shapeBeak || 'classique';
   if ($('#cust-shape-wings')) $('#cust-shape-wings').value = a.shapeWings || 'classique';
   if ($('#cust-shape-tail')) $('#cust-shape-tail').value = a.shapeTail || 'classique';
+  // Messages
+  $('#cust-msg-stakr-bg').value = a.msgStakrBg || '#1a1208';
+  $('#cust-msg-stakr-border').value = a.msgStakrBorder || '#8a6d2a';
+  $('#cust-msg-stakr-text').value = a.msgStakrText || '#d4c5a0';
+  $('#cust-msg-user-bg').value = a.msgUserBg || '#14142e';
+  $('#cust-msg-user-border').value = a.msgUserBorder || '#4fc3f7';
+  $('#cust-msg-user-text').value = a.msgUserText || '#d4c5a0';
+  // Chat bg opacity
+  $('#cust-chat-bg-opacity').value = a.chatBgOpacity || 30;
+  $('#cust-chat-bg-opacity-val').textContent = (a.chatBgOpacity || 30) + '%';
 }
 
 function getAppearanceFromUI() {
@@ -1402,7 +1448,15 @@ function getAppearanceFromUI() {
     shapeHead: $('#cust-shape-head').value,
     shapeBeak: $('#cust-shape-beak').value,
     shapeWings: $('#cust-shape-wings').value,
-    shapeTail: $('#cust-shape-tail').value
+    shapeTail: $('#cust-shape-tail').value,
+    msgStakrBg: $('#cust-msg-stakr-bg').value,
+    msgStakrBorder: $('#cust-msg-stakr-border').value,
+    msgStakrText: $('#cust-msg-stakr-text').value,
+    msgUserBg: $('#cust-msg-user-bg').value,
+    msgUserBorder: $('#cust-msg-user-border').value,
+    msgUserText: $('#cust-msg-user-text').value,
+    chatBgImage: (state.appearance && state.appearance.chatBgImage) || '',
+    chatBgOpacity: parseInt($('#cust-chat-bg-opacity').value)
   };
 }
 
@@ -1492,6 +1546,32 @@ function applyAppearanceToSVG(a) {
 
   // Shape variants
   applyShapeVariants(svg, a);
+
+  // Message styling
+  applyMessageStyles(a);
+}
+
+function applyMessageStyles(a) {
+  // Create/update dynamic style sheet for messages
+  let styleEl = document.getElementById('msg-custom-style');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'msg-custom-style';
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = `
+    .msg.stakr{background:${a.msgStakrBg} !important;border-color:${darken(a.msgStakrBorder,0.3)} !important;border-left:3px solid ${a.msgStakrBorder} !important;color:${a.msgStakrText} !important}
+    .msg.user{background:${a.msgUserBg} !important;border-color:${darken(a.msgUserBorder,0.3)} !important;border-right:3px solid ${a.msgUserBorder} !important;color:${a.msgUserText} !important}
+  `;
+
+  // Chat background image
+  const chatArea = document.getElementById('chat-area');
+  if (!chatArea) return;
+  if (a.chatBgImage) {
+    chatArea.style.backgroundImage = `linear-gradient(rgba(0,0,0,${1 - a.chatBgOpacity/100}),rgba(0,0,0,${1 - a.chatBgOpacity/100})), url(${a.chatBgImage})`;
+  } else {
+    chatArea.style.backgroundImage = '';
+  }
 }
 
 function applyShapeVariants(svg, a) {
@@ -1537,7 +1617,20 @@ function mixColor(hex1, hex2, ratio) {
 function resetAppearance() {
   loadAppearanceToUI(DEFAULT_APPEARANCE);
   applyAppearanceLive();
+  // Also clear bg image
+  if (state.appearance) state.appearance.chatBgImage = '';
+  const chatArea = document.getElementById('chat-area');
+  if (chatArea) chatArea.style.backgroundImage = '';
+  saveState();
   showToast('Apparence reinitialise', 'Stakr retrouve ses couleurs originales.');
+}
+
+function removeChatBg() {
+  if (state.appearance) state.appearance.chatBgImage = '';
+  const chatArea = document.getElementById('chat-area');
+  if (chatArea) chatArea.style.backgroundImage = '';
+  saveState();
+  showToast('Arriere-plan retire', 'Fond par defaut restaure.');
 }
 
 function toggleCustomize() {
@@ -1577,6 +1670,19 @@ function setupListeners() {
     el.addEventListener('change', applyAppearanceLive);
   });
   $('#cust-scale').addEventListener('input', () => { $('#cust-scale-val').textContent = $('#cust-scale').value + '%'; });
+  $('#cust-chat-bg-opacity').addEventListener('input', () => { $('#cust-chat-bg-opacity-val').textContent = $('#cust-chat-bg-opacity').value + '%'; });
+  // Background image picker
+  $('#cust-chat-bg').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      if (!state.appearance) state.appearance = { ...DEFAULT_APPEARANCE };
+      state.appearance.chatBgImage = ev.target.result;
+      applyAppearanceLive();
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 // ===== MESSAGES =====
