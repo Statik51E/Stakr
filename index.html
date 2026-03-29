@@ -315,12 +315,12 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
         <!-- ====== TAIL FEATHERS ====== -->
         <g class="tail-group">
           <!-- Long spread tail feathers -->
-          <path d="M88,165 Q76,185 60,208 Q66,198 72,188 Q78,178 84,170Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
-          <path d="M96,167 Q88,190 78,216 Q84,204 90,192 Q94,182 98,172Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
-          <path d="M106,168 Q104,194 100,222 Q104,208 108,194 Q110,184 110,174Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
-          <path d="M116,168 Q120,194 126,222 Q122,208 118,194 Q116,184 114,174Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
-          <path d="M126,167 Q134,190 144,216 Q138,204 132,192 Q128,182 124,172Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
-          <path d="M134,165 Q146,185 162,208 Q156,198 150,188 Q144,178 138,170Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path id="tail-1" d="M88,165 Q76,185 60,208 Q66,198 72,188 Q78,178 84,170Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path id="tail-2" d="M96,167 Q88,190 78,216 Q84,204 90,192 Q94,182 98,172Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path id="tail-3" d="M106,168 Q104,194 100,222 Q104,208 108,194 Q110,184 110,174Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path id="tail-4" d="M116,168 Q120,194 126,222 Q122,208 118,194 Q116,184 114,174Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path id="tail-5" d="M126,167 Q134,190 144,216 Q138,204 132,192 Q128,182 124,172Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
+          <path id="tail-6" d="M134,165 Q146,185 162,208 Q156,198 150,188 Q144,178 138,170Z" fill="url(#tailGrad)" stroke="#1a1635" stroke-width=".3"/>
           <!-- Barb texture -->
           <g stroke="#1e1a38" stroke-width=".25" fill="none" opacity=".45">
             <path d="M74,185 Q70,192 64,200"/><path d="M84,190 Q80,198 76,208"/>
@@ -367,10 +367,10 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
         </g>
 
         <!-- ====== BODY ====== -->
-        <!-- Main body shape — muscular, slightly asymmetric for realism -->
-        <path d="M62,118 Q58,85 84,74 Q105,67 128,74 Q154,85 152,118 Q152,148 134,162 Q118,170 105,170 Q90,170 78,162 Q62,148 62,118Z" fill="url(#bodyGrad)" stroke="#1e1a35" stroke-width=".5"/>
+        <!-- Main body shape -->
+        <path id="body-shape" d="M62,118 Q58,85 84,74 Q105,67 128,74 Q154,85 152,118 Q152,148 134,162 Q118,170 105,170 Q90,170 78,162 Q62,148 62,118Z" fill="url(#bodyGrad)" stroke="#1e1a35" stroke-width=".5"/>
         <!-- Iridescent body sheen -->
-        <path d="M72,100 Q108,86 142,100 Q148,122 138,146 Q108,156 76,146 Q66,122 72,100Z" fill="url(#iridescentBody)" opacity=".5"/>
+        <path id="body-sheen" d="M72,100 Q108,86 142,100 Q148,122 138,146 Q108,156 76,146 Q66,122 72,100Z" fill="url(#iridescentBody)" opacity=".5"/>
 
         <!-- Chest feather scales — overlapping rows -->
         <g fill="url(#chestGrad)" stroke="#262244" stroke-width=".25" opacity=".9">
@@ -393,7 +393,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
         <!-- ====== WING LEFT ====== -->
         <g class="wing-left" style="transform-origin:68px 110px" filter="url(#softShadow)">
           <!-- Wing base shape -->
-          <path d="M68,102 Q52,82 30,86 Q14,96 10,122 Q14,142 30,150 Q48,154 60,146 Q66,138 68,155Z" fill="url(#wingGradL)" stroke="#161230" stroke-width=".4"/>
+          <path id="wing-left-shape" d="M68,102 Q52,82 30,86 Q14,96 10,122 Q14,142 30,150 Q48,154 60,146 Q66,138 68,155Z" fill="url(#wingGradL)" stroke="#161230" stroke-width=".4"/>
           <!-- Marginal coverts -->
           <path d="M64,106 Q52,98 38,102" stroke="#222040" stroke-width=".4" fill="none"/>
           <path d="M62,112 Q48,106 32,110" stroke="#222040" stroke-width=".4" fill="none"/>
@@ -421,7 +421,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 
         <!-- ====== WING RIGHT ====== -->
         <g class="wing-right" style="transform-origin:148px 110px" filter="url(#softShadow)">
-          <path d="M148,102 Q164,82 186,86 Q202,96 206,122 Q202,142 186,150 Q168,154 156,146 Q150,138 148,155Z" fill="url(#wingGradR)" stroke="#161230" stroke-width=".4"/>
+          <path id="wing-right-shape" d="M148,102 Q164,82 186,86 Q202,96 206,122 Q202,142 186,150 Q168,154 156,146 Q150,138 148,155Z" fill="url(#wingGradR)" stroke="#161230" stroke-width=".4"/>
           <path d="M152,106 Q164,98 178,102" stroke="#222040" stroke-width=".4" fill="none"/>
           <path d="M154,112 Q168,106 184,110" stroke="#222040" stroke-width=".4" fill="none"/>
           <path d="M156,118 Q172,112 188,118" stroke="#222040" stroke-width=".4" fill="none"/>
@@ -459,10 +459,10 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
         </g>
 
         <!-- ====== HEAD ====== -->
-        <!-- Skull — angular flat forehead, rounded occiput -->
-        <path d="M78,70 Q76,44 108,38 Q140,44 138,70 Q138,88 108,92 Q78,88 78,70Z" fill="url(#headGrad)" stroke="#1e1a35" stroke-width=".5"/>
+        <!-- Skull -->
+        <path id="head-shape" d="M78,70 Q76,44 108,38 Q140,44 138,70 Q138,88 108,92 Q78,88 78,70Z" fill="url(#headGrad)" stroke="#1e1a35" stroke-width=".5"/>
         <!-- Iridescent head sheen -->
-        <path d="M84,55 Q108,45 128,55 Q132,70 122,80 Q108,84 94,80 Q84,70 84,55Z" fill="url(#iridescentHead)" opacity=".65"/>
+        <path id="head-sheen" d="M84,55 Q108,45 128,55 Q132,70 122,80 Q108,84 94,80 Q84,70 84,55Z" fill="url(#iridescentHead)" opacity=".65"/>
         <!-- Crown feather texture -->
         <g stroke="#2a2548" stroke-width=".35" fill="none" opacity=".45">
           <path d="M88,48 Q98,43 108,42"/><path d="M108,42 Q118,43 128,48"/>
@@ -482,14 +482,14 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
         </g>
 
         <!-- ====== BEAK ====== -->
-        <!-- Upper mandible (heavy, curved — distinctive raven beak) -->
-        <path d="M136,64 Q150,56 168,52 Q174,58 168,62 Q158,64 136,68Z" fill="url(#beakGrad)" stroke="#28283c" stroke-width=".5"/>
-        <!-- Culmen ridge (top edge highlight) -->
-        <path d="M138,64 Q150,57 164,53 Q166,56 164,58 Q154,60 138,66Z" fill="url(#beakHighlight)"/>
+        <!-- Upper mandible -->
+        <path id="beak-upper" d="M136,64 Q150,56 168,52 Q174,58 168,62 Q158,64 136,68Z" fill="url(#beakGrad)" stroke="#28283c" stroke-width=".5"/>
+        <!-- Culmen ridge -->
+        <path id="beak-ridge" d="M138,64 Q150,57 164,53 Q166,56 164,58 Q154,60 138,66Z" fill="url(#beakHighlight)"/>
         <!-- Lower mandible -->
-        <path d="M136,68 Q150,68 162,64 Q165,66 160,68 Q150,72 136,72Z" fill="#1a1a28" stroke="#28283c" stroke-width=".4"/>
-        <!-- Beak tip hook (raven-specific downward curve) -->
-        <path d="M168,52 Q174,56 170,62" stroke="#181828" stroke-width=".8" fill="none" stroke-linecap="round"/>
+        <path id="beak-lower" d="M136,68 Q150,68 162,64 Q165,66 160,68 Q150,72 136,72Z" fill="#1a1a28" stroke="#28283c" stroke-width=".4"/>
+        <!-- Beak tip hook -->
+        <path id="beak-hook" d="M168,52 Q174,56 170,62" stroke="#181828" stroke-width=".8" fill="none" stroke-linecap="round"/>
         <!-- Nostril area -->
         <ellipse cx="142" cy="62" rx="2.8" ry="1.5" fill="#1e1c34"/>
         <!-- Beak commissure line -->
@@ -682,6 +682,26 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
   <div class="cust-section">
     <h3>Presets</h3>
     <div class="cust-presets" id="preset-list"></div>
+  </div>
+
+  <!-- FORMES -->
+  <div class="cust-section">
+    <h3>&#9670; Formes</h3>
+    <div class="cust-row"><label>Corps</label>
+      <select id="cust-shape-body"><option value="classique">Classique</option><option value="musculeux">Musculeux</option><option value="svelte">Svelte</option><option value="massif">Massif</option><option value="rond">Rond</option></select>
+    </div>
+    <div class="cust-row"><label>Tete</label>
+      <select id="cust-shape-head"><option value="classique">Classique</option><option value="anguleux">Anguleux</option><option value="arrondi">Arrondi</option><option value="pointu">Pointu</option><option value="aplati">Aplati</option></select>
+    </div>
+    <div class="cust-row"><label>Bec</label>
+      <select id="cust-shape-beak"><option value="classique">Classique</option><option value="long">Long</option><option value="court">Court</option><option value="crochu">Crochu</option><option value="droit">Droit</option></select>
+    </div>
+    <div class="cust-row"><label>Ailes</label>
+      <select id="cust-shape-wings"><option value="classique">Classique</option><option value="deployees">Deployees</option><option value="repliees">Repliees</option><option value="angulaires">Angulaires</option><option value="larges">Larges</option></select>
+    </div>
+    <div class="cust-row"><label>Queue</label>
+      <select id="cust-shape-tail"><option value="classique">Classique</option><option value="eventail">Eventail</option><option value="court">Courte</option><option value="fourchu">Fourchue</option><option value="plumes_longues">Longues plumes</option></select>
+    </div>
   </div>
 
   <!-- PLUMAGE / BODY -->
@@ -1137,7 +1157,9 @@ const DEFAULT_APPEARANCE = {
   eye:'#4fc3f7', eyeCenter:'#e0f7fa', eyeGlow:60,
   rune:'#4fc3f7', runeGlow:70, runeSpeed:'normal',
   horn:'#4fc3f7', hornVisible:'yes',
-  scale:100
+  scale:100,
+  shapeBody:'classique', shapeHead:'classique', shapeBeak:'classique',
+  shapeWings:'classique', shapeTail:'classique'
 };
 
 const APPEARANCE_PRESETS = [
@@ -1157,6 +1179,150 @@ const IRIDESCENCE_MAP = {
   gold:   { c1:'#5d4037', c2:'#8d6e63', c3:'#daa520', c4:'#ffd54f' },
   ice:    { c1:'#0d47a1', c2:'#42a5f5', c3:'#80deea', c4:'#e0f7fa' },
   none:   { c1:'transparent', c2:'transparent', c3:'transparent', c4:'transparent' }
+};
+
+// ===== SHAPE VARIANTS =====
+const SHAPE_VARIANTS = {
+  body: {
+    classique: {
+      'body-shape': 'M62,118 Q58,85 84,74 Q105,67 128,74 Q154,85 152,118 Q152,148 134,162 Q118,170 105,170 Q90,170 78,162 Q62,148 62,118Z',
+      'body-sheen': 'M72,100 Q108,86 142,100 Q148,122 138,146 Q108,156 76,146 Q66,122 72,100Z'
+    },
+    musculeux: {
+      'body-shape': 'M58,118 Q54,82 84,70 Q105,62 128,70 Q158,82 156,118 Q156,150 136,164 Q118,174 105,174 Q90,174 76,164 Q58,150 58,118Z',
+      'body-sheen': 'M70,98 Q108,82 144,98 Q152,122 140,148 Q108,160 74,148 Q64,122 70,98Z'
+    },
+    svelte: {
+      'body-shape': 'M68,118 Q66,88 88,78 Q105,72 124,78 Q148,88 146,118 Q146,146 130,158 Q118,166 105,166 Q92,166 82,158 Q68,146 68,118Z',
+      'body-sheen': 'M76,102 Q108,90 136,102 Q142,120 134,142 Q108,152 80,142 Q72,120 76,102Z'
+    },
+    massif: {
+      'body-shape': 'M56,120 Q50,80 82,68 Q105,58 130,68 Q162,80 158,120 Q158,156 138,168 Q118,178 105,178 Q90,178 74,168 Q56,156 56,120Z',
+      'body-sheen': 'M66,96 Q108,80 148,96 Q156,124 144,152 Q108,164 70,152 Q60,124 66,96Z'
+    },
+    rond: {
+      'body-shape': 'M58,122 Q54,88 82,76 Q105,68 128,76 Q156,88 158,122 Q158,152 136,166 Q118,176 105,176 Q90,176 76,166 Q54,152 58,122Z',
+      'body-sheen': 'M68,100 Q108,84 146,100 Q154,126 142,150 Q108,162 72,150 Q62,126 68,100Z'
+    }
+  },
+  head: {
+    classique: {
+      'head-shape': 'M78,70 Q76,44 108,38 Q140,44 138,70 Q138,88 108,92 Q78,88 78,70Z',
+      'head-sheen': 'M84,55 Q108,45 128,55 Q132,70 122,80 Q108,84 94,80 Q84,70 84,55Z'
+    },
+    anguleux: {
+      'head-shape': 'M76,70 Q74,42 108,34 Q142,42 140,70 Q140,86 108,92 Q76,86 76,70Z',
+      'head-sheen': 'M82,53 Q108,42 130,53 Q134,68 124,80 Q108,84 92,80 Q82,68 82,53Z'
+    },
+    arrondi: {
+      'head-shape': 'M74,72 Q72,46 108,40 Q144,46 142,72 Q142,90 108,96 Q74,90 74,72Z',
+      'head-sheen': 'M82,56 Q108,46 132,56 Q136,72 126,84 Q108,88 90,84 Q80,72 82,56Z'
+    },
+    pointu: {
+      'head-shape': 'M80,70 Q80,40 108,32 Q136,40 136,70 Q136,86 108,90 Q80,86 80,70Z',
+      'head-sheen': 'M86,54 Q108,42 126,54 Q130,68 120,78 Q108,82 96,78 Q86,68 86,54Z'
+    },
+    aplati: {
+      'head-shape': 'M74,72 Q74,50 108,44 Q142,50 142,72 Q142,86 108,90 Q74,86 74,72Z',
+      'head-sheen': 'M82,58 Q108,48 132,58 Q136,70 126,80 Q108,84 90,80 Q80,70 82,58Z'
+    }
+  },
+  beak: {
+    classique: {
+      'beak-upper': 'M136,64 Q150,56 168,52 Q174,58 168,62 Q158,64 136,68Z',
+      'beak-ridge': 'M138,64 Q150,57 164,53 Q166,56 164,58 Q154,60 138,66Z',
+      'beak-lower': 'M136,68 Q150,68 162,64 Q165,66 160,68 Q150,72 136,72Z',
+      'beak-hook': 'M168,52 Q174,56 170,62'
+    },
+    long: {
+      'beak-upper': 'M136,64 Q155,54 182,48 Q188,54 182,60 Q168,64 136,68Z',
+      'beak-ridge': 'M138,64 Q155,55 178,49 Q180,52 178,55 Q164,60 138,66Z',
+      'beak-lower': 'M136,68 Q155,68 176,62 Q179,64 174,66 Q158,72 136,72Z',
+      'beak-hook': 'M182,48 Q188,52 184,60'
+    },
+    court: {
+      'beak-upper': 'M136,64 Q146,58 156,56 Q160,60 156,64 Q148,66 136,68Z',
+      'beak-ridge': 'M138,64 Q146,59 153,57 Q155,59 153,61 Q148,62 138,66Z',
+      'beak-lower': 'M136,68 Q146,68 152,66 Q154,67 152,68 Q146,72 136,72Z',
+      'beak-hook': 'M156,56 Q160,59 158,64'
+    },
+    crochu: {
+      'beak-upper': 'M136,64 Q150,54 166,48 Q176,52 172,58 Q168,64 136,68Z',
+      'beak-ridge': 'M138,64 Q150,55 162,49 Q168,52 166,56 Q156,62 138,66Z',
+      'beak-lower': 'M136,68 Q150,68 160,64 Q164,66 158,70 Q148,74 136,72Z',
+      'beak-hook': 'M166,48 Q176,50 174,58 Q172,64 168,66'
+    },
+    droit: {
+      'beak-upper': 'M136,62 Q150,58 170,56 Q174,60 170,64 Q158,64 136,66Z',
+      'beak-ridge': 'M138,62 Q150,59 166,57 Q168,59 166,61 Q156,62 138,64Z',
+      'beak-lower': 'M136,66 Q150,66 166,64 Q168,65 164,66 Q152,68 136,68Z',
+      'beak-hook': 'M170,56 Q174,58 172,64'
+    }
+  },
+  wings: {
+    classique: {
+      'wing-left-shape': 'M68,102 Q52,82 30,86 Q14,96 10,122 Q14,142 30,150 Q48,154 60,146 Q66,138 68,155Z',
+      'wing-right-shape': 'M148,102 Q164,82 186,86 Q202,96 206,122 Q202,142 186,150 Q168,154 156,146 Q150,138 148,155Z'
+    },
+    deployees: {
+      'wing-left-shape': 'M68,102 Q48,72 20,70 Q2,82 -4,114 Q2,140 22,154 Q44,162 60,150 Q66,140 68,155Z',
+      'wing-right-shape': 'M148,102 Q168,72 196,70 Q214,82 220,114 Q214,140 194,154 Q172,162 156,150 Q150,140 148,155Z'
+    },
+    repliees: {
+      'wing-left-shape': 'M68,102 Q58,88 42,92 Q28,100 24,122 Q28,140 40,148 Q52,152 62,144 Q66,136 68,155Z',
+      'wing-right-shape': 'M148,102 Q158,88 174,92 Q188,100 192,122 Q188,140 176,148 Q164,152 154,144 Q150,136 148,155Z'
+    },
+    angulaires: {
+      'wing-left-shape': 'M68,102 Q46,76 24,82 Q8,94 4,122 Q8,148 28,156 Q48,158 60,148 Q66,138 68,155Z',
+      'wing-right-shape': 'M148,102 Q170,76 192,82 Q208,94 212,122 Q208,148 188,156 Q168,158 156,148 Q150,138 148,155Z'
+    },
+    larges: {
+      'wing-left-shape': 'M68,102 Q50,78 26,80 Q8,92 2,122 Q8,146 28,156 Q50,160 62,148 Q66,138 68,155Z',
+      'wing-right-shape': 'M148,102 Q166,78 190,80 Q208,92 214,122 Q208,146 188,156 Q166,160 154,148 Q150,138 148,155Z'
+    }
+  },
+  tail: {
+    classique: {
+      'tail-1': 'M88,165 Q76,185 60,208 Q66,198 72,188 Q78,178 84,170Z',
+      'tail-2': 'M96,167 Q88,190 78,216 Q84,204 90,192 Q94,182 98,172Z',
+      'tail-3': 'M106,168 Q104,194 100,222 Q104,208 108,194 Q110,184 110,174Z',
+      'tail-4': 'M116,168 Q120,194 126,222 Q122,208 118,194 Q116,184 114,174Z',
+      'tail-5': 'M126,167 Q134,190 144,216 Q138,204 132,192 Q128,182 124,172Z',
+      'tail-6': 'M134,165 Q146,185 162,208 Q156,198 150,188 Q144,178 138,170Z'
+    },
+    eventail: {
+      'tail-1': 'M84,165 Q66,182 42,206 Q52,196 62,186 Q72,176 80,168Z',
+      'tail-2': 'M94,167 Q82,188 66,218 Q74,204 82,192 Q88,182 94,172Z',
+      'tail-3': 'M106,168 Q102,196 96,228 Q102,212 108,196 Q110,184 110,174Z',
+      'tail-4': 'M116,168 Q120,196 128,228 Q122,212 118,196 Q116,184 114,174Z',
+      'tail-5': 'M128,167 Q140,188 156,218 Q148,204 140,192 Q134,182 128,172Z',
+      'tail-6': 'M138,165 Q156,182 180,206 Q170,196 160,186 Q150,176 142,168Z'
+    },
+    court: {
+      'tail-1': 'M90,165 Q82,178 72,194 Q76,188 80,182 Q84,176 88,170Z',
+      'tail-2': 'M98,167 Q94,180 88,196 Q92,190 96,184 Q98,178 100,172Z',
+      'tail-3': 'M106,168 Q105,182 104,198 Q106,192 108,186 Q110,180 110,174Z',
+      'tail-4': 'M116,168 Q118,182 120,198 Q118,192 116,186 Q116,180 114,174Z',
+      'tail-5': 'M124,167 Q128,180 134,196 Q130,190 126,184 Q124,178 122,172Z',
+      'tail-6': 'M132,165 Q140,178 150,194 Q146,188 142,182 Q138,176 134,170Z'
+    },
+    fourchu: {
+      'tail-1': 'M86,165 Q70,185 48,216 Q58,200 68,188 Q78,178 84,170Z',
+      'tail-2': 'M94,167 Q84,186 72,208 Q80,198 88,190 Q92,182 96,172Z',
+      'tail-3': 'M106,168 Q106,180 106,190 Q108,186 110,180 Q110,176 110,174Z',
+      'tail-4': 'M116,168 Q116,180 116,190 Q116,186 114,180 Q114,176 114,174Z',
+      'tail-5': 'M128,167 Q138,186 150,208 Q142,198 134,190 Q130,182 126,172Z',
+      'tail-6': 'M136,165 Q152,185 174,216 Q164,200 154,188 Q144,178 138,170Z'
+    },
+    plumes_longues: {
+      'tail-1': 'M88,165 Q72,190 50,220 Q58,208 66,196 Q76,182 84,170Z',
+      'tail-2': 'M96,167 Q84,196 68,232 Q78,216 88,200 Q94,186 98,172Z',
+      'tail-3': 'M106,168 Q102,200 96,238 Q102,220 108,200 Q110,186 110,174Z',
+      'tail-4': 'M116,168 Q122,200 128,238 Q122,220 118,200 Q116,186 114,174Z',
+      'tail-5': 'M126,167 Q138,196 154,232 Q144,216 134,200 Q128,186 124,172Z',
+      'tail-6': 'M134,165 Q150,190 172,220 Q164,208 156,196 Q146,182 138,170Z'
+    }
+  }
 };
 
 function setupCustomize() {
@@ -1204,6 +1370,12 @@ function loadAppearanceToUI(a) {
   $('#cust-horn-visible').value = a.hornVisible;
   $('#cust-scale').value = a.scale;
   $('#cust-scale-val').textContent = a.scale + '%';
+  // Shapes
+  if ($('#cust-shape-body')) $('#cust-shape-body').value = a.shapeBody || 'classique';
+  if ($('#cust-shape-head')) $('#cust-shape-head').value = a.shapeHead || 'classique';
+  if ($('#cust-shape-beak')) $('#cust-shape-beak').value = a.shapeBeak || 'classique';
+  if ($('#cust-shape-wings')) $('#cust-shape-wings').value = a.shapeWings || 'classique';
+  if ($('#cust-shape-tail')) $('#cust-shape-tail').value = a.shapeTail || 'classique';
 }
 
 function getAppearanceFromUI() {
@@ -1225,7 +1397,12 @@ function getAppearanceFromUI() {
     runeSpeed: $('#cust-rune-speed').value,
     horn: $('#cust-horn').value,
     hornVisible: $('#cust-horn-visible').value,
-    scale: parseInt($('#cust-scale').value)
+    scale: parseInt($('#cust-scale').value),
+    shapeBody: $('#cust-shape-body').value,
+    shapeHead: $('#cust-shape-head').value,
+    shapeBeak: $('#cust-shape-beak').value,
+    shapeWings: $('#cust-shape-wings').value,
+    shapeTail: $('#cust-shape-tail').value
   };
 }
 
@@ -1312,6 +1489,27 @@ function applyAppearanceToSVG(a) {
 
   // Horn colors
   setGradStops('runeEnergy', [lighten(a.horn, 0.2), a.horn, darken(a.horn, 0.3)]);
+
+  // Shape variants
+  applyShapeVariants(svg, a);
+}
+
+function applyShapeVariants(svg, a) {
+  const parts = [
+    { key: 'body', val: a.shapeBody },
+    { key: 'head', val: a.shapeHead },
+    { key: 'beak', val: a.shapeBeak },
+    { key: 'wings', val: a.shapeWings },
+    { key: 'tail', val: a.shapeTail }
+  ];
+  parts.forEach(({ key, val }) => {
+    const variant = (SHAPE_VARIANTS[key] || {})[val || 'classique'];
+    if (!variant) return;
+    Object.entries(variant).forEach(([id, d]) => {
+      const el = svg.querySelector('#' + id);
+      if (el) el.setAttribute('d', d);
+    });
+  });
 }
 
 // Color utility functions
