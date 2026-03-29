@@ -1167,14 +1167,70 @@ function updateBackendUI() {
 
 // ===== GROQ KEY ROTATION =====
 let groqKeyIndex = 0;
+let currentRequestKey = null;
+let rateLimitedKeys = new Set(); // Clés en cooldown après erreur 429
+let lastGroqRequestTime = 0;
+const GROQ_MIN_DELAY_MS = 1000; // Délai minimum de 1 seconde entre requêtes
+
+function selectGroqKey() {
+  // Sélectionner UNE SEULE clé pour la requête entière
+  const keys = state.config.apiKeys || [];
+  if (keys.length === 0) {
+    currentRequestKey = state.config.apiKey || '';
+    return currentRequestKey;
+  }
+  if (keys.length === 1) {
+    currentRequestKey = keys[0];
+    return currentRequestKey;
+  }
+  
+  // Boucler jusqu'à trouver une clé non rate-limitée
+  let attempts = 0;
+  while (attempts < keys.length) {
+    const key = keys[groqKeyIndex % keys.length];
+    groqKeyIndex = (groqKeyIndex + 1) % keys.length;
+    
+    // Si la clé n'est pas rate-limitée, l'utiliser
+    if (!rateLimitedKeys.has(key)) {
+      currentRequestKey = key;
+      return key;
+    }
+    attempts++;
+  }
+  
+  // Si toutes les clés sont rate-limitées, utiliser quand même (elles vont se débloquer)
+  currentRequestKey = keys[groqKeyIndex % keys.length];
+  return currentRequestKey;
+}
 
 function getGroqKey() {
-  const keys = state.config.apiKeys || [];
-  if (keys.length === 0) return state.config.apiKey || '';
-  if (keys.length === 1) return keys[0];
-  const key = keys[groqKeyIndex % keys.length];
-  groqKeyIndex = (groqKeyIndex + 1) % keys.length;
-  return key;
+  // Cette fonction retourne la clé ACTUELLE pour la requête
+  if (!currentRequestKey) {
+    selectGroqKey();
+  }
+  return currentRequestKey;
+}
+
+function markKeyRateLimited(key) {
+  // Marquer une clé comme rate-limitée pour 5 minutes
+  rateLimitedKeys.add(key);
+  setTimeout(() => rateLimitedKeys.delete(key), 5 * 60 * 1000);
+}
+
+function resetCurrentRequestKey() {
+  // Réinitialiser après chaque requête
+  currentRequestKey = null;
+  lastGroqRequestTime = Date.now();
+}
+
+async function enforceGroqMinDelay() {
+  // Attendre le délai minimum entre requêtes
+  const timeSinceLastRequest = Date.now() - lastGroqRequestTime;
+  if (timeSinceLastRequest < GROQ_MIN_DELAY_MS) {
+    const delayNeeded = GROQ_MIN_DELAY_MS - timeSinceLastRequest;
+    console.log(`Groq rate limit prevention: waiting ${delayNeeded}ms`);
+    await new Promise(r => setTimeout(r, delayNeeded));
+  }
 }
 
 function updateGroqKeyStatus() {
@@ -2198,7 +2254,14 @@ async function speakMessage(btn, text) {
 
   let ttsSuccess = false;
   for (let i = 0; i < keys.length; i++) {
-    const key = keys[(groqKeyIndex + i) % keys.length];
+    const key = keys[i];
+    
+    // Skip rate-limited keys
+    if (rateLimitedKeys.has(key)) {
+      console.warn('TTS key skipped (rate-limited):', key.slice(0, 8));
+      continue;
+    }
+    
     try {
       console.log('TTS attempt with key:', key.slice(0, 8) + '...', 'model:', ttsModel, 'voice:', ttsVoice);
       const res = await fetch('https://api.groq.com/openai/v1/audio/speech', {
@@ -2216,7 +2279,8 @@ async function speakMessage(btn, text) {
       });
 
       if (res.status === 429) {
-        console.warn('TTS key rate limited, trying next...', key.slice(0, 8));
+        console.warn('TTS key rate limited:', key.slice(0, 8));
+        markKeyRateLimited(key);
         continue;
       }
 
@@ -2243,7 +2307,6 @@ async function speakMessage(btn, text) {
 
       await currentAudio.play();
       ttsSuccess = true;
-      groqKeyIndex = (groqKeyIndex + i) % keys.length; // Remember which key worked
       break;
     } catch(e) {
       console.error('TTS error with key', i, ':', e);
@@ -2308,6 +2371,9 @@ async function sendMessage() {
   userInput.value = '';
   const ts = getTS();
 
+  // Select ONE key for this entire request
+  selectGroqKey();
+
   // Show user message with optional image
   addMessage('user', text || '(image)', ts, false, hasImage ? pendingImage.dataUrl : null);
   pushMessage({ role: 'user', content: text || '[Image envoyee]', timestamp: ts, image: hasImage ? pendingImage.dataUrl : null });
@@ -2350,7 +2416,11 @@ async function sendMessage() {
               temperature: 0.7, max_tokens: 200
             })
           });
-          if (promptRes.ok) {
+          
+          if (promptRes.status === 429) {
+            markKeyRateLimited(getGroqKey());
+            console.warn('Prompt enhancement rate-limited');
+          } else if (promptRes.ok) {
             const promptData = await promptRes.json();
             enhancedPrompt = promptData.choices?.[0]?.message?.content || imgPrompt;
           }
@@ -2466,6 +2536,8 @@ async function sendMessage() {
     const lastSp = state.stakrLife.lastSpontaneous || 0;
     if (Math.random() < 0.3 && Date.now() - lastSp > 2*60*60*1000) scheduleSpontaneousThought();
 
+    resetCurrentRequestKey();
+
   } catch (err) {
     hideTyping();
     console.error('AI Error:', err);
@@ -2474,6 +2546,7 @@ async function sendMessage() {
     addMessage('stakr', fallback, getTS());
     pushMessage({ role: 'assistant', content: fallback, timestamp: getTS() });
     saveState();
+    resetCurrentRequestKey();
   }
 }
 
@@ -2561,6 +2634,9 @@ async function callAI(userText, imageData = null) {
       return "Kraa ! Il me faut une cle API Groq. Va dans les Parametres et entre tes cles. console.groq.com/keys [MOOD:curieux]";
     }
 
+    // Enforce minimum delay between requests
+    await enforceGroqMinDelay();
+
     // Detect if web search is needed (mode recherche or explicit search keywords)
     const needsSearch = state.currentMode === 'recherche' ||
       /cherche|recherche|trouve|actualit[eé]|news|r[eé]cent|aujourd'?hui|derni[eè]re|google|internet|web|site|url|info sur/i.test(userText);
@@ -2587,7 +2663,12 @@ async function callAI(userText, imageData = null) {
       const err = await res.text();
       console.error('Groq API error:', res.status, err);
       if (res.status === 401) return "Kraa... la cle API Groq est invalide. [MOOD:triste]";
-      if (res.status === 429) return "Kraa... trop de requetes ! Reessaie dans un instant. [MOOD:pensif]";
+      if (res.status === 429) {
+        // Marquer cette clé comme rate-limitée et passer à la suivante
+        markKeyRateLimited(groqKey);
+        console.warn('Key rate-limited, marked for cooldown:', groqKey.slice(0,8));
+        return "Kraa... cette cle est utilisee trop intensement ! Essaie une autre cle ou attends 5 minutes. [MOOD:pensif]";
+      }
       return `Kraa... erreur Groq (${res.status}). Verifie ta cle API et le modele. [MOOD:triste]`;
     }
     const data = await res.json();
@@ -2812,6 +2893,9 @@ Types de messages possibles (varie !) :
     let thought = '';
 
     if (backend === 'groq' && getGroqKey()) {
+      selectGroqKey();
+      await enforceGroqMinDelay();
+      
       const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -2828,7 +2912,11 @@ Types de messages possibles (varie !) :
       if (res.ok) {
         const data = await res.json();
         thought = data.choices?.[0]?.message?.content || '';
+      } else if (res.status === 429) {
+        markKeyRateLimited(getGroqKey());
+        console.warn('Spontaneous thought rate-limited');
       }
+      resetCurrentRequestKey();
     } else if (backend === 'ollama') {
       const url = state.config.apiUrl || 'http://localhost:11434/api/chat';
       const res = await fetch(url, {

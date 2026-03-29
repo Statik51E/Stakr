@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -notlike ''*Loopback*'' -and $_.IPAddress -notlike ''127.*'' } | Select-Object -ExpandProperty IPAddress\")"
+    ]
+  }
+}
