@@ -248,7 +248,359 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <canvas id="particle-canvas"></canvas>
     <div id="lightning-container"></div>
 
-    <svg id="raven-svg" class="idle" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+    <svg id="raven-svg" class="idle" viewBox="0 0 280 320" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- ===== ADVANCED FILTERS ===== -->
+        <filter id="runeGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="runeIncandescent"><feGaussianBlur stdDeviation="4.5" result="b"/><feFlood flood-color="#ffd700" flood-opacity=".9" result="c"/><feComposite in="c" in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="runeCyan"><feGaussianBlur stdDeviation="3.5" result="b"/><feFlood flood-color="#00ffff" flood-opacity=".8" result="c"/><feComposite in="c" in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="eyeGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="dramaticShadow"><feDropShadow dx="2" dy="10" stdDeviation="10" flood-color="#000" flood-opacity=".9"/></filter>
+        <filter id="featherTexture"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="5" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/></filter>
+        
+        <!-- ===== LIGHTING GRADIENTS ===== -->
+        <!-- Directional light from top-left -->
+        <radialGradient id="directionalLight" cx="20%" cy="20%" r="80%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity=".15"/>
+          <stop offset="50%" stop-color="#ffffff" stop-opacity=".05"/>
+          <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+        </radialGradient>
+        
+        <!-- ===== PLUMAGE GRADIENTS (Ultra-Realistic) ===== -->
+        <!-- Deep black with subtle color shift -->
+        <linearGradient id="plumageMain" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#2a2a2f"/><stop offset="25%" stop-color="#1a1a1f"/>
+          <stop offset="50%" stop-color="#0f0f14"/><stop offset="75%" stop-color="#080809"/>
+          <stop offset="100%" stop-color="#030304"/>
+        </linearGradient>
+        
+        <!-- Iridescent blue-violet for subtle corvid shimmer -->
+        <linearGradient id="iridescentShimmer" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1a2540" stop-opacity=".25"/>
+          <stop offset="40%" stop-color="#2a1a35" stop-opacity=".15"/>
+          <stop offset="100%" stop-color="#0f0f1a" stop-opacity="0"/>
+        </linearGradient>
+        
+        <!-- Wing primaries - darkest -->
+        <linearGradient id="wingPrimary" x1="100%" y1="50%" x2="0%" y2="50%">
+          <stop offset="0%" stop-color="#050506"/><stop offset="30%" stop-color="#0d0d12"/>
+          <stop offset="70%" stop-color="#1a1a22"/><stop offset="100%" stop-color="#2a2a35"/>
+        </linearGradient>
+        
+        <!-- Body volume gradient -->
+        <radialGradient id="bodyVolume" cx="40%" cy="35%" r="70%">
+          <stop offset="0%" stop-color="#3a3a42"/><stop offset="30%" stop-color="#1f1f28"/>
+          <stop offset="70%" stop-color="#0d0d14"/><stop offset="100%" stop-color="#040405"/>
+        </radialGradient>
+        
+        <!-- Head with nobility -->
+        <radialGradient id="headNoble" cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stop-color="#2a2a32"/><stop offset="25%" stop-color="#1a1a22"/>
+          <stop offset="60%" stop-color="#0d0d14"/><stop offset="100%" stop-color="#020203"/>
+        </radialGradient>
+        
+        <!-- Beak realistic -->
+        <linearGradient id="beakRealistic" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4a4a52"/><stop offset="50%" stop-color="#2a2a32"/>
+          <stop offset="100%" stop-color="#0d0d12"/>
+        </linearGradient>
+        
+        <!-- Eye - Photorealistic -->
+        <radialGradient id="eyePhotorealistic" cx="40%" cy="35%" r="65%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity=".9"/>
+          <stop offset="15%" stop-color="#e8f4ff"/><stop offset="30%" stop-color="#a0d8ff"/>
+          <stop offset="50%" stop-color="#4fc3f7"/><stop offset="70%" stop-color="#0288d1"/>
+          <stop offset="85%" stop-color="#01579b"/><stop offset="100%" stop-color="#000033"/>
+        </radialGradient>
+        
+        <!-- Specular highlights -->
+        <radialGradient id="specularHigh" cx="30%" cy="30%" r="50%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity=".95"/>
+          <stop offset="70%" stop-color="#ffffff" stop-opacity=".3"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+        </radialGradient>
+        
+        <!-- Rune gradients -->
+        <linearGradient id="runeGold" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fff700"/><stop offset="50%" stop-color="#ffb300"/>
+          <stop offset="100%" stop-color="#cc8800"/>
+        </linearGradient>
+        <linearGradient id="runeCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#4fc3f7"/>
+          <stop offset="100%" stop-color="#0096d1"/>
+        </linearGradient>
+      </defs>
+
+      <!-- ===== ROCHER/SOCLE AVEC RUNES GRAVÉES ===== -->
+      <g id="rock-base">
+        <!-- Rocher principal -->
+        <path d="M60,280 Q50,250 55,220 L225,220 Q230,250 220,280 Z" fill="#3a3a3a" stroke="#1a1a1a" stroke-width="2"/>
+        
+        <!-- Texture du rocher (ombres) -->
+        <path d="M60,280 Q50,250 55,220 L225,220 Q230,250 220,280 Z" fill="url(#plumageMain)" opacity=".3"/>
+        
+        <!-- Highlight sur rocher -->
+        <ellipse cx="140" cy="235" rx="60" ry="8" fill="#ffffff" opacity=".1"/>
+        
+        <!-- RUNES GRAVÉES SUR LE ROCHER -->
+        <!-- Vegvisir (Grand symbole central magique) -->
+        <g op="0.7" filter="url(#runeIncandescent)">
+          <!-- Cercle extérieur -->
+          <circle cx="140" cy="250" r="25" fill="none" stroke="url(#runeGold)" stroke-width="1.5" opacity=".8"/>
+          <!-- 8 branches du Vegvisir -->
+          <g stroke="url(#runeGold)" stroke-width="1.2" fill="none" opacity=".75">
+            <path d="M140,225 L140,215"/><path d="M140,275 L140,285"/>
+            <path d="M115,250 L105,250"/><path d="M165,250 L175,250"/>
+            <path d="M120,230 L112,222"/><path d="M160,270 L168,278"/>
+            <path d="M160,230 L168,222"/><path d="M120,270 L112,278"/>
+          </g>
+          <!-- Reflet incandescent -->
+          <circle cx="140" cy="250" r="25" fill="none" stroke="#ffffff" stroke-width=".5" opacity=".3" filter="url(#runeGlow)"/>
+        </g>
+        
+        <!-- Petites runes runiques aux coins -->
+        <g font-family="serif" font-size="10" fill="url(#runeGold)" opacity=".6" filter="url(#runeGlow)">
+          <text x="75" y="268">ᚠ</text><text x="200" y="268">ᚠ</text>
+        </g>
+      </g>
+
+      <!-- ===== CORBEAU MAJESTUEUX (3/4 profile, debout) ===== -->
+      <g class="body-group" filter="url(#dramaticShadow)">
+
+        <!-- ===== OMBRE PORTÉE SUBTILE ===== -->
+        <ellipse cx="140" cy="282" rx="50" ry="8" fill="#000000" opacity=".25" filter="url(#runeGlow)"/>
+
+        <!-- ===== QUEUE MAJESTUEUSE (ARRIÈRE-PLAN) ===== -->
+        <g id="tail-display" opacity=".85">
+          <!-- Plume de queue centrale large -->
+          <path d="M95,180 Q80,220 75,260" stroke="url(#wingPrimary)" stroke-width="8" fill="none" stroke-linecap="round" opacity=".9"/>
+          <!-- Plumes latérales -->
+          <path d="M105,170 Q92,215 88,255" stroke="url(#wingPrimary)" stroke-width="6.5" fill="none" stroke-linecap="round" opacity=".8"/>
+          <path d="M115,168 Q105,210 103,250" stroke="url(#wingPrimary)" stroke-width="6" fill="none" stroke-linecap="round" opacity=".75"/>
+          <!-- Plumes opposées -->
+          <path d="M145,168 Q155,210 157,250" stroke="url(#wingPrimary)" stroke-width="6" fill="none" stroke-linecap="round" opacity=".75"/>
+          <path d="M155,170 Q168,215 172,255" stroke="url(#wingPrimary)" stroke-width="6.5" fill="none" stroke-linecap="round" opacity=".8"/>
+          <path d="M165,180 Q180,220 185,260" stroke="url(#wingPrimary)" stroke-width="8" fill="none" stroke-linecap="round" opacity=".9"/>
+          
+          <!-- Barbe texture sur plumes queue -->
+          <g stroke="#0a0a0f" stroke-width=".3" fill="none" opacity=".4">
+            <path d="M75,260 L70,255"/><path d="M88,255 L82,250"/><path d="M103,250 L98,245"/>
+            <path d="M157,250 L162,245"/><path d="M172,255 L178,250"/><path d="M185,260 L190,255"/>
+          </g>
+          
+          <!-- Reflet iridescent sur queue -->
+          <path d="M85,200 Q105,215 115,245 Q110,235 95,220 Z" fill="url(#iridescentShimmer)" opacity=".4"/>
+        </g>
+
+        <!-- ========== CORPS VOLUMÉTRIQUE ========== -->
+        <!-- Base du corps (volume principal) -->
+        <ellipse cx="130" cy="155" rx="45" ry="55" fill="url(#bodyVolume)" stroke="#0a0a0f" stroke-width="1.5"/>
+        
+        <!-- Plumage couverture du ventre -->
+        <ellipse cx="130" cy="170" rx="40" ry="45" fill="url(#plumageMain)" opacity=".7"/>
+        
+        <!-- Reflet dorsal (dos éclairé) -->
+        <path d="M100,130 Q130,110 160,135 Q160,155 130,175 Q100,155 100,130Z" fill="url(#directionalLight)"/>
+        
+        <!-- Shimmer iridescent sous certains angles -->
+        <path d="M110,140 Q135,125 155,145 Q140,160 115,160 Z" fill="url(#iridescentShimmer)"/>
+        
+        <!-- Détails des plumes du corps (texture) -->
+        <g stroke="#0f0f18" stroke-width=".6" fill="none" opacity=".5">
+          <path d="M105,125 Q110,145 108,165"/><path d="M120,115 Q125,140 123,170"/>
+          <path d="M135,115 Q140,142 138,172"/><path d="M150,120 Q153,145 150,168"/>
+          <path d="M160,135 Q160,155 158,175"/>
+        </g>
+
+        <!-- ========== POITRINE GONFLÉE ========== -->
+        <ellipse cx="130" cy="180" rx="38" ry="42" fill="#1a1a1f" opacity=".8"/>
+        
+        <!-- Détail des calamus (base des plumes) -->
+        <g stroke="#050508" stroke-width=".4" fill="none" opacity=".6">
+          <path d="M110,160 L110,200"/><path d="M125,158 L125,205"/>
+          <path d="M140,158 L140,205"/><path d="M155,160 L155,200"/>
+        </g>
+
+        <!-- ========== AILES MAJESTUEUSES ========== -->
+        <!-- Aile gauche repliée (visible) -->
+        <g id="wing-left-main" class="wing-left" style="transform-origin:95px 145px" opacity=".92">
+          <!-- Plumes de couverture -->
+          <path d="M95,125 Q60,110 35,125 Q15,140 12,170 Q18,200 45,210 Q85,205 95,180 Z" fill="url(#plumageMain)" stroke="#0a0a0f" stroke-width="1.2"/>
+          
+          <!-- Plumes primaires (longues, acérées) -->
+          <g stroke="#050508" stroke-width="1.4" fill="none" opacity=".8">
+            <path d="M45,210 Q28,230 15,260"/><path d="M58,208 Q42,230 28,265"/>
+            <path d="M70,207 Q58,228 48,260"/><path d="M82,205 Q75,225 68,255"/>
+          </g>
+          
+          <!-- Reflet sur l'aile -->
+          <ellipse cx="55" cy="145" rx="20" ry="35" fill="url(#iridescentShimmer)" opacity=".5"/>
+        </g>
+
+        <!-- Aile droite repliée (partiellement visible behind body) -->
+        <g id="wing-right-main" class="wing-right" style="transform-origin:165px 145px" opacity=".6">
+          <!-- Silhouette derrière le corps -->
+          <path d="M165,125 Q180,110 210,125 Q235,140 238,170 Q235,200 210,210 Q170,205 165,180 Z" fill="#0a0a0f" opacity=".4"/>
+        </g>
+
+        <!-- ========== COU ET HACKLE FEATHERS ========== -->
+        <path d="M128,110 Q135,90 142,110 Q140,135 135,145 Q130,140 128,110Z" fill="url(#headNoble)" opacity=".9"/>
+        
+        <!-- Hackle feathers (tufts) autour du cou -->
+        <g stroke="#0f0f18" stroke-width=".7" fill="none" opacity=".6">
+          <path d="M122,115 Q120,100 118,110"/><path d="M132,100 Q135,85 138,100"/>
+          <path d="M142,100 Q145,85 148,100"/><path d="M152,115 Q154,100 156,110"/>
+        </g>
+
+        <!-- ========== TÊTE ALTIÈRE ========== -->
+        <!-- Crâne -->
+        <ellipse cx="137" cy="82" rx="26" ry="32" fill="url(#headNoble)" stroke="#0a0a0f" stroke-width="1.3"/>
+        
+        <!-- Couronne de plumes pointues (crown) -->
+        <g stroke="#0f0f18" stroke-width=".8" fill="none" opacity=".7">
+          <path d="M112,60 Q115,45 118,58"/><path d="M122,50 Q128,35 132,48"/>
+          <path d="M137,48 Q142,32 147,48"/><path d="M152,50 Q158,35 162,48"/>
+          <path d="M172,60 Q175,45 178,58"/>
+        </g>
+        
+        <!-- Reflet cranial noble -->
+        <ellipse cx="125" cy="65" rx="14" ry="16" fill="url(#directionalLight)" opacity=".6"/>
+        
+        <!-- Marque iridescente sur crâne -->
+        <path d="M120,75 Q137,55 155,75 Q150,95 137,105 Q122,95 120,75Z" fill="url(#iridescentShimmer)" opacity=".35"/>
+
+        <!-- ========== BEC ACÉRÉ ET DOMINANT ========== -->
+        <!-- Mandibule supérieure (prominent) -->
+        <path d="M155,82 Q185,72 205,65 Q210,78 200,88 Q180,92 155,90Z" fill="url(#beakRealistic)" stroke="#050508" stroke-width="1"/>
+        
+        <!-- Texture blade du bec -->
+        <g stroke="#2a2a32" stroke-width=".4" fill="none" opacity=".7">
+          <path d="M160,80 Q175,75 190,70"/><path d="M160,85 Q175,82 190,78"/>
+        </g>
+        
+        <!-- Mandibule inférieure -->
+        <path d="M155,90 Q180,90 200,88 Q202,92 198,95 Q175,98 155,96Z" fill="#1a1a22" stroke="#050508" stroke-width=".8"/>
+        
+        <!-- Pointe acérée (hook) -->
+        <path d="M205,76 Q215,75 218,85 Q213,86 205,83Z" fill="#0f0f14" stroke="#050508" stroke-width=".5"/>
+        
+        <!-- Narine -->
+        <ellipse cx="172" cy="83" rx="2.8" ry="2" fill="#0a0a0f" opacity=".8"/>
+        
+        <!-- Commissure buccale (smile line) -->
+        <path d="M155,90 Q180,89 200,87" stroke="#0a0a0f" stroke-width=".6" fill="none" opacity=".5" stroke-linecap="round"/>
+
+        <!-- ========== ŒIL HYPNOTIQUE ET DÉTAILLÉ ========== -->
+        <!-- Orbite profonde -->
+        <ellipse cx="153" cy="75" rx="9.5" ry="11" fill="#0a0a0f" opacity=".9" stroke="#050508" stroke-width=".8"/>
+        
+        <!-- Blanc de l'oeil (sclera) brillant -->
+        <ellipse cx="152.5" cy="74.5" r="7" fill="#f5f8ff" opacity=".92"/>
+        
+        <!-- Iris ultra-détaillé avec gradient photorealistic -->
+        <circle cx="152.5" cy="75" r="5.2" fill="url(#eyePhotorealistic)" filter="url(#eyeGlow)"/>
+        
+        <!-- Striated iris texture (lignes radiales subtiles) -->
+        <g stroke="url(#runeCyan)" stroke-width=".25" fill="none" opacity=".3">
+          <line x1="152.5" y1="70" x2="152.5" y2="69"/><line x1="155" y1="71" x2="156" y2="70"/>
+          <line x1="157" y1="75" x2="158" y2="75"/><line x1="155" y1="79" x2="156" y2="80"/>
+          <line x1="150" y1="79" x2="149" y2="80"/><line x1="148" y1="75" x2="147" y2="75"/>
+          <line x1="150" y1="71" x2="149" y2="70"/>
+        </g>
+        
+        <!-- Pupille profonde avec depth -->
+        <circle cx="153.2" cy="75.5" r="3" fill="#000033" opacity=".95"/>
+        <circle cx="153.2" cy="75.5" r="2.3" fill="#000011" opacity=".8"/>
+        
+        <!-- PRIMARY SPECULAR HIGHLIGHT (éblouissant) -->
+        <ellipse cx="150.2" cy="71.8" rx="2.8" ry="3" fill="url(#specularHigh)" filter="url(#eyeGlow)"/>
+        
+        <!-- Secondary highlight (subtil) -->
+        <circle cx="155" cy="78" r="1.2" fill="#ffffff" opacity=".5"/>
+        
+        <!-- Micro-reflet doré (cosmic touch) -->
+        <circle cx="151" cy="74" r=".6" fill="#ffff99" opacity=".7"/>
+        
+        <!-- Cerne et relief orbitaire (depth) -->
+        <path d="M143,70 Q152,64 161,70" stroke="#0a0a0f" stroke-width="1.3" fill="none" opacity=".6" stroke-linecap="round"/>
+        <circle cx="152.5" cy="75" r="5.2" fill="none" stroke="rgba(79,195,247,.3)" stroke-width=".9"/>
+        
+        <!-- Eyelid upper (ombre) -->
+        <path d="M143,70 Q152,67 161,70" stroke="#050508" stroke-width="1.2" fill="none" opacity=".5" stroke-linecap="round"/>
+        
+        <!-- Tear duct redness (subtle) -->
+        <ellipse cx="160" cy="76" rx="1" ry="1.5" fill="#dd5544" opacity=".2"/>
+
+        <!-- ========== PATTES ET SERRES ACÉRÉES ========== -->
+        <!-- Jambe gauche -->
+        <path d="M115,230 Q112,250 108,270" stroke="#2a2a2f" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+        
+        <!-- Serres gauche -->
+        <g stroke="#1a1a1f" stroke-width="2.2" fill="none" stroke-linecap="round">
+          <path d="M108,270 L95,285"/><path d="M108,270 L105,288"/><path d="M108,270 L112,288"/>
+          <path d="M108,270 L120,285"/>
+        </g>
+        
+        <!-- Jambe droite -->
+        <path d="M148,230 Q150,250 154,270" stroke="#2a2a2f" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+        
+        <!-- Serres droite -->
+        <g stroke="#1a1a1f" stroke-width="2.2" fill="none" stroke-linecap="round">
+          <path d="M154,270 L142,285"/><path d="M154,270 L151,288"/><path d="M154,270 L158,288"/>
+          <path d="M154,270 L168,285"/>
+        </g>
+        
+        <!-- Pointes de griffes acérées -->
+        <g fill="#0f0f14" stroke="#050508" stroke-width=".4" opacity=".9">
+          <polygon points="95,285 92,280 97,283"/><polygon points="105,288 102,283 107,286"/>
+          <polygon points="112,288 109,283 114,286"/><polygon points="120,285 123,280 118,283"/>
+          <polygon points="142,285 139,280 144,283"/><polygon points="151,288 148,283 153,286"/>
+          <polygon points="158,288 155,283 160,286"/><polygon points="168,285 171,280 166,283"/>
+        </g>
+        
+        <!-- Écailles des pattes -->
+        <g stroke="#0f0f18" stroke-width=".3" fill="none" opacity=".4">
+          <path d="M112,245 Q110,248 108,250"/><path d="M112,255 Q110,258 108,260"/>
+          <path d="M150,245 Q152,248 154,250"/><path d="M150,255 Q152,258 154,260"/>
+        </g>
+
+        <!-- ========== RUNES VIKINGS MYSTIQUES (EN HALO) ========== -->
+        <!-- ALGIZ - Protection (Sommet du crâne - OR) -->
+        <g filter="url(#runeIncandescent)">
+          <path d="M137,45 L143,58 L131,58 Z M137,58 L137,65" stroke="url(#runeGold)" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".95"/>
+          <path d="M137,45 L143,58 L131,58 Z M137,58 L137,65" stroke="#ffb300" stroke-width=".8" fill="none" stroke-linecap="round" opacity=".5" filter="url(#runeGlow)"/>
+        </g>
+
+        <!-- TIWAZ - Guerrier/Courage (Gauche - CYAN) -->
+        <g filter="url(#runeCyan)">
+          <path d="M118,72 L118,88 M114,78 L122,88" stroke="url(#runeCyan)" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".9"/>
+          <path d="M118,72 L118,88 M114,78 L122,88" stroke="#00ffff" stroke-width=".6" fill="none" opacity=".4" filter="url(#runeGlow)"/>
+        </g>
+
+        <!-- RAIDHO - Voyage (Droite - CYAN) -->
+        <g filter="url(#runeCyan)">
+          <path d="M156,72 L156,88 M152,78 L160,88" stroke="url(#runeCyan)" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".9"/>
+          <path d="M156,72 L156,88 M152,78 L160,88" stroke="#00ffff" stroke-width=".6" fill="none" opacity=".4" filter="url(#runeGlow)"/>
+        </g>
+
+        <!-- FEHU - Richesse/Pouvoir (Bas-Gauche - OR) -->
+        <g filter="url(#runeIncandescent)">
+          <path d="M118,105 L118,120 M113,108 L123,111 M113,116 L123,120" stroke="url(#runeGold)" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".85"/>
+          <path d="M118,105 L118,120 M113,108 L123,111 M113,116 L123,120" stroke="#ffb300" stroke-width=".5" fill="none" opacity=".3" filter="url(#runeGlow)"/>
+        </g>
+
+        <!-- OTHALA - Héritage (Bas-Droite - OR) -->
+        <g filter="url(#runeIncandescent)">
+          <path d="M156,105 L156,120 M151,108 L161,111 M151,116 L161,120" stroke="url(#runeGold)" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".85"/>
+          <path d="M156,105 L156,120 M151,108 L161,111 M151,116 L161,120" stroke="#ffb300" stroke-width=".5" fill="none" opacity=".3" filter="url(#runeGlow)"/>
+        </g>
+
+        <!-- HAGALAZ - Protection (Halo subtil autour du corbeau) -->
+        <circle cx="137" cy="130" r="65" fill="none" stroke="url(#runeCyan)" stroke-width="1" opacity=".15" filter="url(#runeGlow)"/>
+        <circle cx="137" cy="130" r="70" fill="none" stroke="url(#runeCyan)" stroke-width=".5" opacity=".08" filter="url(#runeGlow)"/>
+
+      </g><!-- end body-group -->
+    </svg>
       <defs>
         <!-- Advanced Filters -->
         <filter id="runeGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
