@@ -906,7 +906,7 @@ const MOODS = {
 // ===== MODES =====
 const MODES = {
   conversation: { label:'Chat', prompt:'' },
-  recherche: { label:'Recherche', prompt:'\n\nMODE RECHERCHE : Tu es en mode recherche. Sois analytique, précis, cite des sources quand possible. Structure tes réponses avec des listes et des faits vérifiables. Privilégie la profondeur et l\'exactitude.' },
+  recherche: { label:'Recherche', prompt:'\n\nMODE RECHERCHE : Tu es en mode recherche avec acces a internet. Sois analytique, precis, cite des sources quand possible. Structure tes reponses avec des listes et des faits verifiables. Privilegie la profondeur et l\'exactitude. Tu peux chercher des informations recentes sur le web.' },
   creation: { label:'Création', prompt:'\n\nMODE CRÉATION : Tu es en mode créatif. Sois inventif, inspiré, propose des idées originales. N\'hésite pas à être audacieux et poétique. Utilise des métaphores vikings pour enrichir tes créations.' },
   design: { label:'Design', prompt:'\n\nMODE DESIGN : Tu es en mode design/visuel. Donne des conseils UI/UX, décris des palettes de couleurs, des mises en page, des styles visuels. Sois précis sur les dimensions, couleurs (hex), et tendances.' },
   code: { label:'Code', prompt:'\n\nMODE CODE : Tu es en mode programmation. Écris du code propre et commenté. Explique ta logique. Utilise des blocs de code formatés. Sois technique et précis.' }
@@ -1974,6 +1974,7 @@ function formatText(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/(https?:\/\/[^\s<)]+)/g, '<a href="$1" target="_blank" style="color:var(--rune-blue);word-break:break-all">$1</a>')
     .replace(/\n/g, '<br>');
 }
 
@@ -2040,6 +2041,68 @@ async function sendMessage() {
   showTyping();
 
   try {
+    // Detect image generation request
+    const imgGenMatch = text.match(/(?:genere|génère|g[eé]n[eè]re|cree|crée|dessine|imagine|fais|fait|fabrique|cr[eé]e)\s+(?:une?\s+)?(?:image|illustration|dessin|photo|portrait|paysage|scene|tableau|affiche|logo|icone)\s*(?:de|d'|du|des|avec|:)?\s*(.*)/i)
+      || text.match(/(?:image|illustration|dessin|photo)\s+(?:de|d'|du|des)\s+(.*)/i);
+
+    if (imgGenMatch && !imageForAI) {
+      const imgPrompt = imgGenMatch[1] || text;
+      // Ask AI to enhance the prompt
+      let enhancedPrompt = imgPrompt;
+      const backend = state.config.backend || 'ollama';
+      if (backend === 'groq' && state.config.apiKey) {
+        try {
+          const promptRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.config.apiKey}` },
+            body: JSON.stringify({
+              model: 'llama-3.3-70b-versatile',
+              messages: [
+                { role: 'system', content: 'Tu es un expert en generation de prompts pour images IA. Transforme la description en un prompt detaille en anglais pour generer une image. Reponds UNIQUEMENT avec le prompt, rien d\'autre. Max 100 mots.' },
+                { role: 'user', content: imgPrompt }
+              ],
+              temperature: 0.7, max_tokens: 200
+            })
+          });
+          if (promptRes.ok) {
+            const promptData = await promptRes.json();
+            enhancedPrompt = promptData.choices?.[0]?.message?.content || imgPrompt;
+          }
+        } catch(e) { console.warn('Prompt enhancement failed, using raw prompt'); }
+      }
+
+      // Generate image via Pollinations.ai (free, no API key)
+      const encodedPrompt = encodeURIComponent(enhancedPrompt);
+      const imgUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=768&height=768&nologo=true&seed=${Date.now()}`;
+
+      hideTyping();
+      addMessage('stakr', `Kraa ! Je forge cette image dans les flammes de Muspelheim... 🎨\n\n*"${imgPrompt}"*`, getTS());
+      showTyping();
+
+      // Preload image
+      try {
+        const imgRes = await fetch(imgUrl);
+        if (imgRes.ok) {
+          const blob = await imgRes.blob();
+          const localUrl = URL.createObjectURL(blob);
+          hideTyping();
+          addMessage('stakr', `Voila ce que les runes m'ont inspire ! [MOOD:excite]`, getTS(), false, localUrl);
+          pushMessage({ role: 'assistant', content: `[Image generee: ${imgPrompt}] [MOOD:excite]`, timestamp: getTS() });
+          saveState();
+          setMood('excite');
+          return;
+        }
+      } catch(e) {
+        console.error('Image gen error:', e);
+      }
+      hideTyping();
+      addMessage('stakr', `Kraa... les flammes n'ont pas pris cette fois. L'image n'a pas pu etre forgee. [MOOD:triste]`, getTS());
+      pushMessage({ role: 'assistant', content: `[Echec generation image] [MOOD:triste]`, timestamp: getTS() });
+      saveState();
+      setMood('triste');
+      return;
+    }
+
     const response = await callAI(text, imageForAI);
     hideTyping();
 
@@ -2185,7 +2248,7 @@ async function callAI(userText, imageData = null) {
   // Auto-select vision model if image is attached
   let model = state.config.model;
   if (imageData) {
-    if (backend === 'groq' && !model.includes('vision')) model = 'llama-3.2-90b-vision-preview';
+    if (backend === 'groq' && !model.includes('vision') && !model.includes('scout')) model = 'meta-llama/llama-4-scout-17b-16e-instruct';
     if (backend === 'ollama' && !model.includes('llava') && !model.includes('vision')) model = 'llava';
   }
 
@@ -2204,10 +2267,24 @@ async function callAI(userText, imageData = null) {
     if (!state.config.apiKey) {
       return "Kraa ! Il me faut une cle API Groq. Va dans les Parametres et entre ta cle. console.groq.com/keys [MOOD:curieux]";
     }
+
+    // Detect if web search is needed (mode recherche or explicit search keywords)
+    const needsSearch = state.currentMode === 'recherche' ||
+      /cherche|recherche|trouve|actualit[eé]|news|r[eé]cent|aujourd'?hui|derni[eè]re|google|internet|web|site|url|info sur/i.test(userText);
+
+    let useModel = model;
+    let bodyPayload = { model: useModel, messages, temperature: 0.8, max_tokens: 1200 };
+
+    if (needsSearch && !imageData) {
+      // Use compound model for web search
+      useModel = 'compound-beta';
+      bodyPayload = { model: useModel, messages, temperature: 0.7, max_tokens: 1500 };
+    }
+
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.config.apiKey}` },
-      body: JSON.stringify({ model, messages, temperature: 0.8, max_tokens: 800 })
+      body: JSON.stringify(bodyPayload)
     });
     if (!res.ok) {
       const err = await res.text();
@@ -2217,7 +2294,20 @@ async function callAI(userText, imageData = null) {
       throw new Error(`Groq error ${res.status}`);
     }
     const data = await res.json();
-    return data.choices?.[0]?.message?.content || "Kraa... les runes sont silencieuses.";
+    let answer = data.choices?.[0]?.message?.content || "Kraa... les runes sont silencieuses.";
+
+    // Append search sources if available
+    const execTools = data.choices?.[0]?.message?.executed_tools;
+    if (execTools && execTools.length > 0) {
+      const searchResults = execTools.find(t => t.search_results);
+      if (searchResults && searchResults.search_results) {
+        const sources = searchResults.search_results.slice(0, 3)
+          .map(r => `- ${r.title}: ${r.url}`)
+          .join('\n');
+        if (sources) answer += '\n\n**Sources :**\n' + sources;
+      }
+    }
+    return answer;
   }
 
   // Custom backend
