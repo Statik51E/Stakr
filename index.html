@@ -635,9 +635,10 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     </select>
   </div>
   <div class="setting-group" id="groq-key-group" style="display:none">
-    <label>Clé API Groq</label>
-    <input type="password" id="api-key" placeholder="gsk_..."/>
-    <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">Gratuit sur <a href="https://console.groq.com/keys" target="_blank" style="color:var(--gold)">console.groq.com/keys</a></div>
+    <label>Clés API Groq (1 par ligne, rotation auto)</label>
+    <textarea id="api-keys" rows="4" placeholder="gsk_abc123...&#10;gsk_def456...&#10;gsk_ghi789..." style="font-size:.75rem;font-family:monospace"></textarea>
+    <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">Gratuit sur <a href="https://console.groq.com/keys" target="_blank" style="color:var(--gold)">console.groq.com/keys</a> — Ajoute plusieurs cles pour eviter les limites</div>
+    <div id="groq-key-status" style="font-size:.7rem;color:var(--gold-dim);margin-top:4px"></div>
   </div>
   <div class="setting-group" id="pollinations-key-group" style="display:none">
     <label>Clé Pollinations (génération images)</label>
@@ -1111,9 +1112,13 @@ function exportMemory() {
 function applyConfig() {
   $('#api-backend').value = state.config.backend || 'ollama';
   $('#api-url').value = state.config.apiUrl;
-  $('#api-key').value = state.config.apiKey || '';
+  // Load API keys (support both old single key and new multi-key)
+  const keys = state.config.apiKeys || [];
+  if (keys.length === 0 && state.config.apiKey) keys.push(state.config.apiKey);
+  $('#api-keys').value = keys.join('\n');
   $('#custom-api-key').value = state.config.customApiKey || '';
   $('#pollinations-key').value = state.config.pollinationsKey || '';
+  updateGroqKeyStatus();
   $('#api-model').value = state.config.model;
   $('#personality-input').value = state.config.personality;
   $('#ntfy-topic-display').value = getNtfyTopic();
@@ -1138,12 +1143,37 @@ function updateBackendUI() {
   }
 }
 
+// ===== GROQ KEY ROTATION =====
+let groqKeyIndex = 0;
+
+function getGroqKey() {
+  const keys = state.config.apiKeys || [];
+  if (keys.length === 0) return state.config.apiKey || '';
+  if (keys.length === 1) return keys[0];
+  const key = keys[groqKeyIndex % keys.length];
+  groqKeyIndex = (groqKeyIndex + 1) % keys.length;
+  return key;
+}
+
+function updateGroqKeyStatus() {
+  const el = $('#groq-key-status');
+  if (!el) return;
+  const keys = (state.config.apiKeys || []).length;
+  if (keys === 0) el.textContent = '';
+  else if (keys === 1) el.textContent = '1 cle configuree';
+  else el.textContent = `${keys} cles configurees (rotation auto)`;
+}
+
 function saveConfig() {
   state.config.backend = $('#api-backend').value || 'ollama';
   state.config.apiUrl = $('#api-url').value || state.config.apiUrl;
-  state.config.apiKey = $('#api-key').value || '';
+  // Parse multiple API keys
+  const rawKeys = $('#api-keys').value.split('\n').map(k => k.trim()).filter(k => k.startsWith('gsk_'));
+  state.config.apiKeys = rawKeys;
+  state.config.apiKey = rawKeys[0] || '';
   state.config.customApiKey = $('#custom-api-key').value || '';
   state.config.pollinationsKey = $('#pollinations-key').value || '';
+  updateGroqKeyStatus();
   state.config.model = $('#api-model').value || state.config.model;
   state.config.personality = $('#personality-input').value || DEFAULT_PERSONALITY;
   saveState();
@@ -2093,21 +2123,22 @@ function stopVoiceInput() {
   isRecording = false;
 }
 
-// ===== VOICE OUTPUT (TTS) =====
-let currentUtterance = null;
+// ===== VOICE OUTPUT (TTS via Groq) =====
+let currentAudio = null;
 let currentTtsBtn = null;
 
-function speakMessage(btn, text) {
+async function speakMessage(btn, text) {
   // If already speaking this message, stop
-  if (currentTtsBtn === btn && speechSynthesis.speaking) {
-    speechSynthesis.cancel();
+  if (currentTtsBtn === btn && currentAudio && !currentAudio.paused) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
     btn.classList.remove('speaking');
     currentTtsBtn = null;
     return;
   }
 
   // Stop any current speech
-  speechSynthesis.cancel();
+  if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
   if (currentTtsBtn) currentTtsBtn.classList.remove('speaking');
 
   // Clean text for speech
@@ -2118,43 +2149,82 @@ function speakMessage(btn, text) {
     .replace(/\[MOOD:\w+\]/g, '')
     .replace(/\[REMINDER:[^\]]+\]/g, '')
     .replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&#39;/g, "'")
+    .replace(/\n/g, '. ')
     .trim();
 
   if (!cleanText) return;
 
-  const utterance = new SpeechSynthesisUtterance(cleanText);
-  utterance.lang = 'fr-FR';
-  utterance.rate = 0.85;   // Slower for mythical feel
-  utterance.pitch = 0.7;   // Deep voice
-  utterance.volume = 1;
-
-  // Try to find a deep French male voice
-  const voices = speechSynthesis.getVoices();
-  const frenchMale = voices.find(v => v.lang.startsWith('fr') && /male|homme|thomas|pierre/i.test(v.name))
-    || voices.find(v => v.lang.startsWith('fr') && !/female|femme|amelie|marie/i.test(v.name))
-    || voices.find(v => v.lang.startsWith('fr'));
-  if (frenchMale) utterance.voice = frenchMale;
+  const groqKey = getGroqKey();
+  if (!groqKey) {
+    showToast('Pas de cle API', 'Ajoute une cle Groq dans les Parametres pour la voix.');
+    return;
+  }
 
   btn.classList.add('speaking');
   currentTtsBtn = btn;
-  currentUtterance = utterance;
 
-  utterance.onend = () => {
-    btn.classList.remove('speaking');
-    currentTtsBtn = null;
-  };
-  utterance.onerror = () => {
-    btn.classList.remove('speaking');
-    currentTtsBtn = null;
-  };
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/audio/speech', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${groqKey}`
+      },
+      body: JSON.stringify({
+        model: 'playai-tts',
+        input: cleanText,
+        voice: 'Fritz-PlayAI',
+        response_format: 'wav'
+      })
+    });
 
-  speechSynthesis.speak(utterance);
+    if (!res.ok) {
+      console.error('TTS error:', res.status, await res.text());
+      // Fallback to browser TTS
+      fallbackSpeak(btn, cleanText);
+      return;
+    }
+
+    const blob = await res.blob();
+    const audioUrl = URL.createObjectURL(blob);
+    currentAudio = new Audio(audioUrl);
+    currentAudio.playbackRate = 0.95;
+
+    currentAudio.onended = () => {
+      btn.classList.remove('speaking');
+      currentTtsBtn = null;
+      URL.revokeObjectURL(audioUrl);
+    };
+    currentAudio.onerror = () => {
+      btn.classList.remove('speaking');
+      currentTtsBtn = null;
+    };
+
+    await currentAudio.play();
+  } catch(e) {
+    console.error('TTS error:', e);
+    // Fallback to browser TTS
+    fallbackSpeak(btn, cleanText);
+  }
 }
 
-// Preload voices (needed on some browsers)
-if (typeof speechSynthesis !== 'undefined') {
-  speechSynthesis.getVoices();
-  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+function fallbackSpeak(btn, text) {
+  if (typeof speechSynthesis === 'undefined') {
+    btn.classList.remove('speaking');
+    currentTtsBtn = null;
+    return;
+  }
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'fr-FR';
+  utterance.rate = 0.85;
+  utterance.pitch = 0.7;
+  const voices = speechSynthesis.getVoices();
+  const frVoice = voices.find(v => v.lang.startsWith('fr') && !/female|femme/i.test(v.name))
+    || voices.find(v => v.lang.startsWith('fr'));
+  if (frVoice) utterance.voice = frVoice;
+  utterance.onend = () => { btn.classList.remove('speaking'); currentTtsBtn = null; };
+  utterance.onerror = () => { btn.classList.remove('speaking'); currentTtsBtn = null; };
+  speechSynthesis.speak(utterance);
 }
 
 // ===== HELPERS =====
@@ -2215,11 +2285,11 @@ async function sendMessage() {
       // Ask AI to enhance the prompt
       let enhancedPrompt = imgPrompt;
       const backend = state.config.backend || 'ollama';
-      if (backend === 'groq' && state.config.apiKey) {
+      if (backend === 'groq' && getGroqKey()) {
         try {
           const promptRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.config.apiKey}` },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getGroqKey()}` },
             body: JSON.stringify({
               model: 'llama-3.3-70b-versatile',
               messages: [
@@ -2435,8 +2505,9 @@ async function callAI(userText, imageData = null) {
   }
 
   if (backend === 'groq') {
-    if (!state.config.apiKey) {
-      return "Kraa ! Il me faut une cle API Groq. Va dans les Parametres et entre ta cle. console.groq.com/keys [MOOD:curieux]";
+    const groqKey = getGroqKey();
+    if (!groqKey) {
+      return "Kraa ! Il me faut une cle API Groq. Va dans les Parametres et entre tes cles. console.groq.com/keys [MOOD:curieux]";
     }
 
     // Detect if web search is needed (mode recherche or explicit search keywords)
@@ -2447,7 +2518,6 @@ async function callAI(userText, imageData = null) {
     let bodyPayload = { model: useModel, messages, temperature: 0.8, max_tokens: 1200 };
 
     if (needsSearch && !imageData) {
-      // Use compound-beta for web search — simpler messages to avoid issues
       useModel = 'compound-beta';
       const searchMessages = [
         { role: 'system', content: 'Tu es Stakr, un corbeau viking IA. Reponds en francais avec le style viking. Utilise le web pour trouver des infos recentes. Ajoute [MOOD:curieux] a la fin.' },
@@ -2456,10 +2526,10 @@ async function callAI(userText, imageData = null) {
       bodyPayload = { model: useModel, messages: searchMessages, temperature: 0.7, max_tokens: 1500 };
     }
 
-    console.log('Groq request:', useModel, needsSearch ? '(web search)' : '');
+    console.log('Groq request:', useModel, needsSearch ? '(web search)' : '', 'key:', groqKey.slice(0,8) + '...');
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.config.apiKey}` },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${groqKey}` },
       body: JSON.stringify(bodyPayload)
     });
     if (!res.ok) {
@@ -2690,12 +2760,12 @@ Types de messages possibles (varie !) :
     const backend = state.config.backend || 'ollama';
     let thought = '';
 
-    if (backend === 'groq' && state.config.apiKey) {
+    if (backend === 'groq' && getGroqKey()) {
       const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${state.config.apiKey}`
+          'Authorization': `Bearer ${getGroqKey()}`
         },
         body: JSON.stringify({
           model: state.config.model || 'llama-3.3-70b-versatile',
