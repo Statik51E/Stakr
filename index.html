@@ -504,31 +504,31 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
         </g>
 
         <!-- ====== EYE ====== -->
-        <g>
+        <g id="eye-group">
           <!-- Deep eye socket -->
-          <ellipse cx="126" cy="64" rx="11" ry="10" fill="#080618" opacity=".7"/>
+          <ellipse id="eye-socket" cx="126" cy="64" rx="11" ry="10" fill="#080618" opacity=".7"/>
           <!-- Orbital ring -->
-          <ellipse cx="126" cy="63" rx="9" ry="8" fill="#141028" stroke="#252244" stroke-width=".4"/>
+          <ellipse id="eye-orbital" cx="126" cy="63" rx="9" ry="8" fill="#141028" stroke="#252244" stroke-width=".4"/>
           <!-- Iris with glow -->
           <g class="eye-glow">
-            <circle cx="126" cy="62.5" r="6" fill="url(#eyeGrad)" filter="url(#runeGlow)"/>
+            <circle id="eye-iris-glow" cx="126" cy="62.5" r="6" fill="url(#eyeGrad)" filter="url(#runeGlow)"/>
           </g>
           <!-- Iris (for JS mood color changes) -->
-          <circle class="eye-iris" cx="126" cy="62.5" r="6" fill="url(#eyeGrad)" opacity=".9"/>
+          <circle class="eye-iris" id="eye-iris-main" cx="126" cy="62.5" r="6" fill="url(#eyeGrad)" opacity=".9"/>
           <!-- Pupil -->
-          <circle cx="127" cy="62" r="3" fill="#040310"/>
+          <circle id="eye-pupil" cx="127" cy="62" r="3" fill="#040310"/>
           <!-- Inner pupil depth -->
-          <circle cx="127.5" cy="61.5" r="2" fill="#0a0818" opacity=".8"/>
+          <circle id="eye-pupil-inner" cx="127.5" cy="61.5" r="2" fill="#0a0818" opacity=".8"/>
           <!-- Primary specular highlight -->
-          <circle cx="123.5" cy="59.5" r="2" fill="#fff" opacity=".8"/>
+          <circle id="eye-highlight1" cx="123.5" cy="59.5" r="2" fill="#fff" opacity=".8"/>
           <!-- Secondary highlight -->
-          <circle cx="129" cy="64.5" r="1" fill="#fff" opacity=".3"/>
+          <circle id="eye-highlight2" cx="129" cy="64.5" r="1" fill="#fff" opacity=".3"/>
           <!-- Tertiary tiny highlight -->
-          <circle cx="124.5" cy="61" r=".6" fill="#e0f7fa" opacity=".5"/>
+          <circle id="eye-highlight3" cx="124.5" cy="61" r=".6" fill="#e0f7fa" opacity=".5"/>
           <!-- Eye ring glow -->
-          <circle cx="126" cy="62.5" r="6" fill="none" stroke="rgba(79,195,247,.2)" stroke-width=".6"/>
+          <circle id="eye-ring" cx="126" cy="62.5" r="6" fill="none" stroke="rgba(79,195,247,.2)" stroke-width=".6"/>
           <!-- Eyelid shadow (upper) -->
-          <path d="M118,58 Q126,54 134,58" stroke="#0a0818" stroke-width="1.2" fill="none" opacity=".4" stroke-linecap="round"/>
+          <path id="eye-lid" d="M118,58 Q126,54 134,58" stroke="#0a0818" stroke-width="1.2" fill="none" opacity=".4" stroke-linecap="round"/>
         </g>
 
         <!-- ====== RUNE MARKINGS (with draw-on animation) ====== -->
@@ -566,16 +566,16 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
         <!-- ====== VIKING SPECTRAL HORNS ====== -->
         <g class="horn-group" opacity=".4">
           <!-- Left horn -->
-          <path d="M84,48 Q70,28 76,12" stroke="url(#runeEnergy)" stroke-width="2.2" fill="none" filter="url(#runeGlow)" stroke-linecap="round"/>
-          <path d="M84,48 Q72,32 78,16" stroke="#4fc3f7" stroke-width=".8" fill="none" filter="url(#runeBlur)" opacity=".5"/>
-          <circle cx="76" cy="12" r="2.5" fill="#80deea" filter="url(#runeGlow)" opacity=".6"/>
+          <path id="horn-left-main" d="M84,48 Q70,28 76,12" stroke="url(#runeEnergy)" stroke-width="2.2" fill="none" filter="url(#runeGlow)" stroke-linecap="round"/>
+          <path id="horn-left-glow" d="M84,48 Q72,32 78,16" stroke="#4fc3f7" stroke-width=".8" fill="none" filter="url(#runeBlur)" opacity=".5"/>
+          <circle id="horn-left-tip" cx="76" cy="12" r="2.5" fill="#80deea" filter="url(#runeGlow)" opacity=".6"/>
           <!-- Right horn -->
-          <path d="M132,48 Q146,28 140,12" stroke="url(#runeEnergy)" stroke-width="2.2" fill="none" filter="url(#runeGlow)" stroke-linecap="round"/>
-          <path d="M132,48 Q144,32 138,16" stroke="#4fc3f7" stroke-width=".8" fill="none" filter="url(#runeBlur)" opacity=".5"/>
-          <circle cx="140" cy="12" r="2.5" fill="#80deea" filter="url(#runeGlow)" opacity=".6"/>
+          <path id="horn-right-main" d="M132,48 Q146,28 140,12" stroke="url(#runeEnergy)" stroke-width="2.2" fill="none" filter="url(#runeGlow)" stroke-linecap="round"/>
+          <path id="horn-right-glow" d="M132,48 Q144,32 138,16" stroke="#4fc3f7" stroke-width=".8" fill="none" filter="url(#runeBlur)" opacity=".5"/>
+          <circle id="horn-right-tip" cx="140" cy="12" r="2.5" fill="#80deea" filter="url(#runeGlow)" opacity=".6"/>
           <!-- Horn rune markings -->
-          <path d="M78,30 L82,26 L78,22" stroke="#4fc3f7" stroke-width="1" fill="none" filter="url(#runeGlow)" opacity=".3"/>
-          <path d="M138,30 L134,26 L138,22" stroke="#4fc3f7" stroke-width="1" fill="none" filter="url(#runeGlow)" opacity=".3"/>
+          <path id="horn-rune-left" d="M78,30 L82,26 L78,22" stroke="#4fc3f7" stroke-width="1" fill="none" filter="url(#runeGlow)" opacity=".3"/>
+          <path id="horn-rune-right" d="M138,30 L134,26 L138,22" stroke="#4fc3f7" stroke-width="1" fill="none" filter="url(#runeGlow)" opacity=".3"/>
         </g>
 
       </g><!-- end body-group -->
@@ -705,6 +705,12 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <div class="cust-row"><label>Queue</label>
       <select id="cust-shape-tail"><option value="classique">Classique</option><option value="eventail">Eventail</option><option value="court">Courte</option><option value="fourchu">Fourchue</option><option value="plumes_longues">Longues plumes</option></select>
     </div>
+    <div class="cust-row"><label>Yeux</label>
+      <select id="cust-shape-eye"><option value="classique">Classique</option><option value="grand">Grands</option><option value="fente">En fente</option><option value="menacant">Menacants</option><option value="petit">Petits</option></select>
+    </div>
+    <div class="cust-row"><label>Cornes</label>
+      <select id="cust-shape-horn"><option value="classique">Classique</option><option value="longs">Longues</option><option value="courbes">Courbees</option><option value="spirales">Spirales</option><option value="courts">Courtes</option><option value="tridents">Tridents</option></select>
+    </div>
   </div>
 
   <!-- PLUMAGE / BODY -->
@@ -799,6 +805,21 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <div class="cust-row"><label>Bulle</label><input type="color" id="cust-msg-user-bg" value="#14142e"/></div>
     <div class="cust-row"><label>Bordure</label><input type="color" id="cust-msg-user-border" value="#4fc3f7"/></div>
     <div class="cust-row"><label>Texte</label><input type="color" id="cust-msg-user-text" value="#d4c5a0"/></div>
+  </div>
+
+  <!-- ARRIERE-PLAN STAKR -->
+  <div class="cust-section">
+    <h3>Arriere-plan Stakr</h3>
+    <div class="cust-row"><label>Couleur</label><input type="color" id="cust-stage-bg" value="#0e0a06"/></div>
+    <div class="cust-row">
+      <label>Image</label>
+      <label class="btn-secondary" style="cursor:pointer;padding:4px 10px;font-size:.72rem;margin:0;text-align:center">
+        Choisir...
+        <input type="file" id="cust-stage-bg-img" accept="image/*" style="display:none"/>
+      </label>
+      <button class="btn-secondary" onclick="removeStageBg()" style="padding:4px 10px;font-size:.72rem;margin:0">&#10005;</button>
+    </div>
+    <div class="cust-row"><label>Opacite</label><input type="range" id="cust-stage-bg-opacity" min="10" max="100" value="40"/><span id="cust-stage-bg-opacity-val" style="font-size:.7rem;color:var(--text-dim);min-width:30px">40%</span></div>
   </div>
 
   <!-- ARRIERE-PLAN MESSAGERIE -->
@@ -1192,10 +1213,11 @@ const DEFAULT_APPEARANCE = {
   horn:'#4fc3f7', hornVisible:'yes',
   scale:100,
   shapeBody:'classique', shapeHead:'classique', shapeBeak:'classique',
-  shapeWings:'classique', shapeTail:'classique',
+  shapeWings:'classique', shapeTail:'classique', shapeEye:'classique', shapeHorn:'classique',
   msgStakrBg:'#1a1208', msgStakrBorder:'#8a6d2a', msgStakrText:'#d4c5a0',
   msgUserBg:'#14142e', msgUserBorder:'#4fc3f7', msgUserText:'#d4c5a0',
-  chatBgImage:'', chatBgOpacity:30
+  chatBgImage:'', chatBgOpacity:30,
+  stageBg:'#0e0a06', stageBgImage:'', stageBgOpacity:40
 };
 
 const APPEARANCE_PRESETS = [
@@ -1358,6 +1380,110 @@ const SHAPE_VARIANTS = {
       'tail-5': 'M126,167 Q138,196 154,232 Q144,216 134,200 Q128,186 124,172Z',
       'tail-6': 'M134,165 Q150,190 172,220 Q164,208 156,196 Q146,182 138,170Z'
     }
+  },
+  eye: {
+    classique: {
+      'eye-socket': { cx:126, cy:64, rx:11, ry:10 },
+      'eye-orbital': { cx:126, cy:63, rx:9, ry:8 },
+      'eye-iris-glow': { cx:126, cy:62.5, r:6 },
+      'eye-iris-main': { cx:126, cy:62.5, r:6 },
+      'eye-pupil': { cx:127, cy:62, r:3 },
+      'eye-lid': 'M118,58 Q126,54 134,58'
+    },
+    grand: {
+      'eye-socket': { cx:126, cy:64, rx:14, ry:13 },
+      'eye-orbital': { cx:126, cy:63, rx:12, ry:11 },
+      'eye-iris-glow': { cx:126, cy:62.5, r:8 },
+      'eye-iris-main': { cx:126, cy:62.5, r:8 },
+      'eye-pupil': { cx:127, cy:62, r:4 },
+      'eye-lid': 'M115,57 Q126,52 137,57'
+    },
+    fente: {
+      'eye-socket': { cx:126, cy:64, rx:13, ry:7 },
+      'eye-orbital': { cx:126, cy:63, rx:11, ry:5.5 },
+      'eye-iris-glow': { cx:126, cy:62.5, r:5 },
+      'eye-iris-main': { cx:126, cy:62.5, r:5 },
+      'eye-pupil': { cx:127, cy:62, r:2.5 },
+      'eye-lid': 'M116,60 Q126,56 136,60'
+    },
+    menacant: {
+      'eye-socket': { cx:126, cy:65, rx:12, ry:8 },
+      'eye-orbital': { cx:126, cy:64.5, rx:10, ry:6.5 },
+      'eye-iris-glow': { cx:126, cy:64, r:5.5 },
+      'eye-iris-main': { cx:126, cy:64, r:5.5 },
+      'eye-pupil': { cx:127, cy:63.5, r:2.8 },
+      'eye-lid': 'M116,60 Q126,58 136,60'
+    },
+    petit: {
+      'eye-socket': { cx:126, cy:64, rx:8, ry:7 },
+      'eye-orbital': { cx:126, cy:63, rx:6.5, ry:5.5 },
+      'eye-iris-glow': { cx:126, cy:62.5, r:4.5 },
+      'eye-iris-main': { cx:126, cy:62.5, r:4.5 },
+      'eye-pupil': { cx:127, cy:62, r:2.2 },
+      'eye-lid': 'M120,59 Q126,56 132,59'
+    }
+  },
+  horn: {
+    classique: {
+      'horn-left-main': 'M84,48 Q70,28 76,12',
+      'horn-left-glow': 'M84,48 Q72,32 78,16',
+      'horn-left-tip': { cx:76, cy:12 },
+      'horn-right-main': 'M132,48 Q146,28 140,12',
+      'horn-right-glow': 'M132,48 Q144,32 138,16',
+      'horn-right-tip': { cx:140, cy:12 },
+      'horn-rune-left': 'M78,30 L82,26 L78,22',
+      'horn-rune-right': 'M138,30 L134,26 L138,22'
+    },
+    longs: {
+      'horn-left-main': 'M84,48 Q64,22 72,0',
+      'horn-left-glow': 'M84,48 Q66,26 74,4',
+      'horn-left-tip': { cx:72, cy:0 },
+      'horn-right-main': 'M132,48 Q152,22 144,0',
+      'horn-right-glow': 'M132,48 Q150,26 142,4',
+      'horn-right-tip': { cx:144, cy:0 },
+      'horn-rune-left': 'M74,24 L78,18 L74,12',
+      'horn-rune-right': 'M142,24 L138,18 L142,12'
+    },
+    courbes: {
+      'horn-left-main': 'M84,48 Q62,32 56,18 Q54,10 60,6',
+      'horn-left-glow': 'M84,48 Q64,34 58,20 Q56,14 62,10',
+      'horn-left-tip': { cx:60, cy:6 },
+      'horn-right-main': 'M132,48 Q154,32 160,18 Q162,10 156,6',
+      'horn-right-glow': 'M132,48 Q152,34 158,20 Q160,14 154,10',
+      'horn-right-tip': { cx:156, cy:6 },
+      'horn-rune-left': 'M66,28 L62,22 L66,16',
+      'horn-rune-right': 'M150,28 L154,22 L150,16'
+    },
+    spirales: {
+      'horn-left-main': 'M84,48 Q66,30 58,18 Q52,8 58,2 Q66,0 72,6',
+      'horn-left-glow': 'M84,48 Q68,32 60,20 Q54,10 60,4 Q68,2 74,8',
+      'horn-left-tip': { cx:72, cy:6 },
+      'horn-right-main': 'M132,48 Q150,30 158,18 Q164,8 158,2 Q150,0 144,6',
+      'horn-right-glow': 'M132,48 Q148,32 156,20 Q162,10 156,4 Q148,2 142,8',
+      'horn-right-tip': { cx:144, cy:6 },
+      'horn-rune-left': 'M62,18 L58,12 L62,6',
+      'horn-rune-right': 'M154,18 L158,12 L154,6'
+    },
+    courts: {
+      'horn-left-main': 'M84,48 Q76,36 78,26',
+      'horn-left-glow': 'M84,48 Q78,38 80,30',
+      'horn-left-tip': { cx:78, cy:26 },
+      'horn-right-main': 'M132,48 Q140,36 138,26',
+      'horn-right-glow': 'M132,48 Q138,38 136,30',
+      'horn-right-tip': { cx:138, cy:26 },
+      'horn-rune-left': 'M80,38 L82,34 L80,30',
+      'horn-rune-right': 'M136,38 L134,34 L136,30'
+    },
+    tridents: {
+      'horn-left-main': 'M84,48 Q70,28 68,10 M74,20 Q66,12 60,6 M74,20 Q80,12 82,4',
+      'horn-left-glow': 'M84,48 Q72,30 70,14',
+      'horn-left-tip': { cx:68, cy:10 },
+      'horn-right-main': 'M132,48 Q146,28 148,10 M142,20 Q150,12 156,6 M142,20 Q136,12 134,4',
+      'horn-right-glow': 'M132,48 Q144,30 146,14',
+      'horn-right-tip': { cx:148, cy:10 },
+      'horn-rune-left': 'M70,22 L68,16 L72,10',
+      'horn-rune-right': 'M146,22 L148,16 L144,10'
+    }
   }
 };
 
@@ -1412,6 +1538,12 @@ function loadAppearanceToUI(a) {
   if ($('#cust-shape-beak')) $('#cust-shape-beak').value = a.shapeBeak || 'classique';
   if ($('#cust-shape-wings')) $('#cust-shape-wings').value = a.shapeWings || 'classique';
   if ($('#cust-shape-tail')) $('#cust-shape-tail').value = a.shapeTail || 'classique';
+  if ($('#cust-shape-eye')) $('#cust-shape-eye').value = a.shapeEye || 'classique';
+  if ($('#cust-shape-horn')) $('#cust-shape-horn').value = a.shapeHorn || 'classique';
+  // Stage bg
+  $('#cust-stage-bg').value = a.stageBg || '#0e0a06';
+  $('#cust-stage-bg-opacity').value = a.stageBgOpacity || 40;
+  $('#cust-stage-bg-opacity-val').textContent = (a.stageBgOpacity || 40) + '%';
   // Messages
   $('#cust-msg-stakr-bg').value = a.msgStakrBg || '#1a1208';
   $('#cust-msg-stakr-border').value = a.msgStakrBorder || '#8a6d2a';
@@ -1449,6 +1581,11 @@ function getAppearanceFromUI() {
     shapeBeak: $('#cust-shape-beak').value,
     shapeWings: $('#cust-shape-wings').value,
     shapeTail: $('#cust-shape-tail').value,
+    shapeEye: $('#cust-shape-eye').value,
+    shapeHorn: $('#cust-shape-horn').value,
+    stageBg: $('#cust-stage-bg').value,
+    stageBgImage: (state.appearance && state.appearance.stageBgImage) || '',
+    stageBgOpacity: parseInt($('#cust-stage-bg-opacity').value),
     msgStakrBg: $('#cust-msg-stakr-bg').value,
     msgStakrBorder: $('#cust-msg-stakr-border').value,
     msgStakrText: $('#cust-msg-stakr-text').value,
@@ -1566,23 +1703,37 @@ function applyMessageStyles(a) {
 
   // Chat background image
   const chatArea = document.getElementById('chat-area');
-  if (!chatArea) return;
-  if (a.chatBgImage) {
-    chatArea.style.backgroundImage = `linear-gradient(rgba(0,0,0,${1 - a.chatBgOpacity/100}),rgba(0,0,0,${1 - a.chatBgOpacity/100})), url(${a.chatBgImage})`;
-  } else {
-    chatArea.style.backgroundImage = '';
+  if (chatArea) {
+    if (a.chatBgImage) {
+      chatArea.style.backgroundImage = `linear-gradient(rgba(0,0,0,${1 - a.chatBgOpacity/100}),rgba(0,0,0,${1 - a.chatBgOpacity/100})), url(${a.chatBgImage})`;
+    } else {
+      chatArea.style.backgroundImage = '';
+    }
+  }
+
+  // Raven stage background
+  const stage = document.getElementById('raven-stage');
+  if (stage) {
+    if (a.stageBgImage) {
+      stage.style.background = `linear-gradient(rgba(0,0,0,${1 - a.stageBgOpacity/100}),rgba(0,0,0,${1 - a.stageBgOpacity/100})), url(${a.stageBgImage})`;
+      stage.style.backgroundSize = 'cover';
+      stage.style.backgroundPosition = 'center';
+    } else {
+      stage.style.background = `radial-gradient(ellipse at 50% 80%, ${lighten(a.stageBg,0.08)} 0%, ${a.stageBg} 40%, ${darken(a.stageBg,0.3)} 70%)`;
+    }
   }
 }
 
 function applyShapeVariants(svg, a) {
-  const parts = [
+  // Path-based shape swaps (body, head, beak, wings, tail)
+  const pathParts = [
     { key: 'body', val: a.shapeBody },
     { key: 'head', val: a.shapeHead },
     { key: 'beak', val: a.shapeBeak },
     { key: 'wings', val: a.shapeWings },
     { key: 'tail', val: a.shapeTail }
   ];
-  parts.forEach(({ key, val }) => {
+  pathParts.forEach(({ key, val }) => {
     const variant = (SHAPE_VARIANTS[key] || {})[val || 'classique'];
     if (!variant) return;
     Object.entries(variant).forEach(([id, d]) => {
@@ -1590,6 +1741,34 @@ function applyShapeVariants(svg, a) {
       if (el) el.setAttribute('d', d);
     });
   });
+
+  // Eye shape (mixed: ellipses use cx/cy/rx/ry, circles use cx/cy/r, paths use d)
+  const eyeVariant = (SHAPE_VARIANTS.eye || {})[a.shapeEye || 'classique'];
+  if (eyeVariant) {
+    Object.entries(eyeVariant).forEach(([id, val]) => {
+      const el = svg.querySelector('#' + id);
+      if (!el) return;
+      if (typeof val === 'string') {
+        el.setAttribute('d', val);
+      } else {
+        Object.entries(val).forEach(([attr, v]) => el.setAttribute(attr, v));
+      }
+    });
+  }
+
+  // Horn shape (mixed: paths use d, circles use cx/cy)
+  const hornVariant = (SHAPE_VARIANTS.horn || {})[a.shapeHorn || 'classique'];
+  if (hornVariant) {
+    Object.entries(hornVariant).forEach(([id, val]) => {
+      const el = svg.querySelector('#' + id);
+      if (!el) return;
+      if (typeof val === 'string') {
+        el.setAttribute('d', val);
+      } else {
+        Object.entries(val).forEach(([attr, v]) => el.setAttribute(attr, v));
+      }
+    });
+  }
 }
 
 // Color utility functions
@@ -1617,8 +1796,8 @@ function mixColor(hex1, hex2, ratio) {
 function resetAppearance() {
   loadAppearanceToUI(DEFAULT_APPEARANCE);
   applyAppearanceLive();
-  // Also clear bg image
-  if (state.appearance) state.appearance.chatBgImage = '';
+  // Also clear bg images
+  if (state.appearance) { state.appearance.chatBgImage = ''; state.appearance.stageBgImage = ''; }
   const chatArea = document.getElementById('chat-area');
   if (chatArea) chatArea.style.backgroundImage = '';
   saveState();
@@ -1631,6 +1810,12 @@ function removeChatBg() {
   if (chatArea) chatArea.style.backgroundImage = '';
   saveState();
   showToast('Arriere-plan retire', 'Fond par defaut restaure.');
+}
+
+function removeStageBg() {
+  if (state.appearance) state.appearance.stageBgImage = '';
+  applyAppearanceLive();
+  showToast('Arriere-plan Stakr retire', 'Fond par defaut restaure.');
 }
 
 function toggleCustomize() {
@@ -1671,7 +1856,20 @@ function setupListeners() {
   });
   $('#cust-scale').addEventListener('input', () => { $('#cust-scale-val').textContent = $('#cust-scale').value + '%'; });
   $('#cust-chat-bg-opacity').addEventListener('input', () => { $('#cust-chat-bg-opacity-val').textContent = $('#cust-chat-bg-opacity').value + '%'; });
-  // Background image picker
+  $('#cust-stage-bg-opacity').addEventListener('input', () => { $('#cust-stage-bg-opacity-val').textContent = $('#cust-stage-bg-opacity').value + '%'; });
+  // Stage background image picker
+  $('#cust-stage-bg-img').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      if (!state.appearance) state.appearance = { ...DEFAULT_APPEARANCE };
+      state.appearance.stageBgImage = ev.target.result;
+      applyAppearanceLive();
+    };
+    reader.readAsDataURL(file);
+  });
+  // Chat background image picker
   $('#cust-chat-bg').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
