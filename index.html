@@ -1000,13 +1000,36 @@ function loadState() {
       if (!state.currentProject) state.currentProject = null;
       if (!state.currentMode) state.currentMode = 'conversation';
       if (!state.appearance) state.appearance = null;
+      // Restore bg images from separate storage
+      if (state.appearance) {
+        if (state.appearance.chatBgImage === '__stored__') {
+          state.appearance.chatBgImage = localStorage.getItem('stakr_chatBgImg') || '';
+        }
+        if (state.appearance.stageBgImage === '__stored__') {
+          state.appearance.stageBgImage = localStorage.getItem('stakr_stageBgImg') || '';
+        }
+      }
     }
   } catch(e) { console.warn('Load state error', e); }
 }
 
 function saveState() {
   try {
-    localStorage.setItem('stakr_state', JSON.stringify(state));
+    // Separate large bg images to avoid filling localStorage quota
+    const toSave = JSON.parse(JSON.stringify(state));
+    let chatBgImg = '', stageBgImg = '';
+    if (toSave.appearance) {
+      chatBgImg = toSave.appearance.chatBgImage || '';
+      stageBgImg = toSave.appearance.stageBgImage || '';
+      toSave.appearance.chatBgImage = chatBgImg ? '__stored__' : '';
+      toSave.appearance.stageBgImage = stageBgImg ? '__stored__' : '';
+    }
+    localStorage.setItem('stakr_state', JSON.stringify(toSave));
+    // Store images separately (may fail if too large — that's ok)
+    try { if (chatBgImg && chatBgImg !== '__stored__') localStorage.setItem('stakr_chatBgImg', chatBgImg); } catch(e2) {}
+    try { if (stageBgImg && stageBgImg !== '__stored__') localStorage.setItem('stakr_stageBgImg', stageBgImg); } catch(e2) {}
+    if (!chatBgImg) localStorage.removeItem('stakr_chatBgImg');
+    if (!stageBgImg) localStorage.removeItem('stakr_stageBgImg');
   } catch(e) { console.warn('Save state error', e); }
 }
 
