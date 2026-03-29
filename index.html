@@ -630,6 +630,11 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <input type="password" id="api-key" placeholder="gsk_..."/>
     <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">Gratuit sur <a href="https://console.groq.com/keys" target="_blank" style="color:var(--gold)">console.groq.com/keys</a></div>
   </div>
+  <div class="setting-group" id="pollinations-key-group" style="display:none">
+    <label>Clé Pollinations (génération images)</label>
+    <input type="text" id="pollinations-key" placeholder="pk_..."/>
+    <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">Gratuit sur <a href="https://enter.pollinations.ai" target="_blank" style="color:var(--gold)">enter.pollinations.ai</a> — "Génère une image de..."</div>
+  </div>
   <div class="setting-group" id="custom-url-group" style="display:none">
     <label>URL API</label>
     <input type="text" id="api-url" placeholder="http://localhost:11434/api/chat"/>
@@ -1099,6 +1104,7 @@ function applyConfig() {
   $('#api-url').value = state.config.apiUrl;
   $('#api-key').value = state.config.apiKey || '';
   $('#custom-api-key').value = state.config.customApiKey || '';
+  $('#pollinations-key').value = state.config.pollinationsKey || '';
   $('#api-model').value = state.config.model;
   $('#personality-input').value = state.config.personality;
   $('#ntfy-topic-display').value = getNtfyTopic();
@@ -1110,6 +1116,7 @@ function applyConfig() {
 function updateBackendUI() {
   const backend = $('#api-backend').value;
   $('#groq-key-group').style.display = backend === 'groq' ? 'block' : 'none';
+  $('#pollinations-key-group').style.display = backend === 'groq' ? 'block' : 'none';
   $('#custom-url-group').style.display = backend === 'custom' ? 'block' : 'none';
   $('#custom-key-group').style.display = backend === 'custom' ? 'block' : 'none';
 
@@ -1127,6 +1134,7 @@ function saveConfig() {
   state.config.apiUrl = $('#api-url').value || state.config.apiUrl;
   state.config.apiKey = $('#api-key').value || '';
   state.config.customApiKey = $('#custom-api-key').value || '';
+  state.config.pollinationsKey = $('#pollinations-key').value || '';
   state.config.model = $('#api-model').value || state.config.model;
   state.config.personality = $('#personality-input').value || DEFAULT_PERSONALITY;
   saveState();
@@ -2071,32 +2079,38 @@ async function sendMessage() {
         } catch(e) { console.warn('Prompt enhancement failed, using raw prompt'); }
       }
 
-      // Generate image via Pollinations.ai (free, no API key)
+      // Generate image via Pollinations.ai
       const encodedPrompt = encodeURIComponent(enhancedPrompt);
-      const imgUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=768&height=768&nologo=true&seed=${Date.now()}`;
+      const polKey = state.config.pollinationsKey || '';
+      const imgUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=768&height=768&nologo=true&seed=${Date.now()}${polKey ? '&key=' + polKey : ''}`;
 
       hideTyping();
-      addMessage('stakr', `Kraa ! Je forge cette image dans les flammes de Muspelheim... 🎨\n\n*"${imgPrompt}"*`, getTS());
-      showTyping();
+      addMessage('stakr', `Kraa ! Je forge cette image dans les flammes de Muspelheim...\n\n*"${imgPrompt}"*`, getTS());
 
-      // Preload image
+      // Use <img> tag to load (avoids CORS issues)
+      const imgEl = new Image();
+      imgEl.crossOrigin = 'anonymous';
+      const imgLoaded = new Promise((resolve, reject) => {
+        imgEl.onload = () => resolve(imgEl);
+        imgEl.onerror = () => reject(new Error('Image load failed'));
+        setTimeout(() => reject(new Error('Image timeout')), 60000);
+      });
+      imgEl.src = imgUrl;
+
+      showTyping();
       try {
-        const imgRes = await fetch(imgUrl);
-        if (imgRes.ok) {
-          const blob = await imgRes.blob();
-          const localUrl = URL.createObjectURL(blob);
-          hideTyping();
-          addMessage('stakr', `Voila ce que les runes m'ont inspire ! [MOOD:excite]`, getTS(), false, localUrl);
-          pushMessage({ role: 'assistant', content: `[Image generee: ${imgPrompt}] [MOOD:excite]`, timestamp: getTS() });
-          saveState();
-          setMood('excite');
-          return;
-        }
+        await imgLoaded;
+        hideTyping();
+        addMessage('stakr', `Voila ce que les runes m'ont inspire ! [MOOD:excite]`, getTS(), false, imgUrl);
+        pushMessage({ role: 'assistant', content: `[Image generee: ${imgPrompt}] [MOOD:excite]`, timestamp: getTS() });
+        saveState();
+        setMood('excite');
+        return;
       } catch(e) {
         console.error('Image gen error:', e);
       }
       hideTyping();
-      addMessage('stakr', `Kraa... les flammes n'ont pas pris cette fois. L'image n'a pas pu etre forgee. [MOOD:triste]`, getTS());
+      addMessage('stakr', `Kraa... les flammes n'ont pas pris cette fois. Verifie la cle Pollinations dans les Parametres.\n(Gratuit sur enter.pollinations.ai) [MOOD:triste]`, getTS());
       pushMessage({ role: 'assistant', content: `[Echec generation image] [MOOD:triste]`, timestamp: getTS() });
       saveState();
       setMood('triste');
@@ -2276,11 +2290,16 @@ async function callAI(userText, imageData = null) {
     let bodyPayload = { model: useModel, messages, temperature: 0.8, max_tokens: 1200 };
 
     if (needsSearch && !imageData) {
-      // Use compound model for web search
+      // Use compound-beta for web search — simpler messages to avoid issues
       useModel = 'compound-beta';
-      bodyPayload = { model: useModel, messages, temperature: 0.7, max_tokens: 1500 };
+      const searchMessages = [
+        { role: 'system', content: 'Tu es Stakr, un corbeau viking IA. Reponds en francais avec le style viking. Utilise le web pour trouver des infos recentes. Ajoute [MOOD:curieux] a la fin.' },
+        { role: 'user', content: userText }
+      ];
+      bodyPayload = { model: useModel, messages: searchMessages, temperature: 0.7, max_tokens: 1500 };
     }
 
+    console.log('Groq request:', useModel, needsSearch ? '(web search)' : '');
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.config.apiKey}` },
@@ -2288,25 +2307,33 @@ async function callAI(userText, imageData = null) {
     });
     if (!res.ok) {
       const err = await res.text();
-      console.error('Groq API error:', err);
+      console.error('Groq API error:', res.status, err);
       if (res.status === 401) return "Kraa... la cle API Groq est invalide. [MOOD:triste]";
       if (res.status === 429) return "Kraa... trop de requetes ! Reessaie dans un instant. [MOOD:pensif]";
-      throw new Error(`Groq error ${res.status}`);
+      return `Kraa... erreur Groq (${res.status}). Verifie ta cle API et le modele. [MOOD:triste]`;
     }
     const data = await res.json();
+    console.log('Groq response:', JSON.stringify(data).slice(0, 500));
     let answer = data.choices?.[0]?.message?.content || "Kraa... les runes sont silencieuses.";
 
-    // Append search sources if available
-    const execTools = data.choices?.[0]?.message?.executed_tools;
-    if (execTools && execTools.length > 0) {
-      const searchResults = execTools.find(t => t.search_results);
-      if (searchResults && searchResults.search_results) {
-        const sources = searchResults.search_results.slice(0, 3)
-          .map(r => `- ${r.title}: ${r.url}`)
-          .join('\n');
-        if (sources) answer += '\n\n**Sources :**\n' + sources;
+    // Append search sources if available (compound-beta)
+    try {
+      const execTools = data.choices?.[0]?.message?.executed_tools;
+      if (execTools && Array.isArray(execTools)) {
+        const allResults = [];
+        execTools.forEach(t => {
+          if (t.search_results && Array.isArray(t.search_results)) {
+            t.search_results.forEach(r => allResults.push(r));
+          }
+        });
+        if (allResults.length > 0) {
+          const sources = allResults.slice(0, 4)
+            .map(r => `- ${r.title || r.url}: ${r.url}`)
+            .join('\n');
+          if (sources) answer += '\n\n**Sources :**\n' + sources;
+        }
       }
-    }
+    } catch(e) { console.warn('Source parsing error:', e); }
     return answer;
   }
 
