@@ -141,6 +141,14 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 #input-bar input::placeholder{color:var(--text-dim)}
 #send-btn{background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:50%;width:40px;height:40px;color:#0e0a06;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s;flex-shrink:0;font-weight:bold}
 #send-btn:active{transform:scale(.9)}
+#mic-btn{background:none;border:1px solid var(--border);border-radius:50%;width:40px;height:40px;color:var(--text-dim);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+#mic-btn:hover{color:var(--gold);border-color:var(--gold)}
+#mic-btn.recording{color:#ff5252;border-color:#ff5252;animation:micPulse 1s ease-in-out infinite;background:rgba(255,82,82,.08)}
+@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,82,82,.3)}50%{box-shadow:0 0 0 8px rgba(255,82,82,0)}}
+.tts-btn{background:none;border:none;color:var(--gold-dim);font-size:.85rem;cursor:pointer;padding:2px 6px;margin-left:4px;opacity:.5;transition:all .2s;vertical-align:middle}
+.tts-btn:hover{opacity:1;color:var(--gold)}
+.tts-btn.speaking{opacity:1;color:var(--rune-blue);animation:ttsPulse 1.2s ease-in-out infinite}
+@keyframes ttsPulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* ===== PROJECT PANEL ===== */
 #project-panel{position:fixed;top:0;left:-320px;width:300px;max-width:85vw;height:100%;background:linear-gradient(180deg,#1a1208,#120d07);border-right:2px solid var(--border);z-index:100;transition:left .3s;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -591,6 +599,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <input type="file" id="image-input" accept="image/*" style="display:none"/>
     <button id="img-btn" title="Envoyer une image" onclick="document.getElementById('image-input').click()">&#128247;</button>
     <input type="text" id="user-input" placeholder="Parle &#224; Stakr..." autocomplete="off"/>
+    <button id="mic-btn" title="Parler" onclick="toggleVoiceInput()">&#127908;</button>
     <button id="send-btn" title="Envoyer">&#9654;</button>
   </div>
 </div>
@@ -1965,8 +1974,23 @@ function addMessage(role, content, timestamp, silent = false, imageUrl = null) {
   }
   const cleanContent = content.replace(/\[MOOD:\w+\]/g, '').replace(/\[REMINDER:[^\]]+\]/g, '').trim();
   if (cleanContent) html += formatText(cleanContent);
-  html += `<div class="timestamp">${timestamp || new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</div>`;
+  // Add TTS button on Stakr messages
+  const tsText = timestamp || new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+  if (role === 'stakr' && cleanContent) {
+    html += `<div class="timestamp">${tsText} <button class="tts-btn" title="Ecouter">&#128266;</button></div>`;
+  } else {
+    html += `<div class="timestamp">${tsText}</div>`;
+  }
   div.innerHTML = html;
+
+  // Bind TTS button with closure (avoids escaping issues)
+  if (role === 'stakr' && cleanContent) {
+    const ttsBtn = div.querySelector('.tts-btn');
+    if (ttsBtn) {
+      const textToSpeak = cleanContent;
+      ttsBtn.addEventListener('click', () => speakMessage(ttsBtn, textToSpeak));
+    }
+  }
 
   if (!silent) div.style.animation = 'msgIn .3s ease-out';
   chatArea.appendChild(div);
@@ -1998,6 +2022,139 @@ function showTyping() {
 function hideTyping() {
   const el = $('#typing');
   if (el) el.remove();
+}
+
+// ===== VOICE INPUT (STT) =====
+let recognition = null;
+let isRecording = false;
+
+function toggleVoiceInput() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    showToast('Non supporte', 'La reconnaissance vocale n\'est pas disponible sur ce navigateur.');
+    return;
+  }
+
+  if (isRecording) {
+    stopVoiceInput();
+    return;
+  }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = 'fr-FR';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+
+  const micBtn = $('#mic-btn');
+  micBtn.classList.add('recording');
+  isRecording = true;
+
+  let finalTranscript = '';
+
+  recognition.onresult = (event) => {
+    let interim = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        finalTranscript += event.results[i][0].transcript;
+      } else {
+        interim += event.results[i][0].transcript;
+      }
+    }
+    userInput.value = finalTranscript + interim;
+  };
+
+  recognition.onend = () => {
+    micBtn.classList.remove('recording');
+    isRecording = false;
+    if (finalTranscript.trim()) {
+      userInput.value = finalTranscript.trim();
+      // Auto-send after voice input
+      sendMessage();
+    }
+  };
+
+  recognition.onerror = (event) => {
+    console.error('Speech recognition error:', event.error);
+    micBtn.classList.remove('recording');
+    isRecording = false;
+    if (event.error === 'not-allowed') {
+      showToast('Micro bloque', 'Autorise l\'acces au microphone dans les parametres du navigateur.');
+    }
+  };
+
+  recognition.start();
+}
+
+function stopVoiceInput() {
+  if (recognition) {
+    recognition.stop();
+  }
+  $('#mic-btn').classList.remove('recording');
+  isRecording = false;
+}
+
+// ===== VOICE OUTPUT (TTS) =====
+let currentUtterance = null;
+let currentTtsBtn = null;
+
+function speakMessage(btn, text) {
+  // If already speaking this message, stop
+  if (currentTtsBtn === btn && speechSynthesis.speaking) {
+    speechSynthesis.cancel();
+    btn.classList.remove('speaking');
+    currentTtsBtn = null;
+    return;
+  }
+
+  // Stop any current speech
+  speechSynthesis.cancel();
+  if (currentTtsBtn) currentTtsBtn.classList.remove('speaking');
+
+  // Clean text for speech
+  const cleanText = text
+    .replace(/<[^>]+>/g, '')
+    .replace(/\*\*/g, '').replace(/\*/g, '')
+    .replace(/https?:\/\/[^\s]+/g, '')
+    .replace(/\[MOOD:\w+\]/g, '')
+    .replace(/\[REMINDER:[^\]]+\]/g, '')
+    .replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&#39;/g, "'")
+    .trim();
+
+  if (!cleanText) return;
+
+  const utterance = new SpeechSynthesisUtterance(cleanText);
+  utterance.lang = 'fr-FR';
+  utterance.rate = 0.85;   // Slower for mythical feel
+  utterance.pitch = 0.7;   // Deep voice
+  utterance.volume = 1;
+
+  // Try to find a deep French male voice
+  const voices = speechSynthesis.getVoices();
+  const frenchMale = voices.find(v => v.lang.startsWith('fr') && /male|homme|thomas|pierre/i.test(v.name))
+    || voices.find(v => v.lang.startsWith('fr') && !/female|femme|amelie|marie/i.test(v.name))
+    || voices.find(v => v.lang.startsWith('fr'));
+  if (frenchMale) utterance.voice = frenchMale;
+
+  btn.classList.add('speaking');
+  currentTtsBtn = btn;
+  currentUtterance = utterance;
+
+  utterance.onend = () => {
+    btn.classList.remove('speaking');
+    currentTtsBtn = null;
+  };
+  utterance.onerror = () => {
+    btn.classList.remove('speaking');
+    currentTtsBtn = null;
+  };
+
+  speechSynthesis.speak(utterance);
+}
+
+// Preload voices (needed on some browsers)
+if (typeof speechSynthesis !== 'undefined') {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
 }
 
 // ===== HELPERS =====
