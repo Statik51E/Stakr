@@ -87,8 +87,8 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 // PWA Cache
-const CACHE_NAME = 'stakr-v4';
-const CACHE_FILES = ['./index.html'];
+const CACHE_NAME = 'stakr-v5';
+const CACHE_FILES = ['./index.html', './stakr-raven.glb'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(CACHE_FILES)));
