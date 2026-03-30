@@ -436,6 +436,13 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <label>Mémoire</label>
     <button class="btn-danger" onclick="clearMemory()">Effacer la mémoire</button>
   </div>
+  <div class="setting-group">
+    <label>Transfert entre appareils</label>
+    <button class="btn-gold" onclick="exportFullBackup()" style="width:100%;margin-bottom:6px">Exporter toutes les donnees</button>
+    <button class="btn-gold" onclick="document.getElementById('import-file').click()" style="width:100%;background:linear-gradient(135deg,var(--border),var(--gold-dim))">Importer une sauvegarde</button>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importFullBackup(event)"/>
+    <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">Exporte puis importe le fichier sur ton autre appareil pour tout transferer (messages, quetes, personnalisation, cles API...)</div>
+  </div>
 </div>
 
 <!-- CUSTOMIZE PANEL -->
@@ -2075,12 +2082,119 @@ function clearMemory() {
   }
 }
 
-function exportMemory() {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+function exportMemory() { exportFullBackup(); }
+
+function exportFullBackup() {
+  // Collect ALL localStorage keys related to Stakr
+  const backup = {
+    _stakrBackup: true,
+    _version: 2,
+    _date: new Date().toISOString(),
+    state: JSON.parse(JSON.stringify(state)),
+    localStorage: {}
+  };
+
+  // Restore full images into the state copy for export
+  if (backup.state.appearance) {
+    const chatImg = localStorage.getItem('stakr_chatBgImg');
+    const stageImg = localStorage.getItem('stakr_stageBgImg');
+    if (chatImg) backup.state.appearance.chatBgImage = chatImg;
+    if (stageImg) backup.state.appearance.stageBgImage = stageImg;
+  }
+
+  // Restore message images
+  try {
+    const imgStore = JSON.parse(localStorage.getItem('stakr_msgImages') || '{}');
+    const restoreImgs = (msgs) => {
+      if (!msgs) return;
+      msgs.forEach(m => {
+        if (m.image && m.image.startsWith('__img__')) {
+          const key = m.image.slice(7);
+          m.image = imgStore[key] || null;
+        }
+      });
+    };
+    restoreImgs(backup.state.memory);
+    (backup.state.projects || []).forEach(p => restoreImgs(p.messages));
+  } catch(e) {}
+
+  // Save additional localStorage keys
+  ['stakr_ntfy_topic', 'stakr_fcm_token'].forEach(key => {
+    const val = localStorage.getItem(key);
+    if (val) backup.localStorage[key] = val;
+  });
+
+  const blob = new Blob([JSON.stringify(backup)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `stakr_memory_${new Date().toISOString().slice(0,10)}.json`;
+  a.download = `stakr_backup_${new Date().toISOString().slice(0,10)}.json`;
   a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Export reussi', 'Fichier de sauvegarde telecharge. Transfère-le sur ton autre appareil.');
+}
+
+function importFullBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  event.target.value = '';
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+
+      // Support old format (just the state) and new format (backup wrapper)
+      let newState;
+      if (data._stakrBackup) {
+        newState = data.state;
+        // Restore additional localStorage keys
+        if (data.localStorage) {
+          Object.entries(data.localStorage).forEach(([key, val]) => {
+            localStorage.setItem(key, val);
+          });
+        }
+      } else {
+        newState = data;
+      }
+
+      if (!newState || !newState.mood) {
+        showToast('Erreur', 'Ce fichier ne semble pas etre une sauvegarde Stakr valide.');
+        return;
+      }
+
+      // Merge into state
+      state = { ...state, ...newState };
+      if (!state.quests) state.quests = { level:1, xp:0, totalXp:0, streak:0, lastActiveDate:null, weekStartDate:null, objectives:[], history:[], lifetimeTotals:{}, startDate:null };
+      if (!state.projects) state.projects = [];
+
+      // Save (this handles image separation automatically)
+      saveState();
+
+      // Reload everything
+      applyConfig();
+      setupCustomize();
+      if (state.appearance) {
+        applyAppearanceToSVG(state.appearance);
+        applyMessageStyles(state.appearance);
+      }
+      initQuests();
+      setMood(state.mood);
+      renderProjectList();
+
+      // Re-render messages
+      chatArea.innerHTML = '';
+      const msgs = getCurrentMessages();
+      const recent = msgs.slice(-30);
+      recent.forEach(m => addMessage(m.role === 'user' ? 'user' : 'stakr', m.content, m.timestamp, true, m.image || null));
+
+      showToast('Import reussi !', `${msgs.length} messages, niveau ${state.quests.level}, ${(state.quests.objectives || []).length} quetes restaures.`);
+      addMessage('stakr', "Kraa ! Mes souvenirs reviennent... Je me rappelle de tout, compagnon ! Les runes ont traverse les mondes. [MOOD:heureux]");
+    } catch(err) {
+      console.error('Import error:', err);
+      showToast('Erreur d\'import', 'Fichier invalide ou corrompu : ' + err.message);
+    }
+  };
+  reader.readAsText(file);
 }
 
 // ===== CONFIG =====
