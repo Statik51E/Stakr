@@ -141,14 +141,6 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 #input-bar input::placeholder{color:var(--text-dim)}
 #send-btn{background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:50%;width:40px;height:40px;color:#0e0a06;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s;flex-shrink:0;font-weight:bold}
 #send-btn:active{transform:scale(.9)}
-#mic-btn{background:none;border:1px solid var(--border);border-radius:50%;width:40px;height:40px;color:var(--text-dim);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
-#mic-btn:hover{color:var(--gold);border-color:var(--gold)}
-#mic-btn.recording{color:#ff5252;border-color:#ff5252;animation:micPulse 1s ease-in-out infinite;background:rgba(255,82,82,.08)}
-@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,82,82,.3)}50%{box-shadow:0 0 0 8px rgba(255,82,82,0)}}
-.tts-btn{background:none;border:none;color:var(--gold-dim);font-size:.85rem;cursor:pointer;padding:2px 6px;margin-left:4px;opacity:.5;transition:all .2s;vertical-align:middle}
-.tts-btn:hover{opacity:1;color:var(--gold)}
-.tts-btn.speaking{opacity:1;color:var(--rune-blue);animation:ttsPulse 1.2s ease-in-out infinite}
-@keyframes ttsPulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* ===== PROJECT PANEL ===== */
 #project-panel{position:fixed;top:0;left:-320px;width:300px;max-width:85vw;height:100%;background:linear-gradient(180deg,#1a1208,#120d07);border-right:2px solid var(--border);z-index:100;transition:left .3s;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -248,16 +240,14 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <canvas id="particle-canvas"></canvas>
     <div id="lightning-container"></div>
 
-    <svg id="raven-svg" class="idle" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg">
+    <svg id="raven-svg" class="idle" viewBox="0 0 300 330" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <!-- Filtres simples mais efficaces -->
         <filter id="softGlow"><feGaussianBlur stdDeviation="2"/></filter>
-        <filter id="eyeGlow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="shadow"><feDropShadow dx="0" dy="3" stdDeviation="8" flood-color="#000" flood-opacity=".4"/></filter>
+        <filter id="eyeGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#000" flood-opacity=".3"/></filter>
         
-        <!-- Gradients simples et efficaces -->
         <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#2a2a2e"/><stop offset="100%" stop-color="#0a0a0c"/>
+          <stop offset="0%" stop-color="#1a1a1e"/><stop offset="100%" stop-color="#0a0a0c"/>
         </linearGradient>
         
         <radialGradient id="eyeBlue" cx="40%" cy="40%" r="60%">
@@ -271,134 +261,63 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
         </linearGradient>
       </defs>
 
-      <!-- Ombre sol -->
-      <ellipse cx="150" cy="420" rx="70" ry="18" fill="#000" opacity=".2" filter="url(#softGlow)"/>
+      <ellipse cx="150" cy="320" rx="50" ry="12" fill="#000" opacity=".15" filter="url(#softGlow)"/>
 
-      <!-- CORBEAU SIMPLE & BEAU -->
       <g filter="url(#shadow)">
+        <path d="M100,200 Q70,240 65,300" stroke="#0a0a0c" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <path d="M200,200 Q230,240 235,300" stroke="#0a0a0c" stroke-width="10" fill="none" stroke-linecap="round"/>
         
-        <!-- QUEUE (arrière-plan) -->
-        <path d="M75,220 Q50,280 45,360" stroke="#1a1a1e" stroke-width="18" fill="none" stroke-linecap="round" opacity=".7"/>
-        <path d="M225,220 Q250,280 255,360" stroke="#1a1a1e" stroke-width="18" fill="none" stroke-linecap="round" opacity=".7"/>
+        <ellipse cx="150" cy="180" rx="50" ry="80" fill="url(#bodyGrad)" stroke="#0a0a0c" stroke-width="1"/>
+        <circle cx="150" cy="70" r="35" fill="#0a0a0c" stroke="#050506" stroke-width="1"/>
         
-        <!-- CORPS VOLUMINEUX (corbeau corpulent) -->
-        <ellipse cx="150" cy="210" rx="85" ry="130" fill="url(#bodyGrad)" stroke="#0a0a0c" stroke-width="2"/>
+        <!-- YEUX BLEUS -->
+        <circle cx="125" cy="65" r="10" fill="#000" opacity=".9"/>
+        <circle cx="125" cy="65" r="7" fill="#fafafa" opacity=".95"/>
+        <circle cx="125" cy="65" r="5.5" fill="url(#eyeBlue)" filter="url(#eyeGlow)"/>
+        <circle cx="125" cy="65" r="3" fill="#000"/>
+        <circle cx="122" cy="61" r="1.5" fill="#fff" filter="url(#eyeGlow)"/>
         
-        <!-- Reflet léger sur le corps -->
-        <ellipse cx="120" cy="160" rx="40" ry="70" fill="#fff" opacity=".08"/>
+        <circle cx="175" cy="65" r="10" fill="#000" opacity=".9"/>
+        <circle cx="175" cy="65" r="7" fill="#fafafa" opacity=".95"/>
+        <circle cx="175" cy="65" r="5.5" fill="url(#eyeBlue)" filter="url(#eyeGlow)"/>
+        <circle cx="175" cy="65" r="3" fill="#000"/>
+        <circle cx="172" cy="61" r="1.5" fill="#fff" filter="url(#eyeGlow)"/>
         
-        <!-- COL/CRINIÈRE IMPOSANT -->
-        <ellipse cx="150" cy="95" rx="65" ry="60" fill="#1a1a1e" stroke="#0a0a0c" stroke-width="1.2"/>
+        <path d="M135,85 L165,85 L150,105 Z" fill="#3a3a40" stroke="#1a1a20" stroke-width=".8"/>
+        <circle cx="140" cy="90" r="1" fill="#0a0a0c"/>
+        <circle cx="160" cy="90" r="1" fill="#0a0a0c"/>
         
-        <!-- Plumes crinière hérissées (plus volumineuses) -->
-        <g stroke="#0a0a0c" stroke-width="1.5" fill="none" opacity=".6">
-          <path d="M95,60 L85,35"/><path d="M110,45 L100,20"/>
-          <path d="M135,40 L135,12"/><path d="M150,38 L150,8"/>
-          <path d="M165,40 L165,12"/><path d="M190,45 L200,20"/>
-          <path d="M205,60 L215,35"/>
+        <path d="M120,250 L120,295" stroke="#2a2a30" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M180,250 L180,295" stroke="#2a2a30" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        
+        <g stroke="#1a1a1e" stroke-width="1.5" fill="none" stroke-linecap="round">
+          <path d="M120,295 L100,320"/><path d="M120,295 L110,325"/>
+          <path d="M120,295 L130,325"/><path d="M120,295 L140,320"/>
+          <path d="M180,295 L200,320"/><path d="M180,295 L190,325"/>
+          <path d="M180,295 L170,325"/><path d="M180,295 L160,320"/>
         </g>
         
-        <!-- TÊTE IMPOSANTE & ROBUSTE -->
-        <circle cx="150" cy="60" r="52" fill="#1a1a1e" stroke="#0a0a0c" stroke-width="2"/>
-        
-        <!-- Reflet tête -->
-        <ellipse cx="125" cy="40" rx="22" ry="28" fill="#fff" opacity=".07"/>
-        
-        <!-- ===== YEUX - LA STAR ===== -->
-        
-        <!-- ŒIL GAUCHE -->
-        <!-- Orbite -->
-        <circle cx="125" cy="55" r="16" fill="#000" opacity=".85" stroke="#050506" stroke-width=".5"/>
-        <!-- Blanc -->
-        <circle cx="125" cy="55" r="12" fill="#fafafa" opacity=".92"/>
-        <!-- Iris bleu -->
-        <circle cx="125" cy="55" r="10" fill="url(#eyeBlue)" filter="url(#eyeGlow)"/>
-        <!-- Pupille -->
-        <circle cx="125" cy="55" r="6" fill="#000"/>
-        <!-- Highlight -->
-        <circle cx="121" cy="50" r="3" fill="#fff" filter="url(#eyeGlow)"/>
-        
-        <!-- ŒIL DROIT -->
-        <!-- Orbite -->
-        <circle cx="175" cy="55" r="16" fill="#000" opacity=".85" stroke="#050506" stroke-width=".5"/>
-        <!-- Blanc -->
-        <circle cx="175" cy="55" r="12" fill="#fafafa" opacity=".92"/>
-        <!-- Iris bleu -->
-        <circle cx="175" cy="55" r="10" fill="url(#eyeBlue)" filter="url(#eyeGlow)"/>
-        <!-- Pupille -->
-        <circle cx="175" cy="55" r="6" fill="#000"/>
-        <!-- Highlight -->
-        <circle cx="171" cy="50" r="3" fill="#fff" filter="url(#eyeGlow)"/>
-        
-        <!-- BEC MASSIF & COURBÉ (corbeau féroce) -->
-        <!-- Mandibule supérieure courbée -->
-        <path d="M135,72 Q150,65 168,68 Q175,78 168,88 Q150,92 135,85 Z" fill="#4a4a50" stroke="#2a2a2e" stroke-width="1.3"/>
-        <!-- Mandibule inférieure -->
-        <path d="M135,85 Q150,88 168,88 Q172,92 165,96 Q150,95 135,92 Z" fill="#2a2a30" stroke="#1a1a20" stroke-width="1"/>
-        <!-- Arête acérée du bec -->
-        <path d="M135,77 Q150,75 168,78" stroke="#1a1a20" stroke-width="1.5" opacity=".7" stroke-linecap="round"/>
-        <!-- Pointe crochue -->
-        <path d="M168,78 Q180,77 185,88 Q175,90 168,83 Z" fill="#2a2a30" opacity=".9"/>
-        <!-- Narines -->
-        <circle cx="155" cy="76" r="2" fill="#0a0a0c" opacity=".8"/>
-        <circle cx="162" cy="77" r="2" fill="#0a0a0c" opacity=".8"/>
-        
-        <!-- PATTES ROBUSTES -->
-        <!-- Jambe gauche -->
-        <path d="M120,325 Q110,360 108,385" stroke="#3a3a40" stroke-width="5.5" fill="none" stroke-linecap="round"/>
-        <!-- Jambe droite -->
-        <path d="M180,325 Q190,360 192,385" stroke="#3a3a40" stroke-width="5.5" fill="none" stroke-linecap="round"/>
-        
-        <!-- GRIFFES PUISSANTES -->
-        <!-- Serres gauche -->
-        <g stroke="#2a2a30" stroke-width="2.8" fill="none" stroke-linecap="round">
-          <path d="M108,385 L85,410"/><path d="M108,385 L100,415"/>
-          <path d="M108,385 L120,415"/><path d="M108,385 L135,410"/>
-        </g>
-        <!-- Serres droite -->
-        <g stroke="#2a2a30" stroke-width="2.8" fill="none" stroke-linecap="round">
-          <path d="M192,385 L215,410"/><path d="M192,385 L200,415"/>
-          <path d="M192,385 L180,415"/><path d="M192,385 L165,410"/>
-        </g>
-        
-        <!-- Pointes griffes -->
-        <g fill="#1a1a1e">
-          <polygon points="85,410 80,402 92,408"/><polygon points="100,415 96,405 108,412"/>
-          <polygon points="120,415 116,405 128,412"/><polygon points="135,410 140,402 128,408"/>
-          <polygon points="215,410 220,402 208,408"/><polygon points="200,415 204,405 192,412"/>
-          <polygon points="180,415 184,405 172,412"/><polygon points="165,410 160,402 172,408"/>
-        </g>
-        
-        <!-- ===== RUNES VIKINGS BLEU ===== -->
-        <!-- ANSUZ - Haut (Communication/Souffle du destin) -->
         <g filter="url(#eyeGlow)" opacity=".7">
-          <path d="M150,15 L156,32 L144,32 Z M150,32 L150,40" stroke="url(#runeBlue)" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M150,10 L154,25 L146,25 Z M150,25 L150,32" stroke="url(#runeBlue)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </g>
         
-        <!-- TIWAZ - Gauche (Guerrier/Courage) -->
         <g filter="url(#eyeGlow)" opacity=".7">
-          <path d="M100,70 L100,95 M94,82 L106,95" stroke="url(#runeBlue)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M100,60 L100,80 M95,70 L105,80" stroke="url(#runeBlue)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
         </g>
         
-        <!-- RAIDHO - Droite (Voyage/Chemin) -->
         <g filter="url(#eyeGlow)" opacity=".7">
-          <path d="M200,70 L200,95 M194,82 L206,95" stroke="url(#runeBlue)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M200,60 L200,80 M195,70 L205,80" stroke="url(#runeBlue)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
         </g>
         
-        <!-- FEHU - Bas-Gauche (Richesse/Pouvoir) -->
         <g filter="url(#eyeGlow)" opacity=".65">
-          <path d="M125,330 L125,355 M120,340 L130,345 M120,350 L130,355" stroke="url(#runeBlue)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M120,260 L120,280 M116,268 L124,272 M116,275 L124,280" stroke="url(#runeBlue)" stroke-width="1" fill="none" stroke-linecap="round"/>
         </g>
         
-        <!-- OTHALA - Bas-Droite (Héritage/Terre) -->
         <g filter="url(#eyeGlow)" opacity=".65">
-          <path d="M175,330 L175,355 M170,340 L180,345 M170,350 L180,355" stroke="url(#runeBlue)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M180,260 L180,280 M176,268 L184,272 M176,275 L184,280" stroke="url(#runeBlue)" stroke-width="1" fill="none" stroke-linecap="round"/>
         </g>
         
-        <!-- HAGALAZ - Halo mystique autour du corbeau (Protection) -->
-        <circle cx="150" cy="200" r="110" fill="none" stroke="url(#runeBlue)" stroke-width="1.2" opacity=".15" filter="url(#eyeGlow)"/>
-        <circle cx="150" cy="200" r="122" fill="none" stroke="url(#runeBlue)" stroke-width=".6" opacity=".08" filter="url(#eyeGlow)"/>
-        
+        <circle cx="150" cy="150" r="85" fill="none" stroke="url(#runeBlue)" stroke-width="0.6" opacity=".1" filter="url(#eyeGlow)"/>
       </g>
     </svg>
   </div>
@@ -412,13 +331,70 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <input type="file" id="image-input" accept="image/*" style="display:none"/>
     <button id="img-btn" title="Envoyer une image" onclick="document.getElementById('image-input').click()">&#128247;</button>
     <input type="text" id="user-input" placeholder="Parle &#224; Stakr..." autocomplete="off"/>
-    <button id="mic-btn" title="Parler" onclick="toggleVoiceInput()">&#127908;</button>
     <button id="send-btn" title="Envoyer">&#9654;</button>
   </div>
 </div>
 
-  <!-- TOAST -->
-        <ellipse cx="150" cy="200" rx="85" ry="110" fill="url(#ravenPlumage)" stroke="#0a0a0f" stroke-width="2" filter="url(#plumageTexture)"/>
+<!-- PROJECT PANEL -->
+<div id="project-panel">
+  <h2>&#128193; Projets</h2>
+  <button id="new-project-btn" onclick="createProject()">+ Nouveau projet</button>
+  <div id="project-list"></div>
+  <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
+    <div class="project-item proj-general" onclick="switchProject(null)" style="border-left:3px solid var(--rune-blue)">
+      <div><div class="proj-name" style="color:var(--rune-blue)">&#9679; Conversation g&#233;n&#233;rale</div><div class="proj-count">Discussion libre</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="this.classList.remove('active')"><img id="lightbox-img" src="" alt=""/></div>
+
+<!-- SETTINGS -->
+<div id="settings-overlay" onclick="toggleSettings()"></div>
+<div id="settings-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <h2 style="margin:0">&#9881; Param&#232;tres</h2>
+    <button class="btn-secondary" onclick="toggleSettings()" style="margin:0;padding:6px 14px">&#10003; OK</button>
+  </div>
+  <div class="setting-group">
+    <label>Backend IA</label>
+    <select id="api-backend">
+      <option value="ollama">Ollama (local)</option>
+      <option value="groq">Groq (cloud gratuit)</option>
+      <option value="custom">Personnalisé (OpenAI-compatible)</option>
+    </select>
+  </div>
+  <div class="setting-group" id="groq-key-group" style="display:none">
+    <label>Clés API Groq (1 par ligne, rotation auto)</label>
+    <textarea id="api-keys" rows="6" placeholder="gsk_abc123...&#10;gsk_def456...&#10;gsk_ghi789...&#10;gsk_jkl012..." style="font-size:.75rem;font-family:monospace"></textarea>
+    <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">Gratuit sur <a href="https://console.groq.com/keys" target="_blank" style="color:var(--gold)">console.groq.com/keys</a> — Ajouta plusieurs cles pour eviter les limites</div>
+    <div id="groq-key-status" style="font-size:.7rem;color:var(--gold-dim);margin-top:4px"></div>
+  </div>
+  <div class="setting-group">
+    <label>Modèle</label>
+    <input type="text" id="api-model" placeholder="llama3"/>
+  </div>
+  <div class="setting-group">
+    <label>Personnalité de Stakr</label>
+    <textarea id="personality-input"></textarea>
+  </div>
+  <div class="setting-group">
+    <label>Mémoire</label>
+    <button class="btn-danger" onclick="clearMemory()">Effacer la mémoire</button>
+  </div>
+</div>
+
+<!-- CUSTOMIZE PANEL -->
+<div id="customize-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h2 style="margin:0">Personnaliser</h2>
+    <button class="btn-secondary" onclick="toggleCustomize()" style="margin:0;padding:6px 14px">OK</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><div class="toast-title"></div><div class="toast-msg"></div></div>
         
         <!-- Poitrine prominente -->
         <ellipse cx="150" cy="220" rx="80" ry="95" fill="#0d0d12" opacity=".7" filter="url(#plumageTexture)"/>
@@ -1503,7 +1479,6 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <input type="file" id="image-input" accept="image/*" style="display:none"/>
     <button id="img-btn" title="Envoyer une image" onclick="document.getElementById('image-input').click()">&#128247;</button>
     <input type="text" id="user-input" placeholder="Parle &#224; Stakr..." autocomplete="off"/>
-    <button id="mic-btn" title="Parler" onclick="toggleVoiceInput()">&#127908;</button>
     <button id="send-btn" title="Envoyer">&#9654;</button>
   </div>
 </div>
@@ -1560,26 +1535,6 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
   <div class="setting-group">
     <label>Modèle</label>
     <input type="text" id="api-model" placeholder="llama3"/>
-  </div>
-  <div class="setting-group" id="tts-voice-group" style="display:none">
-    <label>Voix de Stakr</label>
-    <select id="tts-voice">
-      <optgroup label="PlayAI — Voix graves">
-        <option value="playai-tts|Thunder-PlayAI">Thunder (tres grave)</option>
-        <option value="playai-tts|Briggs-PlayAI">Briggs (grave)</option>
-        <option value="playai-tts|Atlas-PlayAI">Atlas (grave)</option>
-        <option value="playai-tts|Cillian-PlayAI">Cillian (grave)</option>
-        <option value="playai-tts|Angelo-PlayAI">Angelo (moyen)</option>
-        <option value="playai-tts|Fritz-PlayAI">Fritz (moyen)</option>
-        <option value="playai-tts|Mitch-PlayAI">Mitch (moyen)</option>
-      </optgroup>
-      <optgroup label="Orpheus — Voix expressives">
-        <option value="canopylabs/orpheus-v1-english|troy">Troy (grave, expressif)</option>
-        <option value="canopylabs/orpheus-v1-english|daniel">Daniel (moyen)</option>
-        <option value="canopylabs/orpheus-v1-english|austin">Austin (moyen)</option>
-      </optgroup>
-    </select>
-    <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">Voix anglaises uniquement (Groq). Clique 🔊 sur un message pour tester.</div>
   </div>
   <div class="setting-group">
     <label>Personnalité de Stakr</label>
@@ -2042,7 +1997,6 @@ function applyConfig() {
   $('#api-keys').value = keys.join('\n');
   $('#custom-api-key').value = state.config.customApiKey || '';
   $('#pollinations-key').value = state.config.pollinationsKey || '';
-  $('#tts-voice').value = state.config.ttsVoice || 'playai-tts|Thunder-PlayAI';
   updateGroqKeyStatus();
   $('#api-model').value = state.config.model;
   $('#personality-input').value = state.config.personality;
@@ -2056,7 +2010,6 @@ function updateBackendUI() {
   const backend = $('#api-backend').value;
   $('#groq-key-group').style.display = backend === 'groq' ? 'block' : 'none';
   $('#pollinations-key-group').style.display = backend === 'groq' ? 'block' : 'none';
-  $('#tts-voice-group').style.display = backend === 'groq' ? 'block' : 'none';
   $('#custom-url-group').style.display = backend === 'custom' ? 'block' : 'none';
   $('#custom-key-group').style.display = backend === 'custom' ? 'block' : 'none';
 
@@ -2116,9 +2069,9 @@ function getGroqKey() {
 }
 
 function markKeyRateLimited(key) {
-  // Marquer une clé comme rate-limitée pour 5 minutes
+  // Marquer une clé comme rate-limitée pour 60 secondes
   rateLimitedKeys.add(key);
-  setTimeout(() => rateLimitedKeys.delete(key), 5 * 60 * 1000);
+  setTimeout(() => rateLimitedKeys.delete(key), 60 * 1000);
 }
 
 function resetCurrentRequestKey() {
@@ -2155,7 +2108,6 @@ function saveConfig() {
   state.config.apiKey = rawKeys[0] || '';
   state.config.customApiKey = $('#custom-api-key').value || '';
   state.config.pollinationsKey = $('#pollinations-key').value || '';
-  state.config.ttsVoice = $('#tts-voice').value || 'playai-tts|Thunder-PlayAI';
   updateGroqKeyStatus();
   state.config.model = $('#api-model').value || state.config.model;
   state.config.personality = $('#personality-input').value || DEFAULT_PERSONALITY;
@@ -2987,23 +2939,9 @@ function addMessage(role, content, timestamp, silent = false, imageUrl = null) {
   }
   const cleanContent = content.replace(/\[MOOD:\w+\]/g, '').replace(/\[REMINDER:[^\]]+\]/g, '').trim();
   if (cleanContent) html += formatText(cleanContent);
-  // Add TTS button on Stakr messages
   const tsText = timestamp || new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-  if (role === 'stakr' && cleanContent) {
-    html += `<div class="timestamp">${tsText} <button class="tts-btn" title="Ecouter">&#128266;</button></div>`;
-  } else {
-    html += `<div class="timestamp">${tsText}</div>`;
-  }
+  html += `<div class="timestamp">${tsText}</div>`;
   div.innerHTML = html;
-
-  // Bind TTS button with closure (avoids escaping issues)
-  if (role === 'stakr' && cleanContent) {
-    const ttsBtn = div.querySelector('.tts-btn');
-    if (ttsBtn) {
-      const textToSpeak = cleanContent;
-      ttsBtn.addEventListener('click', () => speakMessage(ttsBtn, textToSpeak));
-    }
-  }
 
   if (!silent) div.style.animation = 'msgIn .3s ease-out';
   chatArea.appendChild(div);
@@ -3037,213 +2975,6 @@ function hideTyping() {
   if (el) el.remove();
 }
 
-// ===== VOICE INPUT (STT) =====
-let recognition = null;
-let isRecording = false;
-
-function toggleVoiceInput() {
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    showToast('Non supporte', 'La reconnaissance vocale n\'est pas disponible sur ce navigateur.');
-    return;
-  }
-
-  if (isRecording) {
-    stopVoiceInput();
-    return;
-  }
-
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SpeechRecognition();
-  recognition.lang = 'fr-FR';
-  recognition.continuous = false;
-  recognition.interimResults = true;
-
-  const micBtn = $('#mic-btn');
-  micBtn.classList.add('recording');
-  isRecording = true;
-
-  let finalTranscript = '';
-
-  recognition.onresult = (event) => {
-    let interim = '';
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      if (event.results[i].isFinal) {
-        finalTranscript += event.results[i][0].transcript;
-      } else {
-        interim += event.results[i][0].transcript;
-      }
-    }
-    userInput.value = finalTranscript + interim;
-  };
-
-  recognition.onend = () => {
-    micBtn.classList.remove('recording');
-    isRecording = false;
-    if (finalTranscript.trim()) {
-      userInput.value = finalTranscript.trim();
-      // Auto-send after voice input
-      sendMessage();
-    }
-  };
-
-  recognition.onerror = (event) => {
-    console.error('Speech recognition error:', event.error);
-    micBtn.classList.remove('recording');
-    isRecording = false;
-    if (event.error === 'not-allowed') {
-      showToast('Micro bloque', 'Autorise l\'acces au microphone dans les parametres du navigateur.');
-    }
-  };
-
-  recognition.start();
-}
-
-function stopVoiceInput() {
-  if (recognition) {
-    recognition.stop();
-  }
-  $('#mic-btn').classList.remove('recording');
-  isRecording = false;
-}
-
-// ===== VOICE OUTPUT (TTS via Groq) =====
-let currentAudio = null;
-let currentTtsBtn = null;
-
-async function speakMessage(btn, text) {
-  // If already speaking this message, stop
-  if (currentTtsBtn === btn && currentAudio && !currentAudio.paused) {
-    currentAudio.pause();
-    currentAudio.currentTime = 0;
-    btn.classList.remove('speaking');
-    currentTtsBtn = null;
-    return;
-  }
-
-  // Stop any current speech + browser TTS
-  if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
-  if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
-  if (currentTtsBtn) currentTtsBtn.classList.remove('speaking');
-
-  // Clean text for speech
-  const cleanText = text
-    .replace(/<[^>]+>/g, '')
-    .replace(/\*\*/g, '').replace(/\*/g, '')
-    .replace(/https?:\/\/[^\s]+/g, '')
-    .replace(/\[MOOD:\w+\]/g, '')
-    .replace(/\[REMINDER:[^\]]+\]/g, '')
-    .replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&#39;/g, "'")
-    .replace(/\n/g, '. ')
-    .trim();
-
-  if (!cleanText) return;
-
-  btn.classList.add('speaking');
-  currentTtsBtn = btn;
-
-  // Parse selected voice (format: "model|voiceId")
-  const voiceSetting = state.config.ttsVoice || 'playai-tts|Thunder-PlayAI';
-  const [ttsModel, ttsVoice] = voiceSetting.split('|');
-
-  // Try each API key until one works
-  const keys = state.config.apiKeys || [];
-  if (keys.length === 0 && state.config.apiKey) keys.push(state.config.apiKey);
-
-  if (keys.length === 0) {
-    showToast('Pas de cle API', 'Ajoute une cle Groq dans les Parametres pour la voix.');
-    btn.classList.remove('speaking');
-    currentTtsBtn = null;
-    return;
-  }
-
-  let ttsSuccess = false;
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i];
-    
-    // Skip rate-limited keys
-    if (rateLimitedKeys.has(key)) {
-      console.warn('TTS key skipped (rate-limited):', key.slice(0, 8));
-      continue;
-    }
-    
-    try {
-      console.log('TTS attempt with key:', key.slice(0, 8) + '...', 'model:', ttsModel, 'voice:', ttsVoice);
-      const res = await fetch('https://api.groq.com/openai/v1/audio/speech', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${key}`
-        },
-        body: JSON.stringify({
-          model: ttsModel,
-          input: cleanText,
-          voice: ttsVoice,
-          response_format: 'wav'
-        })
-      });
-
-      if (res.status === 429) {
-        console.warn('TTS key rate limited:', key.slice(0, 8));
-        markKeyRateLimited(key);
-        continue;
-      }
-
-      if (!res.ok) {
-        const errText = await res.text();
-        console.error('TTS error:', res.status, errText);
-        continue;
-      }
-
-      const blob = await res.blob();
-      const audioUrl = URL.createObjectURL(blob);
-      currentAudio = new Audio(audioUrl);
-      currentAudio.playbackRate = 0.95;
-
-      currentAudio.onended = () => {
-        btn.classList.remove('speaking');
-        currentTtsBtn = null;
-        URL.revokeObjectURL(audioUrl);
-      };
-      currentAudio.onerror = () => {
-        btn.classList.remove('speaking');
-        currentTtsBtn = null;
-      };
-
-      await currentAudio.play();
-      ttsSuccess = true;
-      break;
-    } catch(e) {
-      console.error('TTS error with key', i, ':', e);
-      continue;
-    }
-  }
-
-  // If all keys failed, fall back to browser TTS with a toast
-  if (!ttsSuccess) {
-    console.warn('All Groq TTS keys failed, falling back to browser TTS');
-    showToast('Voix Groq indisponible', 'Utilisation de la voix du navigateur...');
-    fallbackSpeak(btn, cleanText);
-  }
-}
-
-function fallbackSpeak(btn, text) {
-  if (typeof speechSynthesis === 'undefined') {
-    btn.classList.remove('speaking');
-    currentTtsBtn = null;
-    return;
-  }
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'fr-FR';
-  utterance.rate = 0.85;
-  utterance.pitch = 0.7;
-  const voices = speechSynthesis.getVoices();
-  const frVoice = voices.find(v => v.lang.startsWith('fr') && !/female|femme/i.test(v.name))
-    || voices.find(v => v.lang.startsWith('fr'));
-  if (frVoice) utterance.voice = frVoice;
-  utterance.onend = () => { btn.classList.remove('speaking'); currentTtsBtn = null; };
-  utterance.onerror = () => { btn.classList.remove('speaking'); currentTtsBtn = null; };
-  speechSynthesis.speak(utterance);
-}
 
 // ===== HELPERS =====
 function getTS() { return new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}); }
@@ -3306,29 +3037,34 @@ async function sendMessage() {
       // Ask AI to enhance the prompt
       let enhancedPrompt = imgPrompt;
       const backend = state.config.backend || 'ollama';
-      if (backend === 'groq' && getGroqKey()) {
-        try {
-          const promptRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getGroqKey()}` },
-            body: JSON.stringify({
-              model: 'llama-3.3-70b-versatile',
-              messages: [
-                { role: 'system', content: 'Tu es un expert en generation de prompts pour images IA. Transforme la description en un prompt detaille en anglais pour generer une image. Reponds UNIQUEMENT avec le prompt, rien d\'autre. Max 100 mots.' },
-                { role: 'user', content: imgPrompt }
-              ],
-              temperature: 0.7, max_tokens: 200
-            })
-          });
-          
-          if (promptRes.status === 429) {
-            markKeyRateLimited(getGroqKey());
-            console.warn('Prompt enhancement rate-limited');
-          } else if (promptRes.ok) {
-            const promptData = await promptRes.json();
-            enhancedPrompt = promptData.choices?.[0]?.message?.content || imgPrompt;
-          }
-        } catch(e) { console.warn('Prompt enhancement failed, using raw prompt'); }
+      if (backend === 'groq') {
+        const imgKeys = state.config.apiKeys || [];
+        if (imgKeys.length === 0 && state.config.apiKey) imgKeys.push(state.config.apiKey);
+        for (let ik = 0; ik < imgKeys.length; ik++) {
+          const ikey = imgKeys[(groqKeyIndex + ik) % imgKeys.length];
+          if (rateLimitedKeys.has(ikey) && ik < imgKeys.length - 1) continue;
+          try {
+            await enforceGroqMinDelay();
+            const promptRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ikey}` },
+              body: JSON.stringify({
+                model: 'llama-3.3-70b-versatile',
+                messages: [
+                  { role: 'system', content: 'Tu es un expert en generation de prompts pour images IA. Transforme la description en un prompt detaille en anglais pour generer une image. Reponds UNIQUEMENT avec le prompt, rien d\'autre. Max 100 mots.' },
+                  { role: 'user', content: imgPrompt }
+                ],
+                temperature: 0.7, max_tokens: 200
+              })
+            });
+            if (promptRes.status === 429) { markKeyRateLimited(ikey); continue; }
+            if (promptRes.ok) {
+              const promptData = await promptRes.json();
+              enhancedPrompt = promptData.choices?.[0]?.message?.content || imgPrompt;
+              break;
+            }
+          } catch(e) { console.warn('Prompt enhancement failed, trying next key'); continue; }
+        }
       }
 
       // Generate image via Pollinations.ai
@@ -3533,15 +3269,13 @@ async function callAI(userText, imageData = null) {
   }
 
   if (backend === 'groq') {
-    const groqKey = getGroqKey();
-    if (!groqKey) {
+    const keys = state.config.apiKeys || [];
+    if (keys.length === 0 && state.config.apiKey) keys.push(state.config.apiKey);
+    if (keys.length === 0) {
       return "Kraa ! Il me faut une cle API Groq. Va dans les Parametres et entre tes cles. console.groq.com/keys [MOOD:curieux]";
     }
 
-    // Enforce minimum delay between requests
-    await enforceGroqMinDelay();
-
-    // Detect if web search is needed (mode recherche or explicit search keywords)
+    // Detect if web search is needed
     const needsSearch = state.currentMode === 'recherche' ||
       /cherche|recherche|trouve|actualit[eé]|news|r[eé]cent|aujourd'?hui|derni[eè]re|google|internet|web|site|url|info sur/i.test(userText);
 
@@ -3557,47 +3291,83 @@ async function callAI(userText, imageData = null) {
       bodyPayload = { model: useModel, messages: searchMessages, temperature: 0.7, max_tokens: 1500 };
     }
 
-    console.log('Groq request:', useModel, needsSearch ? '(web search)' : '', 'key:', groqKey.slice(0,8) + '...');
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${groqKey}` },
-      body: JSON.stringify(bodyPayload)
-    });
-    if (!res.ok) {
-      const err = await res.text();
-      console.error('Groq API error:', res.status, err);
-      if (res.status === 401) return "Kraa... la cle API Groq est invalide. [MOOD:triste]";
-      if (res.status === 429) {
-        // Marquer cette clé comme rate-limitée et passer à la suivante
-        markKeyRateLimited(groqKey);
-        console.warn('Key rate-limited, marked for cooldown:', groqKey.slice(0,8));
-        return "Kraa... cette cle est utilisee trop intensement ! Essaie une autre cle ou attends 5 minutes. [MOOD:pensif]";
-      }
-      return `Kraa... erreur Groq (${res.status}). Verifie ta cle API et le modele. [MOOD:triste]`;
-    }
-    const data = await res.json();
-    console.log('Groq response:', JSON.stringify(data).slice(0, 500));
-    let answer = data.choices?.[0]?.message?.content || "Kraa... les runes sont silencieuses.";
+    // Try each API key until one works (auto-rotation on 429)
+    let lastError = '';
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[(groqKeyIndex + i) % keys.length];
 
-    // Append search sources if available (compound-beta)
-    try {
-      const execTools = data.choices?.[0]?.message?.executed_tools;
-      if (execTools && Array.isArray(execTools)) {
-        const allResults = [];
-        execTools.forEach(t => {
-          if (t.search_results && Array.isArray(t.search_results)) {
-            t.search_results.forEach(r => allResults.push(r));
-          }
+      // Skip keys already in cooldown (but try them if all are limited)
+      if (rateLimitedKeys.has(key) && i < keys.length - 1) continue;
+
+      await enforceGroqMinDelay();
+
+      console.log('Groq request:', useModel, needsSearch ? '(web search)' : '', 'key:', key.slice(0,8) + '...', `(attempt ${i+1}/${keys.length})`);
+      try {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+          body: JSON.stringify(bodyPayload)
         });
-        if (allResults.length > 0) {
-          const sources = allResults.slice(0, 4)
-            .map(r => `- ${r.title || r.url}: ${r.url}`)
-            .join('\n');
-          if (sources) answer += '\n\n**Sources :**\n' + sources;
+
+        if (res.status === 429) {
+          markKeyRateLimited(key);
+          console.warn('Key 429 rate-limited:', key.slice(0,8), '- trying next key...');
+          lastError = '429';
+          continue;
         }
+
+        if (res.status === 401) {
+          console.warn('Key 401 invalid:', key.slice(0,8));
+          lastError = '401';
+          continue;
+        }
+
+        if (!res.ok) {
+          const err = await res.text();
+          console.error('Groq API error:', res.status, err);
+          lastError = String(res.status);
+          continue;
+        }
+
+        // Success — remember which key worked
+        groqKeyIndex = (groqKeyIndex + i + 1) % keys.length;
+        resetCurrentRequestKey();
+
+        const data = await res.json();
+        console.log('Groq response:', JSON.stringify(data).slice(0, 500));
+        let answer = data.choices?.[0]?.message?.content || "Kraa... les runes sont silencieuses.";
+
+        // Append search sources if available (compound-beta)
+        try {
+          const execTools = data.choices?.[0]?.message?.executed_tools;
+          if (execTools && Array.isArray(execTools)) {
+            const allResults = [];
+            execTools.forEach(t => {
+              if (t.search_results && Array.isArray(t.search_results)) {
+                t.search_results.forEach(r => allResults.push(r));
+              }
+            });
+            if (allResults.length > 0) {
+              const sources = allResults.slice(0, 4)
+                .map(r => `- ${r.title || r.url}: ${r.url}`)
+                .join('\n');
+              if (sources) answer += '\n\n**Sources :**\n' + sources;
+            }
+          }
+        } catch(e) { console.warn('Source parsing error:', e); }
+        return answer;
+      } catch(e) {
+        console.error('Groq fetch error with key', key.slice(0,8), ':', e);
+        lastError = 'network';
+        continue;
       }
-    } catch(e) { console.warn('Source parsing error:', e); }
-    return answer;
+    }
+
+    // All keys failed
+    resetCurrentRequestKey();
+    if (lastError === '429') return "Kraa... toutes les cles API sont temporairement limitees. Attends 1-2 minutes et reessaie. [MOOD:pensif]";
+    if (lastError === '401') return "Kraa... tes cles API Groq semblent invalides. Verifie-les dans les Parametres. [MOOD:triste]";
+    return `Kraa... erreur Groq (${lastError}). Verifie tes cles API et le modele. [MOOD:triste]`;
   }
 
   // Custom backend
@@ -3796,29 +3566,31 @@ Types de messages possibles (varie !) :
     const backend = state.config.backend || 'ollama';
     let thought = '';
 
-    if (backend === 'groq' && getGroqKey()) {
-      selectGroqKey();
-      await enforceGroqMinDelay();
-      
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getGroqKey()}`
-        },
-        body: JSON.stringify({
-          model: state.config.model || 'llama-3.3-70b-versatile',
-          messages: [{ role: 'user', content: prompt }],
-          temperature: 0.95,
-          max_tokens: 150
-        })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        thought = data.choices?.[0]?.message?.content || '';
-      } else if (res.status === 429) {
-        markKeyRateLimited(getGroqKey());
-        console.warn('Spontaneous thought rate-limited');
+    if (backend === 'groq') {
+      const spKeys = state.config.apiKeys || [];
+      if (spKeys.length === 0 && state.config.apiKey) spKeys.push(state.config.apiKey);
+      for (let si = 0; si < spKeys.length; si++) {
+        const skey = spKeys[(groqKeyIndex + si) % spKeys.length];
+        if (rateLimitedKeys.has(skey) && si < spKeys.length - 1) continue;
+        await enforceGroqMinDelay();
+        try {
+          const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${skey}` },
+            body: JSON.stringify({
+              model: state.config.model || 'llama-3.3-70b-versatile',
+              messages: [{ role: 'user', content: prompt }],
+              temperature: 0.95, max_tokens: 150
+            })
+          });
+          if (res.status === 429) { markKeyRateLimited(skey); continue; }
+          if (res.ok) {
+            const data = await res.json();
+            thought = data.choices?.[0]?.message?.content || '';
+            groqKeyIndex = (groqKeyIndex + si + 1) % spKeys.length;
+            break;
+          }
+        } catch(e) { continue; }
       }
       resetCurrentRequestKey();
     } else if (backend === 'ollama') {
