@@ -254,6 +254,23 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 .quest-weekly-summary{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:10px;font-size:.75rem;color:var(--text-dim)}
 .quest-weekly-summary .summary-title{color:var(--gold);font-size:.8rem;margin-bottom:6px;font-weight:600}
 .quest-streak-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#e65100,#ff9800);color:#fff;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px}
+.quest-difficulty{font-size:.55rem;font-weight:700;padding:1px 6px;border-radius:8px;text-transform:uppercase;letter-spacing:.5px}
+.diff-facile{background:#2e7d32;color:#c8e6c9}
+.diff-moyen{background:#e65100;color:#ffe0b2}
+.diff-difficile{background:#b71c1c;color:#ffcdd2}
+.diff-legendaire{background:linear-gradient(135deg,#4a148c,#7b1fa2);color:#e1bee7}
+.quest-item.secret{border-style:dashed;border-color:#7c4dff;background:linear-gradient(135deg,var(--surface),rgba(124,77,255,.06))}
+.quest-item.secret .quest-item-name{color:#b388ff}
+.quest-item.secret-locked{opacity:.5;border-style:dotted;border-color:var(--text-dim)}
+.rune-collection{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.rune-slot{width:40px;height:40px;border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background:var(--wood-mid);position:relative;transition:all .3s}
+.rune-slot.owned{border-color:var(--gold-dim);background:linear-gradient(135deg,var(--surface),rgba(196,154,60,.1));box-shadow:0 0 6px rgba(196,154,60,.2)}
+.rune-slot.locked{opacity:.3;filter:grayscale(1)}
+.rune-slot .rune-tooltip{display:none;position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:4px 8px;white-space:nowrap;font-size:.55rem;color:var(--text-dim);z-index:10;pointer-events:none}
+.rune-slot:hover .rune-tooltip{display:block}
+.quest-ai-btn{width:100%;background:linear-gradient(135deg,#1a237e,#283593);border:1px solid #3949ab;border-radius:6px;padding:10px;color:#90caf9;font-size:.75rem;cursor:pointer;text-align:center;margin:8px 0;font-family:inherit;transition:all .2s}
+.quest-ai-btn:hover{border-color:#5c6bc0;color:#bbdefb}
+.quest-ai-btn:disabled{opacity:.5;cursor:wait}
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:480px){
@@ -293,14 +310,16 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <canvas id="particle-canvas"></canvas>
     <div id="lightning-container"></div>
 
-    <svg id="raven-svg" class="idle" viewBox="0 0 300 330" xmlns="http://www.w3.org/2000/svg">
+    <svg id="raven-svg" class="idle" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg">
       <defs>
+        <!-- Filtres simples mais efficaces -->
         <filter id="softGlow"><feGaussianBlur stdDeviation="2"/></filter>
-        <filter id="eyeGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#000" flood-opacity=".3"/></filter>
+        <filter id="eyeGlow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="shadow"><feDropShadow dx="0" dy="3" stdDeviation="8" flood-color="#000" flood-opacity=".4"/></filter>
         
+        <!-- Gradients simples et efficaces -->
         <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#1a1a1e"/><stop offset="100%" stop-color="#0a0a0c"/>
+          <stop offset="0%" stop-color="#2a2a2e"/><stop offset="100%" stop-color="#0a0a0c"/>
         </linearGradient>
         
         <radialGradient id="eyeBlue" cx="40%" cy="40%" r="60%">
@@ -314,63 +333,134 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
         </linearGradient>
       </defs>
 
-      <ellipse cx="150" cy="320" rx="50" ry="12" fill="#000" opacity=".15" filter="url(#softGlow)"/>
+      <!-- Ombre sol -->
+      <ellipse cx="150" cy="420" rx="70" ry="18" fill="#000" opacity=".2" filter="url(#softGlow)"/>
 
+      <!-- CORBEAU SIMPLE & BEAU -->
       <g filter="url(#shadow)">
-        <path d="M100,200 Q70,240 65,300" stroke="#0a0a0c" stroke-width="10" fill="none" stroke-linecap="round"/>
-        <path d="M200,200 Q230,240 235,300" stroke="#0a0a0c" stroke-width="10" fill="none" stroke-linecap="round"/>
         
-        <ellipse cx="150" cy="180" rx="50" ry="80" fill="url(#bodyGrad)" stroke="#0a0a0c" stroke-width="1"/>
-        <circle cx="150" cy="70" r="35" fill="#0a0a0c" stroke="#050506" stroke-width="1"/>
+        <!-- QUEUE (arrière-plan) -->
+        <path d="M75,220 Q50,280 45,360" stroke="#1a1a1e" stroke-width="18" fill="none" stroke-linecap="round" opacity=".7"/>
+        <path d="M225,220 Q250,280 255,360" stroke="#1a1a1e" stroke-width="18" fill="none" stroke-linecap="round" opacity=".7"/>
         
-        <!-- YEUX BLEUS -->
-        <circle cx="125" cy="65" r="10" fill="#000" opacity=".9"/>
-        <circle cx="125" cy="65" r="7" fill="#fafafa" opacity=".95"/>
-        <circle cx="125" cy="65" r="5.5" fill="url(#eyeBlue)" filter="url(#eyeGlow)"/>
-        <circle cx="125" cy="65" r="3" fill="#000"/>
-        <circle cx="122" cy="61" r="1.5" fill="#fff" filter="url(#eyeGlow)"/>
+        <!-- CORPS VOLUMINEUX (corbeau corpulent) -->
+        <ellipse cx="150" cy="210" rx="85" ry="130" fill="url(#bodyGrad)" stroke="#0a0a0c" stroke-width="2"/>
         
-        <circle cx="175" cy="65" r="10" fill="#000" opacity=".9"/>
-        <circle cx="175" cy="65" r="7" fill="#fafafa" opacity=".95"/>
-        <circle cx="175" cy="65" r="5.5" fill="url(#eyeBlue)" filter="url(#eyeGlow)"/>
-        <circle cx="175" cy="65" r="3" fill="#000"/>
-        <circle cx="172" cy="61" r="1.5" fill="#fff" filter="url(#eyeGlow)"/>
+        <!-- Reflet léger sur le corps -->
+        <ellipse cx="120" cy="160" rx="40" ry="70" fill="#fff" opacity=".08"/>
         
-        <path d="M135,85 L165,85 L150,105 Z" fill="#3a3a40" stroke="#1a1a20" stroke-width=".8"/>
-        <circle cx="140" cy="90" r="1" fill="#0a0a0c"/>
-        <circle cx="160" cy="90" r="1" fill="#0a0a0c"/>
+        <!-- COL/CRINIÈRE IMPOSANT -->
+        <ellipse cx="150" cy="95" rx="65" ry="60" fill="#1a1a1e" stroke="#0a0a0c" stroke-width="1.2"/>
         
-        <path d="M120,250 L120,295" stroke="#2a2a30" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-        <path d="M180,250 L180,295" stroke="#2a2a30" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-        
-        <g stroke="#1a1a1e" stroke-width="1.5" fill="none" stroke-linecap="round">
-          <path d="M120,295 L100,320"/><path d="M120,295 L110,325"/>
-          <path d="M120,295 L130,325"/><path d="M120,295 L140,320"/>
-          <path d="M180,295 L200,320"/><path d="M180,295 L190,325"/>
-          <path d="M180,295 L170,325"/><path d="M180,295 L160,320"/>
+        <!-- Plumes crinière hérissées (plus volumineuses) -->
+        <g stroke="#0a0a0c" stroke-width="1.5" fill="none" opacity=".6">
+          <path d="M95,60 L85,35"/><path d="M110,45 L100,20"/>
+          <path d="M135,40 L135,12"/><path d="M150,38 L150,8"/>
+          <path d="M165,40 L165,12"/><path d="M190,45 L200,20"/>
+          <path d="M205,60 L215,35"/>
         </g>
         
+        <!-- TÊTE IMPOSANTE & ROBUSTE -->
+        <circle cx="150" cy="60" r="52" fill="#1a1a1e" stroke="#0a0a0c" stroke-width="2"/>
+        
+        <!-- Reflet tête -->
+        <ellipse cx="125" cy="40" rx="22" ry="28" fill="#fff" opacity=".07"/>
+        
+        <!-- ===== YEUX - LA STAR ===== -->
+        
+        <!-- ŒIL GAUCHE -->
+        <!-- Orbite -->
+        <circle cx="125" cy="55" r="16" fill="#000" opacity=".85" stroke="#050506" stroke-width=".5"/>
+        <!-- Blanc -->
+        <circle cx="125" cy="55" r="12" fill="#fafafa" opacity=".92"/>
+        <!-- Iris bleu -->
+        <circle cx="125" cy="55" r="10" fill="url(#eyeBlue)" filter="url(#eyeGlow)"/>
+        <!-- Pupille -->
+        <circle cx="125" cy="55" r="6" fill="#000"/>
+        <!-- Highlight -->
+        <circle cx="121" cy="50" r="3" fill="#fff" filter="url(#eyeGlow)"/>
+        
+        <!-- ŒIL DROIT -->
+        <!-- Orbite -->
+        <circle cx="175" cy="55" r="16" fill="#000" opacity=".85" stroke="#050506" stroke-width=".5"/>
+        <!-- Blanc -->
+        <circle cx="175" cy="55" r="12" fill="#fafafa" opacity=".92"/>
+        <!-- Iris bleu -->
+        <circle cx="175" cy="55" r="10" fill="url(#eyeBlue)" filter="url(#eyeGlow)"/>
+        <!-- Pupille -->
+        <circle cx="175" cy="55" r="6" fill="#000"/>
+        <!-- Highlight -->
+        <circle cx="171" cy="50" r="3" fill="#fff" filter="url(#eyeGlow)"/>
+        
+        <!-- BEC MASSIF & COURBÉ (corbeau féroce) -->
+        <!-- Mandibule supérieure courbée -->
+        <path d="M135,72 Q150,65 168,68 Q175,78 168,88 Q150,92 135,85 Z" fill="#4a4a50" stroke="#2a2a2e" stroke-width="1.3"/>
+        <!-- Mandibule inférieure -->
+        <path d="M135,85 Q150,88 168,88 Q172,92 165,96 Q150,95 135,92 Z" fill="#2a2a30" stroke="#1a1a20" stroke-width="1"/>
+        <!-- Arête acérée du bec -->
+        <path d="M135,77 Q150,75 168,78" stroke="#1a1a20" stroke-width="1.5" opacity=".7" stroke-linecap="round"/>
+        <!-- Pointe crochue -->
+        <path d="M168,78 Q180,77 185,88 Q175,90 168,83 Z" fill="#2a2a30" opacity=".9"/>
+        <!-- Narines -->
+        <circle cx="155" cy="76" r="2" fill="#0a0a0c" opacity=".8"/>
+        <circle cx="162" cy="77" r="2" fill="#0a0a0c" opacity=".8"/>
+        
+        <!-- PATTES ROBUSTES -->
+        <!-- Jambe gauche -->
+        <path d="M120,325 Q110,360 108,385" stroke="#3a3a40" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+        <!-- Jambe droite -->
+        <path d="M180,325 Q190,360 192,385" stroke="#3a3a40" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+        
+        <!-- GRIFFES PUISSANTES -->
+        <!-- Serres gauche -->
+        <g stroke="#2a2a30" stroke-width="2.8" fill="none" stroke-linecap="round">
+          <path d="M108,385 L85,410"/><path d="M108,385 L100,415"/>
+          <path d="M108,385 L120,415"/><path d="M108,385 L135,410"/>
+        </g>
+        <!-- Serres droite -->
+        <g stroke="#2a2a30" stroke-width="2.8" fill="none" stroke-linecap="round">
+          <path d="M192,385 L215,410"/><path d="M192,385 L200,415"/>
+          <path d="M192,385 L180,415"/><path d="M192,385 L165,410"/>
+        </g>
+        
+        <!-- Pointes griffes -->
+        <g fill="#1a1a1e">
+          <polygon points="85,410 80,402 92,408"/><polygon points="100,415 96,405 108,412"/>
+          <polygon points="120,415 116,405 128,412"/><polygon points="135,410 140,402 128,408"/>
+          <polygon points="215,410 220,402 208,408"/><polygon points="200,415 204,405 192,412"/>
+          <polygon points="180,415 184,405 172,412"/><polygon points="165,410 160,402 172,408"/>
+        </g>
+        
+        <!-- ===== RUNES VIKINGS BLEU ===== -->
+        <!-- ANSUZ - Haut (Communication/Souffle du destin) -->
         <g filter="url(#eyeGlow)" opacity=".7">
-          <path d="M150,10 L154,25 L146,25 Z M150,25 L150,32" stroke="url(#runeBlue)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M150,15 L156,32 L144,32 Z M150,32 L150,40" stroke="url(#runeBlue)" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </g>
         
+        <!-- TIWAZ - Gauche (Guerrier/Courage) -->
         <g filter="url(#eyeGlow)" opacity=".7">
-          <path d="M100,60 L100,80 M95,70 L105,80" stroke="url(#runeBlue)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          <path d="M100,70 L100,95 M94,82 L106,95" stroke="url(#runeBlue)" stroke-width="2" fill="none" stroke-linecap="round"/>
         </g>
         
+        <!-- RAIDHO - Droite (Voyage/Chemin) -->
         <g filter="url(#eyeGlow)" opacity=".7">
-          <path d="M200,60 L200,80 M195,70 L205,80" stroke="url(#runeBlue)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          <path d="M200,70 L200,95 M194,82 L206,95" stroke="url(#runeBlue)" stroke-width="2" fill="none" stroke-linecap="round"/>
         </g>
         
+        <!-- FEHU - Bas-Gauche (Richesse/Pouvoir) -->
         <g filter="url(#eyeGlow)" opacity=".65">
-          <path d="M120,260 L120,280 M116,268 L124,272 M116,275 L124,280" stroke="url(#runeBlue)" stroke-width="1" fill="none" stroke-linecap="round"/>
+          <path d="M125,330 L125,355 M120,340 L130,345 M120,350 L130,355" stroke="url(#runeBlue)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
         </g>
         
+        <!-- OTHALA - Bas-Droite (Héritage/Terre) -->
         <g filter="url(#eyeGlow)" opacity=".65">
-          <path d="M180,260 L180,280 M176,268 L184,272 M176,275 L184,280" stroke="url(#runeBlue)" stroke-width="1" fill="none" stroke-linecap="round"/>
+          <path d="M175,330 L175,355 M170,340 L180,345 M170,350 L180,355" stroke="url(#runeBlue)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
         </g>
         
-        <circle cx="150" cy="150" r="85" fill="none" stroke="url(#runeBlue)" stroke-width="0.6" opacity=".1" filter="url(#eyeGlow)"/>
+        <!-- HAGALAZ - Halo mystique autour du corbeau (Protection) -->
+        <circle cx="150" cy="200" r="110" fill="none" stroke="url(#runeBlue)" stroke-width="1.2" opacity=".15" filter="url(#eyeGlow)"/>
+        <circle cx="150" cy="200" r="122" fill="none" stroke="url(#runeBlue)" stroke-width=".6" opacity=".08" filter="url(#eyeGlow)"/>
+        
       </g>
     </svg>
   </div>
@@ -384,77 +474,13 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <input type="file" id="image-input" accept="image/*" style="display:none"/>
     <button id="img-btn" title="Envoyer une image" onclick="document.getElementById('image-input').click()">&#128247;</button>
     <input type="text" id="user-input" placeholder="Parle &#224; Stakr..." autocomplete="off"/>
+    <button id="mic-btn" title="Parler" onclick="toggleVoiceInput()">&#127908;</button>
     <button id="send-btn" title="Envoyer">&#9654;</button>
   </div>
 </div>
 
-<!-- PROJECT PANEL -->
-<div id="project-panel">
-  <h2>&#128193; Projets</h2>
-  <button id="new-project-btn" onclick="createProject()">+ Nouveau projet</button>
-  <div id="project-list"></div>
-  <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
-    <div class="project-item proj-general" onclick="switchProject(null)" style="border-left:3px solid var(--rune-blue)">
-      <div><div class="proj-name" style="color:var(--rune-blue)">&#9679; Conversation g&#233;n&#233;rale</div><div class="proj-count">Discussion libre</div></div>
-    </div>
-  </div>
-</div>
-
-<!-- LIGHTBOX -->
-<div id="lightbox" onclick="this.classList.remove('active')"><img id="lightbox-img" src="" alt=""/></div>
-
-<!-- SETTINGS -->
-<div id="settings-overlay" onclick="toggleSettings()"></div>
-<div id="settings-panel">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-    <h2 style="margin:0">&#9881; Param&#232;tres</h2>
-    <button class="btn-secondary" onclick="toggleSettings()" style="margin:0;padding:6px 14px">&#10003; OK</button>
-  </div>
-  <div class="setting-group">
-    <label>Backend IA</label>
-    <select id="api-backend">
-      <option value="ollama">Ollama (local)</option>
-      <option value="groq">Groq (cloud gratuit)</option>
-      <option value="custom">Personnalisé (OpenAI-compatible)</option>
-    </select>
-  </div>
-  <div class="setting-group" id="groq-key-group" style="display:none">
-    <label>Clés API Groq (1 par ligne, rotation auto)</label>
-    <textarea id="api-keys" rows="6" placeholder="gsk_abc123...&#10;gsk_def456...&#10;gsk_ghi789...&#10;gsk_jkl012..." style="font-size:.75rem;font-family:monospace"></textarea>
-    <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">Gratuit sur <a href="https://console.groq.com/keys" target="_blank" style="color:var(--gold)">console.groq.com/keys</a> — Ajouta plusieurs cles pour eviter les limites</div>
-    <div id="groq-key-status" style="font-size:.7rem;color:var(--gold-dim);margin-top:4px"></div>
-  </div>
-  <div class="setting-group">
-    <label>Modèle</label>
-    <input type="text" id="api-model" placeholder="llama3"/>
-  </div>
-  <div class="setting-group">
-    <label>Personnalité de Stakr</label>
-    <textarea id="personality-input"></textarea>
-  </div>
-  <div class="setting-group">
-    <label>Mémoire</label>
-    <button class="btn-danger" onclick="clearMemory()">Effacer la mémoire</button>
-  </div>
-  <div class="setting-group">
-    <label>Transfert entre appareils</label>
-    <button class="btn-gold" onclick="exportFullBackup()" style="width:100%;margin-bottom:6px">Exporter toutes les donnees</button>
-    <button class="btn-gold" onclick="document.getElementById('import-file').click()" style="width:100%;background:linear-gradient(135deg,var(--border),var(--gold-dim))">Importer une sauvegarde</button>
-    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importFullBackup(event)"/>
-    <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">Exporte puis importe le fichier sur ton autre appareil pour tout transferer (messages, quetes, personnalisation, cles API...)</div>
-  </div>
-</div>
-
-<!-- CUSTOMIZE PANEL -->
-<div id="customize-panel">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-    <h2 style="margin:0">Personnaliser</h2>
-    <button class="btn-secondary" onclick="toggleCustomize()" style="margin:0;padding:6px 14px">OK</button>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div id="toast"><div class="toast-title"></div><div class="toast-msg"></div></div>
+  <!-- TOAST -->
+        <ellipse cx="150" cy="200" rx="85" ry="110" fill="url(#ravenPlumage)" stroke="#0a0a0f" stroke-width="2" filter="url(#plumageTexture)"/>
         
         <!-- Poitrine prominente -->
         <ellipse cx="150" cy="220" rx="80" ry="95" fill="#0d0d12" opacity=".7" filter="url(#plumageTexture)"/>
@@ -1539,6 +1565,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <input type="file" id="image-input" accept="image/*" style="display:none"/>
     <button id="img-btn" title="Envoyer une image" onclick="document.getElementById('image-input').click()">&#128247;</button>
     <input type="text" id="user-input" placeholder="Parle &#224; Stakr..." autocomplete="off"/>
+    <button id="mic-btn" title="Parler" onclick="toggleVoiceInput()">&#127908;</button>
     <button id="send-btn" title="Envoyer">&#9654;</button>
   </div>
 </div>
@@ -1813,11 +1840,15 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     </div>
     <div class="quest-tabs">
       <button class="quest-tab active" data-qtab="daily" onclick="switchQuestTab('daily')">Quotidien</button>
-      <button class="quest-tab" data-qtab="weekly" onclick="switchQuestTab('weekly')">Hebdomadaire</button>
+      <button class="quest-tab" data-qtab="weekly" onclick="switchQuestTab('weekly')">Hebdo</button>
+      <button class="quest-tab" data-qtab="stakr" onclick="switchQuestTab('stakr')">Stakr</button>
+      <button class="quest-tab" data-qtab="runes" onclick="switchQuestTab('runes')">Runes</button>
       <button class="quest-tab" data-qtab="stats" onclick="switchQuestTab('stats')">Stats</button>
     </div>
     <div id="quest-list-daily"></div>
     <div id="quest-list-weekly" style="display:none"></div>
+    <div id="quest-list-stakr" style="display:none"></div>
+    <div id="quest-runes-tab" style="display:none"></div>
     <div id="quest-stats-tab" style="display:none"></div>
   </div>
 </div>
@@ -1923,7 +1954,11 @@ let state = {
     objectives: [],
     history: [],
     lifetimeTotals: {},
-    startDate: null
+    startDate: null,
+    runes: [],
+    secretsUnlocked: [],
+    aiQuests: [],
+    aiQuestCooldown: null
   },
   config: {
     backend: 'ollama',
@@ -3279,6 +3314,12 @@ function initQuests() {
   }
   if (!q.lifetimeTotals) q.lifetimeTotals = {};
   if (!q.startDate) q.startDate = today;
+  if (!q.runes) q.runes = [];
+  if (!q.secretsUnlocked) q.secretsUnlocked = [];
+  if (!q.aiQuests) q.aiQuests = [];
+
+  // Check for secret quest unlocks
+  checkSecretQuests();
 
   // Reset daily objectives if new day
   q.objectives.forEach(o => {
@@ -3334,10 +3375,15 @@ function toggleQuestPanel() {
 
 function switchQuestTab(tab) {
   document.querySelectorAll('.quest-tab').forEach(t => t.classList.toggle('active', t.dataset.qtab === tab));
-  $('#quest-list-daily').style.display = tab === 'daily' ? 'block' : 'none';
-  $('#quest-list-weekly').style.display = tab === 'weekly' ? 'block' : 'none';
-  $('#quest-stats-tab').style.display = tab === 'stats' ? 'block' : 'none';
-  if (tab === 'stats') renderQuestStats();
+  ['daily','weekly','stakr','stats'].forEach(t => {
+    const el = $(`#quest-list-${t}`) || $(`#quest-${t}-tab`);
+    if (el) el.style.display = 'none';
+  });
+  $('#quest-runes-tab').style.display = 'none';
+  if (tab === 'daily' || tab === 'weekly') $(`#quest-list-${tab}`).style.display = 'block';
+  else if (tab === 'stakr') { $('#quest-list-stakr').style.display = 'block'; renderStakrQuests(); }
+  else if (tab === 'runes') { $('#quest-runes-tab').style.display = 'block'; renderRuneCollection(); }
+  else if (tab === 'stats') { $('#quest-stats-tab').style.display = 'block'; renderQuestStats(); }
 }
 
 function renderQuests() {
@@ -3522,6 +3568,10 @@ function logQuestProgress(id) {
     }
   }
 
+  // Check secret quests and runes after each progress
+  checkSecretQuests();
+  checkRuneUnlocks();
+
   saveState();
   renderQuests();
 }
@@ -3549,6 +3599,392 @@ function addQuestXp(amount) {
     showToast('NIVEAU SUPERIEUR !', `Niveau ${q.level} — ${rank.name}`);
     xpNeeded = getXpForLevel(q.level);
   }
+}
+
+// ===== VIKING RUNES =====
+const VIKING_RUNES = [
+  { id: 'fehu', symbol: '\u16A0', name: 'Fehu', meaning: 'Richesse', description: 'Premiere rune du Futhark — prosperite et abondance', condition: 'Premiere quete completee' },
+  { id: 'uruz', symbol: '\u16A2', name: 'Uruz', meaning: 'Force', description: 'L\'aurochs sauvage — force brute et endurance', condition: '50 pompes au total' },
+  { id: 'thurisaz', symbol: '\u16A6', name: 'Thurisaz', meaning: 'Geant', description: 'Le marteau de Thor — protection et puissance', condition: 'Atteindre le niveau 3' },
+  { id: 'ansuz', symbol: '\u16A8', name: 'Ansuz', meaning: 'Dieu', description: 'Le souffle d\'Odin — sagesse et communication', condition: '10 seances de meditation' },
+  { id: 'raido', symbol: '\u16B1', name: 'Raido', meaning: 'Voyage', description: 'Le chariot — mouvement et progression', condition: '30 km de marche au total' },
+  { id: 'kenaz', symbol: '\u16B2', name: 'Kenaz', meaning: 'Torche', description: 'La flamme de la connaissance — creativite et vision', condition: '5 heures de lecture au total' },
+  { id: 'gebo', symbol: '\u16B7', name: 'Gebo', meaning: 'Don', description: 'Le don sacre — generosité et echange', condition: '10 moments sociaux' },
+  { id: 'wunjo', symbol: '\u16B9', name: 'Wunjo', meaning: 'Joie', description: 'La banniere de joie — bonheur et harmonie', condition: 'Streak de 7 jours' },
+  { id: 'hagalaz', symbol: '\u16BA', name: 'Hagalaz', meaning: 'Grele', description: 'La tempete purificatrice — transformation et renouveau', condition: '10 douches froides' },
+  { id: 'nauthiz', symbol: '\u16BE', name: 'Nauthiz', meaning: 'Besoin', description: 'Le feu de la necessite — resilience et survie', condition: '20 jours sans malbouffe' },
+  { id: 'isa', symbol: '\u16C1', name: 'Isa', meaning: 'Glace', description: 'La glace immobile — patience et concentration', condition: '30 seances de deconnexion' },
+  { id: 'jera', symbol: '\u16C3', name: 'Jera', meaning: 'Recolte', description: 'Le cycle des saisons — recompense du travail', condition: 'Completer toutes les quetes quotidiennes 5 fois' },
+  { id: 'eihwaz', symbol: '\u16C7', name: 'Eihwaz', meaning: 'If', description: 'L\'arbre Yggdrasil — eternite et connexion', condition: 'Streak de 21 jours' },
+  { id: 'perthro', symbol: '\u16C8', name: 'Perthro', meaning: 'Destin', description: 'Le calice du destin — mystere et chance', condition: 'Debloquer une quete secrete' },
+  { id: 'algiz', symbol: '\u16C9', name: 'Algiz', meaning: 'Protection', description: 'Les bois de l\'elan — protection et defense', condition: 'Atteindre le niveau 5' },
+  { id: 'sowilo', symbol: '\u16CA', name: 'Sowilo', meaning: 'Soleil', description: 'Le soleil victorieux — succes et vitalite', condition: '1000 XP total' },
+  { id: 'tiwaz', symbol: '\u16CF', name: 'Tiwaz', meaning: 'Tyr', description: 'L\'epee de Tyr — justice et honneur', condition: 'Completer 5 quetes de Stakr' },
+  { id: 'berkano', symbol: '\u16D2', name: 'Berkano', meaning: 'Bouleau', description: 'Le bouleau sacre — croissance et renaissance', condition: 'Atteindre le niveau 7' },
+  { id: 'ehwaz', symbol: '\u16D6', name: 'Ehwaz', meaning: 'Cheval', description: 'Le cheval d\'Odin — mouvement et partenariat', condition: '100 km de marche au total' },
+  { id: 'mannaz', symbol: '\u16D7', name: 'Mannaz', meaning: 'Homme', description: 'L\'humanite — connaissance de soi', condition: '50 entrees de gratitude' },
+  { id: 'laguz', symbol: '\u16DA', name: 'Laguz', meaning: 'Eau', description: 'Le lac sacre — intuition et flux', condition: '100 litres d\'eau au total' },
+  { id: 'ingwaz', symbol: '\u16DC', name: 'Ingwaz', meaning: 'Ing', description: 'Le dieu de la fertilite — accomplissement', condition: 'Atteindre le niveau 9' },
+  { id: 'dagaz', symbol: '\u16DE', name: 'Dagaz', meaning: 'Jour', description: 'L\'aube nouvelle — eveil et clarte', condition: 'Streak de 30 jours' },
+  { id: 'othala', symbol: '\u16DF', name: 'Othala', meaning: 'Heritage', description: 'Le domaine ancestral — heritage et racines', condition: 'Atteindre le niveau 10 — Einherjar' }
+];
+
+function checkRuneUnlocks() {
+  const q = state.quests;
+  const lt = q.lifetimeTotals || {};
+  const owned = new Set(q.runes);
+  let newRunes = [];
+
+  const checks = [
+    ['fehu', () => q.history.length > 0 || Object.values(lt).some(v => v > 0)],
+    ['uruz', () => (lt.pushups || 0) >= 50],
+    ['thurisaz', () => q.level >= 3],
+    ['ansuz', () => (lt.meditation || 0) >= 50],
+    ['raido', () => (lt.walk || 0) >= 30],
+    ['kenaz', () => (lt.reading || 0) >= 300],
+    ['gebo', () => (lt.social || 0) >= 10],
+    ['wunjo', () => q.streak >= 7],
+    ['hagalaz', () => (lt.cold_shower || 0) >= 10],
+    ['nauthiz', () => (lt.no_junk || 0) >= 20],
+    ['isa', () => (lt.phonefree || 0) >= 900],
+    ['jera', () => q.history.filter(h => h.period === 'daily' && h.progress >= h.target).length >= q.objectives.filter(o => o.period === 'daily').length * 5],
+    ['eihwaz', () => q.streak >= 21],
+    ['perthro', () => (q.secretsUnlocked || []).length > 0],
+    ['algiz', () => q.level >= 5],
+    ['sowilo', () => q.totalXp >= 1000],
+    ['tiwaz', () => (q.aiQuests || []).filter(aq => aq.completed).length >= 5],
+    ['berkano', () => q.level >= 7],
+    ['ehwaz', () => (lt.walk || 0) >= 100],
+    ['mannaz', () => (lt.gratitude || 0) >= 50],
+    ['laguz', () => (lt.water || 0) >= 100],
+    ['ingwaz', () => q.level >= 9],
+    ['dagaz', () => q.streak >= 30],
+    ['othala', () => q.level >= 10]
+  ];
+
+  checks.forEach(([id, check]) => {
+    if (!owned.has(id) && check()) {
+      q.runes.push(id);
+      newRunes.push(id);
+    }
+  });
+
+  if (newRunes.length > 0) {
+    newRunes.forEach(id => {
+      const rune = VIKING_RUNES.find(r => r.id === id);
+      if (rune) {
+        addMessage('stakr', `KRAA ! Tu as obtenu la rune **${rune.symbol} ${rune.name}** — *${rune.meaning}* ! ${rune.description}. Collectionne-les toutes, guerrier ! [MOOD:excite]`);
+        showToast(`Rune debloquee !`, `${rune.symbol} ${rune.name} — ${rune.meaning}`);
+      }
+    });
+    saveState();
+  }
+}
+
+function renderRuneCollection() {
+  const container = $('#quest-runes-tab');
+  const owned = new Set(state.quests.runes || []);
+  const count = owned.size;
+
+  let html = `<div class="quest-weekly-summary">
+    <div class="summary-title">Collection de Runes — ${count}/${VIKING_RUNES.length}</div>
+    <div class="quest-xp-bar" style="margin:8px 0"><div class="quest-xp-fill" style="width:${Math.round(count/VIKING_RUNES.length*100)}%"></div></div>
+    <div class="rune-collection">`;
+
+  VIKING_RUNES.forEach(r => {
+    const isOwned = owned.has(r.id);
+    html += `<div class="rune-slot ${isOwned ? 'owned' : 'locked'}">
+      ${isOwned ? r.symbol : '?'}
+      <div class="rune-tooltip">${isOwned ? `<strong>${r.name}</strong> — ${r.meaning}<br/>${r.description}` : `??? — ${r.condition}`}</div>
+    </div>`;
+  });
+
+  html += `</div></div>`;
+  container.innerHTML = html;
+}
+
+// ===== SECRET QUESTS =====
+const SECRET_QUESTS = [
+  { id: 'secret_early', name: 'L\'Aube du Viking', icon: '\uD83C\uDF05', description: 'Valider une quete avant 6h du matin',
+    difficulty: 'difficile', xpReward: 100, runeBonus: 'fehu', check: () => new Date().getHours() < 6 },
+  { id: 'secret_100push', name: 'Centurion du Nord', icon: '\u2694\uFE0F', description: 'Faire 100 pompes en un jour',
+    difficulty: 'difficile', xpReward: 150, check: () => {
+      const obj = state.quests.objectives.find(o => o.id === 'pushups');
+      return obj && obj.progress >= 100;
+    }},
+  { id: 'secret_perfect_week', name: 'Semaine d\'Odin', icon: '\uD83D\uDC51', description: 'Completer tous les objectifs quotidiens 7 jours de suite',
+    difficulty: 'legendaire', xpReward: 300, check: () => state.quests.streak >= 7 && state.quests.objectives.filter(o => o.period === 'daily').every(o => o.progress >= o.target) },
+  { id: 'secret_marathon', name: 'Marathon de Midgard', icon: '\uD83C\uDFC3', description: 'Marcher 42 km au total',
+    difficulty: 'difficile', xpReward: 200, check: () => (state.quests.lifetimeTotals.walk || 0) >= 42 },
+  { id: 'secret_bookworm', name: 'Sage de Mimir', icon: '\uD83D\uDCDA', description: 'Lire 10 heures au total',
+    difficulty: 'moyen', xpReward: 120, check: () => (state.quests.lifetimeTotals.reading || 0) >= 600 },
+  { id: 'secret_hydra', name: 'Source d\'Urd', icon: '\uD83C\uDF0A', description: 'Boire 50 litres au total',
+    difficulty: 'moyen', xpReward: 100, check: () => (state.quests.lifetimeTotals.water || 0) >= 50 },
+  { id: 'secret_night_owl', name: 'Hibou de Huginn', icon: '\uD83E\uDD89', description: 'Valider une quete apres minuit',
+    difficulty: 'facile', xpReward: 50, check: () => { const h = new Date().getHours(); return h >= 0 && h < 3; } },
+  { id: 'secret_allrunes5', name: 'Graveur de Runes', icon: '\u16A0', description: 'Collecter 5 runes',
+    difficulty: 'moyen', xpReward: 150, check: () => (state.quests.runes || []).length >= 5 },
+  { id: 'secret_allrunes12', name: 'Maitre des Runes', icon: '\u16C7', description: 'Collecter 12 runes',
+    difficulty: 'difficile', xpReward: 250, check: () => (state.quests.runes || []).length >= 12 },
+  { id: 'secret_allrunes24', name: 'Volva Eternelle', icon: '\u16DF', description: 'Collecter les 24 runes du Futhark',
+    difficulty: 'legendaire', xpReward: 500, check: () => (state.quests.runes || []).length >= 24 },
+  { id: 'secret_streak30', name: 'Forgeron d\'Habitudes', icon: '\uD83D\uDD25', description: '30 jours de suite sans faillir',
+    difficulty: 'legendaire', xpReward: 400, check: () => state.quests.streak >= 30 },
+  { id: 'secret_1000xp', name: 'Tresor de Fafnir', icon: '\uD83D\uDC8E', description: 'Accumuler 1000 XP total',
+    difficulty: 'moyen', xpReward: 100, check: () => state.quests.totalXp >= 1000 },
+  { id: 'secret_5000xp', name: 'Hoard du Dragon', icon: '\uD83D\uDC09', description: 'Accumuler 5000 XP total',
+    difficulty: 'difficile', xpReward: 250, check: () => state.quests.totalXp >= 5000 }
+];
+
+function checkSecretQuests() {
+  const q = state.quests;
+  const unlocked = new Set(q.secretsUnlocked || []);
+  let newSecrets = [];
+
+  SECRET_QUESTS.forEach(sq => {
+    if (!unlocked.has(sq.id)) {
+      try {
+        if (sq.check()) {
+          q.secretsUnlocked.push(sq.id);
+          newSecrets.push(sq);
+          addQuestXp(sq.xpReward);
+        }
+      } catch(e) {}
+    }
+  });
+
+  if (newSecrets.length > 0) {
+    newSecrets.forEach(sq => {
+      const diffLabel = { facile: 'Facile', moyen: 'Moyen', difficile: 'Difficile', legendaire: 'LEGENDAIRE' }[sq.difficulty];
+      addMessage('stakr', `KRAA ! **QUETE SECRETE DEBLOQUEE !** ${sq.icon} **${sq.name}** (${diffLabel}) — *${sq.description}* ! +${sq.xpReward} XP ! Les dieux t'observent, guerrier ! [MOOD:excite]`);
+      showToast('Quete Secrete !', `${sq.icon} ${sq.name} — +${sq.xpReward} XP`);
+    });
+    checkRuneUnlocks();
+    saveState();
+  }
+}
+
+// ===== AI-GENERATED QUESTS (Stakr tab) =====
+const DIFFICULTY_CONFIG = {
+  facile: { xpMin: 15, xpMax: 30, color: 'diff-facile', label: 'Facile' },
+  moyen: { xpMin: 30, xpMax: 60, color: 'diff-moyen', label: 'Moyen' },
+  difficile: { xpMin: 60, xpMax: 100, color: 'diff-difficile', label: 'Difficile' },
+  legendaire: { xpMin: 100, xpMax: 200, color: 'diff-legendaire', label: 'Legendaire' }
+};
+
+async function generateAIQuests() {
+  const q = state.quests;
+  const btn = $('#ai-quest-gen-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Stakr reflechit...'; }
+
+  const lt = q.lifetimeTotals || {};
+  const rank = getRank(q.level);
+  const context = `Niveau: ${q.level} (${rank.name}), Streak: ${q.streak} jours, XP total: ${q.totalXp}.
+Totaux: ${Object.entries(lt).filter(([,v]) => v > 0).map(([k,v]) => `${k}: ${v}`).join(', ') || 'debutant'}.
+Quetes actuelles: ${q.objectives.map(o => `${o.name}(${o.progress}/${o.target})`).join(', ')}.`;
+
+  const prompt = `Tu es Stakr, corbeau viking IA coach bien-etre. Cree exactement 4 quetes PERSONNALISEES pour ameliorer la sante/bien-etre de ton compagnon.
+
+Contexte du guerrier: ${context}
+
+Regles STRICTES:
+- 1 quete facile, 1 moyenne, 1 difficile, 1 legendaire
+- Adapte au niveau du guerrier (debutant = objectifs accessibles)
+- Chaque quete doit etre DIFFERENT des quetes standard (pompes, marche, meditation, etc.)
+- Categories: physique, mental, sante, social
+- Quetes creatives et originales (ex: tenir la planche, marcher pieds nus, appeler un ami, cuisiner un plat sain, etc.)
+
+Reponds UNIQUEMENT en JSON, format exact:
+[{"name":"Nom","icon":"emoji","target":10,"unit":"min","period":"daily","difficulty":"facile","category":"physique","description":"Description viking courte"},{"name":"...","icon":"...","target":...,"unit":"...","period":"daily","difficulty":"moyen","category":"mental","description":"..."},{"name":"...","icon":"...","target":...,"unit":"...","period":"weekly","difficulty":"difficile","category":"sante","description":"..."},{"name":"...","icon":"...","target":...,"unit":"...","period":"weekly","difficulty":"legendaire","category":"physique","description":"..."}]`;
+
+  try {
+    const keys = state.config.apiKeys || [];
+    if (keys.length === 0 && state.config.apiKey) keys.push(state.config.apiKey);
+    if (keys.length === 0) {
+      showToast('Pas de cle API', 'Ajoute des cles Groq pour que Stakr puisse creer des quetes.');
+      if (btn) { btn.disabled = false; btn.textContent = '\u2694 Stakr, cree-moi des quetes !'; }
+      return;
+    }
+
+    let result = null;
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[(groqKeyIndex + i) % keys.length];
+      if (rateLimitedKeys.has(key) && i < keys.length - 1) continue;
+      await enforceGroqMinDelay();
+      try {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+          body: JSON.stringify({
+            model: state.config.model || 'llama-3.3-70b-versatile',
+            messages: [{ role: 'user', content: prompt }],
+            temperature: 0.9, max_tokens: 800
+          })
+        });
+        if (res.status === 429) { markKeyRateLimited(key); continue; }
+        if (res.ok) {
+          const data = await res.json();
+          result = data.choices?.[0]?.message?.content || '';
+          groqKeyIndex = (groqKeyIndex + i + 1) % keys.length;
+          break;
+        }
+      } catch(e) { continue; }
+    }
+    resetCurrentRequestKey();
+
+    if (!result) {
+      showToast('Erreur', 'Impossible de generer des quetes pour le moment.');
+      if (btn) { btn.disabled = false; btn.textContent = '\u2694 Stakr, cree-moi des quetes !'; }
+      return;
+    }
+
+    // Parse JSON from response
+    const jsonMatch = result.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) throw new Error('No JSON found');
+    const quests = JSON.parse(jsonMatch[0]);
+
+    // Add quests
+    const newAiQuests = quests.map((quest, idx) => ({
+      id: 'ai_' + Date.now() + '_' + idx,
+      name: quest.name,
+      icon: quest.icon || '\u2694',
+      target: quest.target || 1,
+      unit: quest.unit || 'fois',
+      period: quest.period || 'daily',
+      difficulty: quest.difficulty || 'moyen',
+      category: quest.category || 'physique',
+      description: quest.description || '',
+      xpReward: DIFFICULTY_CONFIG[quest.difficulty]?.xpMax || 50,
+      progress: 0,
+      completed: false,
+      createdAt: getTodayStr()
+    }));
+
+    q.aiQuests = [...(q.aiQuests || []), ...newAiQuests];
+    q.aiQuestCooldown = Date.now();
+    saveState();
+
+    addMessage('stakr', `Kraa ! J'ai forge 4 nouvelles quetes pour toi, guerrier ! Va dans l'onglet **Stakr** de tes Quetes Viking pour les decouvrir. Que les dieux guident tes pas ! [MOOD:excite]`);
+    showToast('Quetes creees !', '4 nouvelles quetes de Stakr disponibles');
+    renderStakrQuests();
+  } catch(e) {
+    console.error('AI quest generation error:', e);
+    showToast('Erreur', 'Impossible de comprendre la reponse de Stakr.');
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = '\u2694 Stakr, cree-moi des quetes !'; }
+}
+
+function renderStakrQuests() {
+  const container = $('#quest-list-stakr');
+  const q = state.quests;
+  const aiQuests = q.aiQuests || [];
+
+  // Check cooldown (1 hour between generations)
+  const canGenerate = !q.aiQuestCooldown || (Date.now() - q.aiQuestCooldown) > 3600000;
+  const cooldownMin = q.aiQuestCooldown ? Math.max(0, Math.ceil((3600000 - (Date.now() - q.aiQuestCooldown)) / 60000)) : 0;
+
+  let html = `<button class="quest-ai-btn" id="ai-quest-gen-btn" onclick="generateAIQuests()" ${canGenerate ? '' : 'disabled'}>
+    ${canGenerate ? '\u2694 Stakr, cree-moi des quetes !' : `\u23F3 Prochaine generation dans ${cooldownMin} min`}
+  </button>`;
+
+  // Secret quests section
+  const unlocked = new Set(q.secretsUnlocked || []);
+  html += `<div class="quest-category">Quetes Secretes — ${unlocked.size}/${SECRET_QUESTS.length} debloquees</div>`;
+  SECRET_QUESTS.forEach(sq => {
+    const isUnlocked = unlocked.has(sq.id);
+    const dc = DIFFICULTY_CONFIG[sq.difficulty];
+    html += `<div class="quest-item ${isUnlocked ? 'completed secret' : 'secret-locked'}">
+      <div class="quest-item-header">
+        <span class="quest-item-icon">${isUnlocked ? sq.icon : '?'}</span>
+        <span class="quest-item-name">${isUnlocked ? sq.name : '???'}</span>
+        <span class="quest-difficulty ${dc.color}">${dc.label}</span>
+        <span class="quest-item-xp">${isUnlocked ? '&#10003;' : ''} +${sq.xpReward} XP</span>
+      </div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">${isUnlocked ? sq.description : 'Conditions de deblocage inconnues...'}</div>
+    </div>`;
+  });
+
+  // AI-generated quests
+  if (aiQuests.length > 0) {
+    // Group: active then completed
+    const active = aiQuests.filter(aq => !aq.completed);
+    const done = aiQuests.filter(aq => aq.completed);
+
+    if (active.length > 0) {
+      html += `<div class="quest-category">Defis de Stakr — En cours</div>`;
+      active.forEach(aq => {
+        const pct = Math.min(100, Math.round((aq.progress / aq.target) * 100));
+        const fillClass = pct >= 100 ? 'full' : pct >= 60 ? 'high' : pct >= 30 ? 'mid' : 'low';
+        const dc = DIFFICULTY_CONFIG[aq.difficulty] || DIFFICULTY_CONFIG.moyen;
+        html += `
+          <div class="quest-item">
+            <div class="quest-item-header">
+              <span class="quest-item-icon">${aq.icon}</span>
+              <span class="quest-item-name">${aq.name}</span>
+              <span class="quest-difficulty ${dc.color}">${dc.label}</span>
+              <span class="quest-item-xp">+${aq.xpReward} XP</span>
+            </div>
+            ${aq.description ? `<div style="font-size:.6rem;color:var(--text-dim);margin-bottom:4px;font-style:italic">${aq.description}</div>` : ''}
+            <div class="quest-item-progress">
+              <div class="quest-progress-bar"><div class="quest-progress-fill ${fillClass}" style="width:${pct}%"></div></div>
+              <span class="quest-progress-text">${aq.progress}/${aq.target} ${aq.unit}</span>
+            </div>
+            <div class="quest-item-input">
+              <input type="number" id="qi-${aq.id}" min="0" step="any" placeholder="0" />
+              <span class="unit">${aq.unit}</span>
+              <button onclick="logAIQuestProgress('${aq.id}')">Valider</button>
+            </div>
+          </div>`;
+      });
+    }
+
+    if (done.length > 0) {
+      html += `<div class="quest-category">Accomplis (${done.length})</div>`;
+      done.slice(-10).reverse().forEach(aq => {
+        const dc = DIFFICULTY_CONFIG[aq.difficulty] || DIFFICULTY_CONFIG.moyen;
+        html += `<div class="quest-item completed">
+          <div class="quest-item-header">
+            <span class="quest-item-icon">${aq.icon}</span>
+            <span class="quest-item-name">${aq.name}</span>
+            <span class="quest-difficulty ${dc.color}">${dc.label}</span>
+            <span class="quest-item-xp">&#10003; +${aq.xpReward} XP</span>
+          </div>
+        </div>`;
+      });
+    }
+  }
+
+  container.innerHTML = html;
+}
+
+function logAIQuestProgress(id) {
+  const input = $(`#qi-${id}`);
+  const value = parseFloat(input.value);
+  if (!value || value <= 0) return;
+
+  const q = state.quests;
+  const quest = q.aiQuests.find(aq => aq.id === id);
+  if (!quest || quest.completed) return;
+
+  quest.progress = Math.min(quest.progress + value, quest.target * 2);
+  input.value = '';
+
+  // XP proportional
+  const earnedXp = Math.round(quest.xpReward * Math.min(1, value / quest.target));
+  if (earnedXp > 0) addQuestXp(earnedXp);
+
+  if (quest.progress >= quest.target && !quest.completed) {
+    quest.completed = true;
+    const dc = DIFFICULTY_CONFIG[quest.difficulty];
+    addMessage('stakr', `KRAA ! Defi de Stakr accompli : ${quest.icon} **${quest.name}** (${dc?.label || quest.difficulty}) ! +${quest.xpReward} XP ! Je suis fier de toi, compagnon ! [MOOD:heureux]`);
+    showToast('Defi Stakr reussi !', `${quest.icon} ${quest.name} complete !`);
+    checkSecretQuests();
+    checkRuneUnlocks();
+  }
+
+  saveState();
+  renderStakrQuests();
 }
 
 function renderQuestStats() {
@@ -4870,3 +5306,4 @@ init();
 </script>
 </body>
 </html>
+
