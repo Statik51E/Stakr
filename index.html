@@ -203,6 +203,58 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 .btn-gold{background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:4px;padding:8px 16px;color:#0e0a06;cursor:pointer;font-size:.85rem;font-weight:600;margin-top:8px;transition:transform .15s}
 .btn-gold:active{transform:scale(.95)}
 
+/* ===== QUEST PANEL ===== */
+#quest-btn{background:none;border:none;color:var(--gold-dim);font-size:1.2rem;cursor:pointer;padding:4px 6px;transition:color .2s}
+#quest-btn:hover{color:var(--gold)}
+#quest-panel{position:fixed;top:0;left:-340px;width:320px;max-width:92vw;height:100%;background:linear-gradient(180deg,#1a1208,#120d07);border-right:2px solid var(--border);z-index:101;transition:left .3s;padding:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#quest-panel.open{left:0}
+#quest-panel-header{padding:14px 16px;background:linear-gradient(180deg,#1e150a,#150f08);border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
+#quest-panel-header h2{color:var(--gold);font-size:1rem;font-variant:small-caps;letter-spacing:1px;margin:0}
+#quest-panel-content{padding:12px 14px}
+.quest-level-bar{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;text-align:center}
+.quest-level-bar .level-title{font-size:1.1rem;color:var(--gold);font-weight:700;margin-bottom:4px}
+.quest-level-bar .level-subtitle{font-size:.7rem;color:var(--text-dim);margin-bottom:8px}
+.quest-xp-bar{height:10px;background:var(--wood-mid);border-radius:5px;overflow:hidden;margin-bottom:4px;border:1px solid var(--border)}
+.quest-xp-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold),var(--gold-bright));border-radius:5px;transition:width .5s ease}
+.quest-xp-text{font-size:.65rem;color:var(--text-dim)}
+.quest-stats{display:flex;gap:8px;justify-content:center;margin-top:8px}
+.quest-stat{background:var(--wood-mid);border:1px solid var(--border);border-radius:6px;padding:6px 10px;text-align:center;flex:1}
+.quest-stat .stat-val{font-size:1rem;color:var(--gold);font-weight:700}
+.quest-stat .stat-label{font-size:.6rem;color:var(--text-dim);display:block}
+.quest-tabs{display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border)}
+.quest-tab{flex:1;padding:8px 4px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-size:.75rem;cursor:pointer;font-family:inherit;transition:all .2s}
+.quest-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.quest-tab:hover{color:var(--text)}
+.quest-category{font-size:.7rem;color:var(--gold-dim);font-variant:small-caps;letter-spacing:1px;margin:10px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.quest-item{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:8px;transition:border-color .2s}
+.quest-item.completed{border-color:var(--gold-dim);background:linear-gradient(135deg,var(--surface),rgba(196,154,60,.06))}
+.quest-item-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.quest-item-icon{font-size:1.1rem}
+.quest-item-name{font-size:.8rem;color:var(--text);flex:1;font-weight:600}
+.quest-item-xp{font-size:.65rem;color:var(--gold-dim);white-space:nowrap}
+.quest-item-progress{display:flex;align-items:center;gap:8px}
+.quest-progress-bar{flex:1;height:6px;background:var(--wood-mid);border-radius:3px;overflow:hidden}
+.quest-progress-fill{height:100%;border-radius:3px;transition:width .3s ease}
+.quest-progress-fill.low{background:var(--danger)}
+.quest-progress-fill.mid{background:#e67e22}
+.quest-progress-fill.high{background:var(--gold)}
+.quest-progress-fill.full{background:linear-gradient(90deg,var(--gold),#69f0ae)}
+.quest-item-input{display:flex;align-items:center;gap:4px;margin-top:6px}
+.quest-item-input input{width:60px;background:var(--wood-mid);border:1px solid var(--border);border-radius:4px;padding:4px 6px;color:var(--text);font-size:.75rem;text-align:center;font-family:inherit}
+.quest-item-input .unit{font-size:.65rem;color:var(--text-dim)}
+.quest-item-input button{background:var(--gold-dim);border:none;border-radius:4px;padding:4px 10px;color:#0e0a06;font-size:.7rem;cursor:pointer;font-weight:600;transition:transform .15s;font-family:inherit}
+.quest-item-input button:active{transform:scale(.9)}
+.quest-progress-text{font-size:.65rem;color:var(--text-dim);min-width:55px;text-align:right}
+.quest-add-btn{width:100%;background:var(--surface);border:1px dashed var(--border);border-radius:6px;padding:10px;color:var(--text-dim);font-size:.75rem;cursor:pointer;text-align:center;margin-top:6px;font-family:inherit;transition:all .2s}
+.quest-add-btn:hover{border-color:var(--gold-dim);color:var(--gold-dim)}
+.quest-add-form{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-top:6px;display:none}
+.quest-add-form.visible{display:block}
+.quest-add-form input,.quest-add-form select{width:100%;background:var(--wood-mid);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-size:.75rem;margin-bottom:6px;font-family:inherit}
+.quest-add-form select{cursor:pointer}
+.quest-weekly-summary{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:10px;font-size:.75rem;color:var(--text-dim)}
+.quest-weekly-summary .summary-title{color:var(--gold);font-size:.8rem;margin-bottom:6px;font-weight:600}
+.quest-streak-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#e65100,#ff9800);color:#fff;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width:480px){
   #raven-stage{height:200px}
@@ -221,6 +273,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <button id="project-btn" title="Projets">&#9776;</button>
     <h1>STAKR</h1>
     <span id="mood-indicator">&#9679; Serein</span>
+    <button id="quest-btn" title="Quetes Viking">&#9876;</button>
     <button id="customize-btn" title="Personnaliser Stakr" style="background:none;border:none;color:var(--gold-dim);font-size:1.2rem;cursor:pointer;padding:4px 6px">&#9998;</button>
     <button id="settings-btn" title="Paramètres">&#9881;</button>
   </header>
@@ -1733,6 +1786,35 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
   <button class="btn-gold" onclick="resetAppearance()" style="width:100%">Reinitialiser par defaut</button>
 </div>
 
+<!-- QUEST PANEL -->
+<div id="quest-panel">
+  <div id="quest-panel-header">
+    <h2>&#9876; Quetes Viking</h2>
+    <button class="btn-secondary" onclick="toggleQuestPanel()" style="margin:0;padding:6px 14px;background:var(--gold-dim);border:none;border-radius:4px;color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600">OK</button>
+  </div>
+  <div id="quest-panel-content">
+    <div class="quest-level-bar">
+      <div class="level-title" id="quest-level-title">Niveau 1 — Thrall</div>
+      <div class="level-subtitle" id="quest-rank-subtitle">Esclave affranchi</div>
+      <div class="quest-xp-bar"><div class="quest-xp-fill" id="quest-xp-fill" style="width:0%"></div></div>
+      <div class="quest-xp-text" id="quest-xp-text">0 / 100 XP</div>
+      <div class="quest-stats">
+        <div class="quest-stat"><span class="stat-val" id="quest-streak-val">0</span><span class="stat-label">Jours de suite</span></div>
+        <div class="quest-stat"><span class="stat-val" id="quest-total-xp">0</span><span class="stat-label">XP total</span></div>
+        <div class="quest-stat"><span class="stat-val" id="quest-completed-today">0</span><span class="stat-label">Fait aujourd'hui</span></div>
+      </div>
+    </div>
+    <div class="quest-tabs">
+      <button class="quest-tab active" data-qtab="daily" onclick="switchQuestTab('daily')">Quotidien</button>
+      <button class="quest-tab" data-qtab="weekly" onclick="switchQuestTab('weekly')">Hebdomadaire</button>
+      <button class="quest-tab" data-qtab="stats" onclick="switchQuestTab('stats')">Stats</button>
+    </div>
+    <div id="quest-list-daily"></div>
+    <div id="quest-list-weekly" style="display:none"></div>
+    <div id="quest-stats-tab" style="display:none"></div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div id="toast"><div class="toast-title"></div><div class="toast-msg"></div></div>
 
@@ -1824,6 +1906,16 @@ let state = {
     lastSpontaneous: null,
     topics: []
   },
+  quests: {
+    level: 1,
+    xp: 0,
+    totalXp: 0,
+    streak: 0,
+    lastActiveDate: null,
+    weekStartDate: null,
+    objectives: [],
+    history: []
+  },
   config: {
     backend: 'ollama',
     apiUrl: 'http://localhost:11434/api/chat',
@@ -1864,6 +1956,7 @@ function init() {
   startAurora();
   startWingFlap();
   checkReminders();
+  initQuests();
   setMood(state.mood);
 
   const msgs = getCurrentMessages();
@@ -1894,6 +1987,7 @@ function loadState() {
       if (!state.currentProject) state.currentProject = null;
       if (!state.currentMode) state.currentMode = 'conversation';
       if (!state.appearance) state.appearance = null;
+      if (!state.quests) state.quests = { level:1, xp:0, totalXp:0, streak:0, lastActiveDate:null, weekStartDate:null, objectives:[], history:[] };
       // Restore bg images from separate storage
       if (state.appearance) {
         if (state.appearance.chatBgImage === '__stored__') {
@@ -2892,6 +2986,7 @@ function setupListeners() {
   $('#settings-btn').addEventListener('click', toggleSettings);
   $('#project-btn').addEventListener('click', toggleProjectPanel);
   $('#customize-btn').addEventListener('click', toggleCustomize);
+  $('#quest-btn').addEventListener('click', toggleQuestPanel);
   $('#api-backend').addEventListener('change', updateBackendUI);
   window.addEventListener('resize', () => { resizeCanvas(); resizeAurora(); });
   // Live preview for all customize inputs
@@ -2975,6 +3070,475 @@ function hideTyping() {
   if (el) el.remove();
 }
 
+
+// ===== QUEST SYSTEM — Viking Wellness =====
+const VIKING_RANKS = [
+  { level: 1, name: 'Thrall', subtitle: 'Esclave affranchi', xp: 100 },
+  { level: 2, name: 'Karl', subtitle: 'Homme libre', xp: 200 },
+  { level: 3, name: 'Drengr', subtitle: 'Jeune guerrier', xp: 350 },
+  { level: 4, name: 'Huskarl', subtitle: 'Garde du foyer', xp: 500 },
+  { level: 5, name: 'Berserkr', subtitle: 'Guerrier furieux', xp: 700 },
+  { level: 6, name: 'Hirdman', subtitle: 'Homme du Jarl', xp: 900 },
+  { level: 7, name: 'Jarl', subtitle: 'Seigneur viking', xp: 1200 },
+  { level: 8, name: 'Hersir', subtitle: 'Chef de clan', xp: 1500 },
+  { level: 9, name: 'Konungr', subtitle: 'Roi du Nord', xp: 2000 },
+  { level: 10, name: 'Einherjar', subtitle: 'Elu du Valhalla', xp: 2500 }
+];
+
+const DEFAULT_OBJECTIVES = [
+  // Daily
+  { id: 'pushups', name: 'Pompes', icon: '\uD83D\uDCAA', target: 100, unit: 'pompes', period: 'daily', xpReward: 50, category: 'physique' },
+  { id: 'walk', name: 'Marche', icon: '\uD83D\uDEB6', target: 10, unit: 'km', period: 'daily', xpReward: 60, category: 'physique' },
+  { id: 'meditation', name: 'Meditation', icon: '\uD83E\uDDD8', target: 15, unit: 'min', period: 'daily', xpReward: 40, category: 'mental' },
+  { id: 'phonefree', name: 'Deconnexion', icon: '\uD83D\uDCF5', target: 60, unit: 'min sans tel', period: 'daily', xpReward: 35, category: 'mental' },
+  { id: 'reading', name: 'Lecture', icon: '\uD83D\uDCD6', target: 30, unit: 'min', period: 'daily', xpReward: 40, category: 'mental' },
+  { id: 'water', name: 'Hydratation', icon: '\uD83D\uDCA7', target: 2, unit: 'litres', period: 'daily', xpReward: 25, category: 'sante' },
+  { id: 'sleep', name: 'Sommeil', icon: '\uD83D\uDE34', target: 8, unit: 'heures', period: 'daily', xpReward: 45, category: 'sante' },
+  { id: 'healthy_meal', name: 'Repas sain', icon: '\uD83E\uDD57', target: 2, unit: 'repas', period: 'daily', xpReward: 30, category: 'sante' },
+  { id: 'stretching', name: 'Etirements', icon: '\uD83E\uDD38', target: 10, unit: 'min', period: 'daily', xpReward: 20, category: 'physique' },
+  { id: 'gratitude', name: 'Gratitude', icon: '\uD83D\uDE4F', target: 3, unit: 'choses', period: 'daily', xpReward: 20, category: 'mental' },
+  // Weekly
+  { id: 'sport', name: 'Sport intense', icon: '\uD83C\uDFCB', target: 3, unit: 'seances', period: 'weekly', xpReward: 80, category: 'physique' },
+  { id: 'nature', name: 'Sortie nature', icon: '\uD83C\uDF33', target: 1, unit: 'sortie', period: 'weekly', xpReward: 50, category: 'mental' },
+  { id: 'journal', name: 'Journal intime', icon: '\uD83D\uDCDD', target: 3, unit: 'entrees', period: 'weekly', xpReward: 45, category: 'mental' },
+  { id: 'social', name: 'Moment social', icon: '\uD83E\uDD1D', target: 2, unit: 'moments', period: 'weekly', xpReward: 40, category: 'social' },
+  { id: 'cold_shower', name: 'Douche froide', icon: '\uD83E\uDDCA', target: 3, unit: 'douches', period: 'weekly', xpReward: 45, category: 'sante' },
+  { id: 'no_junk', name: 'Zero malbouffe', icon: '\uD83D\uDEAB', target: 5, unit: 'jours', period: 'weekly', xpReward: 60, category: 'sante' }
+];
+
+const QUEST_CONGRATS = [
+  "Kraa ! Par les dieux, tu as accompli {obj} ! {xp} XP gagnes, guerrier !",
+  "Odin serait fier ! {obj} complete — +{xp} XP pour toi, compagnon !",
+  "Les Valkyries chantent ton nom ! {obj} accompli, +{xp} XP !",
+  "Kraa ! Quel viking ! {obj} termine — {xp} XP de plus dans ton coffre !",
+  "Par le marteau de Thor ! {obj} fait ! +{xp} XP, continue comme ca !"
+];
+
+const LEVEL_UP_MSGS = [
+  "KRAA ! Tu passes au niveau {level} — {rank} ! {subtitle}. Les sagas parleront de toi !",
+  "Par Odin ! Niveau {level} atteint — tu es desormais {rank}, {subtitle} ! Les corbeaux celebrent !",
+  "Le Valhalla tremble ! Niveau {level} — {rank} ({subtitle}). Tu es une legende vivante !"
+];
+
+const STREAK_MSGS = [
+  "Kraa ! {days} jours de suite ! Ta discipline ferait palir un Berserkr !",
+  "{days} jours consecutifs ! Meme les loups de Fenrir respectent ta regularite !",
+  "Par les runes ! {days} jours sans faillir — tu es forge dans l'acier viking !"
+];
+
+function getTodayStr() { return new Date().toISOString().slice(0, 10); }
+function getWeekStart() {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff)).toISOString().slice(0, 10);
+}
+
+function getXpForLevel(level) {
+  const rank = VIKING_RANKS.find(r => r.level === level);
+  return rank ? rank.xp : level * 300;
+}
+
+function getRank(level) {
+  return VIKING_RANKS.find(r => r.level === level) || VIKING_RANKS[VIKING_RANKS.length - 1];
+}
+
+function initQuests() {
+  const q = state.quests;
+  const today = getTodayStr();
+  const weekStart = getWeekStart();
+
+  // Initialize objectives if empty
+  if (!q.objectives || q.objectives.length === 0) {
+    q.objectives = DEFAULT_OBJECTIVES.map(o => ({ ...o, progress: 0, lastReset: today }));
+    q.weekStartDate = weekStart;
+    saveState();
+  }
+
+  // Reset daily objectives if new day
+  q.objectives.forEach(o => {
+    if (o.period === 'daily' && o.lastReset !== today) {
+      // Archive yesterday's progress before reset
+      if (o.progress > 0) {
+        q.history.push({ id: o.id, name: o.name, progress: o.progress, target: o.target, date: o.lastReset, period: 'daily' });
+      }
+      o.progress = 0;
+      o.lastReset = today;
+    }
+  });
+
+  // Reset weekly objectives if new week
+  if (q.weekStartDate !== weekStart) {
+    q.objectives.forEach(o => {
+      if (o.period === 'weekly') {
+        if (o.progress > 0) {
+          q.history.push({ id: o.id, name: o.name, progress: o.progress, target: o.target, date: q.weekStartDate, period: 'weekly' });
+        }
+        o.progress = 0;
+        o.lastReset = today;
+      }
+    });
+    q.weekStartDate = weekStart;
+  }
+
+  // Update streak
+  if (q.lastActiveDate) {
+    const lastDate = new Date(q.lastActiveDate);
+    const todayDate = new Date(today);
+    const diffDays = Math.floor((todayDate - lastDate) / 86400000);
+    if (diffDays > 1) {
+      q.streak = 0; // Streak broken
+    }
+  }
+
+  // Keep history manageable (last 90 days)
+  if (q.history.length > 500) q.history = q.history.slice(-300);
+
+  saveState();
+  renderQuests();
+  scheduleQuestReminders();
+}
+
+function toggleQuestPanel() {
+  const panel = $('#quest-panel');
+  const overlay = $('#settings-overlay');
+  panel.classList.toggle('open');
+  overlay.classList.toggle('open');
+  if (panel.classList.contains('open')) renderQuests();
+}
+
+function switchQuestTab(tab) {
+  document.querySelectorAll('.quest-tab').forEach(t => t.classList.toggle('active', t.dataset.qtab === tab));
+  $('#quest-list-daily').style.display = tab === 'daily' ? 'block' : 'none';
+  $('#quest-list-weekly').style.display = tab === 'weekly' ? 'block' : 'none';
+  $('#quest-stats-tab').style.display = tab === 'stats' ? 'block' : 'none';
+  if (tab === 'stats') renderQuestStats();
+}
+
+function renderQuests() {
+  const q = state.quests;
+  const rank = getRank(q.level);
+  const xpNeeded = getXpForLevel(q.level);
+  const xpPct = Math.min(100, Math.round((q.xp / xpNeeded) * 100));
+
+  // Level bar
+  $('#quest-level-title').textContent = `Niveau ${q.level} — ${rank.name}`;
+  $('#quest-rank-subtitle').textContent = rank.subtitle;
+  $('#quest-xp-fill').style.width = xpPct + '%';
+  $('#quest-xp-text').textContent = `${q.xp} / ${xpNeeded} XP`;
+  $('#quest-streak-val').textContent = q.streak;
+  $('#quest-total-xp').textContent = q.totalXp;
+
+  // Count completed today
+  const today = getTodayStr();
+  const dailyDone = q.objectives.filter(o => o.period === 'daily' && o.progress >= o.target).length;
+  $('#quest-completed-today').textContent = dailyDone;
+
+  renderQuestList('daily');
+  renderQuestList('weekly');
+}
+
+function renderQuestList(period) {
+  const container = $(`#quest-list-${period}`);
+  const objectives = state.quests.objectives.filter(o => o.period === period);
+  const categories = [...new Set(objectives.map(o => o.category))];
+
+  const CATEGORY_NAMES = { physique: 'Physique', mental: 'Mental', sante: 'Sante', social: 'Social', custom: 'Personnel' };
+
+  let html = '';
+  categories.forEach(cat => {
+    html += `<div class="quest-category">${CATEGORY_NAMES[cat] || cat}</div>`;
+    objectives.filter(o => o.category === cat).forEach(o => {
+      const pct = Math.min(100, Math.round((o.progress / o.target) * 100));
+      const isComplete = o.progress >= o.target;
+      const fillClass = pct >= 100 ? 'full' : pct >= 60 ? 'high' : pct >= 30 ? 'mid' : 'low';
+      html += `
+        <div class="quest-item ${isComplete ? 'completed' : ''}">
+          <div class="quest-item-header">
+            <span class="quest-item-icon">${o.icon}</span>
+            <span class="quest-item-name">${o.name}</span>
+            <span class="quest-item-xp">${isComplete ? '&#10003;' : ''} +${o.xpReward} XP</span>
+          </div>
+          <div class="quest-item-progress">
+            <div class="quest-progress-bar"><div class="quest-progress-fill ${fillClass}" style="width:${pct}%"></div></div>
+            <span class="quest-progress-text">${o.progress}/${o.target} ${o.unit}</span>
+          </div>
+          ${isComplete ? '' : `
+          <div class="quest-item-input">
+            <input type="number" id="qi-${o.id}" min="0" step="any" placeholder="0" />
+            <span class="unit">${o.unit}</span>
+            <button onclick="logQuestProgress('${o.id}')">Valider</button>
+          </div>`}
+        </div>`;
+    });
+  });
+
+  // Add custom objective button
+  html += `<button class="quest-add-btn" onclick="toggleAddQuest('${period}')">+ Ajouter un objectif</button>`;
+  html += `<div class="quest-add-form" id="quest-add-form-${period}">
+    <input type="text" id="qa-name-${period}" placeholder="Nom (ex: Abdos)"/>
+    <input type="text" id="qa-icon-${period}" placeholder="Emoji (ex: 🏃)" maxlength="4"/>
+    <div style="display:flex;gap:6px">
+      <input type="number" id="qa-target-${period}" placeholder="Objectif (ex: 50)" min="1" style="flex:1"/>
+      <input type="text" id="qa-unit-${period}" placeholder="Unite (ex: reps)" style="flex:1"/>
+    </div>
+    <select id="qa-cat-${period}">
+      <option value="physique">Physique</option>
+      <option value="mental">Mental</option>
+      <option value="sante">Sante</option>
+      <option value="social">Social</option>
+      <option value="custom">Personnel</option>
+    </select>
+    <input type="number" id="qa-xp-${period}" placeholder="XP recompense (ex: 30)" min="5" max="100"/>
+    <button class="btn-gold" onclick="addCustomQuest('${period}')" style="width:100%;margin-top:2px">Ajouter</button>
+  </div>`;
+
+  container.innerHTML = html;
+}
+
+function toggleAddQuest(period) {
+  const form = $(`#quest-add-form-${period}`);
+  form.classList.toggle('visible');
+}
+
+function addCustomQuest(period) {
+  const name = $(`#qa-name-${period}`).value.trim();
+  const icon = $(`#qa-icon-${period}`).value.trim() || '\u2694';
+  const target = parseInt($(`#qa-target-${period}`).value) || 10;
+  const unit = $(`#qa-unit-${period}`).value.trim() || 'fois';
+  const category = $(`#qa-cat-${period}`).value;
+  const xpReward = parseInt($(`#qa-xp-${period}`).value) || 30;
+
+  if (!name) { showToast('Erreur', 'Donne un nom a ton objectif.'); return; }
+
+  const id = 'custom_' + Date.now();
+  state.quests.objectives.push({
+    id, name, icon, target, unit, period, xpReward, category, progress: 0, lastReset: getTodayStr(), custom: true
+  });
+  saveState();
+  renderQuests();
+  showToast('Objectif ajoute', `${icon} ${name} — ${target} ${unit} par ${period === 'daily' ? 'jour' : 'semaine'}`);
+}
+
+function logQuestProgress(id) {
+  const input = $(`#qi-${id}`);
+  const value = parseFloat(input.value);
+  if (!value || value <= 0) return;
+
+  const q = state.quests;
+  const obj = q.objectives.find(o => o.id === id);
+  if (!obj) return;
+
+  const wasDone = obj.progress >= obj.target;
+  obj.progress = Math.min(obj.progress + value, obj.target * 2); // Allow slight overflow for display
+  const isNowDone = obj.progress >= obj.target;
+  input.value = '';
+
+  // Calculate XP (proportional)
+  const pct = Math.min(1, obj.progress / obj.target);
+  const earnedXp = Math.round(obj.xpReward * (value / obj.target));
+  const cappedXp = Math.min(earnedXp, obj.xpReward); // Don't exceed max
+
+  if (cappedXp > 0) {
+    addQuestXp(cappedXp);
+  }
+
+  // Update streak
+  const today = getTodayStr();
+  if (q.lastActiveDate !== today) {
+    const lastDate = q.lastActiveDate ? new Date(q.lastActiveDate) : null;
+    const todayDate = new Date(today);
+    if (lastDate) {
+      const diffDays = Math.floor((todayDate - lastDate) / 86400000);
+      if (diffDays === 1) {
+        q.streak++;
+        // Streak milestones
+        if (q.streak % 7 === 0) {
+          const msg = STREAK_MSGS[Math.floor(Math.random() * STREAK_MSGS.length)]
+            .replace('{days}', q.streak);
+          addMessage('stakr', msg + ' [MOOD:excite]');
+          addQuestXp(q.streak * 5); // Streak bonus
+        }
+      } else if (diffDays > 1) {
+        q.streak = 1;
+      }
+    } else {
+      q.streak = 1;
+    }
+    q.lastActiveDate = today;
+  }
+
+  // Congratulate on completion
+  if (!wasDone && isNowDone) {
+    const msg = QUEST_CONGRATS[Math.floor(Math.random() * QUEST_CONGRATS.length)]
+      .replace('{obj}', `${obj.icon} ${obj.name}`)
+      .replace('{xp}', obj.xpReward);
+    addMessage('stakr', msg + ' [MOOD:heureux]');
+    showToast('Objectif atteint !', `${obj.icon} ${obj.name} complete !`);
+
+    // Check if all daily objectives are done
+    const allDailyDone = q.objectives.filter(o => o.period === 'daily').every(o => o.progress >= o.target);
+    if (allDailyDone && obj.period === 'daily') {
+      addMessage('stakr', "KRAA ! Tous les objectifs du jour sont accomplis ! Tu es un vrai guerrier du Valhalla ! Bonus +50 XP ! [MOOD:excite]");
+      addQuestXp(50);
+    }
+
+    // Check if all weekly objectives are done
+    const allWeeklyDone = q.objectives.filter(o => o.period === 'weekly').every(o => o.progress >= o.target);
+    if (allWeeklyDone && obj.period === 'weekly') {
+      addMessage('stakr', "KRAA ! Toutes les quetes de la semaine terminees ! Les sagas chanteront ta gloire ! Bonus +100 XP ! [MOOD:excite]");
+      addQuestXp(100);
+    }
+  }
+
+  saveState();
+  renderQuests();
+}
+
+function addQuestXp(amount) {
+  const q = state.quests;
+  // Streak multiplier: +10% per streak day, max +50%
+  const streakBonus = Math.min(0.5, q.streak * 0.1);
+  const totalAmount = Math.round(amount * (1 + streakBonus));
+
+  q.xp += totalAmount;
+  q.totalXp += totalAmount;
+
+  // Level up check
+  let xpNeeded = getXpForLevel(q.level);
+  while (q.xp >= xpNeeded && q.level < 10) {
+    q.xp -= xpNeeded;
+    q.level++;
+    const rank = getRank(q.level);
+    const msg = LEVEL_UP_MSGS[Math.floor(Math.random() * LEVEL_UP_MSGS.length)]
+      .replace('{level}', q.level)
+      .replace('{rank}', rank.name)
+      .replace('{subtitle}', rank.subtitle);
+    addMessage('stakr', msg + ' [MOOD:excite]');
+    showToast('NIVEAU SUPERIEUR !', `Niveau ${q.level} — ${rank.name}`);
+    xpNeeded = getXpForLevel(q.level);
+  }
+}
+
+function renderQuestStats() {
+  const q = state.quests;
+  const container = $('#quest-stats-tab');
+  const today = getTodayStr();
+
+  // Last 7 days summary
+  const last7 = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().slice(0, 10);
+    const dayEntries = q.history.filter(h => h.date === dateStr && h.period === 'daily');
+    const completed = dayEntries.filter(h => h.progress >= h.target).length;
+    const total = dayEntries.length || q.objectives.filter(o => o.period === 'daily').length;
+    const dayName = d.toLocaleDateString('fr-FR', { weekday: 'short' });
+    last7.push({ dayName, dateStr, completed, total, pct: total > 0 ? Math.round((completed / total) * 100) : 0 });
+  }
+
+  // Best categories
+  const catXp = {};
+  q.history.forEach(h => {
+    const obj = DEFAULT_OBJECTIVES.find(o => o.id === h.id) || q.objectives.find(o => o.id === h.id);
+    if (obj) {
+      const cat = obj.category || 'custom';
+      catXp[cat] = (catXp[cat] || 0) + Math.round(obj.xpReward * Math.min(1, h.progress / h.target));
+    }
+  });
+
+  const CATEGORY_NAMES = { physique: 'Physique', mental: 'Mental', sante: 'Sante', social: 'Social', custom: 'Personnel' };
+
+  let html = `
+    <div class="quest-weekly-summary">
+      <div class="summary-title">7 derniers jours</div>
+      <div style="display:flex;gap:4px;align-items:flex-end;height:60px;margin:8px 0">
+        ${last7.map(d => `
+          <div style="flex:1;text-align:center">
+            <div style="background:${d.pct > 0 ? 'var(--gold-dim)' : 'var(--wood-mid)'};height:${Math.max(4, d.pct * 0.5)}px;border-radius:2px;margin-bottom:4px;transition:height .3s"></div>
+            <div style="font-size:.55rem;color:var(--text-dim)">${d.dayName}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="quest-weekly-summary">
+      <div class="summary-title">XP par categorie</div>
+      ${Object.entries(catXp).sort((a,b) => b[1] - a[1]).map(([cat, xp]) => `
+        <div style="display:flex;align-items:center;gap:8px;margin:4px 0">
+          <span style="font-size:.7rem;min-width:60px">${CATEGORY_NAMES[cat] || cat}</span>
+          <div style="flex:1;height:6px;background:var(--wood-mid);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${Math.min(100, (xp / (Math.max(...Object.values(catXp)) || 1)) * 100)}%;background:var(--gold);border-radius:3px"></div>
+          </div>
+          <span style="font-size:.65rem;color:var(--gold)">${xp} XP</span>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="quest-weekly-summary">
+      <div class="summary-title">Recapitulatif</div>
+      <div style="font-size:.7rem;line-height:1.6">
+        Niveau actuel : <strong style="color:var(--gold)">${getRank(q.level).name}</strong> (niv. ${q.level})<br/>
+        XP total accumule : <strong style="color:var(--gold)">${q.totalXp}</strong><br/>
+        Meilleure serie : <strong style="color:var(--gold)">${q.streak} jours</strong><br/>
+        Objectifs en historique : <strong>${q.history.length}</strong>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+function scheduleQuestReminders() {
+  // Schedule daily reminders at 9h, 14h, and 20h
+  const reminderHours = [9, 14, 20];
+  const now = new Date();
+
+  reminderHours.forEach(hour => {
+    const target = new Date();
+    target.setHours(hour, 0, 0, 0);
+    if (target <= now) return; // Already passed today
+
+    const delayMs = target - now;
+    setTimeout(() => {
+      const q = state.quests;
+      const incomplete = q.objectives.filter(o => o.period === 'daily' && o.progress < o.target);
+      if (incomplete.length > 0) {
+        const names = incomplete.slice(0, 3).map(o => `${o.icon} ${o.name}`).join(', ');
+        const remaining = incomplete.length > 3 ? ` et ${incomplete.length - 3} autres` : '';
+
+        // Push notification via ntfy
+        const topic = getNtfyTopic();
+        fetch(`https://ntfy.sh/${topic}`, {
+          method: 'POST',
+          headers: { 'Title': 'Stakr — Quetes Viking' },
+          body: `Il te reste : ${names}${remaining}. Ne faiblis pas, guerrier !`
+        }).catch(() => {});
+
+        // In-app reminder
+        if (hour === 20) {
+          addMessage('stakr', `Kraa ! La nuit approche et il te reste des quetes : ${names}${remaining}. Un vrai Viking n'abandonne pas ! [MOOD:protecteur]`);
+        }
+      }
+    }, delayMs);
+  });
+
+  // Schedule weekly summary on Sunday at 21h
+  const sunday = new Date();
+  const daysUntilSunday = (7 - sunday.getDay()) % 7;
+  if (daysUntilSunday === 0 && now.getHours() < 21) {
+    const sundayTarget = new Date();
+    sundayTarget.setHours(21, 0, 0, 0);
+    const delayMs = sundayTarget - now;
+    setTimeout(() => {
+      const q = state.quests;
+      const weeklyDone = q.objectives.filter(o => o.period === 'weekly' && o.progress >= o.target).length;
+      const weeklyTotal = q.objectives.filter(o => o.period === 'weekly').length;
+      addMessage('stakr', `Kraa ! Bilan de la semaine : ${weeklyDone}/${weeklyTotal} quetes hebdomadaires accomplies. Niveau ${q.level} — ${getRank(q.level).name}. ${weeklyDone === weeklyTotal ? 'Semaine parfaite !' : 'La prochaine semaine sera la tienne !'} [MOOD:${weeklyDone === weeklyTotal ? 'excite' : 'protecteur'}]`);
+    }, delayMs);
+  }
+}
 
 // ===== HELPERS =====
 function getTS() { return new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}); }
