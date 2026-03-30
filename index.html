@@ -1914,7 +1914,9 @@ let state = {
     lastActiveDate: null,
     weekStartDate: null,
     objectives: [],
-    history: []
+    history: [],
+    lifetimeTotals: {},
+    startDate: null
   },
   config: {
     backend: 'ollama',
@@ -3157,8 +3159,12 @@ function initQuests() {
     q.objectives.push(...customObjs);
     q.weekStartDate = weekStart;
     q.version = questVersion;
+    if (!q.lifetimeTotals) q.lifetimeTotals = {};
+    if (!q.startDate) q.startDate = today;
     saveState();
   }
+  if (!q.lifetimeTotals) q.lifetimeTotals = {};
+  if (!q.startDate) q.startDate = today;
 
   // Reset daily objectives if new day
   q.objectives.forEach(o => {
@@ -3257,6 +3263,8 @@ function renderQuestList(period) {
       const pct = Math.min(100, Math.round((o.progress / o.target) * 100));
       const isComplete = o.progress >= o.target;
       const fillClass = pct >= 100 ? 'full' : pct >= 60 ? 'high' : pct >= 30 ? 'mid' : 'low';
+      const lifetime = state.quests.lifetimeTotals[o.id] || 0;
+      const ltDisplay = lifetime % 1 === 0 ? lifetime : lifetime.toFixed(1);
       html += `
         <div class="quest-item ${isComplete ? 'completed' : ''}">
           <div class="quest-item-header">
@@ -3268,6 +3276,7 @@ function renderQuestList(period) {
             <div class="quest-progress-bar"><div class="quest-progress-fill ${fillClass}" style="width:${pct}%"></div></div>
             <span class="quest-progress-text">${o.progress}/${o.target} ${o.unit}</span>
           </div>
+          ${lifetime > 0 ? `<div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">Total : <strong style="color:var(--gold-dim)">${ltDisplay}</strong> ${o.unit} depuis le debut</div>` : ''}
           ${isComplete ? '' : `
           <div class="quest-item-input">
             <input type="number" id="qi-${o.id}" min="0" step="any" placeholder="0" />
@@ -3335,9 +3344,12 @@ function logQuestProgress(id) {
   if (!obj) return;
 
   const wasDone = obj.progress >= obj.target;
-  obj.progress = Math.min(obj.progress + value, obj.target * 2); // Allow slight overflow for display
+  obj.progress = Math.min(obj.progress + value, obj.target * 2);
   const isNowDone = obj.progress >= obj.target;
   input.value = '';
+
+  // Track lifetime totals
+  q.lifetimeTotals[id] = (q.lifetimeTotals[id] || 0) + value;
 
   // Calculate XP (proportional)
   const pct = Math.min(1, obj.progress / obj.target);
@@ -3479,6 +3491,31 @@ function renderQuestStats() {
           <span style="font-size:.65rem;color:var(--gold)">${xp} XP</span>
         </div>
       `).join('')}
+    </div>
+
+    <div class="quest-weekly-summary">
+      <div class="summary-title">Totaux depuis le debut</div>
+      ${(() => {
+        const lt = q.lifetimeTotals || {};
+        const allObjs = q.objectives || [];
+        const daysActive = q.startDate ? Math.max(1, Math.ceil((new Date() - new Date(q.startDate)) / 86400000)) : 1;
+        const entries = allObjs.filter(o => lt[o.id] > 0).sort((a,b) => (lt[b.id]||0) - (lt[a.id]||0));
+        if (entries.length === 0) return '<div style="font-size:.7rem;color:var(--text-dim)">Pas encore de donnees. Valide tes premiers objectifs !</div>';
+        return `<div style="font-size:.6rem;color:var(--text-dim);margin-bottom:8px">Depuis ${daysActive} jour${daysActive > 1 ? 's' : ''} (${q.startDate})</div>` +
+          entries.map(o => {
+            const total = lt[o.id];
+            const display = total % 1 === 0 ? total : total.toFixed(1);
+            const avg = (total / daysActive);
+            const avgDisplay = avg % 1 === 0 ? avg : avg.toFixed(1);
+            return `<div style="display:flex;align-items:center;gap:8px;margin:5px 0;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:.9rem">${o.icon}</span>
+              <span style="font-size:.7rem;flex:1">${o.name}</span>
+              <span style="font-size:.8rem;color:var(--gold);font-weight:700">${display}</span>
+              <span style="font-size:.6rem;color:var(--text-dim);min-width:50px">${o.unit}</span>
+              <span style="font-size:.55rem;color:var(--text-dim)">~${avgDisplay}/${o.period === 'weekly' ? 'sem' : 'jour'}</span>
+            </div>`;
+          }).join('');
+      })()}
     </div>
 
     <div class="quest-weekly-summary">
