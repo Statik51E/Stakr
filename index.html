@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 <style>
 /* ===== RESET & BASE ===== */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -50,14 +50,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 #aurora-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:.3;z-index:0}
 
 /* ===== RAVEN 3D MODEL ===== */
-#raven-3d{width:100%;height:100%;z-index:2;--poster-color:transparent;transition:filter .4s ease, transform .4s cubic-bezier(.4,0,.2,1)}
-#raven-3d::part(default-progress-bar){display:none}
-#raven-3d.idle{animation:ravenFloat 4s ease-in-out infinite}
-#raven-3d.happy{animation:ravenBounce 1.2s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(105,240,174,.4))}
-#raven-3d.angry{animation:ravenShake 0.12s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(255,82,82,.5))}
-#raven-3d.sad{animation:ravenDroop 3s ease-in-out infinite;filter:drop-shadow(0 0 15px rgba(96,125,139,.4))}
-#raven-3d.thinking{animation:ravenThink 2s ease-in-out infinite;filter:drop-shadow(0 0 15px rgba(79,195,247,.4))}
-#raven-3d.excited{animation:ravenExcited 0.5s ease-in-out infinite;filter:drop-shadow(0 0 25px rgba(255,215,0,.5))}
+#raven-3d{width:100%;height:100%;z-index:2;display:block;pointer-events:auto}
 
 /* Tail sway */
 .tail-group{transform-origin:110px 180px;animation:tailSway 6s ease-in-out infinite}
@@ -241,7 +234,6 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 /* ===== RESPONSIVE ===== */
 @media(max-width:480px){
   #raven-stage{height:230px}
-  #raven-3d{width:100%;height:100%}
   .msg{max-width:92%;font-size:.83rem}
   .mode-btn{font-size:.63rem;padding:5px 2px}
   .mode-btn .mode-icon{font-size:.85rem}
@@ -276,22 +268,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <canvas id="particle-canvas"></canvas>
     <div id="lightning-container"></div>
 
-    <model-viewer
-      id="raven-3d"
-      src="./stakr-raven.glb"
-      alt="Stakr — Corbeau Viking 3D"
-      auto-rotate
-      auto-rotate-delay="0"
-      rotation-per-second="12deg"
-      camera-controls
-      touch-action="pan-y"
-      interaction-prompt="none"
-      shadow-intensity="0.8"
-      shadow-softness="0.6"
-      exposure="1.1"
-      environment-image="neutral"
-      style="width:100%;height:100%;background:transparent;--poster-color:transparent;"
-    ></model-viewer>
+    <canvas id="raven-3d"></canvas>
   </div>
 
   <!-- CHAT -->
@@ -1656,18 +1633,7 @@ function applyAppearanceLive() {
 }
 
 function applyAppearanceToSVG(a) {
-  const viewer = document.getElementById('raven-3d');
-  if (!viewer) return;
-
-  // Exposure controls brightness feel
-  const scale = (a.scale || 100) / 100;
-  viewer.exposure = 0.8 + scale * 0.4;
-
-  // Rotation speed from rune speed setting
-  const speeds = { slow: '6deg', normal: '12deg', fast: '24deg' };
-  viewer.rotationPerSecond = speeds[a.runeSpeed] || '12deg';
-
-  // Message styling
+  // Message styling (3D model appearance is handled by the shader)
   applyMessageStyles(a);
 }
 
@@ -3645,16 +3611,11 @@ function setMood(mood) {
   state.mood = mood;
   const m = MOODS[mood];
 
-  ravenSvg.className = m.anim;
   moodIndicator.textContent = m.label;
   moodIndicator.style.color = m.color;
 
-  // Adjust 3D model rotation speed per mood
-  const viewer = document.getElementById('raven-3d');
-  if (viewer) {
-    const moodSpeeds = { idle: '12deg', happy: '20deg', angry: '45deg', sad: '5deg', thinking: '8deg', excited: '30deg' };
-    viewer.rotationPerSecond = moodSpeeds[m.anim] || '12deg';
-  }
+  // Update 3D raven mood
+  if (window.raven3D) window.raven3D.setMood(m.anim);
 
   // Lightning for anger
   if (m.lightning) {
@@ -3992,6 +3953,180 @@ if ('serviceWorker' in navigator) {
 
 // ===== START =====
 init();
+</script>
+
+<!-- THREE.JS RAVEN 3D -->
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const canvas = document.getElementById('raven-3d');
+if (canvas) {
+  const stage = document.getElementById('raven-stage');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setClearColor(0x000000, 0);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(32, canvas.clientWidth / canvas.clientHeight, 0.01, 50);
+  camera.position.set(0, 0.15, 2.8);
+  camera.lookAt(0, 0, 0);
+
+  // Lighting
+  const ambient = new THREE.AmbientLight(0x8090b0, 2.0);
+  scene.add(ambient);
+  const keyLight = new THREE.DirectionalLight(0xffeedd, 2.5);
+  keyLight.position.set(3, 4, 5);
+  scene.add(keyLight);
+  const fillLight = new THREE.DirectionalLight(0x4488cc, 1.0);
+  fillLight.position.set(-2, 1, 3);
+  scene.add(fillLight);
+  const rimLight = new THREE.DirectionalLight(0x4fc3f7, 1.2);
+  rimLight.position.set(0, 2, -4);
+  scene.add(rimLight);
+
+  // Mood state
+  let currentMood = 'idle';
+  const moodParams = {
+    idle:     { wingAmp: 0.025, wingSpd: 2.5, headAmp: 0.012, headSpd: 1.3, tailAmp: 0.015, tailSpd: 1.8, breathAmp: 0.004, breathSpd: 2.0, beakAmp: 0.003, rimColor: 0x4fc3f7 },
+    happy:    { wingAmp: 0.045, wingSpd: 4.0, headAmp: 0.020, headSpd: 2.5, tailAmp: 0.025, tailSpd: 3.0, breathAmp: 0.006, breathSpd: 2.5, beakAmp: 0.005, rimColor: 0x69f0ae },
+    angry:    { wingAmp: 0.060, wingSpd: 7.0, headAmp: 0.015, headSpd: 5.0, tailAmp: 0.035, tailSpd: 5.0, breathAmp: 0.008, breathSpd: 4.0, beakAmp: 0.008, rimColor: 0xff5252 },
+    sad:      { wingAmp: 0.010, wingSpd: 1.2, headAmp: 0.006, headSpd: 0.7, tailAmp: 0.008, tailSpd: 0.8, breathAmp: 0.003, breathSpd: 1.2, beakAmp: 0.001, rimColor: 0x90a4ae },
+    thinking: { wingAmp: 0.015, wingSpd: 1.5, headAmp: 0.018, headSpd: 1.0, tailAmp: 0.010, tailSpd: 1.2, breathAmp: 0.004, breathSpd: 1.5, beakAmp: 0.002, rimColor: 0xce93d8 },
+    excited:  { wingAmp: 0.055, wingSpd: 6.0, headAmp: 0.025, headSpd: 4.0, tailAmp: 0.030, tailSpd: 4.5, breathAmp: 0.007, breathSpd: 3.5, beakAmp: 0.006, rimColor: 0xffab40 }
+  };
+
+  let ravenShaderRef = null;
+
+  // Load model
+  const loader = new GLTFLoader();
+  loader.load('./stakr-raven.glb', (gltf) => {
+    const model = gltf.scene;
+    // Center & scale
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = 1.5 / maxDim;
+    model.scale.setScalar(scale);
+    model.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
+
+    // Inject vertex shader for procedural animation
+    model.traverse((child) => {
+      if (child.isMesh && child.material) {
+        const mat = child.material;
+        mat.onBeforeCompile = (shader) => {
+          shader.uniforms.uTime = { value: 0 };
+          shader.uniforms.uWingAmp = { value: 0.025 };
+          shader.uniforms.uWingSpd = { value: 2.5 };
+          shader.uniforms.uHeadAmp = { value: 0.012 };
+          shader.uniforms.uHeadSpd = { value: 1.3 };
+          shader.uniforms.uTailAmp = { value: 0.015 };
+          shader.uniforms.uTailSpd = { value: 1.8 };
+          shader.uniforms.uBreathAmp = { value: 0.004 };
+          shader.uniforms.uBreathSpd = { value: 2.0 };
+          shader.uniforms.uBeakAmp = { value: 0.003 };
+
+          shader.vertexShader = shader.vertexShader.replace(
+            '#include <common>',
+            `#include <common>
+            uniform float uTime;
+            uniform float uWingAmp, uWingSpd;
+            uniform float uHeadAmp, uHeadSpd;
+            uniform float uTailAmp, uTailSpd;
+            uniform float uBreathAmp, uBreathSpd;
+            uniform float uBeakAmp;
+            `
+          );
+
+          shader.vertexShader = shader.vertexShader.replace(
+            '#include <begin_vertex>',
+            `#include <begin_vertex>
+
+            // Breathing — whole body subtle Y oscillation
+            transformed.y += sin(uTime * uBreathSpd) * uBreathAmp;
+
+            // Wing flap — vertices far from center X
+            float wingFactor = smoothstep(0.25, 0.65, abs(transformed.x));
+            float flapPhase = sin(uTime * uWingSpd) + 0.3 * sin(uTime * uWingSpd * 2.1);
+            transformed.y += flapPhase * uWingAmp * wingFactor;
+            // Wing tips rotate outward slightly
+            transformed.z += sin(uTime * uWingSpd * 0.7) * uWingAmp * 0.5 * wingFactor;
+
+            // Head bob — vertices with high Y
+            float headFactor = smoothstep(0.15, 0.45, transformed.y);
+            transformed.y += sin(uTime * uHeadSpd) * uHeadAmp * headFactor;
+            transformed.z += sin(uTime * uHeadSpd * 0.8 + 0.5) * uHeadAmp * 0.6 * headFactor;
+            // Subtle head tilt
+            transformed.x += sin(uTime * uHeadSpd * 0.6 + 1.0) * uHeadAmp * 0.4 * headFactor;
+
+            // Beak — highest Y + front Z
+            float beakFactor = smoothstep(0.35, 0.55, transformed.y) * smoothstep(0.1, 0.5, transformed.z);
+            transformed.z += sin(uTime * uHeadSpd * 1.5) * uBeakAmp * beakFactor;
+
+            // Tail sway — vertices with low Y
+            float tailFactor = smoothstep(-0.05, -0.40, transformed.y);
+            transformed.x += sin(uTime * uTailSpd) * uTailAmp * tailFactor;
+            transformed.y += sin(uTime * uTailSpd * 1.3 + 0.7) * uTailAmp * 0.4 * tailFactor;
+            `
+          );
+
+          ravenShaderRef = shader;
+        };
+      }
+    });
+
+    scene.add(model);
+  });
+
+  // Resize handler
+  function resize() {
+    const w = stage.clientWidth;
+    const h = stage.clientHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Animation loop
+  const clock = new THREE.Clock();
+  function animate() {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+
+    if (ravenShaderRef) {
+      const p = moodParams[currentMood] || moodParams.idle;
+      const u = ravenShaderRef.uniforms;
+      u.uTime.value = t;
+      // Smooth lerp toward target values
+      u.uWingAmp.value += (p.wingAmp - u.uWingAmp.value) * 0.03;
+      u.uWingSpd.value += (p.wingSpd - u.uWingSpd.value) * 0.03;
+      u.uHeadAmp.value += (p.headAmp - u.uHeadAmp.value) * 0.03;
+      u.uHeadSpd.value += (p.headSpd - u.uHeadSpd.value) * 0.03;
+      u.uTailAmp.value += (p.tailAmp - u.uTailAmp.value) * 0.03;
+      u.uTailSpd.value += (p.tailSpd - u.uTailSpd.value) * 0.03;
+      u.uBreathAmp.value += (p.breathAmp - u.uBreathAmp.value) * 0.03;
+      u.uBreathSpd.value += (p.breathSpd - u.uBreathSpd.value) * 0.03;
+      u.uBeakAmp.value += (p.beakAmp - u.uBeakAmp.value) * 0.03;
+
+      // Update rim light color
+      rimLight.color.lerp(new THREE.Color(p.rimColor), 0.03);
+    }
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // Expose mood control to main script
+  window.raven3D = {
+    setMood(mood) { currentMood = mood; },
+    getMood() { return currentMood; }
+  };
+}
 </script>
 </body>
 </html>
