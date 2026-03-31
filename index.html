@@ -171,6 +171,10 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 #quest-panel-header h2{color:var(--gold);font-size:1rem;font-variant:small-caps;letter-spacing:1px;margin:0}
 #quest-panel-content{padding:12px 14px}
 .quest-level-bar{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;text-align:center}
+.viking-avatar-row{display:flex;align-items:center;gap:12px;text-align:left}
+#viking-avatar{flex-shrink:0;width:72px;height:90px}
+#viking-avatar svg{width:100%;height:100%}
+.viking-avatar-info{flex:1;min-width:0}
 .quest-level-bar .level-title{font-size:1.1rem;color:var(--gold);font-weight:700;margin-bottom:4px}
 .quest-level-bar .level-subtitle{font-size:.7rem;color:var(--text-dim);margin-bottom:8px}
 .quest-xp-bar{height:10px;background:var(--wood-mid);border-radius:5px;overflow:hidden;margin-bottom:4px;border:1px solid var(--border)}
@@ -658,10 +662,15 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
   </div>
   <div id="quest-panel-content">
     <div class="quest-level-bar">
-      <div class="level-title" id="quest-level-title">Niveau 1 — Thrall</div>
-      <div class="level-subtitle" id="quest-rank-subtitle">Esclave affranchi</div>
-      <div class="quest-xp-bar"><div class="quest-xp-fill" id="quest-xp-fill" style="width:0%"></div></div>
-      <div class="quest-xp-text" id="quest-xp-text">0 / 100 XP</div>
+      <div class="viking-avatar-row">
+        <div id="viking-avatar"></div>
+        <div class="viking-avatar-info">
+          <div class="level-title" id="quest-level-title">Niveau 1 — Thrall</div>
+          <div class="level-subtitle" id="quest-rank-subtitle">Esclave affranchi</div>
+          <div class="quest-xp-bar"><div class="quest-xp-fill" id="quest-xp-fill" style="width:0%"></div></div>
+          <div class="quest-xp-text" id="quest-xp-text">0 / 100 XP</div>
+        </div>
+      </div>
       <div class="quest-stats">
         <div class="quest-stat"><span class="stat-val" id="quest-streak-val">0</span><span class="stat-label">Jours de suite</span></div>
         <div class="quest-stat"><span class="stat-val" id="quest-total-xp">0</span><span class="stat-label">XP total</span></div>
@@ -2235,11 +2244,171 @@ function switchQuestTab(tab) {
   else if (tab === 'stats') { $('#quest-stats-tab').style.display = 'block'; renderQuestStats(); }
 }
 
+function getVikingAvatarSVG(level) {
+  // Colors & gear per level
+  const tiers = [
+    // Lv1 Thrall: rags, no gear
+    { skin:'#c8a07a', hair:'#5c3a1e', tunic:'#6b5b4f', tunicDark:'#4a3d33', belt:'#4a3d33',
+      helmet:false, horns:false, cape:false, shield:false, weapon:'none', aura:false,
+      eyes:'#3a2a1a', beard:false, armBand:false },
+    // Lv2 Karl: simple tunic, short beard
+    { skin:'#c8a07a', hair:'#5c3a1e', tunic:'#5a6e3a', tunicDark:'#3d4d28', belt:'#6b4226',
+      helmet:false, horns:false, cape:false, shield:false, weapon:'none', aura:false,
+      eyes:'#3a2a1a', beard:'#5c3a1e', armBand:false },
+    // Lv3 Drengr: leather armor, axe
+    { skin:'#c8a07a', hair:'#5c3a1e', tunic:'#7a5a3a', tunicDark:'#5a3d22', belt:'#8b6914',
+      helmet:false, horns:false, cape:false, shield:false, weapon:'axe', aura:false,
+      eyes:'#3a2a1a', beard:'#5c3a1e', armBand:'#8b6914' },
+    // Lv4 Huskarl: iron helmet, shield
+    { skin:'#c8a07a', hair:'#5c3a1e', tunic:'#5a4a3a', tunicDark:'#3d3026', belt:'#8b6914',
+      helmet:'#8a8a8a', horns:false, cape:false, shield:'#8b4513', weapon:'axe', aura:false,
+      eyes:'#3a5a8a', beard:'#5c3a1e', armBand:'#8a8a8a' },
+    // Lv5 Berserkr: bear fur, red eyes, no helmet
+    { skin:'#d4a070', hair:'#8a2000', tunic:'#5a2a1a', tunicDark:'#3d1a0e', belt:'#2a1a0e',
+      helmet:false, horns:false, cape:'#5a3a2a', shield:false, weapon:'dual', aura:'#ff4444',
+      eyes:'#cc0000', beard:'#8a2000', armBand:'#aa3a1a' },
+    // Lv6 Hirdman: chainmail, horned helmet, sword
+    { skin:'#c8a07a', hair:'#3a2a1a', tunic:'#7a7a7a', tunicDark:'#5a5a5a', belt:'#aa8a3a',
+      helmet:'#9a9a9a', horns:false, cape:'#2a3a5a', shield:'#5a6a8a', weapon:'sword', aura:false,
+      eyes:'#4a6a9a', beard:'#3a2a1a', armBand:'#aa8a3a' },
+    // Lv7 Jarl: gold trim, horns, cape
+    { skin:'#c8a07a', hair:'#2a1a0a', tunic:'#2a4a7a', tunicDark:'#1a3050', belt:'#daa520',
+      helmet:'#b0b0b0', horns:'#daa520', cape:'#8b0000', shield:'#daa520', weapon:'sword', aura:'#daa520',
+      eyes:'#4a8ada', beard:'#2a1a0a', armBand:'#daa520' },
+    // Lv8 Hersir: ornate gold armor, big horns
+    { skin:'#c8a07a', hair:'#1a0a00', tunic:'#8a6a2a', tunicDark:'#6a4a1a', belt:'#ffd700',
+      helmet:'#c0c0c0', horns:'#ffd700', cape:'#5a0000', shield:'#ffd700', weapon:'spear', aura:'#ffa500',
+      eyes:'#5a9aea', beard:'#1a0a00', armBand:'#ffd700' },
+    // Lv9 Konungr: crown-helmet, royal blue cape, glowing
+    { skin:'#d4b08a', hair:'#0a0a0a', tunic:'#3a3a8a', tunicDark:'#2a2a6a', belt:'#ffd700',
+      helmet:'#ffd700', horns:'#ffd700', cape:'#1a1a6a', shield:'#ffd700', weapon:'sword', aura:'#7c4dff',
+      eyes:'#7c4dff', beard:'#0a0a0a', armBand:'#ffd700' },
+    // Lv10 Einherjar: divine golden warrior, wings, full glow
+    { skin:'#e0c090', hair:'#ffd700', tunic:'#ffd700', tunicDark:'#daa520', belt:'#fff8dc',
+      helmet:'#ffd700', horns:'#fff8dc', cape:'#daa520', shield:'#ffd700', weapon:'dual', aura:'#ffd700',
+      eyes:'#ffffff', beard:'#daa520', armBand:'#fff8dc' }
+  ];
+  const t = tiers[Math.min(level, 10) - 1];
+
+  let svg = `<svg viewBox="0 0 72 90" xmlns="http://www.w3.org/2000/svg">`;
+
+  // Aura glow
+  if (t.aura) svg += `<ellipse cx="36" cy="48" rx="30" ry="38" fill="none" stroke="${t.aura}" stroke-width="1.5" opacity=".3"><animate attributeName="opacity" values=".15;.4;.15" dur="2s" repeatCount="indefinite"/></ellipse>`;
+
+  // Cape
+  if (t.cape) svg += `<path d="M22 38 C18 50 16 70 20 82 L52 82 C56 70 54 50 50 38Z" fill="${t.cape}" opacity=".8"/>`;
+
+  // Legs
+  svg += `<rect x="28" y="68" width="6" height="14" rx="2" fill="${t.tunicDark}"/>`;
+  svg += `<rect x="38" y="68" width="6" height="14" rx="2" fill="${t.tunicDark}"/>`;
+  // Boots
+  svg += `<rect x="27" y="79" width="8" height="5" rx="2" fill="#3a2a1a"/>`;
+  svg += `<rect x="37" y="79" width="8" height="5" rx="2" fill="#3a2a1a"/>`;
+
+  // Body / tunic
+  svg += `<path d="M26 38 L22 68 H50 L46 38Z" fill="${t.tunic}"/>`;
+  svg += `<path d="M26 38 L28 38 L25 68 H22Z" fill="${t.tunicDark}" opacity=".5"/>`;
+
+  // Belt
+  svg += `<rect x="23" y="52" width="26" height="4" rx="1" fill="${t.belt}"/>`;
+  if (level >= 7) svg += `<circle cx="36" cy="54" r="2.5" fill="${t.belt}" stroke="#fff8dc" stroke-width=".5"/>`;
+
+  // Arms
+  svg += `<rect x="16" y="40" width="8" height="20" rx="3" fill="${t.tunic}"/>`;
+  svg += `<rect x="48" y="40" width="8" height="20" rx="3" fill="${t.tunic}"/>`;
+  // Hands
+  svg += `<circle cx="20" cy="62" r="3" fill="${t.skin}"/>`;
+  svg += `<circle cx="52" cy="62" r="3" fill="${t.skin}"/>`;
+
+  // Arm bands
+  if (t.armBand) {
+    svg += `<rect x="16" y="44" width="8" height="2" rx=".5" fill="${t.armBand}"/>`;
+    svg += `<rect x="48" y="44" width="8" height="2" rx=".5" fill="${t.armBand}"/>`;
+  }
+
+  // Shield (left arm)
+  if (t.shield) svg += `<circle cx="14" cy="54" r="9" fill="${t.shield}" stroke="#3a2a1a" stroke-width="1"/><line x1="14" y1="46" x2="14" y2="62" stroke="#3a2a1a" stroke-width="1"/><line x1="6" y1="54" x2="22" y2="54" stroke="#3a2a1a" stroke-width="1"/>`;
+
+  // Weapon (right hand)
+  if (t.weapon === 'axe') {
+    svg += `<line x1="52" y1="42" x2="52" y2="72" stroke="#8a6a3a" stroke-width="2"/>`;
+    svg += `<path d="M48 42 Q52 38 56 42 L54 48 H50Z" fill="#aaa"/>`;
+  } else if (t.weapon === 'sword') {
+    svg += `<line x1="52" y1="38" x2="52" y2="72" stroke="#ccc" stroke-width="1.5"/>`;
+    svg += `<rect x="49" y="60" width="6" height="3" rx="1" fill="${t.belt}"/>`;
+    svg += `<path d="M50 38 L52 34 L54 38Z" fill="#eee"/>`;
+  } else if (t.weapon === 'spear') {
+    svg += `<line x1="56" y1="24" x2="56" y2="76" stroke="#8a6a3a" stroke-width="1.5"/>`;
+    svg += `<path d="M54 24 L56 18 L58 24Z" fill="#ccc"/>`;
+  } else if (t.weapon === 'dual') {
+    svg += `<line x1="52" y1="40" x2="58" y2="70" stroke="#ccc" stroke-width="1.5"/>`;
+    svg += `<line x1="20" y1="40" x2="14" y2="70" stroke="#ccc" stroke-width="1.5"/>`;
+    svg += `<path d="M56 38 L58 34 L60 38Z" fill="#eee"/>`;
+    svg += `<path d="M12 38 L14 34 L16 38Z" fill="#eee"/>`;
+  }
+
+  // Neck
+  svg += `<rect x="32" y="30" width="8" height="8" rx="2" fill="${t.skin}"/>`;
+
+  // Head
+  svg += `<ellipse cx="36" cy="24" rx="11" ry="12" fill="${t.skin}"/>`;
+
+  // Hair
+  svg += `<path d="M25 22 Q25 12 36 10 Q47 12 47 22 L45 20 Q44 14 36 13 Q28 14 27 20Z" fill="${t.hair}"/>`;
+
+  // Eyes
+  svg += `<ellipse cx="31" cy="23" rx="2" ry="1.8" fill="white"/>`;
+  svg += `<ellipse cx="41" cy="23" rx="2" ry="1.8" fill="white"/>`;
+  svg += `<circle cx="31.5" cy="23" r="1.2" fill="${t.eyes}"/>`;
+  svg += `<circle cx="41.5" cy="23" r="1.2" fill="${t.eyes}"/>`;
+  if (t.aura) {
+    svg += `<circle cx="31.5" cy="23" r="1.2" fill="${t.eyes}"><animate attributeName="opacity" values=".8;1;.8" dur="1.5s" repeatCount="indefinite"/></circle>`;
+    svg += `<circle cx="41.5" cy="23" r="1.2" fill="${t.eyes}"><animate attributeName="opacity" values=".8;1;.8" dur="1.5s" repeatCount="indefinite"/></circle>`;
+  }
+
+  // Beard
+  if (t.beard) {
+    if (level >= 7) {
+      svg += `<path d="M29 28 Q30 40 36 42 Q42 40 43 28" fill="${t.beard}" opacity=".85"/>`;
+    } else if (level >= 4) {
+      svg += `<path d="M30 28 Q32 36 36 37 Q40 36 42 28" fill="${t.beard}" opacity=".8"/>`;
+    } else {
+      svg += `<path d="M31 28 Q34 33 36 33 Q38 33 41 28" fill="${t.beard}" opacity=".7"/>`;
+    }
+  }
+
+  // Helmet
+  if (t.helmet) {
+    svg += `<path d="M25 22 Q25 10 36 8 Q47 10 47 22 L44 20 Q43 13 36 11 Q29 13 28 20Z" fill="${t.helmet}"/>`;
+    svg += `<rect x="24" y="21" width="24" height="3" rx="1" fill="${t.helmet}"/>`;
+    // Nose guard
+    svg += `<rect x="35" y="20" width="2" height="6" rx=".5" fill="${t.helmet}"/>`;
+  }
+
+  // Horns
+  if (t.horns) {
+    svg += `<path d="M26 18 Q20 8 16 4" stroke="${t.horns}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+    svg += `<path d="M46 18 Q52 8 56 4" stroke="${t.horns}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+  }
+
+  // Lv10 wings
+  if (level >= 10) {
+    svg += `<path d="M18 38 Q8 28 2 18 Q6 30 12 36Z" fill="#ffd700" opacity=".6"><animate attributeName="opacity" values=".4;.7;.4" dur="2s" repeatCount="indefinite"/></path>`;
+    svg += `<path d="M54 38 Q64 28 70 18 Q66 30 60 36Z" fill="#ffd700" opacity=".6"><animate attributeName="opacity" values=".4;.7;.4" dur="2s" repeatCount="indefinite"/></path>`;
+  }
+
+  svg += `</svg>`;
+  return svg;
+}
+
 function renderQuests() {
   const q = state.quests;
   const rank = getRank(q.level);
   const xpNeeded = getXpForLevel(q.level);
   const xpPct = Math.min(100, Math.round((q.xp / xpNeeded) * 100));
+
+  // Viking avatar
+  $('#viking-avatar').innerHTML = getVikingAvatarSVG(q.level);
 
   // Level bar
   $('#quest-level-title').textContent = `Niveau ${q.level} — ${rank.name}`;
