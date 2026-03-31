@@ -386,6 +386,16 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 .adv-btn.danger{border-color:#c0392b;color:#e74c3c}
 .adv-btn.danger:hover{background:rgba(192,57,43,.15)}
 .adv-btn:disabled{opacity:.4;cursor:not-allowed}
+.adv-input-bar{display:flex;gap:6px;padding:8px 10px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0}
+.adv-input-bar input{flex:1;background:var(--wood-mid);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:.75rem;font-family:'Cinzel',serif;outline:none}
+.adv-input-bar input:focus{border-color:var(--gold-dim);box-shadow:0 0 6px rgba(212,175,55,.2)}
+.adv-input-bar input::placeholder{color:var(--text-dim);font-style:italic}
+#adv-send-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--gold-dim);background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+#adv-send-btn:hover{transform:scale(1.1);box-shadow:0 0 8px rgba(212,175,55,.4)}
+.adv-msg-user{background:linear-gradient(135deg,var(--gold-dim),rgba(212,175,55,.15));border:1px solid var(--gold-dim);border-radius:8px;padding:6px 10px;margin:4px 0;font-size:.7rem;color:var(--gold);text-align:right;font-style:italic}
+.adv-msg-dm{background:rgba(139,69,19,.15);border-left:3px solid var(--gold-dim);border-radius:0 8px 8px 0;padding:8px 10px;margin:4px 0;font-size:.7rem;color:var(--text);line-height:1.4}
+.adv-typing{color:var(--text-dim);font-size:.65rem;font-style:italic;padding:4px 10px;animation:advPulse 1.5s infinite}
+@keyframes advPulse{0%,100%{opacity:.4}50%{opacity:1}}
 .adv-camp-section{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:6px}
 .adv-camp-title{font-size:.8rem;color:var(--gold);font-weight:700;margin-bottom:6px;font-family:'Cinzel',serif}
 .adv-inv-item{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;background:var(--wood-mid);border:1px solid var(--border);border-radius:4px;font-size:.6rem;color:var(--text);margin:2px}
@@ -447,6 +457,10 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <div class="adv-hud" id="adv-hud"></div>
     <div class="adv-content" id="adv-content"></div>
     <div class="adv-actions" id="adv-actions"></div>
+    <div class="adv-input-bar" id="adv-input-bar">
+      <input type="text" id="adv-input" placeholder="Dis a Stakr ce que tu fais..." autocomplete="off"/>
+      <button id="adv-send-btn" onclick="advSendMessage()">🪶</button>
+    </div>
   </div>
 
   <!-- CHAT -->
@@ -5847,6 +5861,297 @@ function toggleAdventureMode(active) {
     inputBar.style.display = '';
   }
 }
+
+// ===== ADVENTURE AI — STAKR MAITRE DU JEU =====
+let advHistory = []; // conversation history for adventure AI
+
+function getAdvSystemPrompt() {
+  const zone = ADV_ZONES.find(z => z.id === adv.currentZone) || {};
+  const inv = adv.inventory.map(i => `${i.icon} ${i.name}`).join(', ') || 'rien';
+  const quests = adv.activeQuests.map(q => `${q.name} (${q.progress}/${q.target})`).join(', ') || 'aucune';
+  const inCombat = !!adv._combat;
+  const combatInfo = inCombat ? `\nCOMBAT EN COURS contre ${adv._combat.enemy.icon} ${adv._combat.enemy.name} (PV ennemi: ${adv._combat.enemy.currentHp}/${adv._combat.enemy.hp}, tes PV: ${adv._combat.playerHp}/${adv.maxHp}, round ${adv._combat.round})` : '';
+  const encounterInfo = adv._encounter && !inCombat ? `\nRENCONTRE : ${adv._encounter.icon} ${adv._encounter.name} est devant toi. ${adv._encounter.intro}` : '';
+
+  return `Tu es Stakr, corbeau viking IA, et tu es le MAITRE DU JEU (MJ) d'une aventure RPG nordique interactive.
+
+ROLE : Tu narres l'aventure, tu decris les lieux, les ambiances, les PNJs, et tu adaptes le scenario en temps reel selon ce que le joueur dit ou fait. Tu es immersif, creatif, et tu gardes le ton Viking/nordique.
+
+REGLES NARRATIVES :
+- Decris les environnements avec atmosphere (sons, odeurs, meteo, details visuels)
+- Fais vivre les PNJs avec des dialogues et personnalites
+- Adapte le scenario aux actions du joueur — s'il dit "je fouille", decris ce qu'il trouve
+- S'il dit quelque chose d'absurde, reagis avec humour mais reste dans l'univers
+- Garde tes reponses entre 2 et 6 phrases max — rythme rapide, pas de roman
+- Tutoie le joueur, parle a la 2e personne ("Tu vois...", "Tu entends...")
+
+TAGS D'ACTIONS — Insere ces tags dans ta reponse quand c'est pertinent pour declencher des mecaniques de jeu :
+- [MONSTER:nom:pv:atk:icone] — Fait apparaitre un monstre et lance un combat. Ex: [MONSTER:Draugr:30:8:💀]
+- [LOOT:nom:icone] — Le joueur trouve/recoit un objet. Ex: [LOOT:Epee runique:⚔️]
+- [DAMAGE:n] — Le joueur subit n degats (piege, poison, chute...). Ex: [DAMAGE:5]
+- [HEAL:n] — Le joueur recupere n PV (source, potion...). Ex: [HEAL:10]
+- [ENERGY:n] — Le joueur gagne (+) ou perd (-) de l'energie. Ex: [ENERGY:-2]
+- [XP:n] — Le joueur gagne n XP d'aventure. Ex: [XP:15]
+- [MOVE:zoneId] — Deplace le joueur vers une zone. Zones valides : campement, foret, montagne, volcan, citadelle, marais, temple. Ex: [MOVE:montagne]
+- [QUEST:nom:cible:xp] — Cree une nouvelle quete. Ex: [QUEST:Retrouver l'amulette:1:25]
+- [QUEST_PROGRESS:type] — Avance une quete (types: kill, explore, collect, combat_survive). Ex: [QUEST_PROGRESS:kill]
+
+Tu peux combiner plusieurs tags. Place-les naturellement dans ton texte narratif.
+
+ETAT DU JOUEUR :
+- Zone actuelle : ${zone.icon || ''} ${zone.name || 'Inconnue'} — ${zone.desc || ''}
+- Niveau aventure : ${adv.level}
+- PV : ${adv.hp}/${adv.maxHp}
+- Energie : ${adv.energy}/${adv.maxEnergy}
+- XP : ${adv.xp}/${adv.level * 60}
+- Inventaire : ${inv}
+- Quetes actives : ${quests}${combatInfo}${encounterInfo}
+
+${inCombat ? 'Le joueur est EN COMBAT. Ses actions concernent le combat. Utilise les tags [DAMAGE:n] si l\'ennemi le frappe, ou [MONSTER_DAMAGE:n] si le joueur attaque.' : ''}
+${zone.id === 'campement' ? 'Le joueur est au campement — lieu sur, repos possible, PNJs amicaux.' : ''}
+
+Sois creatif et immersif ! Le joueur te dit ce qu'il fait, tu racontes ce qui se passe.`;
+}
+
+async function advSendMessage() {
+  const input = document.getElementById('adv-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  // Show user message in narrative
+  adv.narrative.push({ type: 'user-action', text, time: Date.now() });
+  advRenderContent();
+
+  // Show typing
+  const actionsEl = document.getElementById('adv-actions');
+  if (actionsEl) actionsEl.innerHTML = '<div class="adv-typing">🪶 Stakr observe et raconte...</div>';
+
+  // Build messages
+  advHistory.push({ role: 'user', content: text });
+  if (advHistory.length > 30) advHistory.splice(0, advHistory.length - 30);
+
+  const systemPrompt = getAdvSystemPrompt();
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    ...advHistory
+  ];
+
+  try {
+    selectGroqKey();
+    const response = await advCallAI(messages);
+
+    advHistory.push({ role: 'assistant', content: response });
+
+    // Parse and execute tags BEFORE displaying
+    const cleanText = advParseAndExecuteTags(response);
+
+    // Show DM narration
+    adv.narrative.push({ type: 'dm', text: cleanText, time: Date.now() });
+    advRenderContent();
+    advRenderHud();
+    advRenderMap();
+    saveAdventure();
+
+    // Restore action buttons based on current state
+    if (adv._combat) {
+      advRenderCombat();
+    } else if (adv.currentZone === 'campement') {
+      advRenderCampActions(true);
+    } else {
+      advRenderExploreActions();
+    }
+
+  } catch (err) {
+    console.error('Adventure AI error:', err);
+    adv.narrative.push({ type: 'dm', text: 'Kraa... Les brumes obscurcissent ma vision. Reessaie, Viking.', time: Date.now() });
+    advRenderContent();
+    if (adv._combat) advRenderCombat();
+    else if (adv.currentZone === 'campement') advRenderCampActions(true);
+    else advRenderExploreActions();
+  }
+}
+
+async function advCallAI(messages) {
+  const backend = state.config.backend || 'ollama';
+  let model = state.config.model;
+
+  if (backend === 'groq') {
+    const keys = state.config.apiKeys || [];
+    if (keys.length === 0 && state.config.apiKey) keys.push(state.config.apiKey);
+    const key = keys[groqKeyIndex % keys.length] || keys[0];
+    await enforceGroqMinDelay();
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+      body: JSON.stringify({ model, messages, temperature: 0.85, max_tokens: 500 })
+    });
+    if (!res.ok) throw new Error('Groq error: ' + res.status);
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || 'Le MJ reste silencieux...';
+  } else if (backend === 'ollama') {
+    const base = state.config.ollamaUrl || 'http://localhost:11434';
+    const res = await fetch(`${base}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages, stream: false, options: { temperature: 0.85 } })
+    });
+    if (!res.ok) throw new Error('Ollama error: ' + res.status);
+    const data = await res.json();
+    return data.message?.content || 'Le MJ reste silencieux...';
+  } else {
+    // Custom backend
+    const customUrl = state.config.customUrl;
+    const customKey = state.config.customKey;
+    const headers = { 'Content-Type': 'application/json' };
+    if (customKey) headers['Authorization'] = `Bearer ${customKey}`;
+    const res = await fetch(customUrl, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ model, messages, temperature: 0.85, max_tokens: 500 })
+    });
+    if (!res.ok) throw new Error('Custom AI error: ' + res.status);
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || 'Le MJ reste silencieux...';
+  }
+}
+
+function advParseAndExecuteTags(response) {
+  let text = response;
+
+  // [MONSTER:nom:pv:atk:icone] — spawn + auto-combat
+  const monsterMatches = [...text.matchAll(/\[MONSTER:([^:]+):(\d+):(\d+):([^\]]+)\]/g)];
+  for (const m of monsterMatches) {
+    const monster = { name: m[1], hp: parseInt(m[2]), atk: parseInt(m[3]), icon: m[4], zone: adv.currentZone, intro: '', actions: ['combattre','fuir'], difficulty: 'medium', drops: [] };
+    adv._encounter = monster;
+    adv._combat = {
+      enemy: { ...monster, currentHp: monster.hp },
+      playerHp: adv.hp,
+      turn: 'player',
+      round: 0
+    };
+  }
+  text = text.replace(/\[MONSTER:[^\]]+\]/g, '');
+
+  // [LOOT:nom:icone]
+  const lootMatches = [...text.matchAll(/\[LOOT:([^:]+):([^\]]+)\]/g)];
+  for (const m of lootMatches) {
+    adv.inventory.push({ name: m[1], icon: m[2], found: Date.now() });
+    adv.narrative.push({ type: 'loot', text: `🎁 Tu obtiens : ${m[2]} **${m[1]}**`, time: Date.now() });
+  }
+  text = text.replace(/\[LOOT:[^\]]+\]/g, '');
+
+  // [DAMAGE:n]
+  const dmgMatches = [...text.matchAll(/\[DAMAGE:(\d+)\]/g)];
+  for (const m of dmgMatches) {
+    const dmg = parseInt(m[1]);
+    adv.hp = Math.max(0, adv.hp - dmg);
+    if (adv._combat) adv._combat.playerHp = adv.hp;
+  }
+  text = text.replace(/\[DAMAGE:\d+\]/g, '');
+
+  // [HEAL:n]
+  const healMatches = [...text.matchAll(/\[HEAL:(\d+)\]/g)];
+  for (const m of healMatches) {
+    adv.hp = Math.min(adv.maxHp, adv.hp + parseInt(m[1]));
+    if (adv._combat) adv._combat.playerHp = adv.hp;
+  }
+  text = text.replace(/\[HEAL:\d+\]/g, '');
+
+  // [ENERGY:n]
+  const enMatches = [...text.matchAll(/\[ENERGY:(-?\d+)\]/g)];
+  for (const m of enMatches) {
+    adv.energy = Math.max(0, Math.min(adv.maxEnergy, adv.energy + parseInt(m[1])));
+  }
+  text = text.replace(/\[ENERGY:-?\d+\]/g, '');
+
+  // [XP:n]
+  const xpMatches = [...text.matchAll(/\[XP:(\d+)\]/g)];
+  for (const m of xpMatches) {
+    const xpGain = parseInt(m[1]);
+    adv.xp += xpGain;
+    // Level up check
+    while (adv.xp >= adv.level * 60) {
+      adv.xp -= adv.level * 60;
+      adv.level++;
+      adv.maxHp += 5;
+      adv.hp = adv.maxHp;
+      adv.maxEnergy += 1;
+      adv.energy = adv.maxEnergy;
+      adv.narrative.push({ type: 'loot', text: `⬆️ **NIVEAU ${adv.level} !** PV max +5, Energie max +1`, time: Date.now() });
+    }
+    // Also give XP to main Stakr system
+    if (typeof addQuestXp === 'function') addQuestXp(xpGain);
+  }
+  text = text.replace(/\[XP:\d+\]/g, '');
+
+  // [MOVE:zoneId]
+  const moveMatch = text.match(/\[MOVE:(\w+)\]/);
+  if (moveMatch) {
+    const targetZone = ADV_ZONES.find(z => z.id === moveMatch[1]);
+    if (targetZone) {
+      adv.currentZone = moveMatch[1];
+      adv.moveCount++;
+      adv.totalExplored++;
+    }
+  }
+  text = text.replace(/\[MOVE:\w+\]/g, '');
+
+  // [QUEST:nom:cible:xp]
+  const questMatches = [...text.matchAll(/\[QUEST:([^:]+):(\d+):(\d+)\]/g)];
+  for (const m of questMatches) {
+    const quest = { id: 'advq_' + Date.now() + Math.random(), name: m[1], target: parseInt(m[2]), progress: 0, xp: parseInt(m[3]), from: 'Stakr', icon: '🪶', created: Date.now() };
+    adv.activeQuests.push(quest);
+    adv.narrative.push({ type: 'loot', text: `📜 **Nouvelle quete :** ${m[1]} (objectif: ${m[2]}) — +${m[3]} XP`, time: Date.now() });
+  }
+  text = text.replace(/\[QUEST:[^\]]+\]/g, '');
+
+  // [QUEST_PROGRESS:type]
+  const qpMatches = [...text.matchAll(/\[QUEST_PROGRESS:(\w+)\]/g)];
+  for (const m of qpMatches) {
+    advUpdateQuestProgress(m[1], '');
+  }
+  text = text.replace(/\[QUEST_PROGRESS:\w+\]/g, '');
+
+  // Check defeat
+  if (adv.hp <= 0) {
+    adv.narrative.push({ type: 'combat-hit', text: '💀 **Tu es tombe au combat !** Tu te reveilles au campement...', time: Date.now() });
+    adv.hp = Math.floor(adv.maxHp * 0.3);
+    adv.currentZone = 'campement';
+    adv._combat = null;
+    adv._encounter = null;
+  }
+
+  return text.trim();
+}
+
+// Adventure input: Enter key to send
+document.addEventListener('DOMContentLoaded', () => {
+  const advInput = document.getElementById('adv-input');
+  if (advInput) {
+    advInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        advSendMessage();
+      }
+    });
+  }
+});
+
+// Update advRenderContent to support user-action and dm message types
+const _origAdvRenderContent = advRenderContent;
+advRenderContent = function() {
+  const el = document.getElementById('adv-content');
+  if (!el) return;
+  const items = adv.narrative.slice(-12);
+  el.innerHTML = items.map(n => {
+    const txt = (n.text || '').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    if (n.type === 'user-action') return `<div class="adv-msg-user">🗣️ ${txt}</div>`;
+    if (n.type === 'dm') return `<div class="adv-msg-dm">🪶 ${txt}</div>`;
+    return `<div class="adv-narrative"><span class="${n.type}">${txt}</span></div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+};
 
 // ===== START =====
 loadAdventure();
