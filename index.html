@@ -617,6 +617,26 @@ RAPPELS :
 - Si on te demande un rappel → inclure [REMINDER:HH:MM:message] (format 24h, obligatoire)
 - Exemple : "Rappelle-moi à 12h30 de manger" → [REMINDER:12:30:Manger]
 
+CRÉATION DE QUÊTES :
+- Quand ton compagnon te demande de créer une quête/défi/objectif, tu DOIS inclure un ou plusieurs tags [QUEST:...] dans ta réponse
+- Format OBLIGATOIRE : [QUEST:nom|emoji|objectif|unité|période|difficulté|catégorie]
+- nom : nom court de la quête (ex: Planche)
+- emoji : un seul emoji (ex: 💪)
+- objectif : nombre cible (ex: 60)
+- unité : l'unité de mesure (ex: sec, reps, min, km, fois)
+- période : daily ou weekly
+- difficulté : facile, moyen, difficile, legendaire
+- catégorie : physique, mental, sante, social
+- Exemples :
+  * "Crée-moi un défi abdos" → [QUEST:Abdos|💪|30|reps|daily|moyen|physique]
+  * "Ajoute un défi lecture 30min par jour" → [QUEST:Lecture intense|📖|30|min|daily|moyen|mental]
+  * "Défi de la semaine : 5 cold showers" → [QUEST:Douches glaciales|🥶|5|fois|weekly|difficile|sante]
+  * "Je veux un méga défi course" → [QUEST:Course du Berserker|🏃|10|km|weekly|legendaire|physique]
+- Tu peux créer PLUSIEURS quêtes d'un coup avec plusieurs tags [QUEST:...]
+- Adapte la difficulté et les objectifs au niveau de ton compagnon (débutant = objectifs accessibles)
+- Après les tags, décris les quêtes avec ton style viking habituel
+- La quête sera automatiquement ajoutée dans l'onglet Stakr des Quêtes Viking avec l'XP correspondante
+
 TES FONCTIONNALITÉS (tu fais partie de l'application Stakr) :
 - Tu es un corbeau viking IA avec un corps SVG animé (ailes, yeux, runes, cornes) que ton compagnon peut personnaliser (couleurs, formes, arrière-plan, presets vikings)
 - Tu as des ÉMOTIONS VISIBLES : ton humeur change tes animations, la couleur de tes runes, les particules autour de toi, et même des éclairs quand tu es en colère
@@ -1842,7 +1862,7 @@ function addMessage(role, content, timestamp, silent = false, imageUrl = null) {
   if (imageUrl) {
     html += `<img class="chat-img" src="${imageUrl}" alt="image" onclick="openLightbox(this.src)"/>`;
   }
-  const cleanContent = content.replace(/\[MOOD:\w+\]/g, '').replace(/\[REMINDER:[^\]]+\]/g, '').trim();
+  const cleanContent = content.replace(/\[MOOD:\w+\]/g, '').replace(/\[REMINDER:[^\]]+\]/g, '').replace(/\[QUEST:[^\]]+\]/g, '').trim();
   if (cleanContent) html += formatText(cleanContent);
   const tsText = timestamp || new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
   html += `<div class="timestamp">${tsText}</div>`;
@@ -2646,6 +2666,47 @@ function logAIQuestProgress(id) {
   renderStakrQuests();
 }
 
+function addQuestFromAI(name, icon, target, unit, period, difficulty, category) {
+  const q = state.quests;
+  if (!q.aiQuests) q.aiQuests = [];
+
+  const dc = DIFFICULTY_CONFIG[difficulty] || DIFFICULTY_CONFIG.moyen;
+  const quest = {
+    id: 'ai_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    name: name,
+    icon: icon || '⚔',
+    target: parseInt(target) || 1,
+    unit: unit || 'fois',
+    period: period === 'weekly' ? 'weekly' : 'daily',
+    difficulty: difficulty || 'moyen',
+    category: category || 'physique',
+    description: '',
+    xpReward: dc.xpMax || 50,
+    progress: 0,
+    completed: false,
+    createdAt: getTodayStr()
+  };
+
+  q.aiQuests.push(quest);
+  saveState();
+  renderStakrQuests();
+  showToast('Quete creee !', `${quest.icon} ${quest.name} — +${quest.xpReward} XP`);
+}
+
+function parseQuestTags(response) {
+  const questRegex = /\[QUEST:([^\]]+)\]/g;
+  let match;
+  let count = 0;
+  while ((match = questRegex.exec(response)) !== null) {
+    const parts = match[1].split('|').map(s => s.trim());
+    if (parts.length >= 7) {
+      addQuestFromAI(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6]);
+      count++;
+    }
+  }
+  return count;
+}
+
 function renderQuestStats() {
   const q = state.quests;
   const container = $('#quest-stats-tab');
@@ -2957,10 +3018,17 @@ async function sendMessage() {
       }
     }
 
+    // Parse quests
+    const questCount = parseQuestTags(response);
+    if (questCount > 0) {
+      checkSecretQuests();
+      checkRuneUnlocks();
+    }
+
     extractMemoryFacts(text, response);
 
     // ===== MULTI-MESSAGE DELIVERY =====
-    const parts = response.split(/\n\n+/).filter(p => p.trim().replace(/\[MOOD:\w+\]/g,'').replace(/\[REMINDER:[^\]]+\]/g,'').trim());
+    const parts = response.split(/\n\n+/).filter(p => p.trim().replace(/\[MOOD:\w+\]/g,'').replace(/\[REMINDER:[^\]]+\]/g,'').replace(/\[QUEST:[^\]]+\]/g,'').trim());
     if (parts.length > 1) {
       // Deliver as multiple bubbles like a real person
       for (let i = 0; i < parts.length; i++) {
