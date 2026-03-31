@@ -347,6 +347,58 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 .monde-challenge-reward{font-size:.6rem;color:var(--gold-dim)}
 .monde-reqs{font-size:.55rem;color:var(--text-dim);margin-top:2px;text-shadow:0 1px 2px #000}
 
+/* ===== MODE AVENTURE ===== */
+#adventure-panel{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg);position:relative}
+#adventure-panel.active{display:flex;flex-direction:column}
+.adv-map-area{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;flex-shrink:0;border-bottom:2px solid var(--border)}
+.adv-map-area img{width:100%;height:100%;object-fit:cover;display:block}
+.adv-fog{position:absolute;inset:0;pointer-events:none;z-index:1}
+.adv-zone-pin{position:absolute;z-index:3;transform:translate(-50%,-50%);cursor:pointer;transition:all .3s}
+.adv-zone-pin .pin-ring{width:24px;height:24px;border-radius:50%;border:2px solid var(--zone-color);background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;font-size:.7rem;transition:all .3s}
+.adv-zone-pin.current .pin-ring{box-shadow:0 0 10px var(--zone-color),0 0 20px var(--zone-color);border-width:3px;animation:advPulse 2s ease-in-out infinite}
+.adv-zone-pin.locked{opacity:.35;pointer-events:none}
+.adv-zone-pin .pin-name{font-size:.45rem;color:#fff;text-shadow:0 1px 3px #000;text-align:center;margin-top:1px;white-space:nowrap;font-weight:700}
+@keyframes advPulse{0%,100%{box-shadow:0 0 6px var(--zone-color)}50%{box-shadow:0 0 16px var(--zone-color),0 0 28px var(--zone-color)}}
+.adv-player{position:absolute;z-index:5;transform:translate(-50%,-100%);transition:left 1.2s ease,top 1.2s ease;pointer-events:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,.9))}
+.adv-player svg{width:26px;height:32px}
+.adv-hud{display:flex;gap:6px;padding:8px 10px;background:var(--surface);border-bottom:1px solid var(--border);align-items:center;flex-shrink:0}
+.adv-hud-zone{flex:1;font-size:.75rem;color:var(--gold);font-weight:700;font-family:'Cinzel',serif}
+.adv-hud-bar{display:flex;align-items:center;gap:4px}
+.adv-hud-bar label{font-size:.55rem;color:var(--text-dim)}
+.adv-bar{width:50px;height:6px;background:var(--wood-mid);border-radius:3px;overflow:hidden;border:1px solid var(--border)}
+.adv-bar-fill{height:100%;border-radius:3px;transition:width .4s}
+.adv-bar-hp .adv-bar-fill{background:linear-gradient(90deg,#c0392b,#e74c3c)}
+.adv-bar-en .adv-bar-fill{background:linear-gradient(90deg,#2980b9,#3498db)}
+.adv-bar-xp .adv-bar-fill{background:linear-gradient(90deg,var(--gold-dim),var(--gold))}
+.adv-content{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
+.adv-narrative{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:.75rem;color:var(--text);line-height:1.5;animation:advFadeIn .4s ease}
+@keyframes advFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.adv-narrative .narrator{color:var(--text-dim);font-style:italic}
+.adv-narrative .npc-talk{color:#90caf9;font-weight:600}
+.adv-narrative .combat-hit{color:#e74c3c;font-weight:700}
+.adv-narrative .combat-miss{color:var(--text-dim)}
+.adv-narrative .loot{color:var(--gold);font-weight:700}
+.adv-actions{display:flex;gap:6px;padding:8px 10px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.adv-btn{flex:1;min-width:70px;padding:8px 6px;border:1px solid var(--border);border-radius:6px;background:var(--wood-mid);color:var(--text);font-size:.7rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:600;text-align:center;transition:all .2s}
+.adv-btn:hover{border-color:var(--gold-dim);color:var(--gold)}
+.adv-btn:active{transform:scale(.95)}
+.adv-btn.primary{background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;border-color:var(--gold)}
+.adv-btn.danger{border-color:#c0392b;color:#e74c3c}
+.adv-btn.danger:hover{background:rgba(192,57,43,.15)}
+.adv-btn:disabled{opacity:.4;cursor:not-allowed}
+.adv-camp-section{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:6px}
+.adv-camp-title{font-size:.8rem;color:var(--gold);font-weight:700;margin-bottom:6px;font-family:'Cinzel',serif}
+.adv-inv-item{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;background:var(--wood-mid);border:1px solid var(--border);border-radius:4px;font-size:.6rem;color:var(--text);margin:2px}
+.adv-quest-item{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--border);font-size:.65rem}
+.adv-quest-item:last-child{border-bottom:none}
+.adv-dice{display:inline-block;font-size:1.2rem;animation:advDiceRoll .5s ease;margin:0 4px}
+@keyframes advDiceRoll{0%{transform:rotate(0)}25%{transform:rotate(90deg)}50%{transform:rotate(180deg)}75%{transform:rotate(270deg)}100%{transform:rotate(360deg)}}
+.adv-combat-vs{display:flex;align-items:center;justify-content:space-around;padding:8px;background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.2);border-radius:8px;margin-bottom:6px}
+.adv-combatant{text-align:center}
+.adv-combatant-icon{font-size:1.5rem}
+.adv-combatant-name{font-size:.65rem;font-weight:700;color:var(--text)}
+.adv-combatant-hp{font-size:.55rem;color:var(--text-dim)}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width:480px){
   #raven-stage{height:230px}
@@ -377,6 +429,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <button class="mode-btn" data-mode="creation"><span class="mode-icon">&#9998;</span>Cr&#233;ation</button>
     <button class="mode-btn" data-mode="design"><span class="mode-icon">&#9670;</span>Design</button>
     <button class="mode-btn" data-mode="code"><span class="mode-icon">&lt;/&gt;</span>Code</button>
+    <button class="mode-btn" data-mode="aventure"><span class="mode-icon">&#128506;</span>Aventure</button>
   </div>
 
   <!-- RAVEN STAGE -->
@@ -386,6 +439,14 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <div id="lightning-container"></div>
 
     <canvas id="raven-3d"></canvas>
+  </div>
+
+  <!-- ADVENTURE MODE -->
+  <div id="adventure-panel">
+    <div class="adv-map-area" id="adv-map"></div>
+    <div class="adv-hud" id="adv-hud"></div>
+    <div class="adv-content" id="adv-content"></div>
+    <div class="adv-actions" id="adv-actions"></div>
   </div>
 
   <!-- CHAT -->
@@ -819,7 +880,8 @@ const MODES = {
   recherche: { label:'Recherche', prompt:'\n\nMODE RECHERCHE : Tu es en mode recherche avec acces a internet. Sois analytique, precis, cite des sources quand possible. Structure tes reponses avec des listes et des faits verifiables. Privilegie la profondeur et l\'exactitude. Tu peux chercher des informations recentes sur le web.' },
   creation: { label:'Création', prompt:'\n\nMODE CRÉATION : Tu es en mode créatif. Sois inventif, inspiré, propose des idées originales. N\'hésite pas à être audacieux et poétique. Utilise des métaphores vikings pour enrichir tes créations.' },
   design: { label:'Design', prompt:'\n\nMODE DESIGN : Tu es en mode design/visuel. Donne des conseils UI/UX, décris des palettes de couleurs, des mises en page, des styles visuels. Sois précis sur les dimensions, couleurs (hex), et tendances.' },
-  code: { label:'Code', prompt:'\n\nMODE CODE : Tu es en mode programmation. Écris du code propre et commenté. Explique ta logique. Utilise des blocs de code formatés. Sois technique et précis.' }
+  code: { label:'Code', prompt:'\n\nMODE CODE : Tu es en mode programmation. Écris du code propre et commenté. Explique ta logique. Utilise des blocs de code formatés. Sois technique et précis.' },
+  aventure: { label:'Aventure', prompt:'' }
 };
 
 // ===== STATE =====
@@ -889,6 +951,7 @@ function init() {
   applyConfig();
   setupListeners();
   setupModes();
+  if (state.currentMode === 'aventure') toggleAdventureMode(true);
   setupImageInput();
   setupCustomize();
   renderProjectList();
@@ -1292,8 +1355,15 @@ function setupModes() {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      const prevMode = state.currentMode;
       state.currentMode = btn.dataset.mode;
       saveState();
+      // Toggle adventure mode panel
+      if (btn.dataset.mode === 'aventure') {
+        toggleAdventureMode(true);
+      } else if (prevMode === 'aventure') {
+        toggleAdventureMode(false);
+      }
       showToast('Mode ' + (MODES[state.currentMode]?.label || ''), 'Stakr adapte ses reponses.');
     });
   });
@@ -5189,7 +5259,597 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.error('SW error:', err));
 }
 
+// ===== MODE AVENTURE =====
+const ADV_ZONES = [
+  { id:'campement', name:'Campement Viking', icon:'🏕️', color:'#daa520', x:45, y:45,
+    desc:'Ton camp de base au coeur de Midgard. Feu de camp, repos et preparation.',
+    safe:true, levelReq:0 },
+  { id:'foret', name:'Foret des Anciens', icon:'🌲', color:'#2e7d32', x:22, y:60,
+    desc:'Des arbres millenaires murmurent d\'anciens secrets. Des creatures rodent dans l\'ombre.',
+    safe:false, levelReq:0, encounterRate:0.4 },
+  { id:'montagne', name:'Pics de Jotunheim', icon:'🏔️', color:'#78909c', x:48, y:18,
+    desc:'Les sommets glaciaux ou les geants de givre menacent les voyageurs imprudents.',
+    safe:false, levelReq:2, encounterRate:0.45 },
+  { id:'volcan', name:'Volcan des Furies', icon:'🌋', color:'#e53935', x:82, y:55,
+    desc:'Lave en fusion et cendres brulantes. Les demons de feu y gardent des tresors.',
+    safe:false, levelReq:4, encounterRate:0.5 },
+  { id:'citadelle', name:'Citadelle Gelee', icon:'🏰', color:'#29b6f6', x:75, y:22,
+    desc:'Une forteresse de glace eternelle. Des sorciers puissants y pratiquent la magie ancienne.',
+    safe:false, levelReq:5, encounterRate:0.45 },
+  { id:'marais', name:'Marais de Hel', icon:'☠️', color:'#7c4dff', x:58, y:78,
+    desc:'Brumes toxiques et morts-vivants. Les Draugr errent sans repos dans ce lieu maudit.',
+    safe:false, levelReq:6, encounterRate:0.5 },
+  { id:'temple', name:'Temple d\'Asgard', icon:'⚡', color:'#ffd700', x:22, y:18,
+    desc:'Le sanctuaire sacre au sommet du monde. Seuls les plus valeureux y accedent.',
+    safe:false, levelReq:8, encounterRate:0.35 }
+];
+
+const ADV_NPCS = [
+  // Foret
+  { id:'loup', name:'Loup Geant', icon:'🐺', zone:'foret', diff:'facile', hp:20, atk:8,
+    intro:'Un loup aux yeux jaunes surgit des buissons, les crocs dehors !',
+    actions:['combattre','fuir'], drops:['Croc de Loup','Fourrure Grise'], xp:15 },
+  { id:'elfe', name:'Elfe Sylvain', icon:'🧝', zone:'foret', diff:'facile', hp:15, atk:5,
+    intro:'Un elfe apparait entre les arbres. "Voyageur, j\'ai un service a te demander..."',
+    actions:['negocier','combattre','fuir'], questChance:0.7, drops:['Herbe Elfique'], xp:10 },
+  { id:'troll_foret', name:'Troll des Bois', icon:'👹', zone:'foret', diff:'moyen', hp:35, atk:12,
+    intro:'Un troll massif bloque le chemin, sa massue prete a frapper !',
+    actions:['combattre','fuir'], drops:['Massue de Troll','Pierre de Force'], xp:25 },
+  // Montagne
+  { id:'geant_givre', name:'Geant de Givre', icon:'🧊', zone:'montagne', diff:'moyen', hp:45, atk:15,
+    intro:'Le sol tremble ! Un geant de givre se dresse devant toi, immense et glacial.',
+    actions:['combattre','fuir'], drops:['Coeur de Givre','Hache Glaciale'], xp:35 },
+  { id:'nain', name:'Nain Forgeron', icon:'⚒️', zone:'montagne', diff:'facile', hp:20, atk:6,
+    intro:'"Hola Viking ! Je forgeais des armes et j\'ai perdu mes minerais..."',
+    actions:['negocier','combattre','fuir'], questChance:0.8, drops:['Lingot de Fer'], xp:15 },
+  { id:'aigle', name:'Aigle des Tempetes', icon:'🦅', zone:'montagne', diff:'moyen', hp:30, atk:13,
+    intro:'Un aigle colossal pique vers toi depuis les nuages, ses serres electriques !',
+    actions:['combattre','fuir'], drops:['Plume de Tempete','Oeil d\'Aigle'], xp:30 },
+  // Volcan
+  { id:'demon_feu', name:'Demon de Feu', icon:'😈', zone:'volcan', diff:'difficile', hp:55, atk:18,
+    intro:'Des flammes tourbillonnent et un demon emerge de la lave, ricanant !',
+    actions:['combattre','fuir'], drops:['Essence de Flamme','Epee Ardente'], xp:50 },
+  { id:'salamandre', name:'Salamandre de Lave', icon:'🦎', zone:'volcan', diff:'moyen', hp:35, atk:14,
+    intro:'Une creature de lave ondule vers toi, laissant des traces de feu au sol.',
+    actions:['combattre','fuir'], drops:['Ecaille de Feu','Pierre de Lave'], xp:30 },
+  // Citadelle
+  { id:'sorcier', name:'Sorcier du Givre', icon:'🧙', zone:'citadelle', diff:'difficile', hp:40, atk:16,
+    intro:'"Tu oses penetrer dans ma citadelle ? Ma magie glaciale va te consumer !"',
+    actions:['combattre','negocier','fuir'], questChance:0.5, drops:['Baton de Givre','Grimoire Ancien'], xp:45 },
+  { id:'golem', name:'Golem de Glace', icon:'🗿', zone:'citadelle', diff:'moyen', hp:50, atk:12,
+    intro:'Un golem de glace se met en mouvement, ses poings lourds craquent le sol.',
+    actions:['combattre','fuir'], drops:['Cristal Bleu','Bouclier de Givre'], xp:35 },
+  // Marais
+  { id:'draugr', name:'Draugr', icon:'💀', zone:'marais', diff:'moyen', hp:35, atk:14,
+    intro:'Un mort-vivant nordique se releve de la boue, son epee rouillée brandie !',
+    actions:['combattre','fuir'], drops:['Os Ancien','Amulette Maudite'], xp:30 },
+  { id:'sorciere', name:'Sorciere des Marais', icon:'🧙‍♀️', zone:'marais', diff:'difficile', hp:35, atk:17,
+    intro:'"Hehe, un Viking egare... J\'ai un marche a te proposer, mortel."',
+    actions:['negocier','combattre','fuir'], questChance:0.6, drops:['Potion Sombre','Oeil de Corbeau'], xp:40 },
+  // Temple
+  { id:'valkyrie', name:'Valkyrie', icon:'⚔️', zone:'temple', diff:'difficile', hp:60, atk:20,
+    intro:'Une Valkyrie en armure dorée se pose devant toi. "Prouve ta valeur, mortel !"',
+    actions:['combattre'], drops:['Aile de Valkyrie','Epee du Valhalla','Couronne Celeste'], xp:70 },
+  { id:'sage', name:'Sage d\'Odin', icon:'👁️', zone:'temple', diff:'facile', hp:10, atk:3,
+    intro:'"Je t\'attendais, guerrier. Odin m\'envoie te confier une mission sacree."',
+    actions:['negocier','fuir'], questChance:0.9, drops:['Benediction d\'Odin'], xp:20 }
+];
+
+const ADV_QUEST_TEMPLATES = [
+  { name:'Recupere {n} {item}', target:[2,5], items:['cristaux rouges','herbes rares','minerais','os anciens','plumes magiques'], xp:30, difficulty:'facile' },
+  { name:'Vaincs {n} {monster}', target:[1,3], monsters:['loups','trolls','draugr','demons'], xp:45, difficulty:'moyen' },
+  { name:'Explore {zone} sans fuir', target:[1,1], xp:25, difficulty:'facile' },
+  { name:'Survis a {n} combats', target:[2,4], xp:50, difficulty:'moyen' },
+  { name:'Rapporte {item} au campement', target:[1,1], items:['Coeur de Givre','Pierre de Lave','Grimoire Ancien','Oeil de Corbeau'], xp:40, difficulty:'moyen' },
+  { name:'Vaincs le gardien de {zone}', target:[1,1], xp:80, difficulty:'difficile' },
+  { name:'Collecte {n} objets differents', target:[3,6], xp:35, difficulty:'moyen' },
+  { name:'Atteins {zone} et reviens au camp', target:[1,1], xp:30, difficulty:'facile' }
+];
+
+// — Etat aventure —
+function defaultAdventureState() {
+  return {
+    currentZone: 'campement',
+    hp: 100, maxHp: 100,
+    energy: 10, maxEnergy: 10,
+    xp: 0, level: 1,
+    inventory: [],
+    activeQuests: [],
+    completedQuests: [],
+    combatLog: [],
+    moveCount: 0,
+    lastRestTime: null,
+    totalKills: 0,
+    totalExplored: 0,
+    narrative: []
+  };
+}
+
+let adv = null; // sera charge au init
+
+function loadAdventure() {
+  try {
+    const saved = localStorage.getItem('stakr_adventure_progress');
+    adv = saved ? JSON.parse(saved) : defaultAdventureState();
+  } catch(e) { adv = defaultAdventureState(); }
+  // Migration pour anciens saves
+  if (!adv.narrative) adv.narrative = [];
+  if (!adv.totalKills) adv.totalKills = 0;
+  if (!adv.totalExplored) adv.totalExplored = 0;
+}
+
+function saveAdventure() {
+  // Garder le narrative court
+  if (adv.narrative.length > 30) adv.narrative = adv.narrative.slice(-20);
+  localStorage.setItem('stakr_adventure_progress', JSON.stringify(adv));
+}
+
+// — Aventure: Deplacement —
+function advMoveTo(zoneId) {
+  const zone = ADV_ZONES.find(z => z.id === zoneId);
+  if (!zone) return;
+  if (zone.levelReq > adv.level - 1) {
+    advNarrate('narrator', `Cette zone requiert le niveau ${zone.levelReq + 1}. Continue ton entrainement !`);
+    return;
+  }
+  if (adv.energy <= 0) {
+    advNarrate('narrator', 'Tu es epuise ! Retourne au campement pour te reposer.');
+    return;
+  }
+  adv.energy--;
+  adv.moveCount++;
+  adv.totalExplored++;
+  adv.currentZone = zoneId;
+  saveAdventure();
+
+  advNarrate('narrator', `Tu voyages vers **${zone.name}**... ${zone.desc}`);
+
+  // Rencontre aleatoire
+  if (!zone.safe && Math.random() < (zone.encounterRate || 0.4)) {
+    setTimeout(() => advTriggerEncounter(zoneId), 800);
+  } else if (!zone.safe) {
+    setTimeout(() => {
+      advNarrate('narrator', 'Le chemin est calme... pour l\'instant. Que fais-tu ?');
+      advRenderExploreActions();
+    }, 600);
+  } else {
+    setTimeout(() => advShowCamp(), 600);
+  }
+  advRenderMap();
+  advRenderHud();
+}
+
+function advNarrate(type, text) {
+  adv.narrative.push({ type, text, time: Date.now() });
+  advRenderContent();
+}
+
+// — Aventure: Rencontres —
+function advTriggerEncounter(zoneId) {
+  const zoneNpcs = ADV_NPCS.filter(n => n.zone === zoneId);
+  if (zoneNpcs.length === 0) {
+    advNarrate('narrator', 'Rien a signaler dans cette zone.');
+    advRenderExploreActions();
+    return;
+  }
+  const npc = zoneNpcs[Math.floor(Math.random() * zoneNpcs.length)];
+  adv._encounter = npc;
+  advNarrate('npc-talk', `${npc.icon} **${npc.name}** apparait !\n${npc.intro}`);
+  advRenderEncounterActions(npc);
+}
+
+// — Aventure: Combat —
+function advStartCombat() {
+  const npc = adv._encounter;
+  if (!npc) return;
+  adv._combat = {
+    enemy: { ...npc, currentHp: npc.hp },
+    playerHp: adv.hp,
+    turn: 'player',
+    round: 0
+  };
+  advNarrate('narrator', `⚔️ **COMBAT !** Tu affrontes ${npc.icon} ${npc.name} !`);
+  advRenderCombat();
+}
+
+function advCombatAction(action) {
+  const c = adv._combat;
+  if (!c) return;
+  c.round++;
+
+  let playerRoll, playerDmg, narr;
+  if (action === 'attaque') {
+    playerRoll = Math.floor(Math.random() * 20) + 1;
+    playerDmg = playerRoll >= 18 ? Math.floor(playerRoll * 1.5) : playerRoll >= 5 ? playerRoll : 0;
+    if (playerRoll >= 18) narr = `🎲 ${playerRoll} — **COUP CRITIQUE !** Tu frappes avec la fureur d'Odin ! (-${playerDmg} PV)`;
+    else if (playerDmg > 0) narr = `🎲 ${playerRoll} — Tu touches ! (-${playerDmg} PV)`;
+    else narr = `🎲 ${playerRoll} — Tu rates ton coup...`;
+  } else if (action === 'esquive') {
+    playerRoll = Math.floor(Math.random() * 12) + 1;
+    playerDmg = 0;
+    narr = playerRoll >= 8 ? `🎲 ${playerRoll} — Esquive parfaite ! Tu prepares ta riposte.` : `🎲 ${playerRoll} — Esquive ratee ! Tu trébuches.`;
+    if (playerRoll >= 10) { playerDmg = Math.floor(playerRoll * 0.8); narr += ` Riposte ! (-${playerDmg} PV)`; }
+  } else {
+    playerRoll = Math.floor(Math.random() * 18) + 1;
+    adv.energy = Math.max(0, adv.energy - 1);
+    playerDmg = playerRoll >= 14 ? Math.floor(playerRoll * 1.3) : playerRoll >= 6 ? playerRoll : 0;
+    if (playerRoll >= 14) narr = `🎲 ${playerRoll} — ✨ **MAGIE PUISSANTE !** Les runes brillent ! (-${playerDmg} PV, -1 energie)`;
+    else if (playerDmg > 0) narr = `🎲 ${playerRoll} — Sort reussi ! (-${playerDmg} PV, -1 energie)`;
+    else narr = `🎲 ${playerRoll} — Le sort echoue... (-1 energie)`;
+  }
+  c.enemy.currentHp = Math.max(0, c.enemy.currentHp - playerDmg);
+  advNarrate(playerDmg > 0 ? 'combat-hit' : 'combat-miss', narr);
+
+  // Victoire
+  if (c.enemy.currentHp <= 0) {
+    advCombatVictory();
+    return;
+  }
+
+  // Tour ennemi
+  const enemyRoll = Math.floor(Math.random() * 20) + 1;
+  const dodge = action === 'esquive' && playerRoll >= 8;
+  let enemyDmg = 0;
+  if (!dodge && enemyRoll >= 6) {
+    enemyDmg = Math.floor(c.enemy.atk * (enemyRoll / 20) * (0.7 + Math.random() * 0.6));
+    enemyDmg = Math.max(1, enemyDmg);
+  }
+  c.playerHp = Math.max(0, c.playerHp - enemyDmg);
+  adv.hp = c.playerHp;
+
+  if (enemyDmg > 0) advNarrate('combat-hit', `${c.enemy.icon} riposte ! 🎲 ${enemyRoll} — Tu perds **${enemyDmg} PV** !`);
+  else advNarrate('combat-miss', `${c.enemy.icon} attaque mais rate ! 🎲 ${enemyRoll}`);
+
+  // Defaite
+  if (c.playerHp <= 0) {
+    advCombatDefeat();
+    return;
+  }
+
+  advRenderCombat();
+  advRenderHud();
+  saveAdventure();
+}
+
+function advCombatVictory() {
+  const c = adv._combat;
+  const npc = c.enemy;
+  adv.totalKills++;
+  const xpGain = npc.xp || 20;
+  adv.xp += xpGain;
+
+  // Drop aleatoire
+  let dropText = '';
+  if (npc.drops && npc.drops.length > 0 && Math.random() < 0.6) {
+    const drop = npc.drops[Math.floor(Math.random() * npc.drops.length)];
+    adv.inventory.push({ name: drop, icon: npc.icon, from: npc.name, date: Date.now() });
+    dropText = `\nButin : **${drop}** !`;
+  }
+
+  advNarrate('loot', `🏆 **VICTOIRE !** ${npc.icon} ${npc.name} est vaincu ! +${xpGain} XP${dropText}`);
+
+  // Level up check
+  const xpNeeded = adv.level * 60;
+  if (adv.xp >= xpNeeded) {
+    adv.xp -= xpNeeded;
+    adv.level++;
+    adv.maxHp += 10;
+    adv.hp = Math.min(adv.hp + 20, adv.maxHp);
+    adv.maxEnergy += 1;
+    advNarrate('loot', `⬆️ **NIVEAU ${adv.level} !** PV max +10, Energie max +1 !`);
+  }
+
+  // Quest progress
+  advUpdateQuestProgress('kill', npc.id);
+  advUpdateQuestProgress('combat_survive', null);
+
+  // Stakr reaction
+  if (typeof addMessage === 'function' && typeof setMood === 'function') {
+    addMessage('stakr', `Kraa ! Tu as terrasse un ${npc.name} en aventure ! La saga grandit ! [MOOD:excite]`);
+    if (typeof addQuestXp === 'function') addQuestXp(Math.round(xpGain / 3));
+  }
+
+  adv._combat = null;
+  adv._encounter = null;
+  saveAdventure();
+  advRenderHud();
+  advRenderExploreActions();
+}
+
+function advCombatDefeat() {
+  const c = adv._combat;
+  advNarrate('combat-hit', `💀 **DEFAITE !** ${c.enemy.icon} ${c.enemy.name} t'a vaincu... Tu te reveilles au campement.`);
+  adv.hp = Math.floor(adv.maxHp * 0.5);
+  adv.currentZone = 'campement';
+  adv._combat = null;
+  adv._encounter = null;
+  adv.lastRestTime = Date.now();
+  saveAdventure();
+
+  if (typeof addMessage === 'function') {
+    addMessage('stakr', 'Kraa... La defaite n\'est pas la fin. Repose-toi et retourne au combat, guerrier ! [MOOD:triste]');
+  }
+
+  advRenderMap();
+  advRenderHud();
+  setTimeout(() => advShowCamp(), 500);
+}
+
+// — Aventure: Negociation —
+function advNegociate() {
+  const npc = adv._encounter;
+  if (!npc) return;
+  if (npc.questChance && Math.random() < npc.questChance) {
+    advGenerateQuest(npc);
+  } else {
+    const outcomes = [
+      `${npc.icon} "${npc.name}" accepte un echange. Tu obtiens des informations utiles. (+5 XP)`,
+      `${npc.icon} "${npc.name}" te regarde avec mefiance... mais finit par te laisser passer. (+3 XP)`,
+      `${npc.icon} "${npc.name}" partage un secret ancien avec toi. (+8 XP)`
+    ];
+    const outcome = outcomes[Math.floor(Math.random() * outcomes.length)];
+    const xp = outcome.includes('+8') ? 8 : outcome.includes('+5') ? 5 : 3;
+    adv.xp += xp;
+    advNarrate('npc-talk', outcome);
+  }
+  adv._encounter = null;
+  saveAdventure();
+  advRenderHud();
+  advRenderExploreActions();
+}
+
+// — Aventure: Fuite —
+function advFlee() {
+  const success = Math.random() < 0.7;
+  if (success) {
+    advNarrate('narrator', 'Tu prends la fuite ! Tu echappes au danger... pour cette fois.');
+  } else {
+    const npc = adv._encounter;
+    const dmg = npc ? Math.floor(npc.atk * 0.4) : 5;
+    adv.hp = Math.max(1, adv.hp - dmg);
+    advNarrate('combat-hit', `Tu tentes de fuir mais ${npc?.icon || ''} te frappe dans le dos ! -${dmg} PV`);
+  }
+  adv._encounter = null;
+  adv._combat = null;
+  saveAdventure();
+  advRenderHud();
+  advRenderExploreActions();
+}
+
+// — Aventure: Quetes dynamiques —
+function advGenerateQuest(npc) {
+  const tmpl = ADV_QUEST_TEMPLATES[Math.floor(Math.random() * ADV_QUEST_TEMPLATES.length)];
+  const target = tmpl.target[0] + Math.floor(Math.random() * (tmpl.target[1] - tmpl.target[0] + 1));
+  let name = tmpl.name.replace('{n}', target);
+  if (tmpl.items) name = name.replace('{item}', tmpl.items[Math.floor(Math.random() * tmpl.items.length)]);
+  if (tmpl.monsters) name = name.replace('{monster}', tmpl.monsters[Math.floor(Math.random() * tmpl.monsters.length)]);
+  name = name.replace('{zone}', ADV_ZONES.find(z => z.id === adv.currentZone)?.name || 'la zone');
+
+  const quest = { id: 'advq_' + Date.now(), name, target, progress: 0, xp: tmpl.xp, from: npc.name, icon: npc.icon, created: Date.now() };
+  adv.activeQuests.push(quest);
+  advNarrate('npc-talk', `${npc.icon} **${npc.name}** te confie une quete :\n📜 **${name}** (${target} objectif${target > 1 ? 's' : ''}) — Recompense : +${tmpl.xp} XP`);
+  adv._encounter = null;
+  saveAdventure();
+  advRenderExploreActions();
+}
+
+function advUpdateQuestProgress(type, detail) {
+  adv.activeQuests.forEach(q => {
+    if (type === 'kill' && q.name.includes('Vaincs')) q.progress++;
+    if (type === 'combat_survive' && q.name.includes('Survis')) q.progress++;
+    if (type === 'collect' && q.name.includes('Recupere')) q.progress++;
+    if (type === 'explore' && q.name.includes('Explore')) q.progress++;
+    if (q.progress >= q.target && !q.completed) {
+      q.completed = true;
+      adv.xp += q.xp;
+      adv.completedQuests.push(q);
+      advNarrate('loot', `✅ **Quete terminee !** ${q.name} — +${q.xp} XP !`);
+      if (typeof addQuestXp === 'function') addQuestXp(q.xp);
+    }
+  });
+  adv.activeQuests = adv.activeQuests.filter(q => !q.completed);
+  saveAdventure();
+}
+
+// — Aventure: Campement —
+function advShowCamp() {
+  // Repos automatique
+  const canRest = !adv.lastRestTime || (Date.now() - adv.lastRestTime) > 30000; // 30s cooldown
+  advNarrate('narrator', '🏕️ Tu es au **Campement Viking**. Le feu crépite. Tu peux te reposer, consulter ton inventaire ou repartir a l\'aventure.');
+  advRenderCampActions(canRest);
+}
+
+function advRest() {
+  adv.hp = adv.maxHp;
+  adv.energy = adv.maxEnergy;
+  adv.lastRestTime = Date.now();
+  saveAdventure();
+  advNarrate('loot', '💚 Repos complet ! PV et energie restaures.');
+  advRenderHud();
+  advRenderCampActions(false);
+}
+
+// — Aventure: Rendu UI —
+function advRenderMap() {
+  const mapEl = document.getElementById('adv-map');
+  if (!mapEl) return;
+  let html = `<img src="./map.png" alt="Carte" style="width:100%;height:100%;object-fit:cover;display:block"/>`;
+
+  // Fog SVG
+  html += `<svg class="adv-fog" viewBox="0 0 100 100" preserveAspectRatio="none"><defs><filter id="advFog"><feGaussianBlur stdDeviation="3"/></filter></defs>`;
+  ADV_ZONES.forEach(z => {
+    if (z.levelReq > adv.level - 1 && z.id !== 'campement') {
+      html += `<circle cx="${z.x}" cy="${z.y}" r="12" fill="rgba(0,0,0,.6)" filter="url(#advFog)"/>`;
+    }
+  });
+  html += `</svg>`;
+
+  // Zone pins
+  ADV_ZONES.forEach(z => {
+    const locked = z.levelReq > adv.level - 1 && z.id !== 'campement';
+    const isCurrent = adv.currentZone === z.id;
+    html += `<div class="adv-zone-pin ${isCurrent ? 'current' : ''} ${locked ? 'locked' : ''}" style="left:${z.x}%;top:${z.y}%;--zone-color:${z.color}" onclick="advMoveTo('${z.id}')">
+      <div class="pin-ring">${z.icon}</div>
+      <div class="pin-name">${z.name.split(' ')[0]}</div>
+    </div>`;
+  });
+
+  // Player marker
+  const cur = ADV_ZONES.find(z => z.id === adv.currentZone);
+  if (cur) {
+    html += `<div class="adv-player" style="left:${cur.x}%;top:${cur.y - 5}%">${getVikingAvatarSVG(state.quests?.level || 1)}</div>`;
+  }
+
+  mapEl.innerHTML = html;
+}
+
+function advRenderHud() {
+  const hud = document.getElementById('adv-hud');
+  if (!hud) return;
+  const zone = ADV_ZONES.find(z => z.id === adv.currentZone);
+  const hpPct = Math.round((adv.hp / adv.maxHp) * 100);
+  const enPct = Math.round((adv.energy / adv.maxEnergy) * 100);
+  const xpPct = Math.round((adv.xp / (adv.level * 60)) * 100);
+
+  hud.innerHTML = `
+    <div class="adv-hud-zone">${zone?.icon || ''} ${zone?.name || 'Inconnu'}</div>
+    <div class="adv-hud-bar"><label>Niv.${adv.level}</label></div>
+    <div class="adv-hud-bar"><label>PV</label><div class="adv-bar adv-bar-hp"><div class="adv-bar-fill" style="width:${hpPct}%"></div></div><span style="font-size:.5rem;color:var(--text-dim)">${adv.hp}</span></div>
+    <div class="adv-hud-bar"><label>⚡</label><div class="adv-bar adv-bar-en"><div class="adv-bar-fill" style="width:${enPct}%"></div></div><span style="font-size:.5rem;color:var(--text-dim)">${adv.energy}</span></div>
+    <div class="adv-hud-bar"><label>XP</label><div class="adv-bar adv-bar-xp"><div class="adv-bar-fill" style="width:${xpPct}%"></div></div></div>`;
+}
+
+function advRenderContent() {
+  const el = document.getElementById('adv-content');
+  if (!el) return;
+  const items = adv.narrative.slice(-8);
+  el.innerHTML = items.map(n => {
+    const txt = (n.text || '').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    return `<div class="adv-narrative"><span class="${n.type}">${txt}</span></div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+function advRenderExploreActions() {
+  const el = document.getElementById('adv-actions');
+  if (!el) return;
+  el.innerHTML = `
+    <button class="adv-btn primary" onclick="advMoveTo('campement')">🏕️ Camp</button>
+    <button class="adv-btn" onclick="advLookAround()">👀 Explorer</button>
+    ${adv.activeQuests.length ? `<button class="adv-btn" onclick="advShowQuests()">📜 Quetes (${adv.activeQuests.length})</button>` : ''}
+    <button class="adv-btn" onclick="advShowInventory()">🎒 Sac (${adv.inventory.length})</button>`;
+}
+
+function advRenderEncounterActions(npc) {
+  const el = document.getElementById('adv-actions');
+  if (!el) return;
+  let html = '';
+  if (npc.actions.includes('combattre')) html += `<button class="adv-btn danger" onclick="advStartCombat()">⚔️ Combattre</button>`;
+  if (npc.actions.includes('negocier')) html += `<button class="adv-btn" onclick="advNegociate()">🤝 Negocier</button>`;
+  if (npc.actions.includes('fuir')) html += `<button class="adv-btn" onclick="advFlee()">🏃 Fuir</button>`;
+  el.innerHTML = html;
+}
+
+function advRenderCombat() {
+  const c = adv._combat;
+  if (!c) return;
+  const el = document.getElementById('adv-actions');
+  if (!el) return;
+  const hpPct = Math.round((c.enemy.currentHp / c.enemy.hp) * 100);
+  const myHpPct = Math.round((c.playerHp / adv.maxHp) * 100);
+
+  // Combat VS header dans le content
+  const content = document.getElementById('adv-content');
+  // On garde le narratif existant, pas de remplacement
+  // Actions de combat
+  el.innerHTML = `
+    <div style="width:100%;display:flex;justify-content:space-around;margin-bottom:4px">
+      <div style="text-align:center"><span style="font-size:.6rem;color:var(--text-dim)">Toi</span><div class="adv-bar adv-bar-hp" style="width:60px"><div class="adv-bar-fill" style="width:${myHpPct}%"></div></div><span style="font-size:.5rem">${c.playerHp}/${adv.maxHp}</span></div>
+      <span style="font-size:1rem;color:var(--danger)">⚔️</span>
+      <div style="text-align:center"><span style="font-size:.6rem;color:var(--text-dim)">${c.enemy.icon} ${c.enemy.name}</span><div class="adv-bar adv-bar-hp" style="width:60px"><div class="adv-bar-fill" style="width:${hpPct}%"></div></div><span style="font-size:.5rem">${c.enemy.currentHp}/${c.enemy.hp}</span></div>
+    </div>
+    <button class="adv-btn danger" onclick="advCombatAction('attaque')">🗡️ Attaque (d20)</button>
+    <button class="adv-btn" onclick="advCombatAction('esquive')">🛡️ Esquive (d12)</button>
+    <button class="adv-btn" onclick="advCombatAction('magie')" ${adv.energy <= 0 ? 'disabled' : ''}>✨ Magie (d18)</button>`;
+}
+
+function advRenderCampActions(canRest) {
+  const el = document.getElementById('adv-actions');
+  if (!el) return;
+  el.innerHTML = `
+    <button class="adv-btn primary" onclick="advRest()" ${canRest ? '' : 'disabled'}>💚 Repos${canRest ? '' : ' (attends)'}</button>
+    <button class="adv-btn" onclick="advShowInventory()">🎒 Inventaire (${adv.inventory.length})</button>
+    <button class="adv-btn" onclick="advShowQuests()">📜 Quetes (${adv.activeQuests.length})</button>
+    <button class="adv-btn" onclick="advLookAround()">🗺️ Partir</button>`;
+}
+
+function advLookAround() {
+  const zone = ADV_ZONES.find(z => z.id === adv.currentZone);
+  if (zone && !zone.safe) {
+    if (Math.random() < (zone.encounterRate || 0.4)) {
+      advTriggerEncounter(adv.currentZone);
+    } else {
+      advNarrate('narrator', 'Tu explores les alentours... Rien de special. Le silence est presque inquietant.');
+      advRenderExploreActions();
+    }
+  } else {
+    advNarrate('narrator', 'Tu contemples la carte. Ou veux-tu aller ? Clique sur une zone sur la carte.');
+    advRenderExploreActions();
+  }
+}
+
+function advShowInventory() {
+  if (adv.inventory.length === 0) {
+    advNarrate('narrator', '🎒 Ton sac est vide. Pars a l\'aventure pour trouver des objets !');
+  } else {
+    const items = adv.inventory.map(i => `${i.icon || '📦'} **${i.name}**`).join(', ');
+    advNarrate('narrator', `🎒 **Inventaire** (${adv.inventory.length} objets) :\n${items}`);
+  }
+  if (adv.currentZone === 'campement') advRenderCampActions(true);
+  else advRenderExploreActions();
+}
+
+function advShowQuests() {
+  if (adv.activeQuests.length === 0) {
+    advNarrate('narrator', '📜 Pas de quetes en cours. Negocie avec des PNJs pour en obtenir !');
+  } else {
+    const list = adv.activeQuests.map(q => `${q.icon || '📜'} **${q.name}** — ${q.progress}/${q.target} (de ${q.from})`).join('\n');
+    advNarrate('narrator', `📜 **Quetes actives** :\n${list}`);
+  }
+  if (adv.currentZone === 'campement') advRenderCampActions(true);
+  else advRenderExploreActions();
+}
+
+// — Aventure: Toggle mode —
+function toggleAdventureMode(active) {
+  const advPanel = document.getElementById('adventure-panel');
+  const chatArea = document.getElementById('chat-area');
+  const ravenStage = document.getElementById('raven-stage');
+  const inputBar = document.getElementById('input-bar');
+
+  if (active) {
+    if (!adv) loadAdventure();
+    advPanel.classList.add('active');
+    advPanel.style.display = 'flex';
+    chatArea.style.display = 'none';
+    ravenStage.style.display = 'none';
+    inputBar.style.display = 'none';
+    advRenderMap();
+    advRenderHud();
+    advRenderContent();
+    if (adv.currentZone === 'campement') advShowCamp();
+    else advRenderExploreActions();
+  } else {
+    advPanel.classList.remove('active');
+    advPanel.style.display = 'none';
+    chatArea.style.display = '';
+    ravenStage.style.display = '';
+    inputBar.style.display = '';
+  }
+}
+
 // ===== START =====
+loadAdventure();
 init();
 </script>
 
