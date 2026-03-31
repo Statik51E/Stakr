@@ -163,8 +163,8 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 .btn-gold:active{transform:scale(.95)}
 
 /* ===== QUEST PANEL ===== */
-#quest-btn{background:none;border:none;color:var(--gold-dim);font-size:1.2rem;cursor:pointer;padding:4px 6px;transition:color .2s}
-#quest-btn:hover{color:var(--gold)}
+#quest-btn,#map-btn{background:none;border:none;color:var(--gold-dim);font-size:1.2rem;cursor:pointer;padding:4px 6px;transition:color .2s}
+#quest-btn:hover,#map-btn:hover{color:var(--gold)}
 #quest-panel{position:fixed;top:0;left:-340px;width:320px;max-width:92vw;height:100%;background:linear-gradient(180deg,#1a1208,#120d07);border-right:2px solid var(--border);z-index:101;transition:left .3s;padding:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #quest-panel.open{left:0}
 #quest-panel-header{padding:14px 16px;background:linear-gradient(180deg,#1e150a,#150f08);border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
@@ -297,6 +297,12 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 @keyframes bossGlow{0%,100%{box-shadow:0 0 8px rgba(255,23,68,.2)}50%{box-shadow:0 0 16px rgba(255,23,68,.4)}}
 .boss-card:not(.defeated){animation:bossGlow 3s ease-in-out infinite}
 
+/* ===== MONDE / CARTE PANEL ===== */
+#map-panel{position:fixed;top:0;right:-100%;width:100%;max-width:600px;height:100%;background:linear-gradient(180deg,#0d0f1a,#0a0c14);border-left:2px solid var(--border);z-index:101;transition:right .35s ease;padding:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#map-panel.open{right:0}
+#map-panel-header{padding:14px 16px;background:linear-gradient(180deg,#111428,#0d0f1a);border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
+#map-panel-header h2{color:var(--gold);font-size:1rem;font-variant:small-caps;letter-spacing:1px;margin:0}
+#map-panel-content{padding:14px}
 /* ===== MONDE / CARTE ===== */
 .monde-header{text-align:center;padding:10px 0 12px;border-bottom:1px solid var(--border);margin-bottom:12px}
 .monde-title{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);margin-bottom:2px}
@@ -358,6 +364,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <h1>STAKR</h1>
     <span id="mood-indicator">&#9679; Serein</span>
     <button id="quest-btn" title="Quetes Viking">&#9876;</button>
+    <button id="map-btn" title="Carte du Monde">&#128506;</button>
     <button id="customize-btn" title="Personnaliser Stakr" style="background:none;border:none;color:var(--gold-dim);font-size:1.2rem;cursor:pointer;padding:4px 6px">&#9998;</button>
     <button id="settings-btn" title="Paramètres">&#9881;</button>
   </header>
@@ -409,7 +416,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 <div id="lightbox" onclick="this.classList.remove('active')"><img id="lightbox-img" src="" alt=""/></div>
 
 <!-- SETTINGS -->
-<div id="settings-overlay" onclick="toggleSettings()"></div>
+<div id="settings-overlay" onclick="closeAllPanels()"></div>
 <div id="settings-panel">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
     <h2 style="margin:0">&#9881; Param&#232;tres</h2>
@@ -668,7 +675,6 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
       <button class="quest-tab" data-qtab="stakr" onclick="switchQuestTab('stakr')">Stakr</button>
       <button class="quest-tab" data-qtab="runes" onclick="switchQuestTab('runes')">Runes</button>
       <button class="quest-tab" data-qtab="arbre" onclick="switchQuestTab('arbre')">Arbre</button>
-      <button class="quest-tab" data-qtab="monde" onclick="switchQuestTab('monde')">Monde</button>
       <button class="quest-tab" data-qtab="stats" onclick="switchQuestTab('stats')">Stats</button>
     </div>
     <div id="quest-list-daily"></div>
@@ -677,9 +683,17 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <div id="quest-list-stakr" style="display:none"></div>
     <div id="quest-runes-tab" style="display:none"></div>
     <div id="quest-arbre-tab" style="display:none"></div>
-    <div id="quest-monde-tab" style="display:none"></div>
     <div id="quest-stats-tab" style="display:none"></div>
   </div>
+</div>
+
+<!-- MAP PANEL -->
+<div id="map-panel">
+  <div id="map-panel-header">
+    <h2>&#128506; Carte du Monde</h2>
+    <button class="btn-secondary" onclick="toggleMapPanel()" style="margin:0;padding:6px 14px;background:var(--gold-dim);border:none;border-radius:4px;color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600">OK</button>
+  </div>
+  <div id="map-panel-content"></div>
 </div>
 
 <!-- TOAST -->
@@ -1920,6 +1934,15 @@ function toggleCustomize() {
   }
 }
 
+function closeAllPanels() {
+  const overlay = $('#settings-overlay');
+  ['#settings-panel','#quest-panel','#map-panel','#customize-panel','#project-panel'].forEach(sel => {
+    const p = $(sel);
+    if (p && p.classList.contains('open')) p.classList.remove('open');
+  });
+  overlay.classList.remove('open');
+}
+
 function toggleSettings() {
   const panel = $('#settings-panel');
   const overlay = $('#settings-overlay');
@@ -1937,6 +1960,7 @@ function setupListeners() {
   $('#project-btn').addEventListener('click', toggleProjectPanel);
   $('#customize-btn').addEventListener('click', toggleCustomize);
   $('#quest-btn').addEventListener('click', toggleQuestPanel);
+  $('#map-btn').addEventListener('click', toggleMapPanel);
   $('#api-backend').addEventListener('change', updateBackendUI);
   window.addEventListener('resize', () => { resizeCanvas(); resizeAurora(); });
   // Live preview for all customize inputs
@@ -2188,9 +2212,17 @@ function toggleQuestPanel() {
   if (panel.classList.contains('open')) renderQuests();
 }
 
+function toggleMapPanel() {
+  const panel = $('#map-panel');
+  const overlay = $('#settings-overlay');
+  panel.classList.toggle('open');
+  overlay.classList.toggle('open');
+  if (panel.classList.contains('open')) renderWorldMap();
+}
+
 function switchQuestTab(tab) {
   document.querySelectorAll('.quest-tab').forEach(t => t.classList.toggle('active', t.dataset.qtab === tab));
-  ['daily','weekly','stakr','stats','arbre','boss','monde'].forEach(t => {
+  ['daily','weekly','stakr','stats','arbre','boss'].forEach(t => {
     const el = $(`#quest-list-${t}`) || $(`#quest-${t}-tab`);
     if (el) el.style.display = 'none';
   });
@@ -2200,7 +2232,6 @@ function switchQuestTab(tab) {
   else if (tab === 'stakr') { $('#quest-list-stakr').style.display = 'block'; renderStakrQuests(); }
   else if (tab === 'runes') { $('#quest-runes-tab').style.display = 'block'; renderRuneCollection(); }
   else if (tab === 'arbre') { $('#quest-arbre-tab').style.display = 'block'; renderSkillTree(); }
-  else if (tab === 'monde') { $('#quest-monde-tab').style.display = 'block'; renderWorldMap(); }
   else if (tab === 'stats') { $('#quest-stats-tab').style.display = 'block'; renderQuestStats(); }
 }
 
@@ -2942,7 +2973,7 @@ function checkWorldMapUnlocks() {
 }
 
 function renderWorldMap() {
-  const container = $('#quest-monde-tab');
+  const container = $('#map-panel-content');
   if (!container) return;
   const q = state.quests;
   const wm = q.worldMap || { unlockedRegions: ['midgard'], bossVictories: 0 };
