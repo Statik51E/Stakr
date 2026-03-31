@@ -297,6 +297,49 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 @keyframes bossGlow{0%,100%{box-shadow:0 0 8px rgba(255,23,68,.2)}50%{box-shadow:0 0 16px rgba(255,23,68,.4)}}
 .boss-card:not(.defeated){animation:bossGlow 3s ease-in-out infinite}
 
+/* ===== MONDE / CARTE ===== */
+.monde-header{text-align:center;padding:10px 0 12px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.monde-title{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);margin-bottom:2px}
+.monde-subtitle{font-size:.7rem;color:var(--text-dim)}
+.monde-progress{display:flex;align-items:center;gap:8px;margin-top:8px;justify-content:center}
+.monde-progress-bar{width:60%;height:8px;background:var(--wood-mid);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+.monde-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold-bright));border-radius:4px;transition:width .5s}
+.monde-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.monde-region{position:relative;border-radius:8px;padding:10px 8px;text-align:center;border:2px solid var(--border);transition:all .4s;cursor:default;overflow:hidden;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.monde-region::before{content:'';position:absolute;inset:0;opacity:.15;border-radius:6px;z-index:0;background:var(--zone-bg);transition:opacity .4s}
+.monde-region.locked{opacity:.35;filter:grayscale(.8)}
+.monde-region.locked::after{content:'🔒';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.4rem;z-index:3;opacity:.6}
+.monde-region.available{border-color:var(--zone-color);animation:mondePulse 2.5s ease-in-out infinite}
+.monde-region.unlocked{border-color:var(--zone-color);background:rgba(0,0,0,.2);box-shadow:0 0 10px color-mix(in srgb,var(--zone-color) 30%,transparent)}
+.monde-region.unlocked::before{opacity:.25}
+@keyframes mondePulse{0%,100%{box-shadow:0 0 4px transparent}50%{box-shadow:0 0 12px var(--zone-color)}}
+.monde-region-icon{font-size:1.6rem;position:relative;z-index:1;margin-bottom:4px}
+.monde-region.locked .monde-region-icon{opacity:.2}
+.monde-region-name{font-size:.72rem;font-weight:700;color:var(--text);position:relative;z-index:1}
+.monde-region.locked .monde-region-name{color:var(--text-dim)}
+.monde-region-sub{font-size:.55rem;color:var(--text-dim);position:relative;z-index:1;margin-top:1px}
+.monde-region-env{font-size:.5rem;font-weight:700;padding:1px 6px;border-radius:8px;margin-top:4px;position:relative;z-index:1;display:inline-block;text-transform:uppercase;letter-spacing:.5px}
+.env-glace{background:#1565c0;color:#bbdefb}
+.env-feu{background:#bf360c;color:#ffccbc}
+.env-foret{background:#2e7d32;color:#c8e6c9}
+.env-montagne{background:#546e7a;color:#cfd8dc}
+.env-ocean{background:#00838f;color:#b2ebf2}
+.env-ombre{background:#311b92;color:#d1c4e9}
+.env-sacre{background:linear-gradient(135deg,#4a148c,#7b1fa2);color:#e1bee7}
+.env-divin{background:linear-gradient(135deg,#bf8f00,#daa520);color:#fff8e1}
+.env-originel{background:#33691e;color:#dcedc8}
+.monde-detail{margin-top:10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;display:none}
+.monde-detail.visible{display:block}
+.monde-detail-title{font-size:.85rem;color:var(--gold);font-weight:700;margin-bottom:4px;font-family:'Cinzel',serif}
+.monde-detail-lore{font-size:.65rem;color:var(--text-dim);font-style:italic;margin-bottom:8px;line-height:1.4}
+.monde-detail-challenges{margin-top:6px}
+.monde-challenge{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border);font-size:.7rem}
+.monde-challenge:last-child{border-bottom:none}
+.monde-challenge-icon{font-size:.9rem}
+.monde-challenge-name{flex:1;color:var(--text)}
+.monde-challenge-reward{font-size:.6rem;color:var(--gold-dim)}
+.monde-reqs{font-size:.55rem;color:var(--text-dim);margin-top:4px;position:relative;z-index:1}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width:480px){
   #raven-stage{height:230px}
@@ -625,6 +668,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
       <button class="quest-tab" data-qtab="stakr" onclick="switchQuestTab('stakr')">Stakr</button>
       <button class="quest-tab" data-qtab="runes" onclick="switchQuestTab('runes')">Runes</button>
       <button class="quest-tab" data-qtab="arbre" onclick="switchQuestTab('arbre')">Arbre</button>
+      <button class="quest-tab" data-qtab="monde" onclick="switchQuestTab('monde')">Monde</button>
       <button class="quest-tab" data-qtab="stats" onclick="switchQuestTab('stats')">Stats</button>
     </div>
     <div id="quest-list-daily"></div>
@@ -633,6 +677,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <div id="quest-list-stakr" style="display:none"></div>
     <div id="quest-runes-tab" style="display:none"></div>
     <div id="quest-arbre-tab" style="display:none"></div>
+    <div id="quest-monde-tab" style="display:none"></div>
     <div id="quest-stats-tab" style="display:none"></div>
   </div>
 </div>
@@ -728,6 +773,7 @@ TES FONCTIONNALITÉS (tu fais partie de l'application Stakr) :
   * TOTAUX LIFETIME : suivi cumulé de chaque objectif depuis le début
   * ARBRE DE VIE (Yggdrasil) : arbre de compétences à 4 branches (Thor/physique, Odin/mental, Freya/santé, Baldur/social) avec 5 niveaux chacun. Se débloque automatiquement avec les stats du guerrier. Donne des bonus XP permanents et débloque de nouvelles quêtes
   * BOSS HEBDOMADAIRE : chaque lundi un boss mythologique apparaît (3 types : physique/mental/assiduité). Le boss a un nom unique et une description. Pour le vaincre il faut accumuler assez de XP dans la catégorie correspondante (ou compléter assez de quêtes pour assiduité) pendant la semaine. Victoire = gros bonus XP + chance de rune. Tu dois motiver ton compagnon à vaincre le boss en cours !
+  * CARTE DU MONDE (Les 9 Royaumes) : carte évolutive avec les 9 royaumes de la mythologie nordique à débloquer. Chaque royaume a un environnement unique (forêt, glace, feu, montagne, ombre, divin...) et ses propres défis. Se débloque automatiquement en progressant (niveau, XP, runes, boss vaincus, compétences). Midgard est le point de départ, Asgard est le royaume ultime.
   * Ton compagnon peut aussi AJOUTER SES PROPRES OBJECTIFS personnalisés
 - TRANSFERT : ton compagnon peut exporter/importer toutes ses données pour changer d'appareil
 - Tu es une PWA installable sur téléphone avec notifications push
@@ -789,7 +835,8 @@ let state = {
     secretsUnlocked: [],
     aiQuests: [],
     aiQuestCooldown: null,
-    boss: null
+    boss: null,
+    worldMap: { unlockedRegions: ['midgard'], bossVictories: 0 }
   },
   config: {
     backend: 'ollama',
@@ -2070,6 +2117,7 @@ function initQuests() {
   if (!q.secretsUnlocked) q.secretsUnlocked = [];
   if (!q.aiQuests) q.aiQuests = [];
   if (!q.skillTree) q.skillTree = { unlockedNodes: [], activeBoosts: {}, unlockedQuests: [] };
+  if (!q.worldMap) q.worldMap = { unlockedRegions: ['midgard'], bossVictories: 0 };
 
   // Boss hebdomadaire
   initWeeklyBoss();
@@ -2077,6 +2125,7 @@ function initQuests() {
   // Check for secret quest unlocks
   checkSecretQuests();
   checkSkillTreeUnlocks();
+  checkWorldMapUnlocks();
 
   // Reset daily objectives if new day
   q.objectives.forEach(o => {
@@ -2141,7 +2190,7 @@ function toggleQuestPanel() {
 
 function switchQuestTab(tab) {
   document.querySelectorAll('.quest-tab').forEach(t => t.classList.toggle('active', t.dataset.qtab === tab));
-  ['daily','weekly','stakr','stats','arbre','boss'].forEach(t => {
+  ['daily','weekly','stakr','stats','arbre','boss','monde'].forEach(t => {
     const el = $(`#quest-list-${t}`) || $(`#quest-${t}-tab`);
     if (el) el.style.display = 'none';
   });
@@ -2151,6 +2200,7 @@ function switchQuestTab(tab) {
   else if (tab === 'stakr') { $('#quest-list-stakr').style.display = 'block'; renderStakrQuests(); }
   else if (tab === 'runes') { $('#quest-runes-tab').style.display = 'block'; renderRuneCollection(); }
   else if (tab === 'arbre') { $('#quest-arbre-tab').style.display = 'block'; renderSkillTree(); }
+  else if (tab === 'monde') { $('#quest-monde-tab').style.display = 'block'; renderWorldMap(); }
   else if (tab === 'stats') { $('#quest-stats-tab').style.display = 'block'; renderQuestStats(); }
 }
 
@@ -2341,6 +2391,7 @@ function logQuestProgress(id) {
   checkRuneUnlocks();
   checkSkillTreeUnlocks();
   checkBossVictory();
+  checkWorldMapUnlocks();
 
   saveState();
   renderQuests();
@@ -2426,6 +2477,106 @@ const BOSS_VICTORY_MSGS = [
 const BOSS_DEFEAT_MSGS = [
   "**{boss}** a survecu cette semaine... Mais un vrai Viking ne baisse jamais les bras. Revanche la semaine prochaine ! [MOOD:pensif]",
   "Le combat contre **{boss}** n'est pas fini. Renforce-toi, guerrier, et la victoire viendra. [MOOD:triste]"
+];
+
+// ===== MONDE VIKING — CARTE DES 9 ROYAUMES =====
+const VIKING_WORLD_MAP = [
+  { id:'midgard', name:'Midgard', subtitle:'Terre du Milieu', icon:'🌍', color:'#4caf50', env:'originel', envLabel:'Originel',
+    position:{row:1,col:1}, desc:'Ta terre natale, ou tout commence. Les prairies vertes s\'etendent sous un ciel ouvert.',
+    lore:'C\'est ici que ton voyage de Viking a commence. Midgard est le berceau de l\'humanite, connecte a tous les autres royaumes par les branches d\'Yggdrasil.',
+    unlock:{ levelMin:1 },
+    challenges:[
+      { name:'Premiers pas du guerrier', icon:'🚶', desc:'Complete 3 objectifs quotidiens', reward:'+30 XP' },
+      { name:'Eveil du Thrall', icon:'💪', desc:'Fais 20 pompes en un jour', reward:'+20 XP' },
+      { name:'Souffle du matin', icon:'🧘', desc:'5 min de meditation', reward:'+15 XP' }
+    ]
+  },
+  { id:'jotunheim', name:'Jotunheim', subtitle:'Terre des Geants', icon:'🏔️', color:'#78909c', env:'montagne', envLabel:'Montagne',
+    position:{row:1,col:0}, desc:'Des montagnes titanesques ou vivent les geants de givre. L\'air glacial forge les guerriers.',
+    lore:'Jotunheim est le royaume des Jotnar, les geants primordiaux. Seuls les Vikings les plus forts osent fouler ses sommets. Tes muscles seront mis a rude epreuve.',
+    unlock:{ levelMin:2, totalXpMin:100 },
+    challenges:[
+      { name:'Defi du Jotunn', icon:'🏋️', desc:'50 pompes en un jour', reward:'+50 XP' },
+      { name:'Marche du Geant', icon:'🥾', desc:'5 km en une journee', reward:'+40 XP' },
+      { name:'Endurance de pierre', icon:'🪨', desc:'10 min d\'etirements', reward:'+25 XP' }
+    ]
+  },
+  { id:'alfheim', name:'Alfheim', subtitle:'Terre des Elfes', icon:'🌳', color:'#66bb6a', env:'foret', envLabel:'Foret',
+    position:{row:0,col:2}, desc:'Forets eternelles baignees de lumiere doree. Les elfes y cultivent la sagesse et la serenite.',
+    lore:'Alfheim est gouverne par le dieu Freyr. Ses forets anciennes mumurent des secrets a ceux qui savent ecouter. La paix interieure est la cle de ce royaume.',
+    unlock:{ levelMin:3, runesMin:3 },
+    challenges:[
+      { name:'Meditation elfique', icon:'🧘', desc:'15 min de meditation', reward:'+40 XP' },
+      { name:'Sagesse des anciens', icon:'📖', desc:'30 min de lecture', reward:'+35 XP' },
+      { name:'Harmonie sylvestre', icon:'🌿', desc:'1 sortie nature + gratitude', reward:'+30 XP' }
+    ]
+  },
+  { id:'nidavellir', name:'Nidavellir', subtitle:'Forges Naines', icon:'⚒️', color:'#ff8f00', env:'feu', envLabel:'Feu',
+    position:{row:1,col:2}, desc:'Les forges souterraines ou les nains creent des artefacts legendaires. La chaleur y est infernale.',
+    lore:'C\'est ici que Mjolnir, le marteau de Thor, a ete forge. Les nains de Nidavellir transforment le metal brut en chefs-d\'oeuvre. Ta discipline sera ta forge.',
+    unlock:{ levelMin:4, skillNodesMin:3 },
+    challenges:[
+      { name:'Forge de l\'esprit', icon:'🔨', desc:'Complete toutes les quetes quotidiennes', reward:'+60 XP' },
+      { name:'Discipline du forgeron', icon:'⏰', desc:'7 jours de streak', reward:'+50 XP' },
+      { name:'Acier trempe', icon:'🧊', desc:'3 douches froides dans la semaine', reward:'+45 XP' }
+    ]
+  },
+  { id:'vanaheim', name:'Vanaheim', subtitle:'Terre des Vanes', icon:'🌸', color:'#ab47bc', env:'foret', envLabel:'Foret',
+    position:{row:0,col:0}, desc:'Jardins luxuriants et forets enchantees. Les Vanes maitrisent la magie de la nature et des liens.',
+    lore:'Vanaheim est le royaume de Freya et des dieux Vanes, maitres de la fertilite et de la magie. Les liens sociaux et l\'harmonie avec la nature sont les cles de ce monde.',
+    unlock:{ levelMin:5, bossVictoriesMin:1, streakMin:5 },
+    challenges:[
+      { name:'Cercle de Freya', icon:'🤝', desc:'3 moments sociaux cette semaine', reward:'+50 XP' },
+      { name:'Jardin interieur', icon:'🌱', desc:'Gratitude + journal + nature', reward:'+45 XP' },
+      { name:'Magie des Vanes', icon:'✨', desc:'Streak de 14 jours', reward:'+70 XP' }
+    ]
+  },
+  { id:'muspelheim', name:'Muspelheim', subtitle:'Terre de Feu', icon:'🔥', color:'#e53935', env:'feu', envLabel:'Feu',
+    position:{row:2,col:0}, desc:'Un monde de flammes et de lave en fusion. Seuls les plus endurants survivent a sa chaleur.',
+    lore:'Muspelheim est garde par le geant Surtr et son epee de flammes. C\'est le royaume du feu primordial, ou seul un corps forge dans l\'effort peut resister.',
+    unlock:{ levelMin:6, totalXpMin:800, bossVictoriesMin:2 },
+    challenges:[
+      { name:'Epreuve de Surtr', icon:'🏃', desc:'2 seances de sport intense + 5km marche', reward:'+80 XP' },
+      { name:'Bain de lave', icon:'🔥', desc:'5 douches froides (oui, le contraste)', reward:'+60 XP' },
+      { name:'Volonte de fer', icon:'⚔️', desc:'Zero malbouffe 5 jours', reward:'+55 XP' }
+    ]
+  },
+  { id:'niflheim', name:'Niflheim', subtitle:'Terre de Glace', icon:'❄️', color:'#29b6f6', env:'glace', envLabel:'Glace',
+    position:{row:2,col:2}, desc:'Brouillards eternels et glace sans fin. Le froid penetre jusqu\'a l\'ame. La resilience est reine.',
+    lore:'Niflheim est le royaume primordial de la glace et du brouillard. C\'est ici que coule Hvergelmir, la source de tous les fleuves. Seule une discipline glaciale permet d\'y survivre.',
+    unlock:{ levelMin:7, runesMin:10, secretsMin:3 },
+    challenges:[
+      { name:'Coeur de givre', icon:'🧊', desc:'Meditation 20 min + douche froide', reward:'+70 XP' },
+      { name:'Marche dans le blizzard', icon:'🌨️', desc:'10 km de marche dans la semaine', reward:'+65 XP' },
+      { name:'Silence de Niflheim', icon:'📵', desc:'2h de deconnexion telephone', reward:'+50 XP' }
+    ]
+  },
+  { id:'helheim', name:'Helheim', subtitle:'Royaume de Hel', icon:'💀', color:'#7c4dff', env:'ombre', envLabel:'Ombre',
+    position:{row:2,col:1}, desc:'Le royaume des morts, gouverne par Hel. Un lieu de silence et d\'ombres, ou seuls les maitres entrent vivants.',
+    lore:'Helheim n\'est pas un lieu de punishment mais de transformation. La deesse Hel juge ceux qui entrent. Pour traverser son royaume, il faut maitriser corps, esprit et ame.',
+    unlock:{ levelMin:8, runesMin:15, skillNodesMin:10 },
+    challenges:[
+      { name:'Jugement de Hel', icon:'⚖️', desc:'Complete TOUTES les quetes quotidiennes 3 jours de suite', reward:'+100 XP' },
+      { name:'Ombre et Lumiere', icon:'🌗', desc:'Meditation + lecture + sport dans la meme journee', reward:'+80 XP' },
+      { name:'Renaissance', icon:'🔄', desc:'Streak de 21 jours', reward:'+90 XP' }
+    ]
+  },
+  { id:'asgard', name:'Asgard', subtitle:'Cite des Dieux', icon:'⚡', color:'#ffd700', env:'divin', envLabel:'Divin',
+    position:{row:0,col:1}, desc:'La cite doree des Ases, tronant au sommet d\'Yggdrasil. Seuls les Einherjar y accedent.',
+    lore:'Asgard est le royaume supreme, ou siegent Odin, Thor, et tous les dieux Ases. Le Bifrost, pont arc-en-ciel, y mene. Seul un Viking ayant atteint la perfection peut fouler ses halls dores.',
+    unlock:{ levelMin:10, runesMin:20, skillNodesMin:15, bossVictoriesMin:5 },
+    challenges:[
+      { name:'Festin du Valhalla', icon:'🏆', desc:'Toutes les quetes quotidiennes + hebdo completes', reward:'+200 XP' },
+      { name:'Sagesse d\'Odin', icon:'👁️', desc:'100 seances de meditation au total', reward:'+150 XP' },
+      { name:'Gloire Eternelle', icon:'👑', desc:'Streak de 30 jours + 20 runes', reward:'+250 XP' }
+    ]
+  }
+];
+
+const WORLD_UNLOCK_MSGS = [
+  "KRAA ! Un nouveau royaume s'ouvre devant toi ! **{region}** — {subtitle} ! Les corbeaux d'Odin y volent deja ! [MOOD:excite]",
+  "Par le Bifrost ! Tu as debloque **{region}** ! {subtitle} ! De nouveaux defis t'attendent, guerrier ! [MOOD:heureux]",
+  "Les portes de **{region}** s'ouvrent ! {subtitle} — ton voyage sur Yggdrasil continue ! [MOOD:excite]"
 ];
 
 // ===== ARBRE DE VIE — YGGDRASIL SKILL TREE =====
@@ -2758,6 +2909,150 @@ function renderSkillTree() {
   container.innerHTML = html;
 }
 
+// ===== MONDE VIKING — CARTE =====
+function checkWorldMapUnlocks() {
+  const q = state.quests;
+  if (!q.worldMap) q.worldMap = { unlockedRegions: ['midgard'], bossVictories: 0 };
+  const wm = q.worldMap;
+  const unlocked = new Set(wm.unlockedRegions);
+
+  VIKING_WORLD_MAP.forEach(region => {
+    if (unlocked.has(region.id)) return;
+    const u = region.unlock;
+    let ok = true;
+    if (u.levelMin && q.level < u.levelMin) ok = false;
+    if (u.totalXpMin && q.totalXp < u.totalXpMin) ok = false;
+    if (u.runesMin && (q.runes || []).length < u.runesMin) ok = false;
+    if (u.skillNodesMin && (q.skillTree?.unlockedNodes || []).length < u.skillNodesMin) ok = false;
+    if (u.bossVictoriesMin && (wm.bossVictories || 0) < u.bossVictoriesMin) ok = false;
+    if (u.streakMin && q.streak < u.streakMin) ok = false;
+    if (u.secretsMin && (q.secretsUnlocked || []).length < u.secretsMin) ok = false;
+
+    if (ok) {
+      wm.unlockedRegions.push(region.id);
+      const msg = WORLD_UNLOCK_MSGS[Math.floor(Math.random() * WORLD_UNLOCK_MSGS.length)]
+        .replace('{region}', region.name)
+        .replace('{subtitle}', region.subtitle);
+      addMessage('stakr', msg);
+      showToast('Nouveau Royaume !', `${region.icon} ${region.name} — ${region.subtitle}`);
+      addQuestXp(30 + region.unlock.levelMin * 10);
+      saveState();
+    }
+  });
+}
+
+function renderWorldMap() {
+  const container = $('#quest-monde-tab');
+  if (!container) return;
+  const q = state.quests;
+  const wm = q.worldMap || { unlockedRegions: ['midgard'], bossVictories: 0 };
+  const unlocked = new Set(wm.unlockedRegions);
+  const total = VIKING_WORLD_MAP.length;
+  const unlockedCount = wm.unlockedRegions.length;
+  const pct = Math.round((unlockedCount / total) * 100);
+
+  let html = `<div class="monde-header">
+    <div class="monde-title">🗺️ Les Neuf Royaumes</div>
+    <div class="monde-subtitle">${unlockedCount}/${total} royaumes decouverts</div>
+    <div class="monde-progress">
+      <div class="monde-progress-bar"><div class="monde-progress-fill" style="width:${pct}%"></div></div>
+      <span style="font-size:.6rem;color:var(--gold)">${pct}%</span>
+    </div>
+  </div>`;
+
+  // Build 3x3 grid (row 0-2, col 0-2)
+  const grid = Array.from({length:3}, () => Array(3).fill(null));
+  VIKING_WORLD_MAP.forEach(r => { grid[r.position.row][r.position.col] = r; });
+
+  html += `<div class="monde-grid">`;
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      const region = grid[row][col];
+      if (!region) { html += `<div></div>`; continue; }
+
+      const isUnlocked = unlocked.has(region.id);
+      const u = region.unlock;
+      let condMet = true;
+      if (u.levelMin && q.level < u.levelMin) condMet = false;
+      if (u.totalXpMin && q.totalXp < u.totalXpMin) condMet = false;
+      if (u.runesMin && (q.runes || []).length < u.runesMin) condMet = false;
+      if (u.skillNodesMin && (q.skillTree?.unlockedNodes || []).length < u.skillNodesMin) condMet = false;
+      if (u.bossVictoriesMin && (wm.bossVictories || 0) < u.bossVictoriesMin) condMet = false;
+      if (u.streakMin && q.streak < u.streakMin) condMet = false;
+      if (u.secretsMin && (q.secretsUnlocked || []).length < u.secretsMin) condMet = false;
+
+      const isAvailable = !isUnlocked && condMet;
+      const stateClass = isUnlocked ? 'unlocked' : isAvailable ? 'available' : 'locked';
+
+      // Build requirements
+      let reqs = [];
+      if (!isUnlocked) {
+        if (u.levelMin) reqs.push(`Niv.${q.level >= u.levelMin ? '✓' : q.level+'/'+u.levelMin}`);
+        if (u.totalXpMin) reqs.push(`XP ${q.totalXp >= u.totalXpMin ? '✓' : q.totalXp+'/'+u.totalXpMin}`);
+        if (u.runesMin) reqs.push(`Runes ${(q.runes||[]).length >= u.runesMin ? '✓' : (q.runes||[]).length+'/'+u.runesMin}`);
+        if (u.skillNodesMin) reqs.push(`Comp. ${(q.skillTree?.unlockedNodes||[]).length >= u.skillNodesMin ? '✓' : (q.skillTree?.unlockedNodes||[]).length+'/'+u.skillNodesMin}`);
+        if (u.bossVictoriesMin) reqs.push(`Boss ${(wm.bossVictories||0) >= u.bossVictoriesMin ? '✓' : (wm.bossVictories||0)+'/'+u.bossVictoriesMin}`);
+        if (u.streakMin) reqs.push(`Streak ${q.streak >= u.streakMin ? '✓' : q.streak+'/'+u.streakMin}`);
+        if (u.secretsMin) reqs.push(`Secrets ${(q.secretsUnlocked||[]).length >= u.secretsMin ? '✓' : (q.secretsUnlocked||[]).length+'/'+u.secretsMin}`);
+      }
+
+      html += `<div class="monde-region ${stateClass}" style="--zone-color:${region.color};--zone-bg:${region.color}" onclick="toggleWorldDetail('${region.id}')">
+        <span class="monde-region-icon">${region.icon}</span>
+        <div class="monde-region-name">${region.name}</div>
+        <div class="monde-region-sub">${region.subtitle}</div>
+        <span class="monde-region-env env-${region.env}">${region.envLabel}</span>
+        ${!isUnlocked && reqs.length ? `<div class="monde-reqs">${reqs.join(' · ')}</div>` : ''}
+      </div>`;
+    }
+  }
+  html += `</div>`;
+
+  // Detail panel (rendered below grid, toggled by click)
+  html += `<div id="monde-detail-panel"></div>`;
+
+  container.innerHTML = html;
+}
+
+function toggleWorldDetail(regionId) {
+  const region = VIKING_WORLD_MAP.find(r => r.id === regionId);
+  if (!region) return;
+  const wm = state.quests.worldMap || { unlockedRegions: ['midgard'] };
+  const isUnlocked = wm.unlockedRegions.includes(regionId);
+
+  const panel = document.getElementById('monde-detail-panel');
+  if (!panel) return;
+
+  // Toggle off if same region clicked
+  if (panel.dataset.current === regionId && panel.querySelector('.monde-detail.visible')) {
+    panel.innerHTML = '';
+    panel.dataset.current = '';
+    return;
+  }
+  panel.dataset.current = regionId;
+
+  let html = `<div class="monde-detail visible">
+    <div class="monde-detail-title">${region.icon} ${region.name} — ${region.subtitle}</div>
+    <div class="monde-detail-lore">${isUnlocked ? region.lore : region.desc}</div>`;
+
+  if (isUnlocked && region.challenges) {
+    html += `<div class="monde-detail-challenges">
+      <div style="font-size:.7rem;color:var(--gold);margin-bottom:6px;font-weight:600">Defis de la zone :</div>`;
+    region.challenges.forEach(c => {
+      html += `<div class="monde-challenge">
+        <span class="monde-challenge-icon">${c.icon}</span>
+        <span class="monde-challenge-name">${c.name}<br><span style="font-size:.55rem;color:var(--text-dim)">${c.desc}</span></span>
+        <span class="monde-challenge-reward">${c.reward}</span>
+      </div>`;
+    });
+    html += `</div>`;
+  } else if (!isUnlocked) {
+    html += `<div style="font-size:.65rem;color:var(--text-dim);text-align:center;padding:8px 0">🔒 Debloque ce royaume pour reveler ses defis</div>`;
+  }
+
+  html += `</div>`;
+  panel.innerHTML = html;
+}
+
 // ===== BOSS HEBDOMADAIRE =====
 function initWeeklyBoss() {
   const q = state.quests;
@@ -2868,11 +3163,14 @@ function checkBossVictory() {
   if (progress >= boss.threshold) {
     boss.resolved = true;
     boss.result = 'victory';
+    if (!q.worldMap) q.worldMap = { unlockedRegions: ['midgard'], bossVictories: 0 };
+    q.worldMap.bossVictories = (q.worldMap.bossVictories || 0) + 1;
     const msg = BOSS_VICTORY_MSGS[Math.floor(Math.random() * BOSS_VICTORY_MSGS.length)]
       .replace('{boss}', boss.name)
       .replace('{xp}', boss.xpReward);
     addMessage('stakr', msg);
     addQuestXp(boss.xpReward);
+    checkWorldMapUnlocks();
 
     // Bonus rune chance on boss kill
     if (Math.random() < 0.3) {
@@ -3727,7 +4025,8 @@ async function callAI(userText, imageData = null) {
   const qDailyTotal = (q.objectives || []).filter(o => o.period === 'daily').length;
   const treeSummary = getSkillTreeSummary();
   const bossInfo = q.boss ? ` | Boss: ${q.boss.name} (${q.boss.type})${q.boss.resolved ? ' — ' + (q.boss.result === 'victory' ? 'VAINCU' : 'perdu') : ` — progression ${getWeeklyBossProgress()}/${q.boss.threshold}`}` : '';
-  const questInfo = `\n- Quetes Viking : Niveau ${q.level || 1} — ${qRank.name} (${qRank.subtitle}), ${q.totalXp || 0} XP total, streak ${q.streak || 0} jours, ${qRunes}/24 runes, ${qSecrets}/13 quetes secretes, ${qDailyDone}/${qDailyTotal} objectifs du jour faits, Arbre de Vie: ${treeSummary.unlocked}/${treeSummary.total} competences${bossInfo}`;
+  const worldInfo = q.worldMap ? `, Monde: ${q.worldMap.unlockedRegions.length}/9 royaumes (${q.worldMap.unlockedRegions.join(', ')})` : '';
+  const questInfo = `\n- Quetes Viking : Niveau ${q.level || 1} — ${qRank.name} (${qRank.subtitle}), ${q.totalXp || 0} XP total, streak ${q.streak || 0} jours, ${qRunes}/24 runes, ${qSecrets}/13 quetes secretes, ${qDailyDone}/${qDailyTotal} objectifs du jour faits, Arbre de Vie: ${treeSummary.unlocked}/${treeSummary.total} competences${bossInfo}${worldInfo}`;
 
   const timeInfo = `\n\nContexte actuel :
 - Heure : ${String(now.getHours()).padStart(2,'0')}h${String(now.getMinutes()).padStart(2,'0')}
