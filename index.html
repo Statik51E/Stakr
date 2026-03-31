@@ -2707,6 +2707,61 @@ function parseQuestTags(response) {
   return count;
 }
 
+function isQuestRequest(text) {
+  return /(?:cr[ée]+|ajoute|programme|fais|met|donne|lance|propose)[- ]?(?:moi|nous|lui)?\s*(?:une?|des|les|la|le|mon|mes|quelques|plusieurs|un)?\s*(?:qu[eê]te|d[ée]fi|objectif|challenge|mission|exercice|entra[iî]nement)/i.test(text)
+    || /(?:qu[eê]te|d[ée]fi|objectif|challenge|mission)\s.*(?:cr[ée]+|ajoute|programme|met|lance)/i.test(text)
+    || /(?:je veux|j'aimerais|j'veux|jveux)\s.*(?:qu[eê]te|d[ée]fi|objectif|challenge|mission)/i.test(text)
+    || /(?:nouveau|nouvelle)\s*(?:qu[eê]te|d[ée]fi|objectif|challenge|mission)/i.test(text);
+}
+
+async function extractQuestsFromResponse(aiResponse, userText) {
+  const keys = state.config.apiKeys || [];
+  if (keys.length === 0 && state.config.apiKey) keys.push(state.config.apiKey);
+  if (keys.length === 0) return 0;
+
+  const extractPrompt = `L'utilisateur a demande: "${userText}"
+L'IA a repondu: "${aiResponse.replace(/"/g, "'").slice(0, 500)}"
+
+Extrait les quetes/defis mentionnes. Pour CHAQUE quete, reponds avec une ligne au format EXACT:
+[QUEST:nom|emoji|objectif_nombre|unite|daily_ou_weekly|facile_moyen_difficile_legendaire|physique_mental_sante_social]
+
+Regles:
+- Si l'utilisateur demande quelque chose de specifique (ex: "50 pompes"), utilise CE chiffre exact
+- Unite: reps, min, km, fois, sec, litres, etc.
+- Si pas de nombre precis, choisis un objectif raisonnable pour un debutant
+- Reponds UNIQUEMENT avec les tags [QUEST:...], rien d'autre`;
+
+  try {
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[(groqKeyIndex + i) % keys.length];
+      if (rateLimitedKeys.has(key) && i < keys.length - 1) continue;
+      await enforceGroqMinDelay();
+      try {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [{ role: 'user', content: extractPrompt }],
+            temperature: 0.3,
+            max_tokens: 300
+          })
+        });
+        if (res.status === 429) { markKeyRateLimited(key); continue; }
+        if (res.ok) {
+          const data = await res.json();
+          const result = data.choices?.[0]?.message?.content || '';
+          groqKeyIndex = (groqKeyIndex + i + 1) % keys.length;
+          resetCurrentRequestKey();
+          return parseQuestTags(result);
+        }
+      } catch(e) { continue; }
+    }
+    resetCurrentRequestKey();
+  } catch(e) { console.error('Quest extraction error:', e); }
+  return 0;
+}
+
 function renderQuestStats() {
   const q = state.quests;
   const container = $('#quest-stats-tab');
@@ -3018,8 +3073,12 @@ async function sendMessage() {
       }
     }
 
-    // Parse quests
-    const questCount = parseQuestTags(response);
+    // Parse quests — 2-layer system
+    let questCount = parseQuestTags(response);
+    // Fallback: if user asked for a quest but AI didn't use tags, force extract
+    if (questCount === 0 && isQuestRequest(text)) {
+      questCount = await extractQuestsFromResponse(response, text);
+    }
     if (questCount > 0) {
       checkSecretQuests();
       checkRuneUnlocks();
