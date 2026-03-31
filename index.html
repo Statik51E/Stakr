@@ -180,7 +180,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 .quest-stat{background:var(--wood-mid);border:1px solid var(--border);border-radius:6px;padding:6px 10px;text-align:center;flex:1}
 .quest-stat .stat-val{font-size:1rem;color:var(--gold);font-weight:700}
 .quest-stat .stat-label{font-size:.6rem;color:var(--text-dim);display:block}
-.quest-tabs{display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border)}
+.quest-tabs{display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch}
 .quest-tab{flex:1;padding:8px 4px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-size:.75rem;cursor:pointer;font-family:inherit;transition:all .2s}
 .quest-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
 .quest-tab:hover{color:var(--text)}
@@ -230,6 +230,38 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 .quest-ai-btn{width:100%;background:linear-gradient(135deg,#1a237e,#283593);border:1px solid #3949ab;border-radius:6px;padding:10px;color:#90caf9;font-size:.75rem;cursor:pointer;text-align:center;margin:8px 0;font-family:inherit;transition:all .2s}
 .quest-ai-btn:hover{border-color:#5c6bc0;color:#bbdefb}
 .quest-ai-btn:disabled{opacity:.5;cursor:wait}
+
+/* ===== SKILL TREE (YGGDRASIL) ===== */
+.ygg-header{text-align:center;padding:10px 0 12px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.ygg-title{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);margin-bottom:2px}
+.ygg-subtitle{font-size:.7rem;color:var(--text-dim)}
+.ygg-boosts{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:6px}
+.ygg-boost-tag{font-size:.6rem;padding:2px 6px;border-radius:10px;background:rgba(196,154,60,.12);color:var(--gold);border:1px solid rgba(196,154,60,.25)}
+.ygg-branch{margin-bottom:14px;border-left:3px solid var(--branch-color);border-radius:0 6px 6px 0;background:var(--surface);overflow:hidden}
+.ygg-branch.collapsed .ygg-nodes{display:none}
+.ygg-branch-header{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;transition:background .2s}
+.ygg-branch-header:hover{background:rgba(255,255,255,.03)}
+.ygg-branch-icon{font-size:1.1rem}
+.ygg-branch-name{font-size:.8rem;font-weight:600;color:var(--text);flex:1}
+.ygg-branch-sub{font-size:.6rem;color:var(--text-dim);display:none}
+.ygg-branch-progress{font-size:.65rem;color:var(--branch-color);font-weight:700}
+.ygg-nodes{padding:0 12px 10px}
+.ygg-connector{width:2px;height:16px;margin:0 auto;background:var(--border);border-radius:1px}
+.ygg-connector.active{background:var(--branch-color);box-shadow:0 0 4px var(--branch-color)}
+.ygg-node{display:flex;align-items:center;gap:10px;padding:8px;border-radius:6px;border:1px solid var(--border);transition:all .3s}
+.ygg-node.unlocked{border-color:var(--gold-dim);background:linear-gradient(135deg,rgba(196,154,60,.08),transparent)}
+.ygg-node.available{border-color:var(--branch-color);animation:yggPulse 2s ease-in-out infinite;background:rgba(255,255,255,.02)}
+.ygg-node.locked{opacity:.45}
+@keyframes yggPulse{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 8px var(--branch-color)}}
+.ygg-node-tier{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:var(--text-dim);border:2px solid var(--border);flex-shrink:0}
+.ygg-node.unlocked .ygg-node-tier{border-color:var(--gold-dim);color:var(--gold);background:rgba(196,154,60,.1)}
+.ygg-node.available .ygg-node-tier{border-color:var(--branch-color);color:var(--branch-color)}
+.ygg-node-info{flex:1;min-width:0}
+.ygg-node-name{font-size:.75rem;font-weight:600;color:var(--text)}
+.ygg-node-desc{font-size:.6rem;color:var(--text-dim);font-style:italic}
+.ygg-node-reward{font-size:.6rem;color:var(--gold);margin-top:2px}
+.ygg-node-reqs{font-size:.55rem;color:var(--text-dim);margin-top:2px}
+.ygg-node-check{color:var(--gold);font-size:1rem;flex-shrink:0}
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:480px){
@@ -557,12 +589,14 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
       <button class="quest-tab" data-qtab="weekly" onclick="switchQuestTab('weekly')">Hebdo</button>
       <button class="quest-tab" data-qtab="stakr" onclick="switchQuestTab('stakr')">Stakr</button>
       <button class="quest-tab" data-qtab="runes" onclick="switchQuestTab('runes')">Runes</button>
+      <button class="quest-tab" data-qtab="arbre" onclick="switchQuestTab('arbre')">Arbre</button>
       <button class="quest-tab" data-qtab="stats" onclick="switchQuestTab('stats')">Stats</button>
     </div>
     <div id="quest-list-daily"></div>
     <div id="quest-list-weekly" style="display:none"></div>
     <div id="quest-list-stakr" style="display:none"></div>
     <div id="quest-runes-tab" style="display:none"></div>
+    <div id="quest-arbre-tab" style="display:none"></div>
     <div id="quest-stats-tab" style="display:none"></div>
   </div>
 </div>
@@ -656,6 +690,7 @@ TES FONCTIONNALITÉS (tu fais partie de l'application Stakr) :
   * STREAKS : jours consécutifs d'activité avec bonus XP (+10% par jour, max +50%)
   * COLLECTION DE RUNES : 24 runes du Futhark ancien à collectionner, chacune avec une condition unique
   * TOTAUX LIFETIME : suivi cumulé de chaque objectif depuis le début
+  * ARBRE DE VIE (Yggdrasil) : arbre de compétences à 4 branches (Thor/physique, Odin/mental, Freya/santé, Baldur/social) avec 5 niveaux chacun. Se débloque automatiquement avec les stats du guerrier. Donne des bonus XP permanents et débloque de nouvelles quêtes
   * Ton compagnon peut aussi AJOUTER SES PROPRES OBJECTIFS personnalisés
 - TRANSFERT : ton compagnon peut exporter/importer toutes ses données pour changer d'appareil
 - Tu es une PWA installable sur téléphone avec notifications push
@@ -1996,9 +2031,11 @@ function initQuests() {
   if (!q.runes) q.runes = [];
   if (!q.secretsUnlocked) q.secretsUnlocked = [];
   if (!q.aiQuests) q.aiQuests = [];
+  if (!q.skillTree) q.skillTree = { unlockedNodes: [], activeBoosts: {}, unlockedQuests: [] };
 
   // Check for secret quest unlocks
   checkSecretQuests();
+  checkSkillTreeUnlocks();
 
   // Reset daily objectives if new day
   q.objectives.forEach(o => {
@@ -2032,7 +2069,16 @@ function initQuests() {
     const todayDate = new Date(today);
     const diffDays = Math.floor((todayDate - lastDate) / 86400000);
     if (diffDays > 1) {
-      q.streak = 0; // Streak broken
+      // Streak shield from skill tree (sant_4)
+      const hasShield = (q.skillTree?.unlockedNodes || []).includes('sant_4');
+      const shieldUsed = q.skillTree?.shieldUsedWeek === getWeekStart();
+      if (hasShield && !shieldUsed && diffDays <= 2) {
+        if (!q.skillTree) q.skillTree = { unlockedNodes: [], activeBoosts: {}, unlockedQuests: [] };
+        q.skillTree.shieldUsedWeek = getWeekStart();
+        addMessage('stakr', 'Le **Bouclier de Streak** de Freya t\'a protege ! Ton streak est sauf. (1x par semaine) [MOOD:protecteur]');
+      } else {
+        q.streak = 0;
+      }
     }
   }
 
@@ -2054,7 +2100,7 @@ function toggleQuestPanel() {
 
 function switchQuestTab(tab) {
   document.querySelectorAll('.quest-tab').forEach(t => t.classList.toggle('active', t.dataset.qtab === tab));
-  ['daily','weekly','stakr','stats'].forEach(t => {
+  ['daily','weekly','stakr','stats','arbre'].forEach(t => {
     const el = $(`#quest-list-${t}`) || $(`#quest-${t}-tab`);
     if (el) el.style.display = 'none';
   });
@@ -2062,6 +2108,7 @@ function switchQuestTab(tab) {
   if (tab === 'daily' || tab === 'weekly') $(`#quest-list-${tab}`).style.display = 'block';
   else if (tab === 'stakr') { $('#quest-list-stakr').style.display = 'block'; renderStakrQuests(); }
   else if (tab === 'runes') { $('#quest-runes-tab').style.display = 'block'; renderRuneCollection(); }
+  else if (tab === 'arbre') { $('#quest-arbre-tab').style.display = 'block'; renderSkillTree(); }
   else if (tab === 'stats') { $('#quest-stats-tab').style.display = 'block'; renderQuestStats(); }
 }
 
@@ -2196,7 +2243,7 @@ function logQuestProgress(id) {
   const cappedXp = Math.min(earnedXp, obj.xpReward); // Don't exceed max
 
   if (cappedXp > 0) {
-    addQuestXp(cappedXp);
+    addQuestXp(cappedXp, obj.category);
   }
 
   // Update streak
@@ -2247,19 +2294,23 @@ function logQuestProgress(id) {
     }
   }
 
-  // Check secret quests and runes after each progress
+  // Check unlocks after each progress
   checkSecretQuests();
   checkRuneUnlocks();
+  checkSkillTreeUnlocks();
 
   saveState();
   renderQuests();
 }
 
-function addQuestXp(amount) {
+function addQuestXp(amount, category) {
   const q = state.quests;
   // Streak multiplier: +10% per streak day, max +50%
   const streakBonus = Math.min(0.5, q.streak * 0.1);
-  const totalAmount = Math.round(amount * (1 + streakBonus));
+  // Skill tree boost
+  const boosts = q.skillTree?.activeBoosts || {};
+  const treeBoost = (category ? (boosts[category] || 0) : 0) + (boosts.global || 0);
+  const totalAmount = Math.round(amount * (1 + streakBonus + treeBoost));
 
   q.xp += totalAmount;
   q.totalXp += totalAmount;
@@ -2279,6 +2330,90 @@ function addQuestXp(amount) {
     xpNeeded = getXpForLevel(q.level);
   }
 }
+
+// ===== ARBRE DE VIE — YGGDRASIL SKILL TREE =====
+const YGGDRASIL_TREE = {
+  physique: {
+    name: 'Branche de Thor', icon: '⚡', color: '#e53935', subtitle: 'Force & Endurance',
+    nodes: [
+      { id:'phys_1', name:'Force du Thrall', tier:1, desc:'Tes muscles s\'eveillent',
+        unlock:{ lifetimeKey:'pushups', lifetimeMin:30 },
+        reward:{ type:'xp_mult', category:'physique', value:0.05, label:'+5% XP Physique' }},
+      { id:'phys_2', name:'Poigne du Karl', tier:2, desc:'Tes bras sont d\'acier',
+        unlock:{ lifetimeKey:'pushups', lifetimeMin:150, lifetimeKey2:'walk', lifetimeMin2:20 },
+        reward:{ type:'quest_unlock', questTemplate:{ name:'Gainage', icon:'🧱', target:2, unit:'min', period:'daily', category:'physique', xpReward:25 }, label:'Debloque: Gainage' }},
+      { id:'phys_3', name:'Endurance du Berserkr', tier:3, desc:'Tu cours comme un loup',
+        unlock:{ lifetimeKey:'walk', lifetimeMin:50, lifetimeKey2:'sport', lifetimeMin2:10, levelMin:3 },
+        reward:{ type:'xp_mult', category:'physique', value:0.10, label:'+10% XP Physique' }},
+      { id:'phys_4', name:'Corps du Hersir', tier:4, desc:'Forge dans le feu et la glace',
+        unlock:{ lifetimeKey:'stretching', lifetimeMin:120, lifetimeKey2:'cold_shower', lifetimeMin2:15, levelMin:6 },
+        reward:{ type:'quest_unlock', questTemplate:{ name:'Defi Guerrier', icon:'⚔️', target:1, unit:'defi', period:'weekly', category:'physique', xpReward:80 }, label:'Debloque: Defi Guerrier' }},
+      { id:'phys_5', name:'Avatar de Thor', tier:5, desc:'Tu es la foudre incarnee',
+        unlock:{ lifetimeKey:'pushups', lifetimeMin:500, lifetimeKey2:'walk', lifetimeMin2:200, levelMin:8 },
+        reward:{ type:'xp_mult_global', value:0.05, label:'+5% XP Global' }}
+    ]
+  },
+  mental: {
+    name: 'Branche d\'Odin', icon: '👁', color: '#7c4dff', subtitle: 'Sagesse & Discipline',
+    nodes: [
+      { id:'ment_1', name:'Eveil de l\'Esprit', tier:1, desc:'La meditation ouvre tes sens',
+        unlock:{ lifetimeKey:'meditation', lifetimeMin:20 },
+        reward:{ type:'xp_mult', category:'mental', value:0.05, label:'+5% XP Mental' }},
+      { id:'ment_2', name:'Oeil du Sage', tier:2, desc:'Les livres revelent leurs secrets',
+        unlock:{ lifetimeKey:'reading', lifetimeMin:120, lifetimeKey2:'phonefree', lifetimeMin2:300 },
+        reward:{ type:'quest_unlock', questTemplate:{ name:'Visualisation', icon:'🔮', target:5, unit:'min', period:'daily', category:'mental', xpReward:20 }, label:'Debloque: Visualisation' }},
+      { id:'ment_3', name:'Discipline du Drengr', tier:3, desc:'Ton esprit est une forteresse',
+        unlock:{ lifetimeKey:'gratitude', lifetimeMin:30, lifetimeKey2:'meditation', lifetimeMin2:60, levelMin:4 },
+        reward:{ type:'xp_mult', category:'mental', value:0.10, label:'+10% XP Mental' }},
+      { id:'ment_4', name:'Memoire de Mimir', tier:4, desc:'Tu retiens tout ce que tu lis',
+        unlock:{ lifetimeKey:'reading', lifetimeMin:500, lifetimeKey2:'journal', lifetimeMin2:20, levelMin:6 },
+        reward:{ type:'quest_unlock', questTemplate:{ name:'Etude profonde', icon:'📜', target:30, unit:'min', period:'daily', category:'mental', xpReward:40 }, label:'Debloque: Etude profonde' }},
+      { id:'ment_5', name:'Sagesse d\'Odin', tier:5, desc:'Tu vois au-dela du voile',
+        unlock:{ lifetimeKey:'meditation', lifetimeMin:200, lifetimeKey2:'gratitude', lifetimeMin2:100, levelMin:8 },
+        reward:{ type:'xp_mult_global', value:0.05, label:'+5% XP Global' }}
+    ]
+  },
+  sante: {
+    name: 'Branche de Freya', icon: '🌿', color: '#00c853', subtitle: 'Vitalite & Guerison',
+    nodes: [
+      { id:'sant_1', name:'Source d\'Urd', tier:1, desc:'L\'eau pure coule en toi',
+        unlock:{ lifetimeKey:'water', lifetimeMin:20 },
+        reward:{ type:'xp_mult', category:'sante', value:0.05, label:'+5% XP Sante' }},
+      { id:'sant_2', name:'Sommeil du Juste', tier:2, desc:'Tes nuits reparent ton corps',
+        unlock:{ lifetimeKey:'sleep', lifetimeMin:50, lifetimeKey2:'water', lifetimeMin2:50 },
+        reward:{ type:'quest_unlock', questTemplate:{ name:'Repas Viking', icon:'🍖', target:1, unit:'repas', period:'daily', category:'sante', xpReward:20 }, label:'Debloque: Repas Viking' }},
+      { id:'sant_3', name:'Sang de Glace', tier:3, desc:'Le froid est ton allie',
+        unlock:{ lifetimeKey:'cold_shower', lifetimeMin:10, lifetimeKey2:'no_junk', lifetimeMin2:10, levelMin:4 },
+        reward:{ type:'xp_mult', category:'sante', value:0.10, label:'+10% XP Sante' }},
+      { id:'sant_4', name:'Festin de Freya', tier:4, desc:'Ton corps est un temple',
+        unlock:{ lifetimeKey:'healthy_meal', lifetimeMin:30, lifetimeKey2:'water', lifetimeMin2:150, levelMin:6 },
+        reward:{ type:'streak_shield', label:'Bouclier de Streak (1x/sem)' }},
+      { id:'sant_5', name:'Immortalite d\'Idunn', tier:5, desc:'Les pommes d\'or coulent dans tes veines',
+        unlock:{ lifetimeKey:'water', lifetimeMin:300, lifetimeKey2:'sleep', lifetimeMin2:200, levelMin:9 },
+        reward:{ type:'xp_mult_global', value:0.05, label:'+5% XP Global' }}
+    ]
+  },
+  social: {
+    name: 'Branche de Baldur', icon: '☀', color: '#ffab00', subtitle: 'Lien & Communaute',
+    nodes: [
+      { id:'soci_1', name:'Premier Lien', tier:1, desc:'Tu tends la main',
+        unlock:{ lifetimeKey:'social', lifetimeMin:3 },
+        reward:{ type:'xp_mult', category:'social', value:0.05, label:'+5% XP Social' }},
+      { id:'soci_2', name:'Voix du Skald', tier:2, desc:'Tes mots portent loin',
+        unlock:{ lifetimeKey:'journal', lifetimeMin:10, lifetimeKey2:'social', lifetimeMin2:8 },
+        reward:{ type:'quest_unlock', questTemplate:{ name:'Acte de bonte', icon:'💛', target:1, unit:'fois', period:'daily', category:'social', xpReward:20 }, label:'Debloque: Acte de bonte' }},
+      { id:'soci_3', name:'Charisme du Jarl', tier:3, desc:'On te suit naturellement',
+        unlock:{ lifetimeKey:'social', lifetimeMin:20, streakMin:14 },
+        reward:{ type:'xp_mult', category:'social', value:0.10, label:'+10% XP Social' }},
+      { id:'soci_4', name:'Cercle du Thing', tier:4, desc:'Tu rassembles les gens',
+        unlock:{ lifetimeKey:'social', lifetimeMin:40, lifetimeKey2:'journal', lifetimeMin2:30, runesMin:8, levelMin:6 },
+        reward:{ type:'quest_unlock', questTemplate:{ name:'Mentorat', icon:'🤝', target:1, unit:'session', period:'weekly', category:'social', xpReward:60 }, label:'Debloque: Mentorat' }},
+      { id:'soci_5', name:'Lumiere de Baldur', tier:5, desc:'Ta presence illumine les autres',
+        unlock:{ lifetimeKey:'social', lifetimeMin:80, streakMin:30, levelMin:9 },
+        reward:{ type:'xp_mult_global', value:0.05, label:'+5% XP Global' }}
+    ]
+  }
+};
 
 // ===== VIKING RUNES =====
 const VIKING_RUNES = [
@@ -2379,6 +2514,150 @@ function renderRuneCollection() {
   });
 
   html += `</div></div>`;
+  container.innerHTML = html;
+}
+
+// ===== SKILL TREE LOGIC =====
+function checkSkillTreeUnlocks() {
+  const q = state.quests;
+  if (!q.skillTree) q.skillTree = { unlockedNodes: [], activeBoosts: {}, unlockedQuests: [] };
+  const st = q.skillTree;
+  const lt = q.lifetimeTotals || {};
+  const unlocked = new Set(st.unlockedNodes);
+  let newNodes = [];
+
+  Object.entries(YGGDRASIL_TREE).forEach(([branchKey, branch]) => {
+    branch.nodes.forEach((node, idx) => {
+      if (unlocked.has(node.id)) return;
+      if (idx > 0 && !unlocked.has(branch.nodes[idx - 1].id)) return;
+      const u = node.unlock;
+      if (u.lifetimeMin && (lt[u.lifetimeKey] || 0) < u.lifetimeMin) return;
+      if (u.lifetimeMin2 && (lt[u.lifetimeKey2] || 0) < u.lifetimeMin2) return;
+      if (u.levelMin && q.level < u.levelMin) return;
+      if (u.streakMin && q.streak < u.streakMin) return;
+      if (u.runesMin && (q.runes || []).length < u.runesMin) return;
+      st.unlockedNodes.push(node.id);
+      newNodes.push({ node, branchKey });
+    });
+  });
+
+  if (newNodes.length > 0) {
+    recomputeSkillBoosts();
+    newNodes.forEach(({ node, branchKey }) => {
+      applySkillReward(node);
+      const branch = YGGDRASIL_TREE[branchKey];
+      addMessage('stakr', `KRAA ! L'Arbre de Vie grandit ! **${node.name}** debloque sur la ${branch.name} ! *${node.desc}*. ${node.reward.label} ! Yggdrasil se fortifie ! [MOOD:excite]`);
+      showToast('Competence debloquee !', `${branch.icon} ${node.name} — ${node.reward.label}`);
+    });
+    saveState();
+  }
+}
+
+function recomputeSkillBoosts() {
+  const st = state.quests.skillTree;
+  const boosts = {};
+  const unlocked = new Set(st.unlockedNodes);
+  Object.values(YGGDRASIL_TREE).forEach(branch => {
+    branch.nodes.forEach(node => {
+      if (!unlocked.has(node.id)) return;
+      if (node.reward.type === 'xp_mult') {
+        boosts[node.reward.category] = (boosts[node.reward.category] || 0) + node.reward.value;
+      } else if (node.reward.type === 'xp_mult_global') {
+        boosts.global = (boosts.global || 0) + node.reward.value;
+      }
+    });
+  });
+  st.activeBoosts = boosts;
+}
+
+function applySkillReward(node) {
+  if (node.reward.type === 'quest_unlock') {
+    const tmpl = node.reward.questTemplate;
+    const qid = 'tree_' + node.id;
+    const exists = state.quests.objectives.some(o => o.id === qid);
+    if (!exists) {
+      state.quests.objectives.push({
+        id: qid, ...tmpl, progress: 0, lastReset: getTodayStr(), source: 'skilltree'
+      });
+      state.quests.skillTree.unlockedQuests.push(qid);
+    }
+  }
+}
+
+function getSkillTreeSummary() {
+  const st = state.quests.skillTree || {};
+  const total = Object.values(YGGDRASIL_TREE).reduce((s, b) => s + b.nodes.length, 0);
+  const unlocked = (st.unlockedNodes || []).length;
+  const boosts = st.activeBoosts || {};
+  return { total, unlocked, boosts };
+}
+
+function renderSkillTree() {
+  const container = $('#quest-arbre-tab');
+  if (!container) return;
+  const q = state.quests;
+  const st = q.skillTree || {};
+  const unlocked = new Set(st.unlockedNodes || []);
+  const lt = q.lifetimeTotals || {};
+  const summary = getSkillTreeSummary();
+
+  let html = `<div class="ygg-header">
+    <div class="ygg-title">🌳 Yggdrasil — Arbre de Vie</div>
+    <div class="ygg-subtitle">${summary.unlocked}/${summary.total} competences debloquees</div>`;
+  const boostList = Object.entries(summary.boosts).filter(([,v]) => v > 0);
+  if (boostList.length > 0) {
+    html += `<div class="ygg-boosts">${boostList.map(([k,v]) => `<span class="ygg-boost-tag">${k === 'global' ? '🌍' : k === 'physique' ? '⚡' : k === 'mental' ? '👁' : k === 'sante' ? '🌿' : '☀'} +${Math.round(v*100)}% ${k}</span>`).join(' ')}</div>`;
+  }
+  html += `</div>`;
+
+  Object.entries(YGGDRASIL_TREE).forEach(([branchKey, branch]) => {
+    const branchUnlocked = branch.nodes.filter(n => unlocked.has(n.id)).length;
+    html += `<div class="ygg-branch" style="--branch-color:${branch.color}">
+      <div class="ygg-branch-header" onclick="this.parentElement.classList.toggle('collapsed')">
+        <span class="ygg-branch-icon">${branch.icon}</span>
+        <span class="ygg-branch-name">${branch.name}</span>
+        <span class="ygg-branch-sub">${branch.subtitle}</span>
+        <span class="ygg-branch-progress">${branchUnlocked}/${branch.nodes.length}</span>
+      </div>
+      <div class="ygg-nodes">`;
+
+    branch.nodes.forEach((node, idx) => {
+      const isUnlocked = unlocked.has(node.id);
+      const prevOk = idx === 0 || unlocked.has(branch.nodes[idx - 1].id);
+      const u = node.unlock;
+      let condMet = prevOk;
+      if (condMet && u.lifetimeMin) condMet = (lt[u.lifetimeKey] || 0) >= u.lifetimeMin;
+      if (condMet && u.lifetimeMin2) condMet = (lt[u.lifetimeKey2] || 0) >= u.lifetimeMin2;
+      if (condMet && u.levelMin) condMet = q.level >= u.levelMin;
+      if (condMet && u.streakMin) condMet = q.streak >= u.streakMin;
+      if (condMet && u.runesMin) condMet = (q.runes || []).length >= u.runesMin;
+      const isAvailable = !isUnlocked && condMet;
+      const nodeClass = isUnlocked ? 'unlocked' : isAvailable ? 'available' : 'locked';
+
+      // Build requirements text
+      let reqs = [];
+      if (u.lifetimeMin) { const cur = lt[u.lifetimeKey] || 0; reqs.push(`${u.lifetimeKey}: ${cur >= u.lifetimeMin ? '✓' : cur + '/' + u.lifetimeMin}`); }
+      if (u.lifetimeMin2) { const cur = lt[u.lifetimeKey2] || 0; reqs.push(`${u.lifetimeKey2}: ${cur >= u.lifetimeMin2 ? '✓' : cur + '/' + u.lifetimeMin2}`); }
+      if (u.levelMin) reqs.push(`Niv. ${q.level >= u.levelMin ? '✓' : q.level + '/' + u.levelMin}`);
+      if (u.streakMin) reqs.push(`Streak ${q.streak >= u.streakMin ? '✓' : q.streak + '/' + u.streakMin}`);
+      if (u.runesMin) reqs.push(`Runes ${(q.runes||[]).length >= u.runesMin ? '✓' : (q.runes||[]).length + '/' + u.runesMin}`);
+
+      html += `${idx > 0 ? `<div class="ygg-connector ${isUnlocked || isAvailable ? 'active' : ''}"></div>` : ''}
+        <div class="ygg-node ${nodeClass}">
+          <div class="ygg-node-tier">T${node.tier}</div>
+          <div class="ygg-node-info">
+            <div class="ygg-node-name">${node.name}</div>
+            <div class="ygg-node-desc">${node.desc}</div>
+            <div class="ygg-node-reward">${node.reward.label}</div>
+            ${!isUnlocked ? `<div class="ygg-node-reqs">${reqs.join(' · ')}</div>` : ''}
+          </div>
+          ${isUnlocked ? '<div class="ygg-node-check">✓</div>' : ''}
+        </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
   container.innerHTML = html;
 }
 
@@ -2660,6 +2939,7 @@ function logAIQuestProgress(id) {
     showToast('Defi Stakr reussi !', `${quest.icon} ${quest.name} complete !`);
     checkSecretQuests();
     checkRuneUnlocks();
+    checkSkillTreeUnlocks();
   }
 
   saveState();
@@ -3158,7 +3438,8 @@ async function callAI(userText, imageData = null) {
   const qSecrets = (q.secretsUnlocked || []).length;
   const qDailyDone = (q.objectives || []).filter(o => o.period === 'daily' && o.progress >= o.target).length;
   const qDailyTotal = (q.objectives || []).filter(o => o.period === 'daily').length;
-  const questInfo = `\n- Quetes Viking : Niveau ${q.level || 1} — ${qRank.name} (${qRank.subtitle}), ${q.totalXp || 0} XP total, streak ${q.streak || 0} jours, ${qRunes}/24 runes, ${qSecrets}/13 quetes secretes, ${qDailyDone}/${qDailyTotal} objectifs du jour faits`;
+  const treeSummary = getSkillTreeSummary();
+  const questInfo = `\n- Quetes Viking : Niveau ${q.level || 1} — ${qRank.name} (${qRank.subtitle}), ${q.totalXp || 0} XP total, streak ${q.streak || 0} jours, ${qRunes}/24 runes, ${qSecrets}/13 quetes secretes, ${qDailyDone}/${qDailyTotal} objectifs du jour faits, Arbre de Vie: ${treeSummary.unlocked}/${treeSummary.total} competences`;
 
   const timeInfo = `\n\nContexte actuel :
 - Heure : ${String(now.getHours()).padStart(2,'0')}h${String(now.getMinutes()).padStart(2,'0')}
