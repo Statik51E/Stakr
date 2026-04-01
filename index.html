@@ -5462,8 +5462,11 @@ function advStartCombat() {
     turn: 'player',
     round: 0
   };
-  advNarrate('narrator', `⚔️ **COMBAT !** Tu affrontes ${npc.icon} ${npc.name} !`);
+  advNarrate('narrator', `⚔️ **COMBAT !** Tu affrontes ${npc.icon} ${npc.name} (PV: ${npc.hp}, ATK: ${npc.atk}) !\nDis a Stakr ce que tu fais : attaquer, esquiver, utiliser un objet, lancer un sort...`);
   advRenderCombat();
+  // Focus the input for immediate typing
+  const advInput = document.getElementById('adv-input');
+  if (advInput) { advInput.placeholder = '⚔️ Que fais-tu ? (attaque, esquive, magie, objet...)'; advInput.focus(); }
 }
 
 function advCombatAction(action) {
@@ -5648,11 +5651,22 @@ function advGenerateQuest(npc) {
 }
 
 function advUpdateQuestProgress(type, detail) {
+  const killWords = ['vainc', 'tu', 'elimin', 'combat', 'kill', 'terrass', 'abat'];
+  const surviveWords = ['survi', 'surviv', 'resist', 'endur'];
+  const collectWords = ['recup', 'collect', 'trouv', 'ramass', 'obtien', 'gather'];
+  const exploreWords = ['explor', 'decouv', 'visite', 'parcour', 'traverse'];
+
   adv.activeQuests.forEach(q => {
-    if (type === 'kill' && q.name.includes('Vaincs')) q.progress++;
-    if (type === 'combat_survive' && q.name.includes('Survis')) q.progress++;
-    if (type === 'collect' && q.name.includes('Recupere')) q.progress++;
-    if (type === 'explore' && q.name.includes('Explore')) q.progress++;
+    const nameLow = q.name.toLowerCase();
+    let matched = false;
+    if (type === 'kill' && killWords.some(w => nameLow.includes(w))) matched = true;
+    if (type === 'combat_survive' && surviveWords.some(w => nameLow.includes(w))) matched = true;
+    if (type === 'collect' && collectWords.some(w => nameLow.includes(w))) matched = true;
+    if (type === 'explore' && exploreWords.some(w => nameLow.includes(w))) matched = true;
+    // Fallback: if type matches any quest, progress it anyway
+    if (!matched && type === 'kill') matched = true;
+
+    if (matched) q.progress++;
     if (q.progress >= q.target && !q.completed) {
       q.completed = true;
       adv.xp += q.xp;
@@ -5772,19 +5786,14 @@ function advRenderCombat() {
   const hpPct = Math.round((c.enemy.currentHp / c.enemy.hp) * 100);
   const myHpPct = Math.round((c.playerHp / adv.maxHp) * 100);
 
-  // Combat VS header dans le content
-  const content = document.getElementById('adv-content');
-  // On garde le narratif existant, pas de remplacement
-  // Actions de combat
+  // Combat HUD — actions are done via chat input
   el.innerHTML = `
-    <div style="width:100%;display:flex;justify-content:space-around;margin-bottom:4px">
+    <div style="width:100%;display:flex;justify-content:space-around;align-items:center;padding:4px 0">
       <div style="text-align:center"><span style="font-size:.6rem;color:var(--text-dim)">Toi</span><div class="adv-bar adv-bar-hp" style="width:60px"><div class="adv-bar-fill" style="width:${myHpPct}%"></div></div><span style="font-size:.5rem">${c.playerHp}/${adv.maxHp}</span></div>
       <span style="font-size:1rem;color:var(--danger)">⚔️</span>
       <div style="text-align:center"><span style="font-size:.6rem;color:var(--text-dim)">${c.enemy.icon} ${c.enemy.name}</span><div class="adv-bar adv-bar-hp" style="width:60px"><div class="adv-bar-fill" style="width:${hpPct}%"></div></div><span style="font-size:.5rem">${c.enemy.currentHp}/${c.enemy.hp}</span></div>
     </div>
-    <button class="adv-btn danger" onclick="advCombatAction('attaque')">🗡️ Attaque (d20)</button>
-    <button class="adv-btn" onclick="advCombatAction('esquive')">🛡️ Esquive (d12)</button>
-    <button class="adv-btn" onclick="advCombatAction('magie')" ${adv.energy <= 0 ? 'disabled' : ''}>✨ Magie (d18)</button>`;
+    <div style="text-align:center;font-size:.6rem;color:var(--gold-dim);padding:2px">Dis a Stakr ce que tu fais !</div>`;
 }
 
 function advRenderCampActions(canRest) {
@@ -5887,8 +5896,11 @@ REGLES NARRATIVES :
 
 TAGS D'ACTIONS — Insere ces tags dans ta reponse quand c'est pertinent pour declencher des mecaniques de jeu :
 - [MONSTER:nom:pv:atk:icone] — Fait apparaitre un monstre et lance un combat. Ex: [MONSTER:Draugr:30:8:💀]
+- [MONSTER_DAMAGE:n] — Le joueur inflige n degats au monstre en cours de combat. Ex: [MONSTER_DAMAGE:12]
+- [DAMAGE:n] — Le joueur subit n degats (attaque ennemie, piege, poison, chute...). Ex: [DAMAGE:5]
+- [COMBAT_END:victory] ou [COMBAT_END:defeat] — Met fin au combat. Victoire = XP + loot. Defaite = retour campement.
 - [LOOT:nom:icone] — Le joueur trouve/recoit un objet. Ex: [LOOT:Epee runique:⚔️]
-- [DAMAGE:n] — Le joueur subit n degats (piege, poison, chute...). Ex: [DAMAGE:5]
+- [USE_ITEM:nom] — Consomme un objet de l'inventaire du joueur. Ex: [USE_ITEM:Potion de soin]
 - [HEAL:n] — Le joueur recupere n PV (source, potion...). Ex: [HEAL:10]
 - [ENERGY:n] — Le joueur gagne (+) ou perd (-) de l'energie. Ex: [ENERGY:-2]
 - [XP:n] — Le joueur gagne n XP d'aventure. Ex: [XP:15]
@@ -5896,7 +5908,7 @@ TAGS D'ACTIONS — Insere ces tags dans ta reponse quand c'est pertinent pour de
 - [QUEST:nom:cible:xp] — Cree une nouvelle quete. Ex: [QUEST:Retrouver l'amulette:1:25]
 - [QUEST_PROGRESS:type] — Avance une quete (types: kill, explore, collect, combat_survive). Ex: [QUEST_PROGRESS:kill]
 
-Tu peux combiner plusieurs tags. Place-les naturellement dans ton texte narratif.
+Tu peux combiner plusieurs tags. Place-les naturellement dans ton texte narratif. IMPORTANT : utilise toujours les tags pour que les effets soient appliques dans le jeu !
 
 ETAT DU JOUEUR :
 - Zone actuelle : ${zone.icon || ''} ${zone.name || 'Inconnue'} — ${zone.desc || ''}
@@ -5907,8 +5919,15 @@ ETAT DU JOUEUR :
 - Inventaire : ${inv}
 - Quetes actives : ${quests}${combatInfo}${encounterInfo}
 
-${inCombat ? 'Le joueur est EN COMBAT. Ses actions concernent le combat. Utilise les tags [DAMAGE:n] si l\'ennemi le frappe, ou [MONSTER_DAMAGE:n] si le joueur attaque.' : ''}
-${zone.id === 'campement' ? 'Le joueur est au campement — lieu sur, repos possible, PNJs amicaux.' : ''}
+${inCombat ? `COMBAT EN COURS — Tu es le MJ du combat. Le joueur te dit ce qu'il fait (attaquer, esquiver, utiliser un objet, fuir...) et tu narres le resultat.
+- Pour les degats du joueur sur le monstre : utilise [MONSTER_DAMAGE:n] (lance un d20 mentalement, critique a 18+)
+- Pour les degats du monstre sur le joueur : utilise [DAMAGE:n] (le monstre riposte apres l'action du joueur)
+- Si le joueur utilise un objet : utilise [USE_ITEM:nom] + l'effet ([HEAL:n], [ENERGY:n], etc.)
+- Quand le monstre meurt (PV <= 0) : utilise [COMBAT_END:victory]
+- Quand le joueur meurt (PV <= 0) : utilise [COMBAT_END:defeat]
+- Decris chaque echange avec des jets de des narratifs, des descriptions epiques !
+- Le monstre attaque apres chaque action du joueur (sauf si esquive reussie ou fuite)` : ''}
+${!inCombat && zone.id === 'campement' ? 'Le joueur est au campement — lieu sur, repos possible, PNJs amicaux.' : ''}
 
 Sois creatif et immersif ! Le joueur te dit ce qu'il fait, tu racontes ce qui se passe.`;
 }
@@ -5953,13 +5972,15 @@ async function advSendMessage() {
     advRenderMap();
     saveAdventure();
 
-    // Restore action buttons based on current state
+    // Restore action buttons + input placeholder based on current state
+    const advInputEl = document.getElementById('adv-input');
     if (adv._combat) {
       advRenderCombat();
-    } else if (adv.currentZone === 'campement') {
-      advRenderCampActions(true);
+      if (advInputEl) advInputEl.placeholder = '⚔️ Que fais-tu ? (attaque, esquive, magie, objet...)';
     } else {
-      advRenderExploreActions();
+      if (advInputEl) advInputEl.placeholder = 'Dis a Stakr ce que tu fais...';
+      if (adv.currentZone === 'campement') advRenderCampActions(true);
+      else advRenderExploreActions();
     }
 
   } catch (err) {
@@ -6058,7 +6079,7 @@ async function advCallAI(messages) {
 function advParseAndExecuteTags(response) {
   let text = response;
 
-  // [MONSTER:nom:pv:atk:icone] — spawn + auto-combat
+  // [MONSTER:nom:pv:atk:icone] — spawn + combat
   const monsterMatches = [...text.matchAll(/\[MONSTER:([^:]+):(\d+):(\d+):([^\]]+)\]/g)];
   for (const m of monsterMatches) {
     const monster = { name: m[1], hp: parseInt(m[2]), atk: parseInt(m[3]), icon: m[4], zone: adv.currentZone, intro: '', actions: ['combattre','fuir'], difficulty: 'medium', drops: [] };
@@ -6069,8 +6090,69 @@ function advParseAndExecuteTags(response) {
       turn: 'player',
       round: 0
     };
+    adv.narrative.push({ type: 'combat-hit', text: `⚔️ **${m[4]} ${m[1]}** apparait ! (PV: ${m[2]}, ATK: ${m[3]})`, time: Date.now() });
   }
   text = text.replace(/\[MONSTER:[^\]]+\]/g, '');
+
+  // [MONSTER_DAMAGE:n] — player damages the monster
+  const mDmgMatches = [...text.matchAll(/\[MONSTER_DAMAGE:(\d+)\]/g)];
+  for (const m of mDmgMatches) {
+    if (adv._combat) {
+      const dmg = parseInt(m[1]);
+      adv._combat.enemy.currentHp = Math.max(0, adv._combat.enemy.currentHp - dmg);
+      adv._combat.round++;
+    }
+  }
+  text = text.replace(/\[MONSTER_DAMAGE:\d+\]/g, '');
+
+  // [COMBAT_END:victory] or [COMBAT_END:defeat]
+  const combatEndMatch = text.match(/\[COMBAT_END:(\w+)\]/);
+  if (combatEndMatch && adv._combat) {
+    const result = combatEndMatch[1];
+    if (result === 'victory') {
+      const enemy = adv._combat.enemy;
+      adv.totalKills++;
+      const xpGain = enemy.xp || 20;
+      adv.xp += xpGain;
+      adv.narrative.push({ type: 'loot', text: `🏆 **VICTOIRE !** ${enemy.icon} ${enemy.name} vaincu ! +${xpGain} XP`, time: Date.now() });
+      // Level up check
+      while (adv.xp >= adv.level * 60) {
+        adv.xp -= adv.level * 60;
+        adv.level++;
+        adv.maxHp += 10;
+        adv.hp = Math.min(adv.hp + 20, adv.maxHp);
+        adv.maxEnergy += 1;
+        adv.narrative.push({ type: 'loot', text: `⬆️ **NIVEAU ${adv.level} !** PV max +10, Energie max +1 !`, time: Date.now() });
+      }
+      // Quest progress
+      advUpdateQuestProgress('kill', enemy.name);
+      advUpdateQuestProgress('combat_survive', null);
+      // Stakr XP
+      if (typeof addQuestXp === 'function') addQuestXp(Math.round(xpGain / 3));
+      adv._combat = null;
+      adv._encounter = null;
+    } else {
+      // Defeat
+      adv.narrative.push({ type: 'combat-hit', text: '💀 **DEFAITE !** Tu te reveilles au campement...', time: Date.now() });
+      adv.hp = Math.floor(adv.maxHp * 0.3);
+      adv.currentZone = 'campement';
+      adv._combat = null;
+      adv._encounter = null;
+    }
+  }
+  text = text.replace(/\[COMBAT_END:\w+\]/g, '');
+
+  // [USE_ITEM:nom] — consume an inventory item
+  const useMatches = [...text.matchAll(/\[USE_ITEM:([^\]]+)\]/g)];
+  for (const m of useMatches) {
+    const itemName = m[1].trim().toLowerCase();
+    const idx = adv.inventory.findIndex(i => i.name.toLowerCase() === itemName);
+    if (idx !== -1) {
+      const item = adv.inventory.splice(idx, 1)[0];
+      adv.narrative.push({ type: 'loot', text: `🎒 ${item.icon || '📦'} **${item.name}** utilise !`, time: Date.now() });
+    }
+  }
+  text = text.replace(/\[USE_ITEM:[^\]]+\]/g, '');
 
   // [LOOT:nom:icone]
   const lootMatches = [...text.matchAll(/\[LOOT:([^:]+):([^\]]+)\]/g)];
@@ -6109,7 +6191,6 @@ function advParseAndExecuteTags(response) {
   for (const m of xpMatches) {
     const xpGain = parseInt(m[1]);
     adv.xp += xpGain;
-    // Level up check
     while (adv.xp >= adv.level * 60) {
       adv.xp -= adv.level * 60;
       adv.level++;
@@ -6119,7 +6200,6 @@ function advParseAndExecuteTags(response) {
       adv.energy = adv.maxEnergy;
       adv.narrative.push({ type: 'loot', text: `⬆️ **NIVEAU ${adv.level} !** PV max +5, Energie max +1`, time: Date.now() });
     }
-    // Also give XP to main Stakr system
     if (typeof addQuestXp === 'function') addQuestXp(xpGain);
   }
   text = text.replace(/\[XP:\d+\]/g, '');
@@ -6152,8 +6232,8 @@ function advParseAndExecuteTags(response) {
   }
   text = text.replace(/\[QUEST_PROGRESS:\w+\]/g, '');
 
-  // Check defeat
-  if (adv.hp <= 0) {
+  // Check defeat (safety net if AI forgot COMBAT_END)
+  if (adv.hp <= 0 && !combatEndMatch) {
     adv.narrative.push({ type: 'combat-hit', text: '💀 **Tu es tombe au combat !** Tu te reveilles au campement...', time: Date.now() });
     adv.hp = Math.floor(adv.maxHp * 0.3);
     adv.currentZone = 'campement';
