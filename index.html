@@ -1162,25 +1162,34 @@ function stopAdventureAmbience() {
 // --- Combat Ambience (war drums + tension drone) ---
 function startCombatAmbience() {
   if (_audioMuted || _combatAmbienceNodes) return;
+  // Duck adventure ambience
+  if (_advAmbienceNodes) {
+    try {
+      const ctx = getAudioCtx();
+      _advAmbienceNodes.windGain.gain.linearRampToValueAtTime(0.012, ctx.currentTime + 0.8);
+      _advAmbienceNodes.droneGain.gain.linearRampToValueAtTime(0.008, ctx.currentTime + 0.8);
+      _advAmbienceNodes.whistleGain.gain.linearRampToValueAtTime(0.002, ctx.currentTime + 0.8);
+    } catch(e) {}
+  }
   try {
     const ctx = getAudioCtx();
 
     // War drum: looping low-frequency pulse
     const drumOsc = ctx.createOscillator();
     drumOsc.type = 'sine';
-    drumOsc.frequency.value = 60;
+    drumOsc.frequency.value = 55;
     const drumGain = ctx.createGain();
     drumGain.gain.value = 0;
     drumOsc.connect(drumGain);
     drumGain.connect(ctx.destination);
     drumOsc.start();
 
-    // Drum pulse LFO (rhythmic volume modulation ~1.2 Hz = war drum beat)
+    // Drum pulse LFO (rhythmic volume modulation ~1.5 Hz = war drum beat)
     const drumLfo = ctx.createOscillator();
     const drumLfoGain = ctx.createGain();
     drumLfo.type = 'square';
-    drumLfo.frequency.value = 1.2;
-    drumLfoGain.gain.value = 0.08;
+    drumLfo.frequency.value = 1.5;
+    drumLfoGain.gain.value = 0.15;
     drumLfo.connect(drumLfoGain);
     drumLfoGain.connect(drumGain.gain);
     drumLfo.start();
@@ -1191,7 +1200,7 @@ function startCombatAmbience() {
     tension1.frequency.value = 73.4; // D2
     const tension1Gain = ctx.createGain();
     tension1Gain.gain.value = 0;
-    tension1Gain.gain.linearRampToValueAtTime(0.025, ctx.currentTime + 1.5);
+    tension1Gain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 1.5);
     const tension1Filter = ctx.createBiquadFilter();
     tension1Filter.type = 'lowpass';
     tension1Filter.frequency.value = 200;
@@ -1205,10 +1214,10 @@ function startCombatAmbience() {
     tension2.frequency.value = 77.8; // Eb2 — dissonant with D2
     const tension2Gain = ctx.createGain();
     tension2Gain.gain.value = 0;
-    tension2Gain.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 1.5);
+    tension2Gain.gain.linearRampToValueAtTime(0.035, ctx.currentTime + 1.5);
     const tension2Filter = ctx.createBiquadFilter();
     tension2Filter.type = 'lowpass';
-    tension2Filter.frequency.value = 180;
+    tension2Filter.frequency.value = 250;
     tension2.connect(tension2Filter);
     tension2Filter.connect(tension2Gain);
     tension2Gain.connect(ctx.destination);
@@ -1256,6 +1265,15 @@ function stopCombatAmbience() {
     }, 1100);
   } catch(e) {}
   _combatAmbienceNodes = null;
+  // Restore adventure ambience volume
+  if (_advAmbienceNodes) {
+    try {
+      const ctx = getAudioCtx();
+      _advAmbienceNodes.windGain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 1.5);
+      _advAmbienceNodes.droneGain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 1.5);
+      _advAmbienceNodes.whistleGain.gain.linearRampToValueAtTime(0.008, ctx.currentTime + 1.5);
+    } catch(e) {}
+  }
 }
 
 // --- Roll dice sound ---
@@ -6848,16 +6866,17 @@ NARRATION ELABOREE :
 - Integre du lore nordique (runes, dieux, legendes, propheties, Ragnarok)
 - Cree des evenements aleatoires (tempetes, embuscades, marchands ambulants, visions divines)
 - Les consequences des choix du joueur persistent (tuer un PNJ = il ne revient pas, reputation change)
+- **ADAPTE-TOI au joueur** : si le joueur mentionne un ennemi, un lieu ou une situation specifique, utilise CE contexte. Ne remplace pas un ours par un draugr, ni une grotte par une foret. Respecte ce que le joueur imagine.
 - Garde tes reponses entre 3 et 8 phrases — immersif mais rythme
 - Tutoie le joueur, 2e personne ("Tu vois...", "Tu entends...")
 
 TAGS D'ACTIONS — Utilise-les dans ta narration pour declencher les mecaniques :
 - [SKILL_CHECK:stat:difficulte] — OBLIGATOIRE pour toute action non-triviale. Stats: force, agilite, endurance, perception, charisme, sagesse. Difficultes: facile, moyen, difficile, extreme. Ex: [SKILL_CHECK:force:moyen]
   IMPORTANT: apres un SKILL_CHECK, adapte ta narration au resultat (le systeme affiche reussi/echoue). Si echoue, narre les consequences negatives !
-- [MONSTER:nom:pv:atk:icone] — Fait apparaitre un monstre. Ajuste PV/ATK au niveau du joueur (niv ${adv.level}). Ex: [MONSTER:Draugr:30:8:💀]
+- [MONSTER:nom:pv:atk:icone] — Fait apparaitre un monstre. Le NOM doit correspondre a ce que le joueur rencontre (ex: si le joueur dit "un ours", utilise "Ours Sauvage" pas "Draugr"). Adapte PV/ATK au niveau (niv ${adv.level}). Ex: [MONSTER:Ours Sauvage:35:10:🐻]
 - [MONSTER_DAMAGE:n] — Degats du joueur sur le monstre. Base sur force/agilite du joueur. Ex: [MONSTER_DAMAGE:12]
 - [DAMAGE:n] — Degats subis par le joueur. Ex: [DAMAGE:5]
-- [COMBAT_END:victory] ou [COMBAT_END:defeat] — Fin de combat.
+- [COMBAT_END:victory] ou [COMBAT_END:defeat] — Fin de combat. SEULEMENT quand PV du monstre ou joueur atteint 0.
 - [LOOT:nom:icone] — Le joueur recoit un objet. Ex: [LOOT:Epee runique:⚔️]
 - [USE_ITEM:nom] — Consomme un objet de l'inventaire. Ex: [USE_ITEM:Potion de soin]
 - [HEAL:n] — Recupere n PV. Ex: [HEAL:10]
@@ -6869,7 +6888,11 @@ TAGS D'ACTIONS — Utilise-les dans ta narration pour declencher les mecaniques 
 - [QUEST:nom:cible:xp] — Nouvelle quete. Ex: [QUEST:Retrouver l'amulette:1:25]
 - [QUEST_PROGRESS:type] — Progresse une quete (kill, explore, collect, combat_survive). Ex: [QUEST_PROGRESS:kill]
 
-IMPORTANT: Combine toujours les tags ! Ex: fouiller un coffre = [SKILL_CHECK:perception:moyen] et si reussi → [LOOT:...][GOLD:10]. Combattre = [SKILL_CHECK:force:moyen] puis [MONSTER_DAMAGE:n] si reussi, sinon le monstre esquive.
+IMPORTANT — REGLES DES TAGS :
+- Combine les tags hors combat. Ex: fouiller un coffre = [SKILL_CHECK:perception:moyen] et si reussi → [LOOT:...][GOLD:10].
+- POUR LES MONSTRES : le nom dans [MONSTER:nom:...] DOIT correspondre au contexte narratif (ce que le joueur decrit ou ce que tu inventes). Ne mets PAS un nom generique si le joueur a specifie un ennemi.
+- **REGLE ABSOLUE DU COMBAT** : N'envoie JAMAIS [MONSTER] et [COMBAT_END] dans le MEME message. Quand un combat commence avec [MONSTER], tu dois ATTENDRE le prochain message du joueur pour la suite. UN SEUL round de combat par message ! Le joueur doit pouvoir agir a chaque round.
+- Quand tu fais apparaitre un monstre avec [MONSTER], decris l'apparition et STOP. Attends que le joueur dise ce qu'il fait.
 
 ETAT DU JOUEUR :
 - Zone : ${zone.icon || ''} ${zone.name || 'Inconnue'} — ${zone.desc || ''}
@@ -6878,15 +6901,27 @@ ETAT DU JOUEUR :
 - Inventaire : ${inv}
 - Quetes : ${quests}${combatInfo}${encounterInfo}
 
-${inCombat ? `COMBAT EN COURS — Tu DOIS utiliser [SKILL_CHECK] pour CHAQUE action de combat :
-- Attaque du joueur : [SKILL_CHECK:force:moyen] → si reussi [MONSTER_DAMAGE:n] (base: ${4 + adv.stats.force * 2}-${6 + adv.stats.force * 3} degats), si echoue l'attaque rate
-- Esquive : [SKILL_CHECK:agilite:difficile] → si reussi le monstre rate, sinon [DAMAGE:n]
-- Magie/runes : [SKILL_CHECK:sagesse:difficile] → degats magiques [MONSTER_DAMAGE:n] si reussi, [ENERGY:-2]
-- Utiliser objet : [USE_ITEM:nom] + effet
-- Fuir : [SKILL_CHECK:agilite:moyen] → si echoue le monstre attaque
-- LE MONSTRE RIPOSTE a chaque round sauf si esquive reussie ou fuite reussie : utilise [DAMAGE:n] (ATK monstre: ${adv._combat ? adv._combat.enemy.atk : '?'})
-- Monstre mort (PV<=0) → [COMBAT_END:victory] + [XP:n] + [LOOT:...] + [GOLD:n]
-- Joueur mort (PV<=0) → [COMBAT_END:defeat]` : ''}
+${inCombat ? `COMBAT EN COURS — REGLES STRICTES :
+⚠️ UN SEUL ROUND PAR MESSAGE. Ne resous JAMAIS le combat entier d'un coup.
+
+Chaque message de combat doit contenir EXACTEMENT :
+1. Un [SKILL_CHECK] pour l'action du joueur
+2. Si reussi : [MONSTER_DAMAGE:n] (degats: ${4 + adv.stats.force * 2}-${6 + adv.stats.force * 3})
+3. Si echoue : l'attaque rate, decris
+4. Ensuite le monstre riposte : [DAMAGE:n] (ATK: ${adv._combat ? adv._combat.enemy.atk : '?'}) sauf si esquive reussie
+5. STOP. Attends le prochain message du joueur.
+
+Actions possibles du joueur :
+- Attaque : [SKILL_CHECK:force:moyen] → [MONSTER_DAMAGE:n] si reussi
+- Esquive : [SKILL_CHECK:agilite:difficile] → le monstre rate si reussi, sinon [DAMAGE:n]
+- Magie : [SKILL_CHECK:sagesse:difficile] → [MONSTER_DAMAGE:n] si reussi, [ENERGY:-2]
+- Objet : [USE_ITEM:nom] + effet
+- Fuir : [SKILL_CHECK:agilite:moyen] → si echoue [DAMAGE:n]
+
+FIN DE COMBAT (seulement quand les PV atteignent 0) :
+- PV ennemi <= 0 → [COMBAT_END:victory] + [XP:n] + [LOOT:...] + [GOLD:n]
+- PV joueur <= 0 → [COMBAT_END:defeat]
+Ne termine le combat que si les PV sont vraiment a 0 !` : ''}
 ${!inCombat && zone.id === 'campement' ? 'Le joueur est au campement — lieu sur, repos, marchands, forgerons, PNJs avec quetes. Propose des interactions riches !' : ''}
 
 Sois un MJ exigeant mais juste. Le monde est dangereux, les echecs sont frequents, mais les victoires sont epiques !`;
