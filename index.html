@@ -6716,7 +6716,8 @@ function advRenderCampActions(canRest) {
     <button class="adv-btn" onclick="advShowInventory()">🎒 Sac (${adv.inventory.length})</button>
     <button class="adv-btn" onclick="advShowQuests()">📜 Quetes (${adv.activeQuests.length})</button>
     <button class="adv-btn" onclick="advShowCharSheet()">📋 Fiche</button>
-    <button class="adv-btn" onclick="advLookAround()">🗺️ Partir</button>`;
+    <button class="adv-btn" onclick="advLookAround()">🗺️ Partir</button>
+    <button class="adv-btn danger" onclick="advResetAdventure()" style="color:var(--danger);border-color:var(--danger);font-size:.6rem">🔄 Recommencer</button>`;
 }
 
 function advShowCharSheet() {
@@ -6736,6 +6737,17 @@ function advShowCharSheet() {
 
   advNarrate('narrator', text);
   advRenderCampActions(true);
+}
+
+function advResetAdventure() {
+  if (!confirm('Recommencer l\'aventure de zero ?\nTout sera perdu : personnage, inventaire, quetes, progression...')) return;
+  if (!confirm('Vraiment tout effacer ? Cette action est irreversible !')) return;
+  stopCombatAmbience();
+  adv = defaultAdventureState();
+  advHistory = [];
+  saveAdventure();
+  advShowCharCreation();
+  showToast('Aventure reinitalisee', 'Cree un nouveau personnage !');
 }
 
 function advLookAround() {
