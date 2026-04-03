@@ -457,6 +457,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <button id="leaderboard-btn" title="Classement">🏆</button>
     <button id="account-btn" title="Compte">👤</button>
     <button id="customize-btn" title="Personnaliser Stakr" style="background:none;border:none;color:var(--gold-dim);font-size:1.2rem;cursor:pointer;padding:4px 6px">&#9998;</button>
+    <button id="mute-btn" title="Son on/off" onclick="toggleAudioMute()" style="background:none;border:none;color:var(--gold-dim);font-size:1.1rem;cursor:pointer;padding:4px 6px">🔊</button>
     <button id="settings-btn" title="Paramètres">&#9881;</button>
   </header>
 
@@ -1036,12 +1037,347 @@ const imageInput = $('#image-input');
 const imagePreviewBar = $('#image-preview-bar');
 let pendingImage = null; // {dataUrl, base64}
 
+// ===== AUDIO SYSTEM =====
+let _audioCtx = null;
+let _audioMuted = false;
+let _advAmbienceNodes = null;  // adventure ambience
+let _combatAmbienceNodes = null; // combat ambience
+
+function getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+
+// --- UI Click Sound ---
+function playClickSound() {
+  if (_audioMuted) return;
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 0.06);
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.08);
+  } catch(e) {}
+}
+
+// --- Adventure Ambience (wind + low drone) ---
+function startAdventureAmbience() {
+  if (_audioMuted || _advAmbienceNodes) return;
+  try {
+    const ctx = getAudioCtx();
+    // Wind: filtered noise
+    const bufferSize = 2 * ctx.sampleRate;
+    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+    const noise = ctx.createBufferSource();
+    noise.buffer = noiseBuffer;
+    noise.loop = true;
+    const windFilter = ctx.createBiquadFilter();
+    windFilter.type = 'bandpass';
+    windFilter.frequency.value = 400;
+    windFilter.Q.value = 0.5;
+    const windGain = ctx.createGain();
+    windGain.gain.value = 0;
+    windGain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 2);
+    noise.connect(windFilter);
+    windFilter.connect(windGain);
+    windGain.connect(ctx.destination);
+    noise.start();
+
+    // Wind modulation (LFO on filter frequency for organic feel)
+    const lfo = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    lfo.type = 'sine';
+    lfo.frequency.value = 0.15;
+    lfoGain.gain.value = 200;
+    lfo.connect(lfoGain);
+    lfoGain.connect(windFilter.frequency);
+    lfo.start();
+
+    // Low drone
+    const drone = ctx.createOscillator();
+    drone.type = 'sine';
+    drone.frequency.value = 55;
+    const droneGain = ctx.createGain();
+    droneGain.gain.value = 0;
+    droneGain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 3);
+    drone.connect(droneGain);
+    droneGain.connect(ctx.destination);
+    drone.start();
+
+    // Subtle high whistle (eerie atmosphere)
+    const whistle = ctx.createOscillator();
+    whistle.type = 'sine';
+    whistle.frequency.value = 1200;
+    const whistleGain = ctx.createGain();
+    whistleGain.gain.value = 0;
+    whistleGain.gain.linearRampToValueAtTime(0.008, ctx.currentTime + 4);
+    whistle.connect(whistleGain);
+    whistleGain.connect(ctx.destination);
+    whistle.start();
+
+    // Whistle LFO
+    const wLfo = ctx.createOscillator();
+    const wLfoGain = ctx.createGain();
+    wLfo.type = 'sine';
+    wLfo.frequency.value = 0.08;
+    wLfoGain.gain.value = 0.006;
+    wLfo.connect(wLfoGain);
+    wLfoGain.connect(whistleGain.gain);
+    wLfo.start();
+
+    _advAmbienceNodes = { noise, lfo, drone, whistle, wLfo, windGain, droneGain, whistleGain };
+  } catch(e) {}
+}
+
+function stopAdventureAmbience() {
+  if (!_advAmbienceNodes) return;
+  try {
+    const ctx = getAudioCtx();
+    const n = _advAmbienceNodes;
+    // Fade out
+    n.windGain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 1.5);
+    n.droneGain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 1.5);
+    n.whistleGain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 1.5);
+    setTimeout(() => {
+      try { n.noise.stop(); } catch(e) {}
+      try { n.lfo.stop(); } catch(e) {}
+      try { n.drone.stop(); } catch(e) {}
+      try { n.whistle.stop(); } catch(e) {}
+      try { n.wLfo.stop(); } catch(e) {}
+    }, 1600);
+  } catch(e) {}
+  _advAmbienceNodes = null;
+}
+
+// --- Combat Ambience (war drums + tension drone) ---
+function startCombatAmbience() {
+  if (_audioMuted || _combatAmbienceNodes) return;
+  try {
+    const ctx = getAudioCtx();
+
+    // War drum: looping low-frequency pulse
+    const drumOsc = ctx.createOscillator();
+    drumOsc.type = 'sine';
+    drumOsc.frequency.value = 60;
+    const drumGain = ctx.createGain();
+    drumGain.gain.value = 0;
+    drumOsc.connect(drumGain);
+    drumGain.connect(ctx.destination);
+    drumOsc.start();
+
+    // Drum pulse LFO (rhythmic volume modulation ~1.2 Hz = war drum beat)
+    const drumLfo = ctx.createOscillator();
+    const drumLfoGain = ctx.createGain();
+    drumLfo.type = 'square';
+    drumLfo.frequency.value = 1.2;
+    drumLfoGain.gain.value = 0.08;
+    drumLfo.connect(drumLfoGain);
+    drumLfoGain.connect(drumGain.gain);
+    drumLfo.start();
+
+    // Tension drone (dissonant interval)
+    const tension1 = ctx.createOscillator();
+    tension1.type = 'sawtooth';
+    tension1.frequency.value = 73.4; // D2
+    const tension1Gain = ctx.createGain();
+    tension1Gain.gain.value = 0;
+    tension1Gain.gain.linearRampToValueAtTime(0.025, ctx.currentTime + 1.5);
+    const tension1Filter = ctx.createBiquadFilter();
+    tension1Filter.type = 'lowpass';
+    tension1Filter.frequency.value = 200;
+    tension1.connect(tension1Filter);
+    tension1Filter.connect(tension1Gain);
+    tension1Gain.connect(ctx.destination);
+    tension1.start();
+
+    const tension2 = ctx.createOscillator();
+    tension2.type = 'sawtooth';
+    tension2.frequency.value = 77.8; // Eb2 — dissonant with D2
+    const tension2Gain = ctx.createGain();
+    tension2Gain.gain.value = 0;
+    tension2Gain.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 1.5);
+    const tension2Filter = ctx.createBiquadFilter();
+    tension2Filter.type = 'lowpass';
+    tension2Filter.frequency.value = 180;
+    tension2.connect(tension2Filter);
+    tension2Filter.connect(tension2Gain);
+    tension2Gain.connect(ctx.destination);
+    tension2.start();
+
+    // Combat noise (harsh filtered noise for chaos feel)
+    const bufferSize = 2 * ctx.sampleRate;
+    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+    const noise = ctx.createBufferSource();
+    noise.buffer = noiseBuffer;
+    noise.loop = true;
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'highpass';
+    noiseFilter.frequency.value = 2000;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.value = 0;
+    noiseGain.gain.linearRampToValueAtTime(0.015, ctx.currentTime + 2);
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+    noise.start();
+
+    _combatAmbienceNodes = { drumOsc, drumLfo, tension1, tension2, noise, drumGain, drumLfoGain, tension1Gain, tension2Gain, noiseGain };
+  } catch(e) {}
+}
+
+function stopCombatAmbience() {
+  if (!_combatAmbienceNodes) return;
+  try {
+    const ctx = getAudioCtx();
+    const n = _combatAmbienceNodes;
+    n.drumGain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 1);
+    n.drumLfoGain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 1);
+    n.tension1Gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 1);
+    n.tension2Gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 1);
+    n.noiseGain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 1);
+    setTimeout(() => {
+      try { n.drumOsc.stop(); } catch(e) {}
+      try { n.drumLfo.stop(); } catch(e) {}
+      try { n.tension1.stop(); } catch(e) {}
+      try { n.tension2.stop(); } catch(e) {}
+      try { n.noise.stop(); } catch(e) {}
+    }, 1100);
+  } catch(e) {}
+  _combatAmbienceNodes = null;
+}
+
+// --- Roll dice sound ---
+function playDiceSound() {
+  if (_audioMuted) return;
+  try {
+    const ctx = getAudioCtx();
+    // Multiple short clicks to simulate dice
+    for (let i = 0; i < 5; i++) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = 2000 + Math.random() * 3000;
+      const t = ctx.currentTime + i * 0.04 + Math.random() * 0.02;
+      gain.gain.setValueAtTime(0.06 + Math.random() * 0.04, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.03);
+    }
+  } catch(e) {}
+}
+
+// --- Victory fanfare ---
+function playVictorySound() {
+  if (_audioMuted) return;
+  try {
+    const ctx = getAudioCtx();
+    const notes = [523, 659, 784, 1047]; // C5, E5, G5, C6
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      const t = ctx.currentTime + i * 0.12;
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.1, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.3);
+    });
+  } catch(e) {}
+}
+
+// --- Defeat sound ---
+function playDefeatSound() {
+  if (_audioMuted) return;
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(300, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.8);
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 400;
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.8);
+  } catch(e) {}
+}
+
+// --- Loot / XP sound ---
+function playLootSound() {
+  if (_audioMuted) return;
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.2);
+  } catch(e) {}
+}
+
+// --- Toggle mute ---
+function toggleAudioMute() {
+  _audioMuted = !_audioMuted;
+  if (_audioMuted) {
+    stopAdventureAmbience();
+    stopCombatAmbience();
+  } else if (state.currentMode === 'aventure') {
+    startAdventureAmbience();
+    if (adv && adv._combat) startCombatAmbience();
+  }
+  const btn = document.getElementById('mute-btn');
+  if (btn) btn.textContent = _audioMuted ? '🔇' : '🔊';
+  localStorage.setItem('stakr_audio_muted', _audioMuted ? '1' : '0');
+}
+
+// --- Global click sound via event delegation ---
+function setupAudioListeners() {
+  _audioMuted = localStorage.getItem('stakr_audio_muted') === '1';
+  const btn = document.getElementById('mute-btn');
+  if (btn) btn.textContent = _audioMuted ? '🔇' : '🔊';
+
+  document.addEventListener('click', (e) => {
+    const target = e.target.closest('button, .mode-quick-btn, .adv-btn, .quest-tab, select, .adv-zone-pin');
+    if (target && !target.id?.includes('mute')) playClickSound();
+  }, true);
+}
+
 // ===== INIT =====
 function init() {
   loadState();
   applyConfig();
   setupListeners();
   setupModes();
+  setupAudioListeners();
   if (state.currentMode === 'aventure') toggleAdventureMode(true);
   setupImageInput();
   setupCustomize();
@@ -6009,6 +6345,7 @@ function advStartCombat() {
     turn: 'player',
     round: 0
   };
+  startCombatAmbience();
   advNarrate('narrator', `⚔️ **COMBAT !** Tu affrontes ${npc.icon} ${npc.name} (PV: ${npc.hp}, ATK: ${npc.atk}) !\nDis a Stakr ce que tu fais : attaquer, esquiver, utiliser un objet, lancer un sort...`);
   advRenderCombat();
   // Focus the input for immediate typing
@@ -6109,6 +6446,8 @@ function advCombatVictory() {
   advUpdateQuestProgress('combat_survive', null);
 
   // Stakr reaction
+  stopCombatAmbience();
+  playVictorySound();
   if (typeof addMessage === 'function' && typeof setMood === 'function') {
     addMessage('stakr', `Kraa ! Tu as terrasse un ${npc.name} en aventure ! La saga grandit ! [MOOD:excite]`);
     if (typeof addQuestXp === 'function') addQuestXp(Math.round(xpGain / 3));
@@ -6123,6 +6462,8 @@ function advCombatVictory() {
 
 function advCombatDefeat() {
   const c = adv._combat;
+  stopCombatAmbience();
+  playDefeatSound();
   advNarrate('combat-hit', `💀 **DEFAITE !** ${c.enemy.icon} ${c.enemy.name} t'a vaincu... Tu te reveilles au campement.`);
   adv.hp = Math.floor(adv.maxHp * 0.5);
   adv.currentZone = 'campement';
@@ -6430,6 +6771,8 @@ function toggleAdventureMode(active) {
     chatArea.style.display = 'none';
     ravenStage.style.display = 'none';
     inputBar.style.display = 'none';
+    startAdventureAmbience();
+    if (adv && adv._combat) startCombatAmbience();
     if (!adv.charCreated) {
       advShowCharCreation();
       return;
@@ -6440,6 +6783,8 @@ function toggleAdventureMode(active) {
     if (adv.currentZone === 'campement') advShowCamp();
     else advRenderExploreActions();
   } else {
+    stopAdventureAmbience();
+    stopCombatAmbience();
     advPanel.classList.remove('active');
     advPanel.style.display = 'none';
     chatArea.style.display = '';
@@ -6664,6 +7009,7 @@ function advParseAndExecuteTags(response) {
       round: 0
     };
     adv.narrative.push({ type: 'combat-hit', text: `⚔️ **${m[4]} ${m[1]}** apparait ! (PV: ${m[2]}, ATK: ${m[3]})`, time: Date.now() });
+    startCombatAmbience();
   }
   text = text.replace(/\[MONSTER:[^\]]+\]/g, '');
 
@@ -6688,6 +7034,8 @@ function advParseAndExecuteTags(response) {
       const xpGain = enemy.xp || 20;
       adv.xp += xpGain;
       adv.narrative.push({ type: 'loot', text: `🏆 **VICTOIRE !** ${enemy.icon} ${enemy.name} vaincu ! +${xpGain} XP`, time: Date.now() });
+      stopCombatAmbience();
+      playVictorySound();
       // Level up check
       while (adv.xp >= adv.level * 60) {
         adv.xp -= adv.level * 60;
@@ -6707,6 +7055,8 @@ function advParseAndExecuteTags(response) {
       adv._encounter = null;
     } else {
       // Defeat
+      stopCombatAmbience();
+      playDefeatSound();
       adv.narrative.push({ type: 'combat-hit', text: '💀 **DEFAITE !** Tu te reveilles au campement...', time: Date.now() });
       adv.hp = Math.floor(adv.maxHp * 0.3);
       adv.currentZone = 'campement';
@@ -6731,6 +7081,7 @@ function advParseAndExecuteTags(response) {
   // [LOOT:nom:icone]
   const lootMatches = [...text.matchAll(/\[LOOT:([^:]+):([^\]]+)\]/g)];
   for (const m of lootMatches) {
+    playLootSound();
     adv.inventory.push({ name: m[1], icon: m[2], found: Date.now() });
     adv.narrative.push({ type: 'loot', text: `🎁 Tu obtiens : ${m[2]} **${m[1]}**`, time: Date.now() });
   }
@@ -6810,6 +7161,7 @@ function advParseAndExecuteTags(response) {
   // [SKILL_CHECK:stat:difficulty] — d20 + stat vs target, result narrated
   const skillMatches = [...text.matchAll(/\[SKILL_CHECK:(\w+):(\w+)\]/g)];
   for (const m of skillMatches) {
+    playDiceSound();
     const result = advRollCheck(m[1], m[2]);
     const statDef = ADV_STATS.find(s => s.id === m[1]);
     const statName = statDef ? statDef.icon + ' ' + statDef.name : m[1];
@@ -6854,6 +7206,8 @@ function advParseAndExecuteTags(response) {
 
   // Check defeat (safety net if AI forgot COMBAT_END)
   if (adv.hp <= 0 && !combatEndMatch) {
+    stopCombatAmbience();
+    playDefeatSound();
     adv.narrative.push({ type: 'combat-hit', text: '💀 **Tu es tombe au combat !** Tu te reveilles au campement...', time: Date.now() });
     adv.hp = Math.floor(adv.maxHp * 0.3);
     adv.currentZone = 'campement';
