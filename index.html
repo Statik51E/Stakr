@@ -10,6 +10,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 <style>
@@ -307,6 +309,29 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 #map-panel-header{padding:14px 16px;background:linear-gradient(180deg,#111428,#0d0f1a);border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
 #map-panel-header h2{color:var(--gold);font-size:1rem;font-variant:small-caps;letter-spacing:1px;margin:0}
 #map-panel-content{padding:14px}
+#account-panel,#leaderboard-panel{position:fixed;top:0;right:-100%;width:100%;max-width:600px;height:100%;background:linear-gradient(180deg,#0d0f1a,#0a0c14);border-left:2px solid var(--border);z-index:101;transition:right .35s ease;padding:0;overflow-y:auto;display:flex;flex-direction:column}
+#account-panel.open,#leaderboard-panel.open{right:0}
+#account-panel-header,#leaderboard-panel-header{padding:14px 16px;background:linear-gradient(180deg,#111428,#0d0f1a);border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
+#account-panel-header h2,#leaderboard-panel-header h2{color:var(--gold);font-size:1rem;font-variant:small-caps;letter-spacing:1px;margin:0}
+#account-panel-content{padding:16px}
+.lb-tab{flex:1;padding:8px;border:1px solid var(--border);background:var(--wood-mid);color:var(--text-dim);font-size:.7rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:600;transition:all .2s}
+.lb-tab:first-child{border-radius:6px 0 0 6px}
+.lb-tab:last-child{border-radius:0 6px 6px 0}
+.lb-tab.active{background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;border-color:var(--gold)}
+.lb-row{display:flex;align-items:center;gap:10px;padding:10px 8px;border-bottom:1px solid var(--border);font-size:.75rem}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.7rem;flex-shrink:0}
+.lb-rank-1{background:linear-gradient(135deg,#ffd700,#daa520);color:#0e0a06}
+.lb-rank-2{background:linear-gradient(135deg,#c0c0c0,#a0a0a0);color:#0e0a06}
+.lb-rank-3{background:linear-gradient(135deg,#cd7f32,#b87333);color:#0e0a06}
+.lb-rank-default{background:var(--wood-mid);color:var(--text-dim);border:1px solid var(--border)}
+.lb-avatar{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);flex-shrink:0}
+.lb-name{flex:1;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-xp{color:var(--gold);font-weight:700;font-size:.7rem;flex-shrink:0}
+.lb-row.lb-me{background:rgba(212,175,55,.08);border:1px solid var(--gold-dim);border-radius:6px}
+.account-stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+.account-stat-value{font-size:1.2rem;font-weight:700;color:var(--gold)}
+.account-stat-label{font-size:.6rem;color:var(--text-dim);margin-top:2px}
 /* ===== MONDE / CARTE ===== */
 .monde-header{text-align:center;padding:10px 0 8px;margin-bottom:8px}
 .monde-title{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);margin-bottom:2px}
@@ -428,6 +453,8 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <span id="mood-indicator">&#9679; Serein</span>
     <button id="quest-btn" title="Quetes Viking">&#9876;</button>
     <button id="map-btn" title="Carte du Monde">&#128506;</button>
+    <button id="leaderboard-btn" title="Classement">🏆</button>
+    <button id="account-btn" title="Compte">👤</button>
     <button id="customize-btn" title="Personnaliser Stakr" style="background:none;border:none;color:var(--gold-dim);font-size:1.2rem;cursor:pointer;padding:4px 6px">&#9998;</button>
     <button id="settings-btn" title="Paramètres">&#9881;</button>
   </header>
@@ -775,6 +802,50 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <button class="btn-secondary" onclick="toggleMapPanel()" style="margin:0;padding:6px 14px;background:var(--gold-dim);border:none;border-radius:4px;color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600">OK</button>
   </div>
   <div id="map-panel-content"></div>
+</div>
+
+<!-- ACCOUNT PANEL -->
+<div id="account-panel">
+  <div id="account-panel-header">
+    <h2>👤 Compte Viking</h2>
+    <button class="btn-secondary" onclick="toggleAccountPanel()" style="margin:0;padding:6px 14px;background:var(--gold-dim);border:none;border-radius:4px;color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600">OK</button>
+  </div>
+  <div id="account-panel-content">
+    <div id="account-logged-out">
+      <p style="text-align:center;color:var(--text-dim);margin:20px 0;font-size:.8rem">Connecte-toi pour sauvegarder ta progression et apparaitre dans le classement !</p>
+      <button id="google-login-btn" onclick="loginWithGoogle()" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--wood-mid);color:var(--text);font-size:.85rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:600">
+        <span style="font-size:1.2rem">G</span> Connexion avec Google
+      </button>
+    </div>
+    <div id="account-logged-in" style="display:none">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <img id="account-avatar" src="" style="width:48px;height:48px;border-radius:50%;border:2px solid var(--gold-dim)" alt=""/>
+        <div>
+          <div id="account-name" style="font-weight:700;color:var(--gold);font-size:.9rem"></div>
+          <div id="account-email" style="font-size:.65rem;color:var(--text-dim)"></div>
+        </div>
+      </div>
+      <div id="account-stats" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"></div>
+      <div style="display:flex;gap:8px">
+        <button onclick="syncToCloud()" style="flex:1;padding:10px;border:1px solid var(--gold-dim);border-radius:8px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:600">☁️ Sync maintenant</button>
+        <button onclick="logoutUser()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--wood-mid);color:var(--text);font-size:.75rem;cursor:pointer;font-family:'Cinzel',serif">Deconnexion</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEADERBOARD PANEL -->
+<div id="leaderboard-panel">
+  <div id="leaderboard-panel-header">
+    <h2>🏆 Classement</h2>
+    <button class="btn-secondary" onclick="toggleLeaderboardPanel()" style="margin:0;padding:6px 14px;background:var(--gold-dim);border:none;border-radius:4px;color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600">OK</button>
+  </div>
+  <div id="leaderboard-tabs" style="display:flex;gap:0;margin:0 16px 8px">
+    <button class="lb-tab active" onclick="switchLeaderboard('daily')">Aujourd'hui</button>
+    <button class="lb-tab" onclick="switchLeaderboard('total')">Total</button>
+  </div>
+  <div id="leaderboard-content" style="padding:0 16px 16px;overflow-y:auto;flex:1"></div>
+  <div id="leaderboard-my-rank" style="padding:8px 16px;border-top:1px solid var(--border);background:var(--surface);font-size:.7rem;color:var(--text-dim);text-align:center"></div>
 </div>
 
 <!-- TOAST -->
@@ -1245,69 +1316,106 @@ function updateBackendUI() {
 // ===== GROQ KEY ROTATION =====
 let groqKeyIndex = 0;
 let currentRequestKey = null;
-let rateLimitedKeys = new Set(); // Clés en cooldown après erreur 429
+let rateLimitedKeys = new Set();
 let lastGroqRequestTime = 0;
-const GROQ_MIN_DELAY_MS = 1000; // Délai minimum de 1 seconde entre requêtes
+const GROQ_MIN_DELAY_MS = 500;
+const GROQ_MAX_RETRIES = 4; // Nombre de cycles complets de retry
+const GROQ_RETRY_BASE_DELAY = 3000; // 3s, 6s, 12s, 24s
 
 function selectGroqKey() {
-  // Sélectionner UNE SEULE clé pour la requête entière
   const keys = state.config.apiKeys || [];
-  if (keys.length === 0) {
-    currentRequestKey = state.config.apiKey || '';
-    return currentRequestKey;
-  }
-  if (keys.length === 1) {
-    currentRequestKey = keys[0];
-    return currentRequestKey;
-  }
-  
-  // Boucler jusqu'à trouver une clé non rate-limitée
+  if (keys.length === 0) { currentRequestKey = state.config.apiKey || ''; return currentRequestKey; }
+  if (keys.length === 1) { currentRequestKey = keys[0]; return currentRequestKey; }
   let attempts = 0;
   while (attempts < keys.length) {
     const key = keys[groqKeyIndex % keys.length];
     groqKeyIndex = (groqKeyIndex + 1) % keys.length;
-    
-    // Si la clé n'est pas rate-limitée, l'utiliser
-    if (!rateLimitedKeys.has(key)) {
-      currentRequestKey = key;
-      return key;
-    }
+    if (!rateLimitedKeys.has(key)) { currentRequestKey = key; return key; }
     attempts++;
   }
-  
-  // Si toutes les clés sont rate-limitées, utiliser quand même (elles vont se débloquer)
   currentRequestKey = keys[groqKeyIndex % keys.length];
   return currentRequestKey;
 }
 
-function getGroqKey() {
-  // Cette fonction retourne la clé ACTUELLE pour la requête
-  if (!currentRequestKey) {
-    selectGroqKey();
-  }
-  return currentRequestKey;
-}
+function getGroqKey() { if (!currentRequestKey) selectGroqKey(); return currentRequestKey; }
 
 function markKeyRateLimited(key) {
-  // Marquer une clé comme rate-limitée pour 60 secondes
   rateLimitedKeys.add(key);
-  setTimeout(() => rateLimitedKeys.delete(key), 60 * 1000);
+  setTimeout(() => rateLimitedKeys.delete(key), 30 * 1000); // 30s cooldown
 }
 
-function resetCurrentRequestKey() {
-  // Réinitialiser après chaque requête
-  currentRequestKey = null;
-  lastGroqRequestTime = Date.now();
-}
+function resetCurrentRequestKey() { currentRequestKey = null; lastGroqRequestTime = Date.now(); }
 
 async function enforceGroqMinDelay() {
-  // Attendre le délai minimum entre requêtes
-  const timeSinceLastRequest = Date.now() - lastGroqRequestTime;
-  if (timeSinceLastRequest < GROQ_MIN_DELAY_MS) {
-    const delayNeeded = GROQ_MIN_DELAY_MS - timeSinceLastRequest;
-    console.log(`Groq rate limit prevention: waiting ${delayNeeded}ms`);
-    await new Promise(r => setTimeout(r, delayNeeded));
+  const elapsed = Date.now() - lastGroqRequestTime;
+  if (elapsed < GROQ_MIN_DELAY_MS) await new Promise(r => setTimeout(r, GROQ_MIN_DELAY_MS - elapsed));
+}
+
+// ===== GROQ CENTRALIZED FETCH WITH RETRY =====
+// All Groq API calls go through this. Handles key rotation + automatic retry with backoff.
+async function groqFetchWithRetry(bodyPayload, options = {}) {
+  const keys = state.config.apiKeys || [];
+  if (keys.length === 0 && state.config.apiKey) keys.push(state.config.apiKey);
+  if (keys.length === 0) throw new Error('NO_KEYS');
+
+  const label = options.label || 'groq';
+  let lastError = '';
+
+  for (let cycle = 0; cycle <= GROQ_MAX_RETRIES; cycle++) {
+    // If retrying after all keys failed, wait with exponential backoff
+    if (cycle > 0) {
+      const delay = GROQ_RETRY_BASE_DELAY * Math.pow(2, cycle - 1);
+      console.log(`[${label}] All keys failed, retry ${cycle}/${GROQ_MAX_RETRIES} in ${delay}ms...`);
+      await new Promise(r => setTimeout(r, delay));
+      // Clear rate limits — enough time may have passed
+      rateLimitedKeys.clear();
+    }
+
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[(groqKeyIndex + i) % keys.length];
+      if (rateLimitedKeys.has(key) && i < keys.length - 1) continue;
+
+      await enforceGroqMinDelay();
+      console.log(`[${label}] key:${key.slice(0,8)}... attempt ${i+1}/${keys.length} cycle ${cycle}`);
+
+      try {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+          body: JSON.stringify(bodyPayload)
+        });
+
+        if (res.status === 429) {
+          markKeyRateLimited(key);
+          console.warn(`[${label}] 429 on key ${key.slice(0,8)}`);
+          lastError = '429';
+          continue;
+        }
+        if (res.status === 401) {
+          console.warn(`[${label}] 401 invalid key ${key.slice(0,8)}`);
+          lastError = '401';
+          continue;
+        }
+        if (!res.ok) {
+          lastError = String(res.status);
+          continue;
+        }
+
+        // Success
+        groqKeyIndex = (groqKeyIndex + i + 1) % keys.length;
+        resetCurrentRequestKey();
+        lastGroqRequestTime = Date.now();
+        return await res.json();
+      } catch(e) {
+        console.warn(`[${label}] fetch error key ${key.slice(0,8)}:`, e.message);
+        lastError = 'network';
+        continue;
+      }
+    }
   }
+
+  // Truly exhausted all retries
+  throw new Error(lastError === '429' ? 'RATE_LIMITED' : lastError === '401' ? 'INVALID_KEYS' : `GROQ_ERROR:${lastError}`);
 }
 
 function updateGroqKeyStatus() {
@@ -2026,7 +2134,7 @@ function toggleCustomize() {
 
 function closeAllPanels() {
   const overlay = $('#settings-overlay');
-  ['#settings-panel','#quest-panel','#map-panel','#customize-panel','#project-panel'].forEach(sel => {
+  ['#settings-panel','#quest-panel','#map-panel','#customize-panel','#project-panel','#account-panel','#leaderboard-panel'].forEach(sel => {
     const p = $(sel);
     if (p && p.classList.contains('open')) p.classList.remove('open');
   });
@@ -2051,6 +2159,8 @@ function setupListeners() {
   $('#customize-btn').addEventListener('click', toggleCustomize);
   $('#quest-btn').addEventListener('click', toggleQuestPanel);
   $('#map-btn').addEventListener('click', toggleMapPanel);
+  $('#account-btn').addEventListener('click', toggleAccountPanel);
+  $('#leaderboard-btn').addEventListener('click', toggleLeaderboardPanel);
   $('#api-backend').addEventListener('change', updateBackendUI);
   window.addEventListener('resize', () => { resizeCanvas(); resizeAurora(); });
   // Live preview for all customize inputs
@@ -2706,6 +2816,8 @@ function addQuestXp(amount, category) {
     showToast('NIVEAU SUPERIEUR !', `Niveau ${q.level} — ${rank.name}`);
     xpNeeded = getXpForLevel(q.level);
   }
+  // Sync to leaderboard
+  if (currentUser) syncToCloud();
 }
 
 // ===== BOSS HEBDOMADAIRE =====
@@ -3668,39 +3780,19 @@ Reponds UNIQUEMENT en JSON, format exact:
 [{"name":"Nom","icon":"emoji","target":10,"unit":"min","period":"daily","difficulty":"facile","category":"physique","description":"Description viking courte"},{"name":"...","icon":"...","target":...,"unit":"...","period":"daily","difficulty":"moyen","category":"mental","description":"..."},{"name":"...","icon":"...","target":...,"unit":"...","period":"weekly","difficulty":"difficile","category":"sante","description":"..."},{"name":"...","icon":"...","target":...,"unit":"...","period":"weekly","difficulty":"legendaire","category":"physique","description":"..."}]`;
 
   try {
-    const keys = state.config.apiKeys || [];
-    if (keys.length === 0 && state.config.apiKey) keys.push(state.config.apiKey);
-    if (keys.length === 0) {
-      showToast('Pas de cle API', 'Ajoute des cles Groq pour que Stakr puisse creer des quetes.');
+    let result = null;
+    try {
+      const data = await groqFetchWithRetry({
+        model: state.config.model || 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.9, max_tokens: 800
+      }, { label: 'quest-gen' });
+      result = data.choices?.[0]?.message?.content || '';
+    } catch(e) {
+      showToast('Erreur', e.message === 'NO_KEYS' ? 'Ajoute des cles Groq dans les Parametres.' : 'Impossible de generer des quetes pour le moment.');
       if (btn) { btn.disabled = false; btn.textContent = '\u2694 Stakr, cree-moi des quetes !'; }
       return;
     }
-
-    let result = null;
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[(groqKeyIndex + i) % keys.length];
-      if (rateLimitedKeys.has(key) && i < keys.length - 1) continue;
-      await enforceGroqMinDelay();
-      try {
-        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-          body: JSON.stringify({
-            model: state.config.model || 'llama-3.3-70b-versatile',
-            messages: [{ role: 'user', content: prompt }],
-            temperature: 0.9, max_tokens: 800
-          })
-        });
-        if (res.status === 429) { markKeyRateLimited(key); continue; }
-        if (res.ok) {
-          const data = await res.json();
-          result = data.choices?.[0]?.message?.content || '';
-          groqKeyIndex = (groqKeyIndex + i + 1) % keys.length;
-          break;
-        }
-      } catch(e) { continue; }
-    }
-    resetCurrentRequestKey();
 
     if (!result) {
       showToast('Erreur', 'Impossible de generer des quetes pour le moment.');
@@ -3907,10 +3999,6 @@ function isQuestRequest(text) {
 }
 
 async function extractQuestsFromResponse(aiResponse, userText) {
-  const keys = state.config.apiKeys || [];
-  if (keys.length === 0 && state.config.apiKey) keys.push(state.config.apiKey);
-  if (keys.length === 0) return 0;
-
   const extractPrompt = `L'utilisateur a demande: "${userText}"
 L'IA a repondu: "${aiResponse.replace(/"/g, "'").slice(0, 500)}"
 
@@ -3924,32 +4012,13 @@ Regles:
 - Reponds UNIQUEMENT avec les tags [QUEST:...], rien d'autre`;
 
   try {
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[(groqKeyIndex + i) % keys.length];
-      if (rateLimitedKeys.has(key) && i < keys.length - 1) continue;
-      await enforceGroqMinDelay();
-      try {
-        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-          body: JSON.stringify({
-            model: 'llama-3.3-70b-versatile',
-            messages: [{ role: 'user', content: extractPrompt }],
-            temperature: 0.3,
-            max_tokens: 300
-          })
-        });
-        if (res.status === 429) { markKeyRateLimited(key); continue; }
-        if (res.ok) {
-          const data = await res.json();
-          const result = data.choices?.[0]?.message?.content || '';
-          groqKeyIndex = (groqKeyIndex + i + 1) % keys.length;
-          resetCurrentRequestKey();
-          return parseQuestTags(result);
-        }
-      } catch(e) { continue; }
-    }
-    resetCurrentRequestKey();
+    const data = await groqFetchWithRetry({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content: extractPrompt }],
+      temperature: 0.3, max_tokens: 300
+    }, { label: 'quest-extract' });
+    const result = data.choices?.[0]?.message?.content || '';
+    return parseQuestTags(result);
   } catch(e) { console.error('Quest extraction error:', e); }
   return 0;
 }
@@ -4129,9 +4198,6 @@ async function sendMessage() {
   userInput.value = '';
   const ts = getTS();
 
-  // Select ONE key for this entire request
-  selectGroqKey();
-
   // Show user message with optional image
   addMessage('user', text || '(image)', ts, false, hasImage ? pendingImage.dataUrl : null);
   pushMessage({ role: 'user', content: text || '[Image envoyee]', timestamp: ts, image: hasImage ? pendingImage.dataUrl : null });
@@ -4161,33 +4227,17 @@ async function sendMessage() {
       let enhancedPrompt = imgPrompt;
       const backend = state.config.backend || 'ollama';
       if (backend === 'groq') {
-        const imgKeys = state.config.apiKeys || [];
-        if (imgKeys.length === 0 && state.config.apiKey) imgKeys.push(state.config.apiKey);
-        for (let ik = 0; ik < imgKeys.length; ik++) {
-          const ikey = imgKeys[(groqKeyIndex + ik) % imgKeys.length];
-          if (rateLimitedKeys.has(ikey) && ik < imgKeys.length - 1) continue;
-          try {
-            await enforceGroqMinDelay();
-            const promptRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ikey}` },
-              body: JSON.stringify({
-                model: 'llama-3.3-70b-versatile',
-                messages: [
-                  { role: 'system', content: 'Tu es un expert en generation de prompts pour images IA. Transforme la description en un prompt detaille en anglais pour generer une image. Reponds UNIQUEMENT avec le prompt, rien d\'autre. Max 100 mots.' },
-                  { role: 'user', content: imgPrompt }
-                ],
-                temperature: 0.7, max_tokens: 200
-              })
-            });
-            if (promptRes.status === 429) { markKeyRateLimited(ikey); continue; }
-            if (promptRes.ok) {
-              const promptData = await promptRes.json();
-              enhancedPrompt = promptData.choices?.[0]?.message?.content || imgPrompt;
-              break;
-            }
-          } catch(e) { console.warn('Prompt enhancement failed, trying next key'); continue; }
-        }
+        try {
+          const promptData = await groqFetchWithRetry({
+            model: 'llama-3.3-70b-versatile',
+            messages: [
+              { role: 'system', content: 'Tu es un expert en generation de prompts pour images IA. Transforme la description en un prompt detaille en anglais pour generer une image. Reponds UNIQUEMENT avec le prompt, rien d\'autre. Max 100 mots.' },
+              { role: 'user', content: imgPrompt }
+            ],
+            temperature: 0.7, max_tokens: 200
+          }, { label: 'img-prompt' });
+          enhancedPrompt = promptData.choices?.[0]?.message?.content || imgPrompt;
+        } catch(e) { console.warn('Prompt enhancement failed:', e.message); }
       }
 
       // Generate image via Pollinations.ai
@@ -4415,12 +4465,6 @@ async function callAI(userText, imageData = null) {
   }
 
   if (backend === 'groq') {
-    const keys = state.config.apiKeys || [];
-    if (keys.length === 0 && state.config.apiKey) keys.push(state.config.apiKey);
-    if (keys.length === 0) {
-      return "Kraa ! Il me faut une cle API Groq. Va dans les Parametres et entre tes cles. console.groq.com/keys [MOOD:curieux]";
-    }
-
     // Detect if web search is needed
     const needsSearch = state.currentMode === 'recherche' ||
       /cherche|recherche|trouve|actualit[eé]|news|r[eé]cent|aujourd'?hui|derni[eè]re|google|internet|web|site|url|info sur/i.test(userText);
@@ -4437,83 +4481,33 @@ async function callAI(userText, imageData = null) {
       bodyPayload = { model: useModel, messages: searchMessages, temperature: 0.7, max_tokens: 1500 };
     }
 
-    // Try each API key until one works (auto-rotation on 429)
-    let lastError = '';
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[(groqKeyIndex + i) % keys.length];
+    try {
+      const data = await groqFetchWithRetry(bodyPayload, { label: 'chat' });
+      let answer = data.choices?.[0]?.message?.content || "Kraa... les runes sont silencieuses.";
 
-      // Skip keys already in cooldown (but try them if all are limited)
-      if (rateLimitedKeys.has(key) && i < keys.length - 1) continue;
-
-      await enforceGroqMinDelay();
-
-      console.log('Groq request:', useModel, needsSearch ? '(web search)' : '', 'key:', key.slice(0,8) + '...', `(attempt ${i+1}/${keys.length})`);
+      // Append search sources if available (compound-beta)
       try {
-        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-          body: JSON.stringify(bodyPayload)
-        });
-
-        if (res.status === 429) {
-          markKeyRateLimited(key);
-          console.warn('Key 429 rate-limited:', key.slice(0,8), '- trying next key...');
-          lastError = '429';
-          continue;
-        }
-
-        if (res.status === 401) {
-          console.warn('Key 401 invalid:', key.slice(0,8));
-          lastError = '401';
-          continue;
-        }
-
-        if (!res.ok) {
-          const err = await res.text();
-          console.error('Groq API error:', res.status, err);
-          lastError = String(res.status);
-          continue;
-        }
-
-        // Success — remember which key worked
-        groqKeyIndex = (groqKeyIndex + i + 1) % keys.length;
-        resetCurrentRequestKey();
-
-        const data = await res.json();
-        console.log('Groq response:', JSON.stringify(data).slice(0, 500));
-        let answer = data.choices?.[0]?.message?.content || "Kraa... les runes sont silencieuses.";
-
-        // Append search sources if available (compound-beta)
-        try {
-          const execTools = data.choices?.[0]?.message?.executed_tools;
-          if (execTools && Array.isArray(execTools)) {
-            const allResults = [];
-            execTools.forEach(t => {
-              if (t.search_results && Array.isArray(t.search_results)) {
-                t.search_results.forEach(r => allResults.push(r));
-              }
-            });
-            if (allResults.length > 0) {
-              const sources = allResults.slice(0, 4)
-                .map(r => `- ${r.title || r.url}: ${r.url}`)
-                .join('\n');
-              if (sources) answer += '\n\n**Sources :**\n' + sources;
+        const execTools = data.choices?.[0]?.message?.executed_tools;
+        if (execTools && Array.isArray(execTools)) {
+          const allResults = [];
+          execTools.forEach(t => {
+            if (t.search_results && Array.isArray(t.search_results)) {
+              t.search_results.forEach(r => allResults.push(r));
             }
+          });
+          if (allResults.length > 0) {
+            const sources = allResults.slice(0, 4).map(r => `- ${r.title || r.url}: ${r.url}`).join('\n');
+            if (sources) answer += '\n\n**Sources :**\n' + sources;
           }
-        } catch(e) { console.warn('Source parsing error:', e); }
-        return answer;
-      } catch(e) {
-        console.error('Groq fetch error with key', key.slice(0,8), ':', e);
-        lastError = 'network';
-        continue;
-      }
+        }
+      } catch(e) { console.warn('Source parsing error:', e); }
+      return answer;
+    } catch(e) {
+      if (e.message === 'NO_KEYS') return "Kraa ! Il me faut une cle API Groq. Va dans les Parametres et entre tes cles. console.groq.com/keys [MOOD:curieux]";
+      if (e.message === 'INVALID_KEYS') return "Kraa... tes cles API Groq semblent invalides. Verifie-les dans les Parametres. [MOOD:triste]";
+      if (e.message === 'RATE_LIMITED') return "Kraa... j'ai reessaye plusieurs fois mais les cles sont encore limitees. Patiente un moment. [MOOD:pensif]";
+      return `Kraa... erreur Groq (${e.message}). [MOOD:triste]`;
     }
-
-    // All keys failed
-    resetCurrentRequestKey();
-    if (lastError === '429') return "Kraa... toutes les cles API sont temporairement limitees. Attends 1-2 minutes et reessaie. [MOOD:pensif]";
-    if (lastError === '401') return "Kraa... tes cles API Groq semblent invalides. Verifie-les dans les Parametres. [MOOD:triste]";
-    return `Kraa... erreur Groq (${lastError}). Verifie tes cles API et le modele. [MOOD:triste]`;
   }
 
   // Custom backend
@@ -4713,32 +4707,14 @@ Types de messages possibles (varie !) :
     let thought = '';
 
     if (backend === 'groq') {
-      const spKeys = state.config.apiKeys || [];
-      if (spKeys.length === 0 && state.config.apiKey) spKeys.push(state.config.apiKey);
-      for (let si = 0; si < spKeys.length; si++) {
-        const skey = spKeys[(groqKeyIndex + si) % spKeys.length];
-        if (rateLimitedKeys.has(skey) && si < spKeys.length - 1) continue;
-        await enforceGroqMinDelay();
-        try {
-          const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${skey}` },
-            body: JSON.stringify({
-              model: state.config.model || 'llama-3.3-70b-versatile',
-              messages: [{ role: 'user', content: prompt }],
-              temperature: 0.95, max_tokens: 150
-            })
-          });
-          if (res.status === 429) { markKeyRateLimited(skey); continue; }
-          if (res.ok) {
-            const data = await res.json();
-            thought = data.choices?.[0]?.message?.content || '';
-            groqKeyIndex = (groqKeyIndex + si + 1) % spKeys.length;
-            break;
-          }
-        } catch(e) { continue; }
-      }
-      resetCurrentRequestKey();
+      try {
+        const data = await groqFetchWithRetry({
+          model: state.config.model || 'llama-3.3-70b-versatile',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.95, max_tokens: 150
+        }, { label: 'spontaneous' });
+        thought = data.choices?.[0]?.message?.content || '';
+      } catch(e) { console.warn('Spontaneous thought failed:', e.message); }
     } else if (backend === 'ollama') {
       const url = state.config.apiUrl || 'http://localhost:11434/api/chat';
       const res = await fetch(url, {
@@ -4806,6 +4782,191 @@ function initFirebase() {
     messagingSenderId: "960483081159",
     appId: "1:960483081159:web:3e7d523496ec902a79f7e2"
   });
+}
+
+// ===== ACCOUNT SYSTEM — Firebase Auth + Firestore =====
+let currentUser = null;
+let db = null;
+let currentLeaderboardTab = 'daily';
+
+function initAuth() {
+  db = firebase.firestore();
+  firebase.auth().onAuthStateChanged(async (user) => {
+    currentUser = user;
+    updateAccountUI();
+    if (user) {
+      await syncToCloud();
+      loadLeaderboard(currentLeaderboardTab);
+    }
+  });
+}
+
+async function loginWithGoogle() {
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await firebase.auth().signInWithPopup(provider);
+    showToast('Connexion reussie', 'Bienvenue, Viking !');
+  } catch(e) {
+    console.error('Login error:', e);
+    if (e.code !== 'auth/popup-closed-by-user') {
+      showToast('Erreur connexion', e.message);
+    }
+  }
+}
+
+async function logoutUser() {
+  try {
+    await firebase.auth().signOut();
+    currentUser = null;
+    updateAccountUI();
+    showToast('Deconnecte', 'A bientot, Viking !');
+  } catch(e) { console.error('Logout error:', e); }
+}
+
+function updateAccountUI() {
+  const loggedOut = document.getElementById('account-logged-out');
+  const loggedIn = document.getElementById('account-logged-in');
+  const accountBtn = document.getElementById('account-btn');
+
+  if (currentUser) {
+    loggedOut.style.display = 'none';
+    loggedIn.style.display = 'block';
+    document.getElementById('account-avatar').src = currentUser.photoURL || '';
+    document.getElementById('account-name').textContent = currentUser.displayName || 'Viking';
+    document.getElementById('account-email').textContent = currentUser.email || '';
+    if (accountBtn) accountBtn.style.color = 'var(--gold)';
+
+    // Stats
+    const q = state.quests || {};
+    document.getElementById('account-stats').innerHTML = `
+      <div class="account-stat"><div class="account-stat-value">${q.level || 1}</div><div class="account-stat-label">Niveau</div></div>
+      <div class="account-stat"><div class="account-stat-value">${q.totalXp || 0}</div><div class="account-stat-label">XP Total</div></div>
+      <div class="account-stat"><div class="account-stat-value">${q.streak || 0}</div><div class="account-stat-label">Streak</div></div>
+      <div class="account-stat"><div class="account-stat-value">${(q.runes || []).length}/24</div><div class="account-stat-label">Runes</div></div>`;
+  } else {
+    loggedOut.style.display = 'block';
+    loggedIn.style.display = 'none';
+    if (accountBtn) accountBtn.style.color = '';
+  }
+}
+
+function getTodayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getDailyXp() {
+  const q = state.quests || {};
+  const today = getTodayKey();
+  let dailyXp = 0;
+  (q.history || []).forEach(h => {
+    if (h.date === today && h.xp) dailyXp += h.xp;
+  });
+  return dailyXp;
+}
+
+async function syncToCloud() {
+  if (!currentUser || !db) return;
+  const q = state.quests || {};
+  const today = getTodayKey();
+  const dailyXp = getDailyXp();
+
+  try {
+    await db.collection('users').doc(currentUser.uid).set({
+      name: currentUser.displayName || 'Viking',
+      avatar: currentUser.photoURL || '',
+      level: q.level || 1,
+      totalXp: q.totalXp || 0,
+      dailyXp: dailyXp,
+      dailyDate: today,
+      streak: q.streak || 0,
+      runes: (q.runes || []).length,
+      rank: getRank(q.level || 1).name,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    console.log('Synced to Firestore');
+  } catch(e) {
+    console.error('Sync error:', e);
+  }
+}
+
+// Auto-sync every 2 minutes if logged in
+setInterval(() => { if (currentUser) syncToCloud(); }, 120000);
+
+async function loadLeaderboard(tab) {
+  currentLeaderboardTab = tab;
+  const content = document.getElementById('leaderboard-content');
+  const myRankEl = document.getElementById('leaderboard-my-rank');
+  if (!content || !db) return;
+
+  content.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">Chargement...</div>';
+
+  // Update tab buttons
+  document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.lb-tab[onclick*="${tab}"]`)?.classList.add('active');
+
+  try {
+    const today = getTodayKey();
+    let query;
+    if (tab === 'daily') {
+      query = db.collection('users').where('dailyDate', '==', today).orderBy('dailyXp', 'desc').limit(50);
+    } else {
+      query = db.collection('users').orderBy('totalXp', 'desc').limit(50);
+    }
+
+    const snap = await query.get();
+    if (snap.empty) {
+      content.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">Aucun Viking pour le moment. Sois le premier !</div>';
+      return;
+    }
+
+    let html = '';
+    let myRank = -1;
+    let idx = 0;
+    snap.forEach(doc => {
+      idx++;
+      const d = doc.data();
+      const isMe = currentUser && doc.id === currentUser.uid;
+      if (isMe) myRank = idx;
+      const xpVal = tab === 'daily' ? (d.dailyXp || 0) : (d.totalXp || 0);
+      const rankClass = idx === 1 ? 'lb-rank-1' : idx === 2 ? 'lb-rank-2' : idx === 3 ? 'lb-rank-3' : 'lb-rank-default';
+
+      html += `<div class="lb-row ${isMe ? 'lb-me' : ''}">
+        <div class="lb-rank ${rankClass}">${idx <= 3 ? ['🥇','🥈','🥉'][idx-1] : idx}</div>
+        ${d.avatar ? `<img class="lb-avatar" src="${d.avatar}" alt=""/>` : `<div class="lb-avatar" style="background:var(--wood-mid);display:flex;align-items:center;justify-content:center;font-size:.8rem">👤</div>`}
+        <div class="lb-name">${d.name || 'Viking'}${d.rank ? ` <span style="font-size:.55rem;color:var(--text-dim)">${d.rank}</span>` : ''}</div>
+        <div class="lb-xp">${xpVal} XP</div>
+      </div>`;
+    });
+
+    content.innerHTML = html;
+    if (myRankEl) {
+      myRankEl.textContent = myRank > 0 ? `Ta position : #${myRank}` : (currentUser ? 'Pas encore classe — complete des quetes !' : 'Connecte-toi pour apparaitre !');
+    }
+  } catch(e) {
+    console.error('Leaderboard error:', e);
+    content.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">Erreur de chargement. Reessaie.</div>';
+  }
+}
+
+function switchLeaderboard(tab) {
+  loadLeaderboard(tab);
+}
+
+function toggleAccountPanel() {
+  const panel = document.getElementById('account-panel');
+  const overlay = document.getElementById('settings-overlay');
+  panel.classList.toggle('open');
+  overlay.classList.toggle('open');
+  if (panel.classList.contains('open')) updateAccountUI();
+}
+
+function toggleLeaderboardPanel() {
+  const panel = document.getElementById('leaderboard-panel');
+  const overlay = document.getElementById('settings-overlay');
+  panel.classList.toggle('open');
+  overlay.classList.toggle('open');
+  if (panel.classList.contains('open')) loadLeaderboard(currentLeaderboardTab);
 }
 
 async function setupFCM() {
@@ -5267,6 +5428,7 @@ function startWingFlap() {
 
 // ===== SERVICE WORKER & FIREBASE =====
 initFirebase();
+initAuth();
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./firebase-messaging-sw.js')
     .then(reg => console.log('SW registered:', reg.scope))
@@ -5957,7 +6119,6 @@ async function advSendMessage() {
   ];
 
   try {
-    selectGroqKey();
     const response = await advCallAI(messages);
 
     advHistory.push({ role: 'assistant', content: response });
@@ -6003,52 +6164,11 @@ async function advCallAI(messages) {
   let model = state.config.model;
 
   if (backend === 'groq') {
-    const keys = state.config.apiKeys || [];
-    if (keys.length === 0 && state.config.apiKey) keys.push(state.config.apiKey);
-    if (keys.length === 0) throw new Error('Aucune cle Groq configuree');
-
-    let lastError = '';
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[(groqKeyIndex + i) % keys.length];
-      if (rateLimitedKeys.has(key) && i < keys.length - 1) continue;
-
-      await enforceGroqMinDelay();
-      console.log('Adventure AI request, key:', key.slice(0,8) + '...', `(attempt ${i+1}/${keys.length})`);
-
-      try {
-        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-          body: JSON.stringify({ model, messages, temperature: 0.85, max_tokens: 500 })
-        });
-
-        if (res.status === 429) {
-          markKeyRateLimited(key);
-          console.warn('Adventure: key 429 rate-limited:', key.slice(0,8), '- trying next...');
-          lastError = '429';
-          continue;
-        }
-        if (res.status === 401) {
-          console.warn('Adventure: key 401 invalid:', key.slice(0,8));
-          lastError = '401';
-          continue;
-        }
-        if (!res.ok) {
-          lastError = String(res.status);
-          continue;
-        }
-
-        groqKeyIndex = (groqKeyIndex + i + 1) % keys.length;
-        resetCurrentRequestKey();
-        const data = await res.json();
-        return data.choices?.[0]?.message?.content || 'Le MJ reste silencieux...';
-      } catch(e) {
-        console.warn('Adventure: key error:', key.slice(0,8), e.message);
-        lastError = e.message;
-        continue;
-      }
-    }
-    throw new Error('Toutes les cles ont echoue (dernier: ' + lastError + ')');
+    const data = await groqFetchWithRetry(
+      { model, messages, temperature: 0.85, max_tokens: 500 },
+      { label: 'adventure' }
+    );
+    return data.choices?.[0]?.message?.content || 'Le MJ reste silencieux...';
   } else if (backend === 'ollama') {
     const base = state.config.ollamaUrl || 'http://localhost:11434';
     const res = await fetch(`${base}/api/chat`, {
