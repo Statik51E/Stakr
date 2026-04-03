@@ -6416,6 +6416,8 @@ function toggleAdventureMode(active) {
     chatArea.style.display = '';
     ravenStage.style.display = '';
     inputBar.style.display = '';
+    // Force Three.js canvas resize after raven-stage becomes visible again
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
   }
 }
 
@@ -6996,6 +6998,7 @@ if (canvas) {
   function resize() {
     const w = stage.clientWidth;
     const h = stage.clientHeight;
+    if (w === 0 || h === 0) return; // hidden, skip resize
     renderer.setSize(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
