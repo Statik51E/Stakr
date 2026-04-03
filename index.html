@@ -434,28 +434,6 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 .adv-combatant-name{font-size:.65rem;font-weight:700;color:var(--text)}
 .adv-combatant-hp{font-size:.55rem;color:var(--text-dim)}
 
-/* ===== AUTHENTICATION MODALS ===== */
-.auth-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:1000;display:flex;align-items:center;justify-content:center}
-.auth-modal-content{background:linear-gradient(135deg,var(--surface),var(--surface2));border:2px solid var(--border);border-radius:8px;padding:24px;max-width:400px;width:90%;position:relative}
-.auth-modal h3{color:var(--gold);margin-bottom:16px;text-align:center;font-variant:small-caps}
-.auth-modal form{display:flex;flex-direction:column;gap:12px}
-.auth-modal input{background:var(--wood-mid);border:1px solid var(--border);border-radius:4px;padding:12px;color:var(--text);font-size:16px}
-.auth-modal input:focus{border-color:var(--gold);outline:none}
-.auth-modal button{background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:4px;padding:12px;color:#0e0a06;font-weight:600;cursor:pointer}
-.auth-modal button:hover{transform:translateY(-1px)}
-.auth-links{text-align:center;margin-top:16px;font-size:.8rem}
-.auth-links a{color:var(--gold);text-decoration:none;margin:0 8px}
-.auth-links a:hover{text-decoration:underline}
-.auth-close{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text-dim);font-size:1.5rem;cursor:pointer;padding:4px}
-.auth-close:hover{color:var(--gold)}
-
-/* ===== ACCOUNT PANEL ===== */
-#account-panel h2{color:var(--gold);margin-bottom:12px;font-size:1rem;font-variant:small-caps;letter-spacing:1px}
-.account-info{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:16px}
-.account-info p{margin:4px 0;color:var(--text)}
-.account-info p:first-child{font-weight:600;color:var(--gold)}
-.account-actions{display:flex;flex-direction:column;gap:8px}
-
 /* ===== RESPONSIVE ===== */
 @media(max-width:480px){
   #raven-stage{height:230px}
@@ -476,7 +454,7 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <button id="quest-btn" title="Quetes Viking">&#9876;</button>
     <button id="map-btn" title="Carte du Monde">&#128506;</button>
     <button id="leaderboard-btn" title="Classement">🏆</button>
-    <button id="account-btn" title="Mon Compte">👤</button>
+    <button id="account-btn" title="Compte">👤</button>
     <button id="customize-btn" title="Personnaliser Stakr" style="background:none;border:none;color:var(--gold-dim);font-size:1.2rem;cursor:pointer;padding:4px 6px">&#9998;</button>
     <button id="settings-btn" title="Paramètres">&#9881;</button>
   </header>
@@ -607,14 +585,6 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
   </div>
   <div class="setting-group">
     <button class="btn-secondary" onclick="exportMemory()">Exporter mémoire (JSON)</button>
-  </div>
-</div>
-
-<!-- ACCOUNT PANEL -->
-<div id="account-panel" style="position:fixed;top:0;left:-320px;width:300px;max-width:85vw;height:100%;background:linear-gradient(180deg,#1a1208,#120d07);border-right:2px solid var(--border);z-index:100;transition:left .3s;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch">
-  <h2>👤 Mon Compte</h2>
-  <div id="account-content">
-    <!-- Content will be populated by JavaScript -->
   </div>
 </div>
 
@@ -1096,14 +1066,6 @@ function init() {
 
 // ===== PERSISTENCE =====
 function loadState() {
-  // If user is logged in, data will be loaded by loadUserData() in auth state change
-  // Otherwise, load from localStorage
-  if (!currentUser) {
-    loadFromLocalStorage();
-  }
-}
-
-function loadFromLocalStorage() {
   try {
     const saved = localStorage.getItem('stakr_state');
     if (saved) {
@@ -1145,15 +1107,6 @@ function loadFromLocalStorage() {
 }
 
 function saveState() {
-  // If user is logged in, save to Firestore, otherwise use localStorage
-  if (currentUser && db) {
-    saveUserData();
-  } else {
-    saveToLocalStorage();
-  }
-}
-
-function saveToLocalStorage() {
   try {
     // Deep clone to strip large data before saving
     const toSave = JSON.parse(JSON.stringify(state));
@@ -4829,24 +4782,6 @@ function initFirebase() {
     messagingSenderId: "960483081159",
     appId: "1:960483081159:web:3e7d523496ec902a79f7e2"
   });
-
-  // Initialize Firestore
-  db = firebase.firestore();
-
-  // Initialize Auth
-  firebase.auth().onAuthStateChanged((user) => {
-    currentUser = user;
-    if (user) {
-      console.log('User signed in:', user.email);
-      loadUserData();
-      updateAuthUI(true);
-    } else {
-      console.log('User signed out');
-      updateAuthUI(false);
-      // Load local data if no user
-      loadState();
-    }
-  });
 }
 
 // ===== ACCOUNT SYSTEM — Firebase Auth + Firestore =====
@@ -4854,340 +4789,16 @@ let currentUser = null;
 let db = null;
 let currentLeaderboardTab = 'daily';
 
-// ===== AUTHENTICATION FUNCTIONS =====
-async function signUp(email, password, username) {
-  try {
-    const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-    const user = userCredential.user;
-
-    // Update display name
-    await user.updateProfile({ displayName: username });
-
-    // Create user document in Firestore
-    await db.collection('users').doc(user.uid).set({
-      uid: user.uid,
-      email: email,
-      username: username,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-      level: 1,
-      xp: 0,
-      totalMessages: 0,
-      achievements: [],
-      settings: {
-        theme: 'dark',
-        notifications: true,
-        language: 'fr'
-      }
-    });
-
-    showToast('Bienvenue !', `Compte créé pour ${username}`);
-    return true;
-  } catch (error) {
-    console.error('Signup error:', error);
-    let message = 'Erreur lors de la création du compte';
-    if (error.code === 'auth/email-already-in-use') message = 'Cet email est déjà utilisé';
-    if (error.code === 'auth/weak-password') message = 'Mot de passe trop faible';
-    if (error.code === 'auth/invalid-email') message = 'Email invalide';
-    showToast('Erreur', message);
-    return false;
-  }
-}
-
-async function signIn(email, password) {
-  try {
-    await firebase.auth().signInWithEmailAndPassword(email, password);
-    // Update last login
-    if (currentUser) {
-      await db.collection('users').doc(currentUser.uid).update({
-        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-    showToast('Connecté !', 'Bienvenue dans Stakr');
-    return true;
-  } catch (error) {
-    console.error('Signin error:', error);
-    let message = 'Erreur de connexion';
-    if (error.code === 'auth/user-not-found') message = 'Utilisateur non trouvé';
-    if (error.code === 'auth/wrong-password') message = 'Mot de passe incorrect';
-    if (error.code === 'auth/invalid-email') message = 'Email invalide';
-    showToast('Erreur', message);
-    return false;
-  }
-}
-
-async function signOut() {
-  try {
-    await firebase.auth().signOut();
-    showToast('Déconnecté', 'À bientôt !');
-  } catch (error) {
-    console.error('Signout error:', error);
-    showToast('Erreur', 'Impossible de se déconnecter');
-  }
-}
-
-async function resetPassword(email) {
-  try {
-    await firebase.auth().sendPasswordResetEmail(email);
-    showToast('Email envoyé', 'Vérifiez votre boîte mail');
-  } catch (error) {
-    console.error('Reset password error:', error);
-    showToast('Erreur', 'Impossible d\'envoyer l\'email de réinitialisation');
-  }
-}
-
-// ===== FIRESTORE DATA MANAGEMENT =====
-async function saveUserData() {
-  if (!currentUser || !db) return;
-
-  try {
-    const userDocRef = db.collection('users').doc(currentUser.uid);
-
-    // Prepare data to save (exclude sensitive config)
-    const dataToSave = {
-      ...state,
-      config: {
-        ...state.config,
-        apiKeys: [], // Don't save API keys to Firestore
-        apiKey: ''   // Security
-      }
-    };
-
-    // Save main state
-    await userDocRef.collection('data').doc('state').set({
-      data: dataToSave,
-      lastSaved: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    // Save additional data
-    const chatBgImg = state.appearance?.chatBgImage;
-    const stageBgImg = state.appearance?.stageBgImage;
-
-    if (chatBgImg && chatBgImg !== '__stored__') {
-      await userDocRef.collection('assets').doc('chatBgImg').set({
-        data: chatBgImg,
-        type: 'chatBg',
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-
-    if (stageBgImg && stageBgImg !== '__stored__') {
-      await userDocRef.collection('assets').doc('stageBgImg').set({
-        data: stageBgImg,
-        type: 'stageBg',
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-
-    // Save message images
-    const imgStore = {};
-    document.querySelectorAll('.msg img.chat-img').forEach((img, i) => {
-      if (img.src.startsWith('data:')) {
-        imgStore[`msg_${i}`] = img.src;
-      }
-    });
-
-    if (Object.keys(imgStore).length > 0) {
-      await userDocRef.collection('assets').doc('messageImages').set({
-        images: imgStore,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-
-    console.log('Data saved to Firestore');
-  } catch (error) {
-    console.error('Save to Firestore error:', error);
-    // Fallback to localStorage
-    saveState();
-  }
-}
-
-async function loadUserData() {
-  if (!currentUser || !db) return;
-
-  try {
-    const userDocRef = db.collection('users').doc(currentUser.uid);
-    const stateDoc = await userDocRef.collection('data').doc('state').get();
-
-    if (stateDoc.exists) {
-      const userData = stateDoc.data();
-      // Merge with current state
-      Object.assign(state, userData.data);
-
-      // Load assets
-      const chatBgDoc = await userDocRef.collection('assets').doc('chatBgImg').get();
-      if (chatBgDoc.exists) {
-        state.appearance.chatBgImage = chatBgDoc.data().data;
-      }
-
-      const stageBgDoc = await userDocRef.collection('assets').doc('stageBgImg').get();
-      if (stageBgDoc.exists) {
-        state.appearance.stageBgImage = stageBgDoc.data().data;
-      }
-
-      const msgImgDoc = await userDocRef.collection('assets').doc('messageImages').get();
-      if (msgImgDoc.exists) {
-        const imgStore = msgImgDoc.data().images;
-        // Restore message images
-        Object.entries(imgStore).forEach(([key, src]) => {
-          // This would need to be handled when rendering messages
-        });
-      }
-
-      console.log('Data loaded from Firestore');
-      renderAll(); // Re-render UI with loaded data
-    } else {
-      // New user - save current local data
-      saveUserData();
-    }
-  } catch (error) {
-    console.error('Load from Firestore error:', error);
-    // Fallback to localStorage
-    loadState();
-  }
-}
-
-// ===== UI AUTHENTICATION =====
-function updateAuthUI(isLoggedIn) {
-  const authBtn = $('#auth-btn');
-  const accountPanel = $('#account-panel');
-
-  if (!authBtn || !accountPanel) return;
-
-  if (isLoggedIn) {
-    authBtn.textContent = 'Mon Compte';
-    authBtn.onclick = () => toggleAccountPanel();
-    accountPanel.style.display = 'block';
-    renderAccountPanel();
-  } else {
-    authBtn.textContent = 'Se Connecter';
-    authBtn.onclick = () => showAuthModal();
-    accountPanel.style.display = 'none';
-  }
-}
-
-function showAuthModal(mode = 'signin') {
-  const modal = document.createElement('div');
-  modal.className = 'auth-modal';
-  modal.innerHTML = `
-    <div class="auth-modal-content">
-      <h3>${mode === 'signin' ? 'Connexion' : 'Inscription'}</h3>
-      <form id="auth-form">
-        ${mode === 'signup' ? '<input type="text" id="username" placeholder="Nom d\'utilisateur" required>' : ''}
-        <input type="email" id="email" placeholder="Email" required>
-        <input type="password" id="password" placeholder="Mot de passe" required>
-        <button type="submit">${mode === 'signin' ? 'Se connecter' : 'S\'inscrire'}</button>
-      </form>
-      <div class="auth-links">
-        ${mode === 'signin'
-          ? '<a href="#" onclick="showAuthModal(\'signup\')">Créer un compte</a> | <a href="#" onclick="showResetModal()">Mot de passe oublié</a>'
-          : '<a href="#" onclick="showAuthModal(\'signin\')">Déjà un compte ?</a>'
-        }
-      </div>
-      <button class="auth-close" onclick="this.closest('.auth-modal').remove()">×</button>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-
-  document.getElementById('auth-form').onsubmit = async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    let success = false;
-    if (mode === 'signin') {
-      success = await signIn(email, password);
-    } else {
-      const username = document.getElementById('username').value;
-      success = await signUp(email, password, username);
-    }
-
-    if (success) {
-      modal.remove();
-    }
-  };
-}
-
-function showResetModal() {
-  const modal = document.createElement('div');
-  modal.className = 'auth-modal';
-  modal.innerHTML = `
-    <div class="auth-modal-content">
-      <h3>Réinitialiser le mot de passe</h3>
-      <form id="reset-form">
-        <input type="email" id="reset-email" placeholder="Votre email" required>
-        <button type="submit">Envoyer</button>
-      </form>
-      <button class="auth-close" onclick="this.closest('.auth-modal').remove()">×</button>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-
-  document.getElementById('reset-form').onsubmit = async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('reset-email').value;
-    await resetPassword(email);
-    modal.remove();
-  };
-}
-
-function toggleAccountPanel() {
-  const panel = $('#account-panel');
-  if (panel.style.display === 'block') {
-    panel.style.display = 'none';
-  } else {
-    panel.style.display = 'block';
-    renderAccountPanel();
-  }
-}
-
-function renderAccountPanel() {
-  if (!currentUser) return;
-
-  const panel = $('#account-panel');
-  panel.innerHTML = `
-    <h3>Mon Compte</h3>
-    <div class="account-info">
-      <p><strong>${currentUser.displayName || 'Utilisateur'}</strong></p>
-      <p>${currentUser.email}</p>
-      <p>Niveau: ${state.stakrLife?.relationshipLevel || 1}</p>
-    </div>
-    <div class="account-actions">
-      <button onclick="exportUserData()">Exporter mes données</button>
-      <button onclick="signOut()">Se déconnecter</button>
-    </div>
-  `;
-}
-
-async function exportUserData() {
-  if (!currentUser) return;
-
-  try {
-    const userDocRef = db.collection('users').doc(currentUser.uid);
-    const stateDoc = await userDocRef.collection('data').doc('state').get();
-
-    if (stateDoc.exists) {
-      const data = stateDoc.data();
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `stakr-data-${currentUser.uid}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('Export réussi', 'Vos données ont été téléchargées');
-    }
-  } catch (error) {
-    console.error('Export error:', error);
-    showToast('Erreur', 'Impossible d\'exporter les données');
-  }
-}
-
 function initAuth() {
-  // Auth initialization is now handled in initFirebase()
-  // This function is kept for compatibility
+  db = firebase.firestore();
+  firebase.auth().onAuthStateChanged(async (user) => {
+    currentUser = user;
+    updateAccountUI();
+    if (user) {
+      await syncToCloud();
+      loadLeaderboard(currentLeaderboardTab);
+    }
+  });
 }
 
 async function loginWithGoogle() {
@@ -5261,7 +4872,7 @@ async function syncToCloud() {
   const dailyXp = getDailyXp();
 
   try {
-    await db.collection('users').doc(currentUser.uid).set({
+    const data = {
       name: currentUser.displayName || 'Viking',
       avatar: currentUser.photoURL || '',
       level: q.level || 1,
@@ -5272,10 +4883,14 @@ async function syncToCloud() {
       runes: (q.runes || []).length,
       rank: getRank(q.level || 1).name,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-    console.log('Synced to Firestore');
+    };
+    console.log('Syncing to Firestore:', data);
+    await db.collection('users').doc(currentUser.uid).set(data, { merge: true });
+    console.log('Synced to Firestore OK');
+    showToast('Sync', 'Donnees synchronisees !');
   } catch(e) {
-    console.error('Sync error:', e);
+    console.error('Sync error:', e.code, e.message);
+    showToast('Erreur sync', e.code === 'permission-denied' ? 'Regles Firestore : va dans Firebase Console → Firestore → Rules et mets allow read, write: if request.auth != null;' : e.message);
   }
 }
 
@@ -5286,7 +4901,10 @@ async function loadLeaderboard(tab) {
   currentLeaderboardTab = tab;
   const content = document.getElementById('leaderboard-content');
   const myRankEl = document.getElementById('leaderboard-my-rank');
-  if (!content || !db) return;
+  if (!content || !db) {
+    if (content) content.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">Base de donnees non initialisee. Recharge l\'app.</div>';
+    return;
+  }
 
   content.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">Chargement...</div>';
 
@@ -5295,33 +4913,54 @@ async function loadLeaderboard(tab) {
   document.querySelector(`.lb-tab[onclick*="${tab}"]`)?.classList.add('active');
 
   try {
+    // Both queries use a single orderBy to avoid composite index requirement
+    // For daily: fetch all users sorted by totalXp, then filter client-side
     const today = getTodayKey();
-    let query;
+    let snap;
     if (tab === 'daily') {
-      query = db.collection('users').where('dailyDate', '==', today).orderBy('dailyXp', 'desc').limit(50);
+      // Simple query: get all users, filter + sort client-side for daily
+      snap = await db.collection('users').orderBy('totalXp', 'desc').limit(100).get();
     } else {
-      query = db.collection('users').orderBy('totalXp', 'desc').limit(50);
+      snap = await db.collection('users').orderBy('totalXp', 'desc').limit(50).get();
     }
 
-    const snap = await query.get();
     if (snap.empty) {
-      content.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">Aucun Viking pour le moment. Sois le premier !</div>';
+      content.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">Aucun Viking pour le moment. Connecte-toi et complete des quetes !</div>';
+      if (myRankEl) myRankEl.textContent = '';
+      return;
+    }
+
+    // Build entries
+    let entries = [];
+    snap.forEach(doc => {
+      const d = doc.data();
+      entries.push({ id: doc.id, ...d });
+    });
+
+    // For daily tab: filter to today + sort by dailyXp
+    if (tab === 'daily') {
+      entries = entries.filter(e => e.dailyDate === today && (e.dailyXp || 0) > 0);
+      entries.sort((a, b) => (b.dailyXp || 0) - (a.dailyXp || 0));
+      entries = entries.slice(0, 50);
+    }
+
+    if (entries.length === 0) {
+      content.innerHTML = `<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">${tab === 'daily' ? 'Personne n\'a gagne d\'XP aujourd\'hui. Sois le premier !' : 'Aucun Viking pour le moment.'}</div>`;
+      if (myRankEl) myRankEl.textContent = currentUser ? 'Complete des quetes pour apparaitre !' : 'Connecte-toi pour apparaitre !';
       return;
     }
 
     let html = '';
     let myRank = -1;
-    let idx = 0;
-    snap.forEach(doc => {
-      idx++;
-      const d = doc.data();
-      const isMe = currentUser && doc.id === currentUser.uid;
-      if (isMe) myRank = idx;
+    entries.forEach((d, idx) => {
+      const pos = idx + 1;
+      const isMe = currentUser && d.id === currentUser.uid;
+      if (isMe) myRank = pos;
       const xpVal = tab === 'daily' ? (d.dailyXp || 0) : (d.totalXp || 0);
-      const rankClass = idx === 1 ? 'lb-rank-1' : idx === 2 ? 'lb-rank-2' : idx === 3 ? 'lb-rank-3' : 'lb-rank-default';
+      const rankClass = pos === 1 ? 'lb-rank-1' : pos === 2 ? 'lb-rank-2' : pos === 3 ? 'lb-rank-3' : 'lb-rank-default';
 
       html += `<div class="lb-row ${isMe ? 'lb-me' : ''}">
-        <div class="lb-rank ${rankClass}">${idx <= 3 ? ['🥇','🥈','🥉'][idx-1] : idx}</div>
+        <div class="lb-rank ${rankClass}">${pos <= 3 ? ['🥇','🥈','🥉'][pos-1] : pos}</div>
         ${d.avatar ? `<img class="lb-avatar" src="${d.avatar}" alt=""/>` : `<div class="lb-avatar" style="background:var(--wood-mid);display:flex;align-items:center;justify-content:center;font-size:.8rem">👤</div>`}
         <div class="lb-name">${d.name || 'Viking'}${d.rank ? ` <span style="font-size:.55rem;color:var(--text-dim)">${d.rank}</span>` : ''}</div>
         <div class="lb-xp">${xpVal} XP</div>
@@ -5334,7 +4973,11 @@ async function loadLeaderboard(tab) {
     }
   } catch(e) {
     console.error('Leaderboard error:', e);
-    content.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">Erreur de chargement. Reessaie.</div>';
+    let errMsg = 'Erreur de chargement.';
+    if (e.code === 'failed-precondition') errMsg = 'Index Firestore manquant. Verifie la console Firebase.';
+    else if (e.code === 'permission-denied') errMsg = 'Acces refuse. Verifie les regles Firestore.';
+    else if (e.message) errMsg += ' ' + e.message;
+    content.innerHTML = `<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">${errMsg}</div>`;
   }
 }
 
