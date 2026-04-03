@@ -2364,8 +2364,9 @@ function initQuests() {
     }
   });
 
-  // Reset weekly objectives if new week
+  // Reset weekly objectives if new week + scale difficulty
   if (q.weekStartDate !== weekStart) {
+    const scale = getDifficultyScale();
     q.objectives.forEach(o => {
       if (o.period === 'weekly') {
         if (o.progress > 0) {
@@ -2374,8 +2375,21 @@ function initQuests() {
         o.progress = 0;
         o.lastReset = today;
       }
+      // Scale physical quest targets progressively (only default quests, not custom)
+      if (!o.custom) {
+        const def = DEFAULT_OBJECTIVES.find(d => d.id === o.id);
+        if (def && def.category === 'physique') {
+          // Physical quests scale with level/weeks
+          o.target = Math.round(def.target * scale * 10) / 10;
+        } else if (def && (def.category === 'mental' || def.category === 'sante')) {
+          // Mental/health quests scale more gently (half the scaling)
+          const gentleScale = 1 + (scale - 1) * 0.5;
+          o.target = Math.round(def.target * gentleScale * 10) / 10;
+        }
+      }
     });
     q.weekStartDate = weekStart;
+    console.log(`Quest difficulty scaled: x${scale} (level ${q.level}, ${getWeeksPlaying()} weeks)`);
   }
 
   // Update streak
@@ -2631,23 +2645,31 @@ function renderQuestList(period) {
     html += `<div class="quest-category">${CATEGORY_NAMES[cat] || cat}</div>`;
     objectives.filter(o => o.category === cat).forEach(o => {
       const pct = Math.min(100, Math.round((o.progress / o.target) * 100));
+      const doublePct = Math.min(100, Math.round((o.progress / (o.target * 2)) * 100));
       const isComplete = o.progress >= o.target;
+      const isDouble = o.progress >= o.target * 2;
       const fillClass = pct >= 100 ? 'full' : pct >= 60 ? 'high' : pct >= 30 ? 'mid' : 'low';
       const lifetime = state.quests.lifetimeTotals[o.id] || 0;
       const ltDisplay = lifetime % 1 === 0 ? lifetime : lifetime.toFixed(1);
+      const doubleLabel = isDouble ? '⚡ x2 ACCOMPLI !' : isComplete ? `x2 : ${o.progress}/${o.target * 2} ${o.unit}` : '';
       html += `
-        <div class="quest-item ${isComplete ? 'completed' : ''}">
+        <div class="quest-item ${isDouble ? 'completed double' : isComplete ? 'completed' : ''}">
           <div class="quest-item-header">
             <span class="quest-item-icon">${o.icon}</span>
             <span class="quest-item-name">${o.name}</span>
-            <span class="quest-item-xp">${isComplete ? '&#10003;' : ''} +${o.xpReward} XP</span>
+            <span class="quest-item-xp">${isDouble ? '⚡x2' : isComplete ? '&#10003;' : ''} +${o.xpReward} XP</span>
           </div>
           <div class="quest-item-progress">
             <div class="quest-progress-bar"><div class="quest-progress-fill ${fillClass}" style="width:${pct}%"></div></div>
             <span class="quest-progress-text">${o.progress}/${o.target} ${o.unit}</span>
           </div>
+          ${isComplete && !isDouble ? `<div class="quest-item-progress" style="margin-top:3px">
+            <div class="quest-progress-bar" style="background:rgba(212,175,55,.1)"><div class="quest-progress-fill" style="width:${doublePct}%;background:linear-gradient(90deg,var(--gold-dim),var(--gold))"></div></div>
+            <span class="quest-progress-text" style="color:var(--gold-dim);font-size:.55rem">⚡ x2 : ${o.progress}/${o.target * 2}</span>
+          </div>` : ''}
+          ${isDouble ? `<div style="font-size:.6rem;color:var(--gold);margin-top:2px;font-weight:700">⚡ BONUS x2 OBTENU !</div>` : ''}
           ${lifetime > 0 ? `<div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">Total : <strong style="color:var(--gold-dim)">${ltDisplay}</strong> ${o.unit} depuis le debut</div>` : ''}
-          ${isComplete ? '' : `
+          ${isDouble ? '' : `
           <div class="quest-item-input">
             <input type="number" id="qi-${o.id}" min="0" step="any" placeholder="0" />
             <span class="unit">${o.unit}</span>
@@ -2714,8 +2736,10 @@ function logQuestProgress(id) {
   if (!obj) return;
 
   const wasDone = obj.progress >= obj.target;
-  obj.progress = Math.min(obj.progress + value, obj.target * 2);
+  const wasDouble = obj.progress >= obj.target * 2;
+  obj.progress = Math.min(obj.progress + value, obj.target * 3); // Allow up to 3x for tracking
   const isNowDone = obj.progress >= obj.target;
+  const isNowDouble = obj.progress >= obj.target * 2;
   input.value = '';
 
   // Track lifetime totals
@@ -2724,10 +2748,18 @@ function logQuestProgress(id) {
   // Calculate XP (proportional)
   const pct = Math.min(1, obj.progress / obj.target);
   const earnedXp = Math.round(obj.xpReward * (value / obj.target));
-  const cappedXp = Math.min(earnedXp, obj.xpReward); // Don't exceed max
+  const cappedXp = Math.min(earnedXp, obj.xpReward);
 
   if (cappedXp > 0) {
     addQuestXp(cappedXp, obj.category);
+  }
+
+  // DOUBLE BONUS: x2 XP when reaching double the target
+  if (!wasDouble && isNowDouble) {
+    const bonusXp = obj.xpReward;
+    addQuestXp(bonusXp, obj.category);
+    addMessage('stakr', `⚡ **DOUBLE PUISSANCE !** Tu as fait le double de ${obj.icon} **${obj.name}** ! Bonus x2 : +${bonusXp} XP ! Les dieux applaudissent ! [MOOD:excite]`);
+    showToast('BONUS x2 !', `${obj.icon} ${obj.name} — double accompli !`);
   }
 
   // Update streak
@@ -3754,6 +3786,26 @@ const DIFFICULTY_CONFIG = {
   legendaire: { xpMin: 100, xpMax: 200, color: 'diff-legendaire', label: 'Legendaire' }
 };
 
+function getWeeksPlaying() {
+  const q = state.quests || {};
+  const history = q.history || [];
+  if (history.length === 0) return 0;
+  const firstDate = new Date(history[0].date || Date.now());
+  const now = new Date();
+  return Math.max(0, Math.floor((now - firstDate) / (7 * 86400000)));
+}
+
+function getDifficultyScale() {
+  const q = state.quests || {};
+  const level = q.level || 1;
+  const weeks = getWeeksPlaying();
+  // Scale from 1.0 (debutant) to 2.5 (veteran), progressive
+  // Level contributes 60%, weeks contribute 40%
+  const levelFactor = 1 + (level - 1) * 0.15; // 1.0 at lvl 1, 2.35 at lvl 10
+  const weekFactor = 1 + Math.min(weeks, 12) * 0.08; // 1.0 at week 0, ~2.0 at week 12
+  return Math.round((levelFactor * 0.6 + weekFactor * 0.4) * 100) / 100;
+}
+
 async function generateAIQuests() {
   const q = state.quests;
   const btn = $('#ai-quest-gen-btn');
@@ -3761,23 +3813,42 @@ async function generateAIQuests() {
 
   const lt = q.lifetimeTotals || {};
   const rank = getRank(q.level);
-  const context = `Niveau: ${q.level} (${rank.name}), Streak: ${q.streak} jours, XP total: ${q.totalXp}.
+  const weeks = getWeeksPlaying();
+  const scale = getDifficultyScale();
+  const context = `Niveau: ${q.level} (${rank.name}), Streak: ${q.streak} jours, XP total: ${q.totalXp}, Semaines actives: ${weeks}, Facteur difficulte: x${scale}.
 Totaux: ${Object.entries(lt).filter(([,v]) => v > 0).map(([k,v]) => `${k}: ${v}`).join(', ') || 'debutant'}.
 Quetes actuelles: ${q.objectives.map(o => `${o.name}(${o.progress}/${o.target})`).join(', ')}.`;
 
-  const prompt = `Tu es Stakr, corbeau viking IA coach bien-etre. Cree exactement 4 quetes PERSONNALISEES pour ameliorer la sante/bien-etre de ton compagnon.
+  // Build physical reference targets based on level/weeks
+  const physExamples = weeks <= 1
+    ? '(ex: 10 pompes, 15 min marche, 30 sec planche, 5 squats)'
+    : weeks <= 4
+    ? `(ex: ${Math.round(15*scale)} pompes, ${Math.round(20*scale)} min marche, ${Math.round(45*scale)} sec planche, ${Math.round(15*scale)} squats)`
+    : `(ex: ${Math.round(25*scale)} pompes, ${Math.round(30*scale)} min course, ${Math.round(90*scale)} sec planche, ${Math.round(30*scale)} squats, ${Math.round(10*scale)} tractions)`;
+
+  const prompt = `Tu es Stakr, corbeau viking IA coach bien-etre. Cree exactement 4 quetes PERSONNALISEES.
 
 Contexte du guerrier: ${context}
 
+SYSTEME DE DIFFICULTE PROGRESSIVE:
+- Le guerrier joue depuis ${weeks} semaine(s) et est niveau ${q.level}
+- Facteur de difficulte: x${scale} (les objectifs doivent etre multiplies par ce facteur par rapport a un debutant)
+- IMPORTANT pour les quetes PHYSIQUES: augmente les objectifs progressivement chaque semaine
+  - Semaine 0-1 (debutant): objectifs tres accessibles ${weeks <= 1 ? '← C\'EST LE CAS' : ''}
+  - Semaine 2-4: objectifs moderement plus eleves ${weeks >= 2 && weeks <= 4 ? '← C\'EST LE CAS' : ''}
+  - Semaine 5+: objectifs ambitieux mais TOUJOURS realisables ${weeks >= 5 ? '← C\'EST LE CAS' : ''}
+- Exemples de references physiques pour ce niveau ${physExamples}
+- Les quetes doivent rester REALISABLES ! Ambitieuses mais pas impossibles
+- Le joueur peut faire le DOUBLE pour un bonus x2 XP, donc ne mets pas des cibles deja trop hautes
+
 Regles STRICTES:
 - 1 quete facile, 1 moyenne, 1 difficile, 1 legendaire
-- Adapte au niveau du guerrier (debutant = objectifs accessibles)
-- Chaque quete doit etre DIFFERENT des quetes standard (pompes, marche, meditation, etc.)
-- Categories: physique, mental, sante, social
-- Quetes creatives et originales (ex: tenir la planche, marcher pieds nus, appeler un ami, cuisiner un plat sain, etc.)
+- Chaque quete doit etre DIFFERENTE des quetes en cours
+- Categories: physique, mental, sante, social (au moins 1 physique)
+- Quetes creatives et variees
 
 Reponds UNIQUEMENT en JSON, format exact:
-[{"name":"Nom","icon":"emoji","target":10,"unit":"min","period":"daily","difficulty":"facile","category":"physique","description":"Description viking courte"},{"name":"...","icon":"...","target":...,"unit":"...","period":"daily","difficulty":"moyen","category":"mental","description":"..."},{"name":"...","icon":"...","target":...,"unit":"...","period":"weekly","difficulty":"difficile","category":"sante","description":"..."},{"name":"...","icon":"...","target":...,"unit":"...","period":"weekly","difficulty":"legendaire","category":"physique","description":"..."}]`;
+[{"name":"Nom","icon":"emoji","target":${Math.round(10*scale)},"unit":"min","period":"daily","difficulty":"facile","category":"physique","description":"Description viking courte"},{"name":"...","icon":"...","target":...,"unit":"...","period":"daily","difficulty":"moyen","category":"mental","description":"..."},{"name":"...","icon":"...","target":...,"unit":"...","period":"weekly","difficulty":"difficile","category":"sante","description":"..."},{"name":"...","icon":"...","target":...,"unit":"...","period":"weekly","difficulty":"legendaire","category":"physique","description":"..."}]`;
 
   try {
     let result = null;
