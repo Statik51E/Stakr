@@ -5571,7 +5571,16 @@ const ADV_ZONES = [
     safe:false, levelReq:6, encounterRate:0.5 },
   { id:'temple', name:'Temple d\'Asgard', icon:'⚡', color:'#ffd700', x:22, y:18,
     desc:'Le sanctuaire sacre au sommet du monde. Seuls les plus valeureux y accedent.',
-    safe:false, levelReq:8, encounterRate:0.35 }
+    safe:false, levelReq:8, encounterRate:0.35 },
+  { id:'fjord', name:'Fjord des Brumes', icon:'🌊', color:'#0288d1', x:10, y:42,
+    desc:'Des eaux glaciales serpentent entre des falaises vertigineuses. Des drakkars fantomes y derivent dans la brume.',
+    safe:false, levelReq:1, encounterRate:0.35 },
+  { id:'mines', name:'Mines de Nidavellir', icon:'⛏️', color:'#ff8f00', x:65, y:42,
+    desc:'Les tunnels des nains forgerons plongent dans les entrailles de la terre. Richesses et dangers s\'y melent.',
+    safe:false, levelReq:3, encounterRate:0.45 },
+  { id:'village', name:'Village de Birka', icon:'🏘️', color:'#8d6e63', x:35, y:70,
+    desc:'Un village marchand anime. Taverne, forge, marche, et rumeurs d\'aventure.',
+    safe:true, levelReq:0 }
 ];
 
 const ADV_NPCS = [
@@ -5622,7 +5631,37 @@ const ADV_NPCS = [
     actions:['combattre'], drops:['Aile de Valkyrie','Epee du Valhalla','Couronne Celeste'], xp:70 },
   { id:'sage', name:'Sage d\'Odin', icon:'👁️', zone:'temple', diff:'facile', hp:10, atk:3,
     intro:'"Je t\'attendais, guerrier. Odin m\'envoie te confier une mission sacree."',
-    actions:['negocier','fuir'], questChance:0.9, drops:['Benediction d\'Odin'], xp:20 }
+    actions:['negocier','fuir'], questChance:0.9, drops:['Benediction d\'Odin'], xp:20 },
+  // Fjord
+  { id:'serpent_mer', name:'Serpent de Mer', icon:'🐍', zone:'fjord', diff:'difficile', hp:50, atk:16,
+    intro:'Les eaux bouillonnent ! Un serpent marin immense emerge, ses ecailles luisant d\'un eclat sombre.',
+    actions:['combattre','fuir'], drops:['Ecaille de Jormungandr','Dent de Serpent'], xp:45 },
+  { id:'pecheur', name:'Vieux Pecheur', icon:'🎣', zone:'fjord', diff:'facile', hp:10, atk:2,
+    intro:'"Eh, toi ! Les poissons ne mordent plus depuis que ce monstre hante le fjord..."',
+    actions:['negocier','fuir'], questChance:0.8, drops:['Poisson Dore'], xp:10 },
+  { id:'pirate', name:'Pirate Nordique', icon:'🏴‍☠️', zone:'fjord', diff:'moyen', hp:30, atk:11,
+    intro:'Un drakkar sombre accoste. Un pirate saute sur la berge, hache a la main. "Ton or ou ta vie !"',
+    actions:['combattre','negocier','fuir'], drops:['Or Vole','Carte au Tresor'], xp:25 },
+  // Mines
+  { id:'nain_mineur', name:'Nain Mineur', icon:'⛏️', zone:'mines', diff:'facile', hp:20, atk:7,
+    intro:'"Un etranger dans nos tunnels ? Hmpf. J\'ai perdu mon meilleur pic dans un eboulement..."',
+    actions:['negocier','combattre','fuir'], questChance:0.8, drops:['Gemme Brute','Lingot d\'Or'], xp:15 },
+  { id:'golem_pierre', name:'Golem de Pierre', icon:'🪨', zone:'mines', diff:'moyen', hp:55, atk:14,
+    intro:'Le sol tremble. Des pierres s\'assemblent pour former une creature massive qui bloque le passage !',
+    actions:['combattre','fuir'], drops:['Coeur de Pierre','Minerai Rare'], xp:40 },
+  { id:'araignee', name:'Araignee des Profondeurs', icon:'🕷️', zone:'mines', diff:'moyen', hp:25, atk:10,
+    intro:'Des toiles immenses tapissent le tunnel. Une araignee geante descend silencieusement du plafond...',
+    actions:['combattre','fuir'], drops:['Soie d\'Araignee','Venin Concentre'], xp:20 },
+  // Village
+  { id:'forgeron', name:'Bjorn le Forgeron', icon:'🔨', zone:'village', diff:'facile', hp:30, atk:8,
+    intro:'"Bienvenue, guerrier ! Je peux ameliorer tes armes si tu m\'apportes les materiaux."',
+    actions:['negocier','fuir'], questChance:0.7, drops:['Epee Renforcee'], xp:10 },
+  { id:'taverniere', name:'Astrid la Taverniere', icon:'🍺', zone:'village', diff:'facile', hp:15, atk:3,
+    intro:'"Une bierre, Viking ? J\'ai entendu des rumeurs interessantes..."',
+    actions:['negocier','fuir'], questChance:0.9, drops:['Hydromel Magique'], xp:5 },
+  { id:'voleur', name:'Ombre Silencieuse', icon:'🗡️', zone:'village', diff:'moyen', hp:22, atk:12,
+    intro:'Une silhouette surgit d\'une ruelle sombre. "Joli sac que tu as la..."',
+    actions:['combattre','negocier','fuir'], drops:['Dague d\'Ombre','Cape Sombre'], xp:20 }
 ];
 
 const ADV_QUEST_TEMPLATES = [
@@ -5637,12 +5676,38 @@ const ADV_QUEST_TEMPLATES = [
 ];
 
 // — Etat aventure —
+// ===== CHARACTER CLASSES =====
+const ADV_CLASSES = {
+  guerrier: { name: 'Guerrier', icon: '⚔️', desc: 'Fort au combat, resistant aux coups', bonus: { force: 2, endurance: 2 } },
+  eclaireur: { name: 'Eclaireur', icon: '🏹', desc: 'Agile et perceptif, expert en survie', bonus: { agilite: 2, perception: 2 } },
+  skalde: { name: 'Skalde', icon: '🎵', desc: 'Maitre des mots et de la magie runique', bonus: { charisme: 2, sagesse: 2 } },
+  berserkr: { name: 'Berserkr', icon: '🐻', desc: 'Fureur devastatrice, mais imprudent', bonus: { force: 3, agilite: 1, endurance: -1 } },
+  volva: { name: 'Volva', icon: '🔮', desc: 'Voyante et guerisseuse, maitrise les runes', bonus: { sagesse: 3, perception: 1, force: -1 } }
+};
+
+const ADV_STATS = [
+  { id: 'force', name: 'Force', icon: '💪', desc: 'Degats physiques, porter des objets lourds, enfoncer des portes' },
+  { id: 'agilite', name: 'Agilite', icon: '🏃', desc: 'Esquive, discretion, acrobaties, vitesse' },
+  { id: 'endurance', name: 'Endurance', icon: '🛡️', desc: 'PV max, resistance aux degats, survie au froid/poison' },
+  { id: 'perception', name: 'Perception', icon: '👁️', desc: 'Detecter pieges, trouver des tresors, reperer les embuscades' },
+  { id: 'charisme', name: 'Charisme', icon: '🗣️', desc: 'Negociation, intimidation, convaincre les PNJs' },
+  { id: 'sagesse', name: 'Sagesse', icon: '📖', desc: 'Magie runique, connaissance, soins, decrypter les enigmes' }
+];
+
+const ADV_STAT_POINTS = 12; // Points a distribuer
+
 function defaultAdventureState() {
   return {
     currentZone: 'campement',
     hp: 100, maxHp: 100,
     energy: 10, maxEnergy: 10,
     xp: 0, level: 1,
+    // Character sheet
+    charCreated: false,
+    charName: '',
+    charClass: '',
+    stats: { force: 1, agilite: 1, endurance: 1, perception: 1, charisme: 1, sagesse: 1 },
+    // Gameplay
     inventory: [],
     activeQuests: [],
     completedQuests: [],
@@ -5651,7 +5716,10 @@ function defaultAdventureState() {
     lastRestTime: null,
     totalKills: 0,
     totalExplored: 0,
-    narrative: []
+    narrative: [],
+    reputation: 0, // -100 to 100
+    gold: 10,
+    discoveredLore: []
   };
 }
 
@@ -5666,6 +5734,180 @@ function loadAdventure() {
   if (!adv.narrative) adv.narrative = [];
   if (!adv.totalKills) adv.totalKills = 0;
   if (!adv.totalExplored) adv.totalExplored = 0;
+  if (!adv.stats) adv.stats = { force: 1, agilite: 1, endurance: 1, perception: 1, charisme: 1, sagesse: 1 };
+  if (adv.charCreated === undefined) adv.charCreated = false;
+  if (!adv.gold && adv.gold !== 0) adv.gold = 10;
+  if (!adv.reputation) adv.reputation = 0;
+  if (!adv.discoveredLore) adv.discoveredLore = [];
+}
+
+// ===== CHARACTER CREATION =====
+let _charTempStats = {};
+let _charTempClass = '';
+
+function advShowCharCreation() {
+  _charTempStats = { force: 1, agilite: 1, endurance: 1, perception: 1, charisme: 1, sagesse: 1 };
+  _charTempClass = '';
+  advRenderCharCreation();
+}
+
+function advRenderCharCreation() {
+  const content = document.getElementById('adv-content');
+  const actions = document.getElementById('adv-actions');
+  const hud = document.getElementById('adv-hud');
+  const map = document.getElementById('adv-map');
+  const inputBar = document.getElementById('adv-input-bar');
+  if (map) map.style.display = 'none';
+  if (hud) hud.style.display = 'none';
+  if (inputBar) inputBar.style.display = 'none';
+
+  const usedPoints = Object.values(_charTempStats).reduce((a, b) => a + b, 0) - 6; // 6 = base (1 each)
+  const remaining = ADV_STAT_POINTS - usedPoints;
+  const classBonus = _charTempClass ? ADV_CLASSES[_charTempClass].bonus : {};
+
+  let html = `<div style="padding:10px">
+    <h3 style="color:var(--gold);font-family:'Cinzel',serif;text-align:center;margin-bottom:8px">⚔️ Creation de Personnage</h3>
+    <div style="margin-bottom:10px">
+      <label style="font-size:.7rem;color:var(--text-dim)">Nom du Viking :</label>
+      <input type="text" id="char-name-input" placeholder="Ton nom de guerrier..." value="${adv.charName || ''}" style="width:100%;padding:8px;background:var(--wood-mid);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Cinzel',serif;font-size:.8rem;margin-top:4px"/>
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:.7rem;color:var(--text-dim)">Classe :</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">`;
+
+  Object.entries(ADV_CLASSES).forEach(([id, cls]) => {
+    const selected = _charTempClass === id;
+    html += `<button onclick="advSelectClass('${id}')" style="padding:8px;border:1px solid ${selected ? 'var(--gold)' : 'var(--border)'};border-radius:6px;background:${selected ? 'rgba(212,175,55,.15)' : 'var(--wood-mid)'};color:${selected ? 'var(--gold)' : 'var(--text)'};cursor:pointer;text-align:left;font-size:.65rem;font-family:'Cinzel',serif">
+      <div style="font-weight:700">${cls.icon} ${cls.name}</div>
+      <div style="font-size:.55rem;color:var(--text-dim);margin-top:2px">${cls.desc}</div>
+    </button>`;
+  });
+
+  html += `</div></div>
+    <div style="margin-bottom:6px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <label style="font-size:.7rem;color:var(--text-dim)">Stats (${ADV_STAT_POINTS} points) :</label>
+        <span style="font-size:.75rem;font-weight:700;color:${remaining > 0 ? 'var(--gold)' : remaining === 0 ? '#69f0ae' : '#e74c3c'}">${remaining} restant${remaining !== 1 ? 's' : ''}</span>
+      </div>`;
+
+  ADV_STATS.forEach(s => {
+    const val = _charTempStats[s.id];
+    const bonus = classBonus[s.id] || 0;
+    const total = val + bonus;
+    html += `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--border)">
+      <span style="font-size:.9rem;width:22px;text-align:center">${s.icon}</span>
+      <span style="font-size:.65rem;color:var(--text);flex:1;font-weight:600">${s.name}</span>
+      <button onclick="advAdjustStat('${s.id}',-1)" style="width:24px;height:24px;border:1px solid var(--border);border-radius:4px;background:var(--wood-mid);color:var(--text);cursor:pointer;font-size:.8rem;font-weight:700" ${val <= 1 ? 'disabled' : ''}>-</button>
+      <span style="width:20px;text-align:center;font-weight:700;color:var(--gold);font-size:.85rem">${val}</span>
+      <button onclick="advAdjustStat('${s.id}',1)" style="width:24px;height:24px;border:1px solid var(--border);border-radius:4px;background:var(--wood-mid);color:var(--text);cursor:pointer;font-size:.8rem;font-weight:700" ${remaining <= 0 || val >= 8 ? 'disabled' : ''}>+</button>
+      ${bonus ? `<span style="font-size:.55rem;color:${bonus > 0 ? '#69f0ae' : '#e74c3c'}">${bonus > 0 ? '+' : ''}${bonus}</span>` : '<span style="width:20px"></span>'}
+      <span style="font-size:.85rem;font-weight:700;color:var(--text);width:20px;text-align:center">${total}</span>
+    </div>`;
+  });
+
+  html += `</div>
+    <div style="font-size:.55rem;color:var(--text-dim);margin-top:6px;line-height:1.4">
+      Tes stats influencent TOUT : jets de des, degats, esquive, negociation, detection de pieges, magie... Chaque action a une chance d'echec basee sur tes stats !
+    </div>
+  </div>`;
+
+  content.innerHTML = html;
+  content.scrollTop = 0;
+
+  if (actions) {
+    actions.innerHTML = `<button class="adv-btn primary" onclick="advConfirmCharacter()" style="flex:2" ${remaining !== 0 || !_charTempClass ? 'disabled' : ''}>⚔️ Commencer l'Aventure</button>
+    ${adv.charCreated ? `<button class="adv-btn" onclick="advCancelCharCreation()">Annuler</button>` : ''}`;
+  }
+}
+
+function advSelectClass(classId) {
+  _charTempClass = classId;
+  advRenderCharCreation();
+}
+
+function advAdjustStat(statId, delta) {
+  const newVal = _charTempStats[statId] + delta;
+  if (newVal < 1 || newVal > 8) return;
+  const usedPoints = Object.values(_charTempStats).reduce((a, b) => a + b, 0) - 6 + delta;
+  if (usedPoints > ADV_STAT_POINTS) return;
+  _charTempStats[statId] = newVal;
+  advRenderCharCreation();
+}
+
+function advConfirmCharacter() {
+  const nameInput = document.getElementById('char-name-input');
+  const name = nameInput ? nameInput.value.trim() : '';
+  if (!name) { showToast('Erreur', 'Donne un nom a ton Viking !'); return; }
+  if (!_charTempClass) { showToast('Erreur', 'Choisis une classe !'); return; }
+
+  adv.charName = name;
+  adv.charClass = _charTempClass;
+  adv.stats = { ..._charTempStats };
+
+  // Apply class bonuses
+  const bonus = ADV_CLASSES[_charTempClass].bonus;
+  Object.entries(bonus).forEach(([stat, val]) => {
+    adv.stats[stat] = Math.max(1, (adv.stats[stat] || 1) + val);
+  });
+
+  // Stats affect HP and energy
+  adv.maxHp = 80 + adv.stats.endurance * 15;
+  adv.hp = adv.maxHp;
+  adv.maxEnergy = 6 + adv.stats.sagesse * 2;
+  adv.energy = adv.maxEnergy;
+
+  adv.charCreated = true;
+  saveAdventure();
+
+  // Restore UI
+  const map = document.getElementById('adv-map');
+  const hud = document.getElementById('adv-hud');
+  const inputBar = document.getElementById('adv-input-bar');
+  if (map) map.style.display = '';
+  if (hud) hud.style.display = '';
+  if (inputBar) inputBar.style.display = '';
+
+  const cls = ADV_CLASSES[_charTempClass];
+  adv.narrative = [{ type: 'dm', text: `⚔️ **${name}**, ${cls.icon} ${cls.name}, se reveille au campement viking. Le feu crépite, l'air est charge de brume nordique. Ton aventure commence ici, guerrier. Que veux-tu faire ?`, time: Date.now() }];
+  saveAdventure();
+
+  advRenderMap();
+  advRenderHud();
+  advRenderContent();
+  advShowCamp();
+}
+
+function advCancelCharCreation() {
+  const map = document.getElementById('adv-map');
+  const hud = document.getElementById('adv-hud');
+  const inputBar = document.getElementById('adv-input-bar');
+  if (map) map.style.display = '';
+  if (hud) hud.style.display = '';
+  if (inputBar) inputBar.style.display = '';
+  advRenderMap();
+  advRenderHud();
+  advRenderContent();
+  if (adv.currentZone === 'campement') advShowCamp();
+  else advRenderExploreActions();
+}
+
+// Dice roll: stat-based check. Returns { success, roll, target, critical, fumble }
+function advRollCheck(statId, difficulty) {
+  // difficulty: 'facile'=8, 'moyen'=12, 'difficile'=15, 'extreme'=18
+  const diffTargets = { facile: 8, moyen: 12, difficile: 15, extreme: 18 };
+  const target = diffTargets[difficulty] || 12;
+  const statVal = adv.stats[statId] || 1;
+  const roll = Math.floor(Math.random() * 20) + 1; // d20
+  const total = roll + statVal;
+  return {
+    success: total >= target,
+    roll,
+    statBonus: statVal,
+    total,
+    target,
+    critical: roll === 20,
+    fumble: roll === 1
+  };
 }
 
 function saveAdventure() {
@@ -5826,10 +6068,11 @@ function advCombatVictory() {
   if (adv.xp >= xpNeeded) {
     adv.xp -= xpNeeded;
     adv.level++;
-    adv.maxHp += 10;
-    adv.hp = Math.min(adv.hp + 20, adv.maxHp);
+    const hpGain = 5 + adv.stats.endurance * 2;
+    adv.maxHp += hpGain;
+    adv.hp = Math.min(adv.hp + hpGain, adv.maxHp);
     adv.maxEnergy += 1;
-    advNarrate('loot', `⬆️ **NIVEAU ${adv.level} !** PV max +10, Energie max +1 !`);
+    advNarrate('loot', `⬆️ **NIVEAU ${adv.level} !** PV max +${hpGain}, Energie max +1 !`);
   }
 
   // Quest progress
@@ -6014,13 +6257,17 @@ function advRenderHud() {
   const hpPct = Math.round((adv.hp / adv.maxHp) * 100);
   const enPct = Math.round((adv.energy / adv.maxEnergy) * 100);
   const xpPct = Math.round((adv.xp / (adv.level * 60)) * 100);
+  const cls = ADV_CLASSES[adv.charClass] || {};
 
   hud.innerHTML = `
     <div class="adv-hud-zone">${zone?.icon || ''} ${zone?.name || 'Inconnu'}</div>
-    <div class="adv-hud-bar"><label>Niv.${adv.level}</label></div>
-    <div class="adv-hud-bar"><label>PV</label><div class="adv-bar adv-bar-hp"><div class="adv-bar-fill" style="width:${hpPct}%"></div></div><span style="font-size:.5rem;color:var(--text-dim)">${adv.hp}</span></div>
-    <div class="adv-hud-bar"><label>⚡</label><div class="adv-bar adv-bar-en"><div class="adv-bar-fill" style="width:${enPct}%"></div></div><span style="font-size:.5rem;color:var(--text-dim)">${adv.energy}</span></div>
-    <div class="adv-hud-bar"><label>XP</label><div class="adv-bar adv-bar-xp"><div class="adv-bar-fill" style="width:${xpPct}%"></div></div></div>`;
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 4px">
+      <span style="font-size:.55rem;color:var(--gold);font-family:'Cinzel',serif">${cls.icon || ''} ${adv.charName || 'Viking'} — ${cls.name || ''} Niv.${adv.level}</span>
+      <span style="font-size:.55rem;color:var(--text-dim)">💰${adv.gold || 0} | ⭐${adv.reputation || 0}</span>
+    </div>
+    <div class="adv-hud-bar"><label>PV</label><div class="adv-bar adv-bar-hp"><div class="adv-bar-fill" style="width:${hpPct}%"></div></div><span style="font-size:.5rem;color:var(--text-dim)">${adv.hp}/${adv.maxHp}</span></div>
+    <div class="adv-hud-bar"><label>⚡</label><div class="adv-bar adv-bar-en"><div class="adv-bar-fill" style="width:${enPct}%"></div></div><span style="font-size:.5rem;color:var(--text-dim)">${adv.energy}/${adv.maxEnergy}</span></div>
+    <div class="adv-hud-bar"><label>XP</label><div class="adv-bar adv-bar-xp"><div class="adv-bar-fill" style="width:${xpPct}%"></div></div><span style="font-size:.5rem;color:var(--text-dim)">${adv.xp}/${adv.level * 60}</span></div>`;
 }
 
 function advRenderContent() {
@@ -6041,7 +6288,8 @@ function advRenderExploreActions() {
     <button class="adv-btn primary" onclick="advMoveTo('campement')">🏕️ Camp</button>
     <button class="adv-btn" onclick="advLookAround()">👀 Explorer</button>
     ${adv.activeQuests.length ? `<button class="adv-btn" onclick="advShowQuests()">📜 Quetes (${adv.activeQuests.length})</button>` : ''}
-    <button class="adv-btn" onclick="advShowInventory()">🎒 Sac (${adv.inventory.length})</button>`;
+    <button class="adv-btn" onclick="advShowInventory()">🎒 Sac (${adv.inventory.length})</button>
+    <button class="adv-btn" onclick="advShowCharSheet()">📋 Fiche</button>`;
 }
 
 function advRenderEncounterActions(npc) {
@@ -6077,9 +6325,29 @@ function advRenderCampActions(canRest) {
   if (!el) return;
   el.innerHTML = `
     <button class="adv-btn primary" onclick="advRest()" ${canRest ? '' : 'disabled'}>💚 Repos${canRest ? '' : ' (attends)'}</button>
-    <button class="adv-btn" onclick="advShowInventory()">🎒 Inventaire (${adv.inventory.length})</button>
+    <button class="adv-btn" onclick="advShowInventory()">🎒 Sac (${adv.inventory.length})</button>
     <button class="adv-btn" onclick="advShowQuests()">📜 Quetes (${adv.activeQuests.length})</button>
+    <button class="adv-btn" onclick="advShowCharSheet()">📋 Fiche</button>
     <button class="adv-btn" onclick="advLookAround()">🗺️ Partir</button>`;
+}
+
+function advShowCharSheet() {
+  const cls = ADV_CLASSES[adv.charClass] || {};
+  let statsHtml = ADV_STATS.map(s => {
+    const val = adv.stats[s.id];
+    const barWidth = Math.round((val / 12) * 100);
+    return `${s.icon} **${s.name}** : ${val} ${'█'.repeat(Math.min(val, 10))}${'░'.repeat(Math.max(0, 10 - val))}`;
+  }).join('\n');
+
+  const text = `📋 **FICHE DE PERSONNAGE**\n` +
+    `${cls.icon || ''} **${adv.charName}** — ${cls.name || 'Inconnu'} (Niv. ${adv.level})\n` +
+    `❤️ PV: ${adv.hp}/${adv.maxHp} | ⚡ Energie: ${adv.energy}/${adv.maxEnergy}\n` +
+    `💰 Or: ${adv.gold} | ⭐ Reputation: ${adv.reputation}/100\n` +
+    `⚔️ Monstres vaincus: ${adv.totalKills} | 🗺️ Zones explorees: ${adv.totalExplored}\n\n` +
+    statsHtml;
+
+  advNarrate('narrator', text);
+  advRenderCampActions(true);
 }
 
 function advLookAround() {
@@ -6133,6 +6401,10 @@ function toggleAdventureMode(active) {
     chatArea.style.display = 'none';
     ravenStage.style.display = 'none';
     inputBar.style.display = 'none';
+    if (!adv.charCreated) {
+      advShowCharCreation();
+      return;
+    }
     advRenderMap();
     advRenderHud();
     advRenderContent();
@@ -6158,54 +6430,90 @@ function getAdvSystemPrompt() {
   const combatInfo = inCombat ? `\nCOMBAT EN COURS contre ${adv._combat.enemy.icon} ${adv._combat.enemy.name} (PV ennemi: ${adv._combat.enemy.currentHp}/${adv._combat.enemy.hp}, tes PV: ${adv._combat.playerHp}/${adv.maxHp}, round ${adv._combat.round})` : '';
   const encounterInfo = adv._encounter && !inCombat ? `\nRENCONTRE : ${adv._encounter.icon} ${adv._encounter.name} est devant toi. ${adv._encounter.intro}` : '';
 
-  return `Tu es Stakr, corbeau viking IA, et tu es le MAITRE DU JEU (MJ) d'une aventure RPG nordique interactive.
+  const cls = ADV_CLASSES[adv.charClass] || {};
+  const statsStr = ADV_STATS.map(s => `${s.icon} ${s.name}: ${adv.stats[s.id]}`).join(', ');
+  const loreStr = adv.discoveredLore.length > 0 ? adv.discoveredLore.slice(-5).join(', ') : 'aucun';
 
-ROLE : Tu narres l'aventure, tu decris les lieux, les ambiances, les PNJs, et tu adaptes le scenario en temps reel selon ce que le joueur dit ou fait. Tu es immersif, creatif, et tu gardes le ton Viking/nordique.
+  return `Tu es Stakr, corbeau viking IA et MAITRE DU JEU (MJ) d'un RPG nordique immersif et DIFFICILE.
 
-REGLES NARRATIVES :
-- Decris les environnements avec atmosphere (sons, odeurs, meteo, details visuels)
-- Fais vivre les PNJs avec des dialogues et personnalites
-- Adapte le scenario aux actions du joueur — s'il dit "je fouille", decris ce qu'il trouve
-- S'il dit quelque chose d'absurde, reagis avec humour mais reste dans l'univers
-- Garde tes reponses entre 2 et 6 phrases max — rythme rapide, pas de roman
-- Tutoie le joueur, parle a la 2e personne ("Tu vois...", "Tu entends...")
+PERSONNAGE DU JOUEUR :
+- Nom : ${adv.charName || 'Viking'} | Classe : ${cls.icon || ''} ${cls.name || 'Inconnu'}
+- Stats : ${statsStr}
+- Or : ${adv.gold || 0} | Reputation : ${adv.reputation || 0}/100
+- Savoirs decouverts : ${loreStr}
 
-TAGS D'ACTIONS — Insere ces tags dans ta reponse quand c'est pertinent pour declencher des mecaniques de jeu :
-- [MONSTER:nom:pv:atk:icone] — Fait apparaitre un monstre et lance un combat. Ex: [MONSTER:Draugr:30:8:💀]
-- [MONSTER_DAMAGE:n] — Le joueur inflige n degats au monstre en cours de combat. Ex: [MONSTER_DAMAGE:12]
-- [DAMAGE:n] — Le joueur subit n degats (attaque ennemie, piege, poison, chute...). Ex: [DAMAGE:5]
-- [COMBAT_END:victory] ou [COMBAT_END:defeat] — Met fin au combat. Victoire = XP + loot. Defaite = retour campement.
-- [LOOT:nom:icone] — Le joueur trouve/recoit un objet. Ex: [LOOT:Epee runique:⚔️]
-- [USE_ITEM:nom] — Consomme un objet de l'inventaire du joueur. Ex: [USE_ITEM:Potion de soin]
-- [HEAL:n] — Le joueur recupere n PV (source, potion...). Ex: [HEAL:10]
-- [ENERGY:n] — Le joueur gagne (+) ou perd (-) de l'energie. Ex: [ENERGY:-2]
-- [XP:n] — Le joueur gagne n XP d'aventure. Ex: [XP:15]
-- [MOVE:zoneId] — Deplace le joueur vers une zone. Zones valides : campement, foret, montagne, volcan, citadelle, marais, temple. Ex: [MOVE:montagne]
-- [QUEST:nom:cible:xp] — Cree une nouvelle quete. Ex: [QUEST:Retrouver l'amulette:1:25]
-- [QUEST_PROGRESS:type] — Avance une quete (types: kill, explore, collect, combat_survive). Ex: [QUEST_PROGRESS:kill]
+ROLE : Tu narres l'aventure avec profondeur et immersion. Tu decris les lieux (sons, odeurs, meteo, details visuels), tu fais vivre les PNJs avec des dialogues et personnalites, et tu adaptes le scenario en temps reel. Ton Viking nordique doit avoir le ton epique et sombre de la mythologie nordique.
 
-Tu peux combiner plusieurs tags. Place-les naturellement dans ton texte narratif. IMPORTANT : utilise toujours les tags pour que les effets soient appliques dans le jeu !
+REGLES RPG FONDAMENTALES :
+1. **CHAQUE ACTION NON-TRIVIALE NECESSITE UN JET DE COMPETENCE** — Tu DOIS utiliser [SKILL_CHECK:stat:difficulte] pour :
+   - Attaquer un ennemi → [SKILL_CHECK:force:moyen] ou [SKILL_CHECK:agilite:moyen]
+   - Esquiver → [SKILL_CHECK:agilite:difficulte]
+   - Crocheter une serrure → [SKILL_CHECK:agilite:difficile]
+   - Negocier avec un PNJ → [SKILL_CHECK:charisme:moyen]
+   - Detecter un piege → [SKILL_CHECK:perception:moyen]
+   - Lancer un sort runique → [SKILL_CHECK:sagesse:difficile]
+   - Resister au poison/froid → [SKILL_CHECK:endurance:moyen]
+   - Enfoncer une porte → [SKILL_CHECK:force:difficile]
+   - Decrypter des runes → [SKILL_CHECK:sagesse:moyen]
+   - Intimider quelqu'un → [SKILL_CHECK:charisme:difficile]
+   - Fouiller une zone → [SKILL_CHECK:perception:facile]
+2. Le systeme lance un d20 + bonus de stat. Le joueur peut ECHOUER ! Adapte la narration au resultat :
+   - Reussite : l'action fonctionne, le joueur progresse
+   - Echec : consequences negatives (degats, pieges, PNJ hostile, chemin bloque, perte d'objet...)
+   - Critique (d20=20) : succes spectaculaire avec bonus !
+   - Fumble (d20=1) : echec catastrophique avec malus severe !
+3. Les difficultes sont : facile(8), moyen(12), difficile(15), extreme(18). Choisis en fonction de la situation et du contexte.
+4. **NE RENDS PAS L'AVENTURE FACILE** — Un Viking sans les bonnes stats DOIT echouer regulierement. C'est un vrai RPG.
+
+NARRATION ELABOREE :
+- Decris des environnements riches et varies — chaque lieu a une atmosphere unique
+- Cree des PNJs memorables avec des motivations, des secrets, des quetes secondaires
+- Propose des dilemmes moraux (aider un ennemi blesse ? voler un marchand ? trahir un allie ?)
+- Integre du lore nordique (runes, dieux, legendes, propheties, Ragnarok)
+- Cree des evenements aleatoires (tempetes, embuscades, marchands ambulants, visions divines)
+- Les consequences des choix du joueur persistent (tuer un PNJ = il ne revient pas, reputation change)
+- Garde tes reponses entre 3 et 8 phrases — immersif mais rythme
+- Tutoie le joueur, 2e personne ("Tu vois...", "Tu entends...")
+
+TAGS D'ACTIONS — Utilise-les dans ta narration pour declencher les mecaniques :
+- [SKILL_CHECK:stat:difficulte] — OBLIGATOIRE pour toute action non-triviale. Stats: force, agilite, endurance, perception, charisme, sagesse. Difficultes: facile, moyen, difficile, extreme. Ex: [SKILL_CHECK:force:moyen]
+  IMPORTANT: apres un SKILL_CHECK, adapte ta narration au resultat (le systeme affiche reussi/echoue). Si echoue, narre les consequences negatives !
+- [MONSTER:nom:pv:atk:icone] — Fait apparaitre un monstre. Ajuste PV/ATK au niveau du joueur (niv ${adv.level}). Ex: [MONSTER:Draugr:30:8:💀]
+- [MONSTER_DAMAGE:n] — Degats du joueur sur le monstre. Base sur force/agilite du joueur. Ex: [MONSTER_DAMAGE:12]
+- [DAMAGE:n] — Degats subis par le joueur. Ex: [DAMAGE:5]
+- [COMBAT_END:victory] ou [COMBAT_END:defeat] — Fin de combat.
+- [LOOT:nom:icone] — Le joueur recoit un objet. Ex: [LOOT:Epee runique:⚔️]
+- [USE_ITEM:nom] — Consomme un objet de l'inventaire. Ex: [USE_ITEM:Potion de soin]
+- [HEAL:n] — Recupere n PV. Ex: [HEAL:10]
+- [ENERGY:n] — Gagne/perd de l'energie. Ex: [ENERGY:-2]
+- [XP:n] — Gagne n XP. Ex: [XP:15]
+- [GOLD:n] — Gagne/perd de l'or. Ex: [GOLD:5] ou [GOLD:-10]
+- [REPUTATION:n] — Gagne/perd de la reputation. Ex: [REPUTATION:5] ou [REPUTATION:-10]
+- [MOVE:zoneId] — Deplace vers une zone. Zones: campement, foret, montagne, volcan, citadelle, marais, temple, fjord, mines, village. Ex: [MOVE:montagne]
+- [QUEST:nom:cible:xp] — Nouvelle quete. Ex: [QUEST:Retrouver l'amulette:1:25]
+- [QUEST_PROGRESS:type] — Progresse une quete (kill, explore, collect, combat_survive). Ex: [QUEST_PROGRESS:kill]
+
+IMPORTANT: Combine toujours les tags ! Ex: fouiller un coffre = [SKILL_CHECK:perception:moyen] et si reussi → [LOOT:...][GOLD:10]. Combattre = [SKILL_CHECK:force:moyen] puis [MONSTER_DAMAGE:n] si reussi, sinon le monstre esquive.
 
 ETAT DU JOUEUR :
-- Zone actuelle : ${zone.icon || ''} ${zone.name || 'Inconnue'} — ${zone.desc || ''}
-- Niveau aventure : ${adv.level}
-- PV : ${adv.hp}/${adv.maxHp}
-- Energie : ${adv.energy}/${adv.maxEnergy}
-- XP : ${adv.xp}/${adv.level * 60}
+- Zone : ${zone.icon || ''} ${zone.name || 'Inconnue'} — ${zone.desc || ''}
+- Niveau : ${adv.level} | PV : ${adv.hp}/${adv.maxHp} | Energie : ${adv.energy}/${adv.maxEnergy}
+- XP : ${adv.xp}/${adv.level * 60} | Or : ${adv.gold} | Rep : ${adv.reputation}
 - Inventaire : ${inv}
-- Quetes actives : ${quests}${combatInfo}${encounterInfo}
+- Quetes : ${quests}${combatInfo}${encounterInfo}
 
-${inCombat ? `COMBAT EN COURS — Tu es le MJ du combat. Le joueur te dit ce qu'il fait (attaquer, esquiver, utiliser un objet, fuir...) et tu narres le resultat.
-- Pour les degats du joueur sur le monstre : utilise [MONSTER_DAMAGE:n] (lance un d20 mentalement, critique a 18+)
-- Pour les degats du monstre sur le joueur : utilise [DAMAGE:n] (le monstre riposte apres l'action du joueur)
-- Si le joueur utilise un objet : utilise [USE_ITEM:nom] + l'effet ([HEAL:n], [ENERGY:n], etc.)
-- Quand le monstre meurt (PV <= 0) : utilise [COMBAT_END:victory]
-- Quand le joueur meurt (PV <= 0) : utilise [COMBAT_END:defeat]
-- Decris chaque echange avec des jets de des narratifs, des descriptions epiques !
-- Le monstre attaque apres chaque action du joueur (sauf si esquive reussie ou fuite)` : ''}
-${!inCombat && zone.id === 'campement' ? 'Le joueur est au campement — lieu sur, repos possible, PNJs amicaux.' : ''}
+${inCombat ? `COMBAT EN COURS — Tu DOIS utiliser [SKILL_CHECK] pour CHAQUE action de combat :
+- Attaque du joueur : [SKILL_CHECK:force:moyen] → si reussi [MONSTER_DAMAGE:n] (base: ${4 + adv.stats.force * 2}-${6 + adv.stats.force * 3} degats), si echoue l'attaque rate
+- Esquive : [SKILL_CHECK:agilite:difficile] → si reussi le monstre rate, sinon [DAMAGE:n]
+- Magie/runes : [SKILL_CHECK:sagesse:difficile] → degats magiques [MONSTER_DAMAGE:n] si reussi, [ENERGY:-2]
+- Utiliser objet : [USE_ITEM:nom] + effet
+- Fuir : [SKILL_CHECK:agilite:moyen] → si echoue le monstre attaque
+- LE MONSTRE RIPOSTE a chaque round sauf si esquive reussie ou fuite reussie : utilise [DAMAGE:n] (ATK monstre: ${adv._combat ? adv._combat.enemy.atk : '?'})
+- Monstre mort (PV<=0) → [COMBAT_END:victory] + [XP:n] + [LOOT:...] + [GOLD:n]
+- Joueur mort (PV<=0) → [COMBAT_END:defeat]` : ''}
+${!inCombat && zone.id === 'campement' ? 'Le joueur est au campement — lieu sur, repos, marchands, forgerons, PNJs avec quetes. Propose des interactions riches !' : ''}
 
-Sois creatif et immersif ! Le joueur te dit ce qu'il fait, tu racontes ce qui se passe.`;
+Sois un MJ exigeant mais juste. Le monde est dangereux, les echecs sont frequents, mais les victoires sont epiques !`;
 }
 
 async function advSendMessage() {
@@ -6353,10 +6661,11 @@ function advParseAndExecuteTags(response) {
       while (adv.xp >= adv.level * 60) {
         adv.xp -= adv.level * 60;
         adv.level++;
-        adv.maxHp += 10;
-        adv.hp = Math.min(adv.hp + 20, adv.maxHp);
+        const hpUp = 5 + (adv.stats.endurance || 1) * 2;
+        adv.maxHp += hpUp;
+        adv.hp = Math.min(adv.hp + hpUp, adv.maxHp);
         adv.maxEnergy += 1;
-        adv.narrative.push({ type: 'loot', text: `⬆️ **NIVEAU ${adv.level} !** PV max +10, Energie max +1 !`, time: Date.now() });
+        adv.narrative.push({ type: 'loot', text: `⬆️ **NIVEAU ${adv.level} !** PV max +${hpUp}, Energie max +1 !`, time: Date.now() });
       }
       // Quest progress
       advUpdateQuestProgress('kill', enemy.name);
@@ -6428,11 +6737,12 @@ function advParseAndExecuteTags(response) {
     while (adv.xp >= adv.level * 60) {
       adv.xp -= adv.level * 60;
       adv.level++;
-      adv.maxHp += 5;
+      const hpUp2 = 5 + (adv.stats.endurance || 1) * 2;
+      adv.maxHp += hpUp2;
       adv.hp = adv.maxHp;
       adv.maxEnergy += 1;
       adv.energy = adv.maxEnergy;
-      adv.narrative.push({ type: 'loot', text: `⬆️ **NIVEAU ${adv.level} !** PV max +5, Energie max +1`, time: Date.now() });
+      adv.narrative.push({ type: 'loot', text: `⬆️ **NIVEAU ${adv.level} !** PV max +${hpUp2}, Energie max +1`, time: Date.now() });
     }
     if (typeof addQuestXp === 'function') addQuestXp(xpGain);
   }
@@ -6465,6 +6775,51 @@ function advParseAndExecuteTags(response) {
     advUpdateQuestProgress(m[1], '');
   }
   text = text.replace(/\[QUEST_PROGRESS:\w+\]/g, '');
+
+  // [SKILL_CHECK:stat:difficulty] — d20 + stat vs target, result narrated
+  const skillMatches = [...text.matchAll(/\[SKILL_CHECK:(\w+):(\w+)\]/g)];
+  for (const m of skillMatches) {
+    const result = advRollCheck(m[1], m[2]);
+    const statDef = ADV_STATS.find(s => s.id === m[1]);
+    const statName = statDef ? statDef.icon + ' ' + statDef.name : m[1];
+    let msg;
+    if (result.critical) {
+      msg = `🎲 **CRITIQUE !** Jet de ${statName} : d20 = **20** + ${result.statBonus} = ${result.total} vs ${result.target} — Succes legendaire !`;
+    } else if (result.fumble) {
+      msg = `🎲 **FUMBLE !** Jet de ${statName} : d20 = **1** + ${result.statBonus} = ${result.total} vs ${result.target} — Echec catastrophique !`;
+    } else if (result.success) {
+      msg = `🎲 Jet de ${statName} : d20 = ${result.roll} + ${result.statBonus} = ${result.total} vs ${result.target} — **Reussi !**`;
+    } else {
+      msg = `🎲 Jet de ${statName} : d20 = ${result.roll} + ${result.statBonus} = ${result.total} vs ${result.target} — **Echoue !**`;
+    }
+    adv.narrative.push({ type: result.success ? 'loot' : 'combat-hit', text: msg, time: Date.now() });
+    // Replace this specific tag with the result marker for AI context
+    text = text.replace(m[0], result.success ? '[CHECK_SUCCESS]' : '[CHECK_FAIL]');
+  }
+  // Clean remaining SKILL_CHECK tags and result markers
+  text = text.replace(/\[SKILL_CHECK:[^\]]+\]/g, '');
+  text = text.replace(/\[CHECK_SUCCESS\]/g, '');
+  text = text.replace(/\[CHECK_FAIL\]/g, '');
+
+  // [GOLD:n] — gain or lose gold
+  const goldMatches = [...text.matchAll(/\[GOLD:(-?\d+)\]/g)];
+  for (const m of goldMatches) {
+    const amt = parseInt(m[1]);
+    adv.gold = Math.max(0, (adv.gold || 0) + amt);
+    if (amt > 0) adv.narrative.push({ type: 'loot', text: `💰 +${amt} or ! (Total: ${adv.gold})`, time: Date.now() });
+    else adv.narrative.push({ type: 'combat-hit', text: `💰 ${amt} or. (Total: ${adv.gold})`, time: Date.now() });
+  }
+  text = text.replace(/\[GOLD:-?\d+\]/g, '');
+
+  // [REPUTATION:n] — gain or lose reputation
+  const repMatches = [...text.matchAll(/\[REPUTATION:(-?\d+)\]/g)];
+  for (const m of repMatches) {
+    const amt = parseInt(m[1]);
+    adv.reputation = Math.max(-100, Math.min(100, (adv.reputation || 0) + amt));
+    if (amt > 0) adv.narrative.push({ type: 'loot', text: `⭐ Reputation +${amt} (${adv.reputation})`, time: Date.now() });
+    else adv.narrative.push({ type: 'combat-hit', text: `⭐ Reputation ${amt} (${adv.reputation})`, time: Date.now() });
+  }
+  text = text.replace(/\[REPUTATION:-?\d+\]/g, '');
 
   // Check defeat (safety net if AI forgot COMBAT_END)
   if (adv.hp <= 0 && !combatEndMatch) {
