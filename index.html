@@ -2658,6 +2658,7 @@ function renderQuestList(period) {
             <span class="quest-item-icon">${o.icon}</span>
             <span class="quest-item-name">${o.name}</span>
             <span class="quest-item-xp">${isDouble ? '⚡x2' : isComplete ? '&#10003;' : ''} +${o.xpReward} XP</span>
+            ${o.custom ? `<button onclick="deleteCustomQuest('${o.id}')" style="background:none;border:none;color:#c0392b;font-size:.8rem;cursor:pointer;padding:2px 4px;margin-left:4px" title="Supprimer">✕</button>` : ''}
           </div>
           <div class="quest-item-progress">
             <div class="quest-progress-bar"><div class="quest-progress-fill ${fillClass}" style="width:${pct}%"></div></div>
@@ -2724,6 +2725,16 @@ function addCustomQuest(period) {
   saveState();
   renderQuests();
   showToast('Objectif ajoute', `${icon} ${name} — ${target} ${unit} par ${period === 'daily' ? 'jour' : 'semaine'}`);
+}
+
+function deleteCustomQuest(id) {
+  const obj = state.quests.objectives.find(o => o.id === id);
+  if (!obj || !obj.custom) return;
+  if (!confirm(`Supprimer "${obj.icon} ${obj.name}" ?`)) return;
+  state.quests.objectives = state.quests.objectives.filter(o => o.id !== id);
+  saveState();
+  renderQuests();
+  showToast('Objectif supprime', `${obj.icon} ${obj.name}`);
 }
 
 function logQuestProgress(id) {
