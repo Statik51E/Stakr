@@ -39,12 +39,13 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 #settings-btn:hover,#project-btn:hover{color:var(--gold)}
 
 /* ===== MODE BAR ===== */
-#mode-bar{display:flex;gap:0;background:var(--wood-dark);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
-#mode-bar::-webkit-scrollbar{display:none}
-.mode-btn{flex:1;min-width:0;padding:7px 4px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-size:.68rem;cursor:pointer;transition:all .2s;text-align:center;white-space:nowrap}
-.mode-btn.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(196,154,60,.05)}
-.mode-btn:hover{color:var(--gold-bright)}
-.mode-btn .mode-icon{display:block;font-size:.95rem;margin-bottom:1px}
+#mode-bar{display:flex;gap:0;background:var(--wood-dark);border-bottom:1px solid var(--border);align-items:stretch}
+#mode-dropdown-wrap{flex:1;display:flex;align-items:center;padding:0 8px;border-right:1px solid var(--border)}
+#mode-select{width:100%;background:var(--wood-mid);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--gold);font-size:.78rem;font-family:'Cinzel',serif;cursor:pointer;outline:none;appearance:auto;-webkit-appearance:auto}
+#mode-select option{background:var(--wood-dark);color:var(--text)}
+.mode-quick-btn{flex:0 0 auto;padding:8px 14px;background:none;border:none;border-left:1px solid var(--border);color:var(--text-dim);font-size:.72rem;font-family:'Cinzel',serif;cursor:pointer;transition:all .2s;white-space:nowrap;font-weight:600}
+.mode-quick-btn:hover{color:var(--gold-bright);background:rgba(196,154,60,.08)}
+.mode-quick-btn.active{color:var(--gold);background:rgba(196,154,60,.12);border-bottom:2px solid var(--gold)}
 
 /* ===== RAVEN CONTAINER ===== */
 #raven-stage{position:relative;height:280px;min-height:200px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% 80%,#1a0e05 0%,#0e0a06 40%,var(--bg) 70%)}
@@ -438,8 +439,8 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 @media(max-width:480px){
   #raven-stage{height:230px}
   .msg{max-width:92%;font-size:.83rem}
-  .mode-btn{font-size:.63rem;padding:5px 2px}
-  .mode-btn .mode-icon{font-size:.85rem}
+  .mode-quick-btn{font-size:.65rem;padding:6px 10px}
+  #mode-select{font-size:.7rem;padding:5px 8px}
 }
 </style>
 </head>
@@ -461,12 +462,17 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 
   <!-- MODE BAR -->
   <div id="mode-bar">
-    <button class="mode-btn active" data-mode="conversation"><span class="mode-icon">&#9781;</span>Chat</button>
-    <button class="mode-btn" data-mode="recherche"><span class="mode-icon">&#128269;</span>Recherche</button>
-    <button class="mode-btn" data-mode="creation"><span class="mode-icon">&#9998;</span>Cr&#233;ation</button>
-    <button class="mode-btn" data-mode="design"><span class="mode-icon">&#9670;</span>Design</button>
-    <button class="mode-btn" data-mode="code"><span class="mode-icon">&lt;/&gt;</span>Code</button>
-    <button class="mode-btn" data-mode="aventure"><span class="mode-icon">&#128506;</span>Aventure</button>
+    <div id="mode-dropdown-wrap">
+      <select id="mode-select">
+        <option value="conversation">&#9781; Chat</option>
+        <option value="recherche">&#128269; Recherche</option>
+        <option value="creation">&#9998; Cr&#233;ation</option>
+        <option value="design">&#9670; Design</option>
+        <option value="code">&lt;/&gt; Code</option>
+      </select>
+    </div>
+    <button class="mode-quick-btn" id="quest-quick-btn" onclick="toggleQuestPanel()">&#9876; Qu&#234;tes</button>
+    <button class="mode-quick-btn" id="adv-quick-btn" onclick="switchToAdventure()">&#128506; Aventure</button>
   </div>
 
   <!-- RAVEN STAGE -->
@@ -1471,24 +1477,47 @@ function clearImagePreview() {
 
 // ===== MODES =====
 function setupModes() {
-  // Set active mode from state
-  document.querySelectorAll('.mode-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.mode === state.currentMode);
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const prevMode = state.currentMode;
-      state.currentMode = btn.dataset.mode;
-      saveState();
-      // Toggle adventure mode panel
-      if (btn.dataset.mode === 'aventure') {
-        toggleAdventureMode(true);
-      } else if (prevMode === 'aventure') {
-        toggleAdventureMode(false);
-      }
-      showToast('Mode ' + (MODES[state.currentMode]?.label || ''), 'Stakr adapte ses reponses.');
-    });
+  const select = document.getElementById('mode-select');
+  const advBtn = document.getElementById('adv-quick-btn');
+
+  // Restore saved mode
+  if (state.currentMode === 'aventure') {
+    advBtn.classList.add('active');
+  } else {
+    select.value = state.currentMode || 'conversation';
+  }
+
+  // Dropdown change = switch AI chat mode
+  select.addEventListener('change', () => {
+    const prevMode = state.currentMode;
+    state.currentMode = select.value;
+    saveState();
+    advBtn.classList.remove('active');
+    if (prevMode === 'aventure') toggleAdventureMode(false);
+    showToast('Mode ' + (MODES[state.currentMode]?.label || ''), 'Stakr adapte ses reponses.');
   });
+}
+
+function switchToAdventure() {
+  const select = document.getElementById('mode-select');
+  const advBtn = document.getElementById('adv-quick-btn');
+  const prevMode = state.currentMode;
+
+  if (state.currentMode === 'aventure') {
+    // Already in adventure, go back to chat
+    state.currentMode = 'conversation';
+    select.value = 'conversation';
+    advBtn.classList.remove('active');
+    toggleAdventureMode(false);
+    saveState();
+    showToast('Mode Chat', 'Stakr adapte ses reponses.');
+  } else {
+    state.currentMode = 'aventure';
+    advBtn.classList.add('active');
+    toggleAdventureMode(true);
+    saveState();
+    showToast('Mode Aventure', 'Stakr devient Maitre du Jeu !');
+  }
 }
 
 // ===== PROJECTS =====
