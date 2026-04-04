@@ -159,13 +159,9 @@ header button{flex-shrink:0}
 .cust-row input[type="range"]{flex:1;accent-color:var(--gold);height:4px}
 .cust-row select{flex:1;background:var(--wood-mid);border:1px solid var(--border);border-radius:4px;padding:4px 8px;color:var(--text);font-size:.75rem;cursor:pointer}
 .cust-preview{width:100%;height:60px;border-radius:4px;border:1px solid var(--border);margin-top:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% 80%,#1a0e05,#0e0a06)}
-.cust-presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.cust-preset{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);cursor:pointer;transition:all .2s;position:relative}
-.cust-preset:hover,.cust-preset.active{border-color:var(--gold);transform:scale(1.15)}
 .companion-card{display:flex;flex-direction:column;align-items:center;padding:10px 14px;border:2px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);cursor:pointer;font-family:'Cinzel',serif;min-width:80px;transition:all .2s}
 .companion-card:hover{border-color:var(--gold-dim);background:rgba(196,154,60,.08)}
 .companion-card.active{border-color:var(--gold);background:rgba(196,154,60,.15);box-shadow:0 0 12px rgba(196,154,60,.3)}
-.cust-preset::after{content:'';position:absolute;inset:3px;border-radius:50%}
 .btn-gold{background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:4px;padding:8px 16px;color:#0e0a06;cursor:pointer;font-size:.85rem;font-weight:600;margin-top:8px;transition:transform .15s}
 .btn-gold:active{transform:scale(.95)}
 
@@ -682,118 +678,8 @@ header button{flex-shrink:0}
 <!-- CUSTOMIZE PANEL -->
 <div id="customize-panel">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-    <h2 style="margin:0">&#9998; Personnaliser Stakr</h2>
+    <h2 style="margin:0">&#9998; Personnaliser</h2>
     <button class="btn-secondary" onclick="toggleCustomize()" style="margin:0;padding:6px 14px">&#10003; OK</button>
-  </div>
-
-  <!-- PRESETS -->
-  <div class="cust-section">
-    <h3>Presets</h3>
-    <div class="cust-presets" id="preset-list"></div>
-  </div>
-
-  <!-- FORMES -->
-  <div class="cust-section">
-    <h3>&#9670; Formes</h3>
-    <div class="cust-row"><label>Corps</label>
-      <select id="cust-shape-body"><option value="classique">Classique</option><option value="musculeux">Musculeux</option><option value="svelte">Svelte</option><option value="massif">Massif</option><option value="rond">Rond</option></select>
-    </div>
-    <div class="cust-row"><label>Tete</label>
-      <select id="cust-shape-head"><option value="classique">Classique</option><option value="anguleux">Anguleux</option><option value="arrondi">Arrondi</option><option value="pointu">Pointu</option><option value="aplati">Aplati</option></select>
-    </div>
-    <div class="cust-row"><label>Bec</label>
-      <select id="cust-shape-beak"><option value="classique">Classique</option><option value="long">Long</option><option value="court">Court</option><option value="crochu">Crochu</option><option value="droit">Droit</option></select>
-    </div>
-    <div class="cust-row"><label>Ailes</label>
-      <select id="cust-shape-wings"><option value="classique">Classique</option><option value="deployees">Deployees</option><option value="repliees">Repliees</option><option value="angulaires">Angulaires</option><option value="larges">Larges</option></select>
-    </div>
-    <div class="cust-row"><label>Queue</label>
-      <select id="cust-shape-tail"><option value="classique">Classique</option><option value="eventail">Eventail</option><option value="court">Courte</option><option value="fourchu">Fourchue</option><option value="plumes_longues">Longues plumes</option></select>
-    </div>
-    <div class="cust-row"><label>Yeux</label>
-      <select id="cust-shape-eye"><option value="classique">Classique</option><option value="grand">Grands</option><option value="fente">En fente</option><option value="menacant">Menacants</option><option value="petit">Petits</option></select>
-    </div>
-    <div class="cust-row"><label>Cornes</label>
-      <select id="cust-shape-horn"><option value="classique">Classique</option><option value="longs">Longues</option><option value="courbes">Courbees</option><option value="spirales">Spirales</option><option value="courts">Courtes</option><option value="tridents">Tridents</option></select>
-    </div>
-  </div>
-
-  <!-- PLUMAGE / BODY -->
-  <div class="cust-section">
-    <h3>Plumage / Corps</h3>
-    <div class="cust-row"><label>Base</label><input type="color" id="cust-body-base" value="#1e1840"/></div>
-    <div class="cust-row"><label>Reflets</label><input type="color" id="cust-body-sheen" value="#302858"/></div>
-    <div class="cust-row"><label>Poitrine</label><input type="color" id="cust-chest" value="#14102c"/></div>
-    <div class="cust-row"><label>Iridescence</label>
-      <select id="cust-iridescence">
-        <option value="purple">Violet-bleu</option>
-        <option value="green">Vert-emeraude</option>
-        <option value="red">Rouge-braise</option>
-        <option value="gold">Or ancien</option>
-        <option value="ice">Glace nordique</option>
-        <option value="none">Aucune</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- AILES -->
-  <div class="cust-section">
-    <h3>Ailes</h3>
-    <div class="cust-row"><label>Couleur</label><input type="color" id="cust-wing" value="#121028"/></div>
-    <div class="cust-row"><label>Pointes</label><input type="color" id="cust-wing-tip" value="#06050c"/></div>
-  </div>
-
-  <!-- QUEUE -->
-  <div class="cust-section">
-    <h3>Queue</h3>
-    <div class="cust-row"><label>Couleur</label><input type="color" id="cust-tail" value="#161232"/></div>
-  </div>
-
-  <!-- BEC -->
-  <div class="cust-section">
-    <h3>Bec</h3>
-    <div class="cust-row"><label>Couleur</label><input type="color" id="cust-beak" value="#454558"/></div>
-    <div class="cust-row"><label>Pointe</label><input type="color" id="cust-beak-tip" value="#1c1c2c"/></div>
-  </div>
-
-  <!-- YEUX -->
-  <div class="cust-section">
-    <h3>Yeux</h3>
-    <div class="cust-row"><label>Couleur</label><input type="color" id="cust-eye" value="#4fc3f7"/></div>
-    <div class="cust-row"><label>Centre</label><input type="color" id="cust-eye-center" value="#e0f7fa"/></div>
-    <div class="cust-row"><label>Intensite</label><input type="range" id="cust-eye-glow" min="0" max="100" value="60"/></div>
-  </div>
-
-  <!-- RUNES -->
-  <div class="cust-section">
-    <h3>Runes</h3>
-    <div class="cust-row"><label>Couleur</label><input type="color" id="cust-rune" value="#4fc3f7"/></div>
-    <div class="cust-row"><label>Intensite</label><input type="range" id="cust-rune-glow" min="0" max="100" value="70"/></div>
-    <div class="cust-row"><label>Vitesse</label>
-      <select id="cust-rune-speed">
-        <option value="slow">Lente</option>
-        <option value="normal" selected>Normale</option>
-        <option value="fast">Rapide</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- CORNES -->
-  <div class="cust-section">
-    <h3>Cornes spectrales</h3>
-    <div class="cust-row"><label>Couleur</label><input type="color" id="cust-horn" value="#4fc3f7"/></div>
-    <div class="cust-row"><label>Visible</label>
-      <select id="cust-horn-visible">
-        <option value="yes">Oui</option>
-        <option value="no">Non</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- TAILLE -->
-  <div class="cust-section">
-    <h3>Taille du corbeau</h3>
-    <div class="cust-row"><label>Echelle</label><input type="range" id="cust-scale" min="60" max="140" value="100"/><span id="cust-scale-val" style="font-size:.7rem;color:var(--text-dim);min-width:30px">100%</span></div>
   </div>
 
   <!-- MESSAGES STAKR -->
@@ -2055,7 +1941,6 @@ function importFullBackup(event) {
       setupCustomize();
       const importedAppearance = getAppearance();
       if (importedAppearance) {
-        applyAppearanceToSVG(importedAppearance);
         applyMessageStyles(importedAppearance);
       }
       initQuests();
@@ -2418,344 +2303,23 @@ function autoDetectProject(text) {
 
 // ===== APPEARANCE CUSTOMIZATION =====
 const DEFAULT_APPEARANCE = {
-  bodyBase:'#1e1840', bodySheen:'#302858', chest:'#14102c',
-  iridescence:'purple',
-  wing:'#121028', wingTip:'#06050c',
-  tail:'#161232',
-  beak:'#454558', beakTip:'#1c1c2c',
-  eye:'#4fc3f7', eyeCenter:'#e0f7fa', eyeGlow:60,
-  rune:'#4fc3f7', runeGlow:70, runeSpeed:'normal',
-  horn:'#4fc3f7', hornVisible:'yes',
-  scale:100,
-  shapeBody:'classique', shapeHead:'classique', shapeBeak:'classique',
-  shapeWings:'classique', shapeTail:'classique', shapeEye:'classique', shapeHorn:'classique',
   msgStakrBg:'#1a1208', msgStakrBorder:'#8a6d2a', msgStakrText:'#d4c5a0',
   msgUserBg:'#14142e', msgUserBorder:'#4fc3f7', msgUserText:'#d4c5a0',
   chatBgImage:'', chatBgOpacity:30,
   stageBg:'#0e0a06', stageBgImage:'', stageBgOpacity:40
 };
 
-const APPEARANCE_PRESETS = [
-  { name:'Classique', colors:{ ...DEFAULT_APPEARANCE }, swatch:'#4fc3f7' },
-  { name:'Sang de Dragon', colors:{ bodyBase:'#2a0a0a', bodySheen:'#4a1515', chest:'#1a0808', iridescence:'red', wing:'#1e0808', wingTip:'#0a0303', tail:'#1a0505', beak:'#3a2020', beakTip:'#1a0e0e', eye:'#ff5252', eyeCenter:'#ffcdd2', eyeGlow:80, rune:'#ff5252', runeGlow:80, runeSpeed:'fast', horn:'#ff5252', hornVisible:'yes', scale:100 }, swatch:'#ff5252' },
-  { name:'Givre d\'Helheim', colors:{ bodyBase:'#0a1a2a', bodySheen:'#1a3050', chest:'#081420', iridescence:'ice', wing:'#081828', wingTip:'#040c14', tail:'#0a1828', beak:'#3a4a5a', beakTip:'#1c2a3a', eye:'#80deea', eyeCenter:'#e0f7fa', eyeGlow:90, rune:'#80deea', runeGlow:85, runeSpeed:'slow', horn:'#80deea', hornVisible:'yes', scale:100 }, swatch:'#80deea' },
-  { name:'Or d\'Asgard', colors:{ bodyBase:'#1a1508', bodySheen:'#3a2a10', chest:'#141008', iridescence:'gold', wing:'#1a1408', wingTip:'#0a0a04', tail:'#181208', beak:'#5a4a20', beakTip:'#2a2010', eye:'#ffd54f', eyeCenter:'#fff9c4', eyeGlow:75, rune:'#daa520', runeGlow:70, runeSpeed:'normal', horn:'#daa520', hornVisible:'yes', scale:100 }, swatch:'#daa520' },
-  { name:'Ombre de Nidhogg', colors:{ bodyBase:'#0a0a0a', bodySheen:'#1a1a1a', chest:'#080808', iridescence:'none', wing:'#0a0a0a', wingTip:'#030303', tail:'#080808', beak:'#2a2a2a', beakTip:'#111111', eye:'#69f0ae', eyeCenter:'#b9f6ca', eyeGlow:100, rune:'#69f0ae', runeGlow:90, runeSpeed:'fast', horn:'#69f0ae', hornVisible:'no', scale:105 }, swatch:'#69f0ae' },
-  { name:'Esprit d\'Odin', colors:{ bodyBase:'#1a1030', bodySheen:'#3a2060', chest:'#120a20', iridescence:'purple', wing:'#160c28', wingTip:'#08040c', tail:'#1a1030', beak:'#4a3a5a', beakTip:'#2a1c3a', eye:'#ce93d8', eyeCenter:'#f3e5f5', eyeGlow:70, rune:'#ce93d8', runeGlow:75, runeSpeed:'slow', horn:'#ce93d8', hornVisible:'yes', scale:100 }, swatch:'#ce93d8' },
-  { name:'Feu de Muspelheim', colors:{ bodyBase:'#1a0e00', bodySheen:'#3a2000', chest:'#140a00', iridescence:'red', wing:'#1a0c00', wingTip:'#0a0500', tail:'#180c00', beak:'#5a3a10', beakTip:'#2a1a08', eye:'#ff9800', eyeCenter:'#fff3e0', eyeGlow:85, rune:'#ff6f00', runeGlow:90, runeSpeed:'fast', horn:'#ff6f00', hornVisible:'yes', scale:100 }, swatch:'#ff6f00' }
-];
 
-const IRIDESCENCE_MAP = {
-  purple: { c1:'#9c27b0', c2:'#7c4dff', c3:'#00bcd4', c4:'#4fc3f7' },
-  green:  { c1:'#1b5e20', c2:'#4caf50', c3:'#00bcd4', c4:'#26a69a' },
-  red:    { c1:'#b71c1c', c2:'#e53935', c3:'#ff8a65', c4:'#ffab91' },
-  gold:   { c1:'#5d4037', c2:'#8d6e63', c3:'#daa520', c4:'#ffd54f' },
-  ice:    { c1:'#0d47a1', c2:'#42a5f5', c3:'#80deea', c4:'#e0f7fa' },
-  none:   { c1:'transparent', c2:'transparent', c3:'transparent', c4:'transparent' }
-};
-
-// ===== SHAPE VARIANTS =====
-const SHAPE_VARIANTS = {
-  body: {
-    classique: {
-      'body-shape': 'M62,118 Q58,85 84,74 Q105,67 128,74 Q154,85 152,118 Q152,148 134,162 Q118,170 105,170 Q90,170 78,162 Q62,148 62,118Z',
-      'body-sheen': 'M72,100 Q108,86 142,100 Q148,122 138,146 Q108,156 76,146 Q66,122 72,100Z'
-    },
-    musculeux: {
-      'body-shape': 'M48,118 Q42,72 82,60 Q105,50 130,60 Q168,72 164,118 Q164,158 140,172 Q118,184 105,184 Q90,184 72,172 Q48,158 48,118Z',
-      'body-sheen': 'M60,92 Q108,72 152,92 Q162,122 148,156 Q108,170 64,156 Q52,122 60,92Z'
-    },
-    svelte: {
-      'body-shape': 'M76,118 Q74,90 92,82 Q105,78 120,82 Q140,90 138,118 Q138,144 126,154 Q118,162 105,162 Q92,162 86,154 Q76,144 76,118Z',
-      'body-sheen': 'M82,102 Q108,94 130,102 Q134,120 128,140 Q108,148 84,140 Q78,120 82,102Z'
-    },
-    massif: {
-      'body-shape': 'M42,122 Q34,68 78,54 Q105,42 134,54 Q178,68 172,122 Q172,166 146,180 Q118,192 105,192 Q90,192 66,180 Q42,166 42,122Z',
-      'body-sheen': 'M56,88 Q108,66 158,88 Q168,126 152,162 Q108,178 62,162 Q48,126 56,88Z'
-    },
-    rond: {
-      'body-shape': 'M46,126 Q40,78 78,66 Q105,56 134,66 Q172,78 168,126 Q168,162 142,176 Q118,188 105,188 Q90,188 70,176 Q46,162 46,126Z',
-      'body-sheen': 'M58,96 Q108,76 154,96 Q164,130 150,160 Q108,174 62,160 Q50,130 58,96Z'
-    }
-  },
-  head: {
-    classique: {
-      'head-shape': 'M78,70 Q76,44 108,38 Q140,44 138,70 Q138,88 108,92 Q78,88 78,70Z',
-      'head-sheen': 'M84,55 Q108,45 128,55 Q132,70 122,80 Q108,84 94,80 Q84,70 84,55Z'
-    },
-    anguleux: {
-      'head-shape': 'M70,70 Q68,36 108,26 Q148,36 146,70 Q146,88 108,94 Q70,88 70,70Z',
-      'head-sheen': 'M78,50 Q108,36 136,50 Q142,68 130,82 Q108,88 86,82 Q74,68 78,50Z'
-    },
-    arrondi: {
-      'head-shape': 'M68,74 Q64,40 108,32 Q152,40 148,74 Q148,96 108,102 Q68,96 68,74Z',
-      'head-sheen': 'M76,54 Q108,40 138,54 Q144,74 132,90 Q108,96 84,90 Q72,74 76,54Z'
-    },
-    pointu: {
-      'head-shape': 'M84,70 Q84,30 108,20 Q132,30 132,70 Q132,86 108,90 Q84,86 84,70Z',
-      'head-sheen': 'M90,50 Q108,34 122,50 Q126,66 118,78 Q108,82 98,78 Q90,66 90,50Z'
-    },
-    aplati: {
-      'head-shape': 'M68,76 Q68,54 108,48 Q148,54 148,76 Q148,90 108,94 Q68,90 68,76Z',
-      'head-sheen': 'M76,62 Q108,52 138,62 Q142,74 130,84 Q108,88 86,84 Q74,74 76,62Z'
-    }
-  },
-  beak: {
-    classique: {
-      'beak-upper': 'M136,64 Q150,56 168,52 Q174,58 168,62 Q158,64 136,68Z',
-      'beak-ridge': 'M138,64 Q150,57 164,53 Q166,56 164,58 Q154,60 138,66Z',
-      'beak-lower': 'M136,68 Q150,68 162,64 Q165,66 160,68 Q150,72 136,72Z',
-      'beak-hook': 'M168,52 Q174,56 170,62'
-    },
-    long: {
-      'beak-upper': 'M136,62 Q158,48 196,40 Q204,48 196,56 Q176,62 136,68Z',
-      'beak-ridge': 'M138,62 Q158,49 192,42 Q194,46 192,50 Q174,58 138,66Z',
-      'beak-lower': 'M136,68 Q162,68 188,58 Q192,60 186,64 Q164,74 136,74Z',
-      'beak-hook': 'M196,40 Q204,46 198,56'
-    },
-    court: {
-      'beak-upper': 'M136,64 Q142,60 150,58 Q154,62 150,66 Q144,66 136,68Z',
-      'beak-ridge': 'M138,64 Q142,61 148,59 Q150,61 148,63 Q144,64 138,66Z',
-      'beak-lower': 'M136,68 Q142,68 148,66 Q150,67 148,68 Q144,72 136,72Z',
-      'beak-hook': 'M150,58 Q154,61 152,66'
-    },
-    crochu: {
-      'beak-upper': 'M136,62 Q152,48 172,40 Q184,44 180,54 Q174,64 136,68Z',
-      'beak-ridge': 'M138,62 Q152,49 168,42 Q176,46 174,52 Q166,60 138,66Z',
-      'beak-lower': 'M136,68 Q154,68 168,60 Q174,62 168,68 Q154,76 136,74Z',
-      'beak-hook': 'M172,40 Q184,42 182,52 Q180,60 174,66'
-    },
-    droit: {
-      'beak-upper': 'M136,60 Q154,56 178,54 Q182,58 178,62 Q160,64 136,66Z',
-      'beak-ridge': 'M138,60 Q154,57 174,55 Q176,57 174,59 Q160,60 138,64Z',
-      'beak-lower': 'M136,66 Q154,66 174,62 Q176,63 172,64 Q158,68 136,68Z',
-      'beak-hook': 'M178,54 Q182,56 180,62'
-    }
-  },
-  wings: {
-    classique: {
-      'wing-left-shape': 'M68,102 Q52,82 30,86 Q14,96 10,122 Q14,142 30,150 Q48,154 60,146 Q66,138 68,155Z',
-      'wing-right-shape': 'M148,102 Q164,82 186,86 Q202,96 206,122 Q202,142 186,150 Q168,154 156,146 Q150,138 148,155Z'
-    },
-    deployees: {
-      'wing-left-shape': 'M68,100 Q38,58 -2,52 Q-20,68 -24,110 Q-18,150 6,166 Q36,178 60,160 Q66,148 68,155Z',
-      'wing-right-shape': 'M148,100 Q178,58 218,52 Q236,68 240,110 Q234,150 210,166 Q180,178 156,160 Q150,148 148,155Z'
-    },
-    repliees: {
-      'wing-left-shape': 'M68,104 Q62,94 52,98 Q40,106 38,126 Q40,140 48,146 Q56,150 64,144 Q66,138 68,155Z',
-      'wing-right-shape': 'M148,104 Q154,94 164,98 Q176,106 178,126 Q176,140 168,146 Q160,150 152,144 Q150,138 148,155Z'
-    },
-    angulaires: {
-      'wing-left-shape': 'M68,100 Q36,60 8,72 Q-12,88 -16,122 Q-10,158 16,170 Q42,174 60,156 Q66,142 68,155Z',
-      'wing-right-shape': 'M148,100 Q180,60 208,72 Q228,88 232,122 Q226,158 200,170 Q174,174 156,156 Q150,142 148,155Z'
-    },
-    larges: {
-      'wing-left-shape': 'M68,100 Q40,66 4,68 Q-18,84 -22,122 Q-16,160 10,174 Q42,180 62,158 Q66,142 68,155Z',
-      'wing-right-shape': 'M148,100 Q176,66 212,68 Q234,84 238,122 Q232,160 206,174 Q174,180 154,158 Q150,142 148,155Z'
-    }
-  },
-  tail: {
-    classique: {
-      'tail-1': 'M88,165 Q76,185 60,208 Q66,198 72,188 Q78,178 84,170Z',
-      'tail-2': 'M96,167 Q88,190 78,216 Q84,204 90,192 Q94,182 98,172Z',
-      'tail-3': 'M106,168 Q104,194 100,222 Q104,208 108,194 Q110,184 110,174Z',
-      'tail-4': 'M116,168 Q120,194 126,222 Q122,208 118,194 Q116,184 114,174Z',
-      'tail-5': 'M126,167 Q134,190 144,216 Q138,204 132,192 Q128,182 124,172Z',
-      'tail-6': 'M134,165 Q146,185 162,208 Q156,198 150,188 Q144,178 138,170Z'
-    },
-    eventail: {
-      'tail-1': 'M80,165 Q52,178 20,200 Q34,192 50,184 Q66,176 76,168Z',
-      'tail-2': 'M90,167 Q70,186 44,220 Q56,206 68,194 Q80,182 88,172Z',
-      'tail-3': 'M104,168 Q98,200 90,240 Q98,222 106,202 Q108,186 108,174Z',
-      'tail-4': 'M118,168 Q124,200 132,240 Q124,222 118,202 Q116,186 116,174Z',
-      'tail-5': 'M132,167 Q152,186 178,220 Q166,206 154,194 Q142,182 134,172Z',
-      'tail-6': 'M142,165 Q170,178 202,200 Q188,192 172,184 Q156,176 146,168Z'
-    },
-    court: {
-      'tail-1': 'M92,165 Q86,174 80,186 Q84,180 88,176 Q90,172 92,170Z',
-      'tail-2': 'M100,167 Q96,176 92,188 Q96,184 100,178 Q100,174 102,172Z',
-      'tail-3': 'M108,168 Q106,178 104,190 Q106,184 108,178 Q110,174 110,174Z',
-      'tail-4': 'M114,168 Q116,178 118,190 Q116,184 116,178 Q116,174 114,174Z',
-      'tail-5': 'M122,167 Q126,176 130,188 Q126,184 122,178 Q122,174 120,172Z',
-      'tail-6': 'M130,165 Q136,174 142,186 Q138,180 134,176 Q132,172 130,170Z'
-    },
-    fourchu: {
-      'tail-1': 'M82,165 Q58,182 28,224 Q44,206 60,190 Q74,178 82,170Z',
-      'tail-2': 'M92,167 Q76,184 56,214 Q68,202 80,192 Q88,182 94,172Z',
-      'tail-3': 'M106,168 Q106,178 106,186 Q108,182 110,178 Q110,176 110,174Z',
-      'tail-4': 'M116,168 Q116,178 116,186 Q116,182 114,178 Q114,176 114,174Z',
-      'tail-5': 'M130,167 Q146,184 166,214 Q154,202 142,192 Q134,182 128,172Z',
-      'tail-6': 'M140,165 Q164,182 194,224 Q178,206 162,190 Q148,178 140,170Z'
-    },
-    plumes_longues: {
-      'tail-1': 'M86,165 Q62,194 30,236 Q42,218 56,200 Q72,182 84,170Z',
-      'tail-2': 'M96,167 Q76,202 50,248 Q64,228 78,208 Q90,188 98,172Z',
-      'tail-3': 'M106,168 Q100,210 88,260 Q98,238 108,212 Q110,190 110,174Z',
-      'tail-4': 'M116,168 Q122,210 134,260 Q124,238 118,212 Q116,190 114,174Z',
-      'tail-5': 'M126,167 Q146,202 172,248 Q158,228 144,208 Q132,188 124,172Z',
-      'tail-6': 'M136,165 Q160,194 192,236 Q180,218 166,200 Q150,182 138,170Z'
-    }
-  },
-  eye: {
-    classique: {
-      'eye-socket': { cx:126, cy:64, rx:11, ry:10 },
-      'eye-orbital': { cx:126, cy:63, rx:9, ry:8 },
-      'eye-iris-glow': { cx:126, cy:62.5, r:6 },
-      'eye-iris-main': { cx:126, cy:62.5, r:6 },
-      'eye-pupil': { cx:127, cy:62, r:3 },
-      'eye-lid': 'M118,58 Q126,54 134,58'
-    },
-    grand: {
-      'eye-socket': { cx:126, cy:64, rx:18, ry:16 },
-      'eye-orbital': { cx:126, cy:63, rx:15, ry:14 },
-      'eye-iris-glow': { cx:126, cy:62, r:11 },
-      'eye-iris-main': { cx:126, cy:62, r:11 },
-      'eye-pupil': { cx:127, cy:61.5, r:5.5 },
-      'eye-lid': 'M112,55 Q126,48 140,55'
-    },
-    fente: {
-      'eye-socket': { cx:126, cy:64, rx:16, ry:5 },
-      'eye-orbital': { cx:126, cy:63.5, rx:14, ry:3.5 },
-      'eye-iris-glow': { cx:126, cy:63, r:4 },
-      'eye-iris-main': { cx:126, cy:63, r:4 },
-      'eye-pupil': { cx:127, cy:62.5, r:2 },
-      'eye-lid': 'M112,60 Q126,58 140,60'
-    },
-    menacant: {
-      'eye-socket': { cx:126, cy:66, rx:14, ry:7 },
-      'eye-orbital': { cx:126, cy:66, rx:12, ry:5.5 },
-      'eye-iris-glow': { cx:126, cy:65.5, r:5 },
-      'eye-iris-main': { cx:126, cy:65.5, r:5 },
-      'eye-pupil': { cx:127, cy:65, r:2.5 },
-      'eye-lid': 'M114,62 Q126,60 138,62'
-    },
-    petit: {
-      'eye-socket': { cx:126, cy:64, rx:6, ry:5 },
-      'eye-orbital': { cx:126, cy:63.5, rx:4.5, ry:3.5 },
-      'eye-iris-glow': { cx:126, cy:63, r:3 },
-      'eye-iris-main': { cx:126, cy:63, r:3 },
-      'eye-pupil': { cx:126.5, cy:62.5, r:1.5 },
-      'eye-lid': 'M122,61 Q126,59 130,61'
-    }
-  },
-  horn: {
-    classique: {
-      'horn-left-main': 'M84,48 Q70,28 76,12',
-      'horn-left-glow': 'M84,48 Q72,32 78,16',
-      'horn-left-tip': { cx:76, cy:12 },
-      'horn-right-main': 'M132,48 Q146,28 140,12',
-      'horn-right-glow': 'M132,48 Q144,32 138,16',
-      'horn-right-tip': { cx:140, cy:12 },
-      'horn-rune-left': 'M78,30 L82,26 L78,22',
-      'horn-rune-right': 'M138,30 L134,26 L138,22'
-    },
-    longs: {
-      'horn-left-main': 'M84,48 Q56,10 66,-16',
-      'horn-left-glow': 'M84,48 Q58,14 68,-12',
-      'horn-left-tip': { cx:66, cy:-16 },
-      'horn-right-main': 'M132,48 Q160,10 150,-16',
-      'horn-right-glow': 'M132,48 Q158,14 148,-12',
-      'horn-right-tip': { cx:150, cy:-16 },
-      'horn-rune-left': 'M68,18 L74,10 L68,2',
-      'horn-rune-right': 'M148,18 L142,10 L148,2'
-    },
-    courbes: {
-      'horn-left-main': 'M84,48 Q50,26 36,8 Q28,-4 40,-10',
-      'horn-left-glow': 'M84,48 Q52,28 38,12 Q32,0 42,-6',
-      'horn-left-tip': { cx:40, cy:-10 },
-      'horn-right-main': 'M132,48 Q166,26 180,8 Q188,-4 176,-10',
-      'horn-right-glow': 'M132,48 Q164,28 178,12 Q184,0 174,-6',
-      'horn-right-tip': { cx:176, cy:-10 },
-      'horn-rune-left': 'M50,22 L44,14 L50,6',
-      'horn-rune-right': 'M166,22 L172,14 L166,6'
-    },
-    spirales: {
-      'horn-left-main': 'M84,48 Q54,24 42,6 Q32,-10 42,-18 Q56,-20 64,-10 Q70,-2 62,6',
-      'horn-left-glow': 'M84,48 Q56,26 44,8 Q34,-8 44,-14 Q56,-16 62,-8',
-      'horn-left-tip': { cx:62, cy:6 },
-      'horn-right-main': 'M132,48 Q162,24 174,6 Q184,-10 174,-18 Q160,-20 152,-10 Q146,-2 154,6',
-      'horn-right-glow': 'M132,48 Q160,26 172,8 Q182,-8 172,-14 Q160,-16 154,-8',
-      'horn-right-tip': { cx:154, cy:6 },
-      'horn-rune-left': 'M48,10 L42,2 L50,-6',
-      'horn-rune-right': 'M168,10 L174,2 L166,-6'
-    },
-    courts: {
-      'horn-left-main': 'M84,48 Q78,40 80,32',
-      'horn-left-glow': 'M84,48 Q80,42 82,36',
-      'horn-left-tip': { cx:80, cy:32 },
-      'horn-right-main': 'M132,48 Q138,40 136,32',
-      'horn-right-glow': 'M132,48 Q136,42 134,36',
-      'horn-right-tip': { cx:136, cy:32 },
-      'horn-rune-left': 'M82,42 L84,38 L82,34',
-      'horn-rune-right': 'M134,42 L132,38 L134,34'
-    },
-    tridents: {
-      'horn-left-main': 'M84,48 Q66,22 64,0 M72,16 Q56,4 44,-8 M72,16 Q82,4 86,-10',
-      'horn-left-glow': 'M84,48 Q68,24 66,4',
-      'horn-left-tip': { cx:64, cy:0 },
-      'horn-right-main': 'M132,48 Q150,22 152,0 M144,16 Q160,4 172,-8 M144,16 Q134,4 130,-10',
-      'horn-right-glow': 'M132,48 Q148,24 150,4',
-      'horn-right-tip': { cx:152, cy:0 },
-      'horn-rune-left': 'M66,12 L62,4 L68,-4',
-      'horn-rune-right': 'M150,12 L154,4 L148,-4'
-    }
-  }
-};
 
 function setupCustomize() {
-  renderPresets();
   const a = getAppearance();
   if (a) {
     loadAppearanceToUI(a);
-    applyAppearanceToSVG(a);
+    applyMessageStyles(a);
   }
 }
 
-function renderPresets() {
-  const list = $('#preset-list');
-  list.innerHTML = '';
-  APPEARANCE_PRESETS.forEach((p, i) => {
-    const btn = document.createElement('div');
-    btn.className = 'cust-preset';
-    btn.title = p.name;
-    btn.style.background = p.swatch;
-    btn.onclick = () => {
-      loadAppearanceToUI(p.colors);
-      applyAppearanceLive();
-      showToast('Preset applique', p.name);
-    };
-    list.appendChild(btn);
-  });
-}
-
 function loadAppearanceToUI(a) {
-  $('#cust-body-base').value = a.bodyBase;
-  $('#cust-body-sheen').value = a.bodySheen;
-  $('#cust-chest').value = a.chest;
-  $('#cust-iridescence').value = a.iridescence;
-  $('#cust-wing').value = a.wing;
-  $('#cust-wing-tip').value = a.wingTip;
-  $('#cust-tail').value = a.tail;
-  $('#cust-beak').value = a.beak;
-  $('#cust-beak-tip').value = a.beakTip;
-  $('#cust-eye').value = a.eye;
-  $('#cust-eye-center').value = a.eyeCenter;
-  $('#cust-eye-glow').value = a.eyeGlow;
-  $('#cust-rune').value = a.rune;
-  $('#cust-rune-glow').value = a.runeGlow;
-  $('#cust-rune-speed').value = a.runeSpeed;
-  $('#cust-horn').value = a.horn;
-  $('#cust-horn-visible').value = a.hornVisible;
-  $('#cust-scale').value = a.scale;
-  $('#cust-scale-val').textContent = a.scale + '%';
-  // Shapes
-  if ($('#cust-shape-body')) $('#cust-shape-body').value = a.shapeBody || 'classique';
-  if ($('#cust-shape-head')) $('#cust-shape-head').value = a.shapeHead || 'classique';
-  if ($('#cust-shape-beak')) $('#cust-shape-beak').value = a.shapeBeak || 'classique';
-  if ($('#cust-shape-wings')) $('#cust-shape-wings').value = a.shapeWings || 'classique';
-  if ($('#cust-shape-tail')) $('#cust-shape-tail').value = a.shapeTail || 'classique';
-  if ($('#cust-shape-eye')) $('#cust-shape-eye').value = a.shapeEye || 'classique';
-  if ($('#cust-shape-horn')) $('#cust-shape-horn').value = a.shapeHorn || 'classique';
   // Stage bg
   $('#cust-stage-bg').value = a.stageBg || '#0e0a06';
   $('#cust-stage-bg-opacity').value = a.stageBgOpacity || 40;
@@ -2774,31 +2338,6 @@ function loadAppearanceToUI(a) {
 
 function getAppearanceFromUI() {
   return {
-    bodyBase: $('#cust-body-base').value,
-    bodySheen: $('#cust-body-sheen').value,
-    chest: $('#cust-chest').value,
-    iridescence: $('#cust-iridescence').value,
-    wing: $('#cust-wing').value,
-    wingTip: $('#cust-wing-tip').value,
-    tail: $('#cust-tail').value,
-    beak: $('#cust-beak').value,
-    beakTip: $('#cust-beak-tip').value,
-    eye: $('#cust-eye').value,
-    eyeCenter: $('#cust-eye-center').value,
-    eyeGlow: parseInt($('#cust-eye-glow').value),
-    rune: $('#cust-rune').value,
-    runeGlow: parseInt($('#cust-rune-glow').value),
-    runeSpeed: $('#cust-rune-speed').value,
-    horn: $('#cust-horn').value,
-    hornVisible: $('#cust-horn-visible').value,
-    scale: parseInt($('#cust-scale').value),
-    shapeBody: $('#cust-shape-body').value,
-    shapeHead: $('#cust-shape-head').value,
-    shapeBeak: $('#cust-shape-beak').value,
-    shapeWings: $('#cust-shape-wings').value,
-    shapeTail: $('#cust-shape-tail').value,
-    shapeEye: $('#cust-shape-eye').value,
-    shapeHorn: $('#cust-shape-horn').value,
     stageBg: $('#cust-stage-bg').value,
     stageBgImage: (getAppearance() && getAppearance().stageBgImage) || '',
     stageBgOpacity: parseInt($('#cust-stage-bg-opacity').value),
@@ -2815,7 +2354,7 @@ function getAppearanceFromUI() {
 
 function applyAppearanceLive() {
   const a = getAppearanceFromUI();
-  applyAppearanceToSVG(a);
+  applyMessageStyles(a);
   setAppearance(a);
   saveState();
 }
@@ -2942,7 +2481,7 @@ async function switchCompanion(id) {
   const a = getAppearance();
   if (a) {
     loadAppearanceToUI(a);
-    applyAppearanceToSVG(a);
+    applyMessageStyles(a);
   } else {
     // No custom appearance for this companion — clear custom overrides
     const ca = document.getElementById('chat-area');
@@ -2987,11 +2526,6 @@ async function switchCompanion(id) {
   if (!wasAlready) showToast('Compagnon change', `${comp.emoji} ${comp.name} est a tes cotes.`);
 }
 
-function applyAppearanceToSVG(a) {
-  // Message styling (3D model appearance is handled by the shader)
-  applyMessageStyles(a);
-}
-
 function applyMessageStyles(a) {
   // Create/update dynamic style sheet for messages
   let styleEl = document.getElementById('msg-custom-style');
@@ -3034,52 +2568,6 @@ function applyMessageStyles(a) {
   }
 }
 
-function applyShapeVariants(svg, a) {
-  // Path-based shape swaps (body, head, beak, wings, tail)
-  const pathParts = [
-    { key: 'body', val: a.shapeBody },
-    { key: 'head', val: a.shapeHead },
-    { key: 'beak', val: a.shapeBeak },
-    { key: 'wings', val: a.shapeWings },
-    { key: 'tail', val: a.shapeTail }
-  ];
-  pathParts.forEach(({ key, val }) => {
-    const variant = (SHAPE_VARIANTS[key] || {})[val || 'classique'];
-    if (!variant) return;
-    Object.entries(variant).forEach(([id, d]) => {
-      const el = svg.querySelector('#' + id);
-      if (el) el.setAttribute('d', d);
-    });
-  });
-
-  // Eye shape (mixed: ellipses use cx/cy/rx/ry, circles use cx/cy/r, paths use d)
-  const eyeVariant = (SHAPE_VARIANTS.eye || {})[a.shapeEye || 'classique'];
-  if (eyeVariant) {
-    Object.entries(eyeVariant).forEach(([id, val]) => {
-      const el = svg.querySelector('#' + id);
-      if (!el) return;
-      if (typeof val === 'string') {
-        el.setAttribute('d', val);
-      } else {
-        Object.entries(val).forEach(([attr, v]) => el.setAttribute(attr, v));
-      }
-    });
-  }
-
-  // Horn shape (mixed: paths use d, circles use cx/cy)
-  const hornVariant = (SHAPE_VARIANTS.horn || {})[a.shapeHorn || 'classique'];
-  if (hornVariant) {
-    Object.entries(hornVariant).forEach(([id, val]) => {
-      const el = svg.querySelector('#' + id);
-      if (!el) return;
-      if (typeof val === 'string') {
-        el.setAttribute('d', val);
-      } else {
-        Object.entries(val).forEach(([attr, v]) => el.setAttribute(attr, v));
-      }
-    });
-  }
-}
 
 // Color utility functions
 function hexToRgb(hex) {
@@ -3180,7 +2668,6 @@ function setupListeners() {
     el.addEventListener('input', applyAppearanceLive);
     el.addEventListener('change', applyAppearanceLive);
   });
-  $('#cust-scale').addEventListener('input', () => { $('#cust-scale-val').textContent = $('#cust-scale').value + '%'; });
   $('#cust-chat-bg-opacity').addEventListener('input', () => { $('#cust-chat-bg-opacity-val').textContent = $('#cust-chat-bg-opacity').value + '%'; });
   $('#cust-stage-bg-opacity').addEventListener('input', () => { $('#cust-stage-bg-opacity-val').textContent = $('#cust-stage-bg-opacity').value + '%'; });
   // Stage background image picker
