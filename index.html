@@ -2609,6 +2609,51 @@ function applyCompanionTheme(companionId) {
   });
   const h1 = document.querySelector('header h1');
   if (h1) h1.textContent = comp.name.toUpperCase();
+
+  // Override hardcoded backgrounds that don't use CSS vars
+  let themeStyle = document.getElementById('companion-theme-style');
+  if (!themeStyle) {
+    themeStyle = document.createElement('style');
+    themeStyle.id = 'companion-theme-style';
+    document.head.appendChild(themeStyle);
+  }
+  const bg = comp.theme['--bg'];
+  const surface = comp.theme['--surface'];
+  const surface2 = comp.theme['--surface2'];
+  const border = comp.theme['--border'];
+  const gold = comp.theme['--gold'];
+  const goldDim = comp.theme['--gold-dim'];
+  const text = comp.theme['--text'];
+  const textDim = comp.theme['--text-dim'];
+  const accent = comp.theme['--accent'] || gold;
+  const woodDark = comp.theme['--wood-dark'];
+  const woodMid = comp.theme['--wood-mid'];
+  themeStyle.textContent = `
+    header{background:linear-gradient(180deg,${surface},${woodDark}) !important}
+    header::after{background:linear-gradient(90deg,transparent,${goldDim},transparent) !important}
+    header h1{color:${gold} !important;text-shadow:0 0 10px ${gold}40 !important}
+    #mood-indicator{color:${textDim} !important}
+    #settings-btn,#project-btn,#quest-btn,#map-btn,#leaderboard-btn,#account-btn,#customize-btn,#mute-btn{color:${goldDim} !important}
+    #app{background:${woodDark} !important;border-color:${border} !important}
+    #quest-panel-header{background:linear-gradient(180deg,${surface},${woodDark}) !important}
+    #settings-panel{background:linear-gradient(180deg,${surface},${woodDark}) !important}
+    #customize-panel{background:linear-gradient(180deg,${surface},${woodDark}) !important}
+    .msg.stakr{background:linear-gradient(135deg,${surface},${surface2}) !important;border-color:${border} !important;border-left:3px solid ${goldDim} !important;color:${text} !important}
+    .msg.user{background:linear-gradient(135deg,${woodMid},${surface2}) !important;border-color:${border} !important;border-right:3px solid ${accent} !important;color:${text} !important}
+    #raven-stage{background:radial-gradient(ellipse at 50% 80%,${surface} 0%,${bg} 40%,${woodDark} 70%) !important}
+    #chat-area{background:${bg} !important}
+    .input-area{background:linear-gradient(180deg,transparent,${woodDark}) !important}
+    #mode-bar{background:${woodDark} !important;border-color:${border} !important}
+    #mode-bar select{background:${surface} !important;color:${text} !important;border-color:${border} !important}
+    .toast{background:${surface} !important;border-color:${gold} !important;color:${text} !important}
+    .btn-gold,.quest-evolve-confirm{background:linear-gradient(135deg,${gold},${goldDim}) !important}
+    .setting-group{background:${surface} !important;border-color:${border} !important}
+    .setting-group label{color:${gold} !important}
+    .quest-item{background:${surface} !important;border-color:${border} !important}
+    .quest-category{color:${gold} !important}
+    .companion-card{background:${surface} !important;border-color:${border} !important;color:${text} !important}
+    .companion-card.active{border-color:${gold} !important;background:${gold}20 !important}
+  `;
 }
 
 function renderCompanionSelect() {
@@ -2659,7 +2704,13 @@ async function switchCompanion(id) {
 
   // 3. Load 3D model
   if (window.raven3D?.loadCompanion) {
-    await window.raven3D.loadCompanion(id);
+    try {
+      await window.raven3D.loadCompanion(id);
+    } catch(e) {
+      console.error('Failed to load companion 3D:', e);
+    }
+  } else {
+    console.warn('raven3D not available yet');
   }
 
   // 4. Persist
