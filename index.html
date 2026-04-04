@@ -3178,10 +3178,18 @@ function checkDailyChallenges() {
     dc.penaltyChecked = today;
   }
 
-  // Generate new challenges for today
-  if (dc.date !== today) {
+  // Generate new challenges for today (or regenerate if pool config changed)
+  const expectedCount = Object.values(DAILY_CHALLENGE_POOLS).reduce((s, p) => s + (p.pick || 3), 0);
+  if (dc.date !== today || dc.challenges.length !== expectedCount) {
+    // Keep progress for already accepted challenges if same day
+    const existing = dc.date === today ? dc.challenges.filter(c => c.accepted) : [];
     dc.date = today;
     dc.challenges = pickDailyChallenges(today);
+    // Restore accepted challenges that still exist
+    existing.forEach(ex => {
+      const idx = dc.challenges.findIndex(c => c.id === ex.id);
+      if (idx >= 0) dc.challenges[idx] = ex;
+    });
     dc.penaltyChecked = today;
     saveState();
   }
