@@ -1179,6 +1179,80 @@ Parle en francais. Sois naturel, pose, authentique. Tu es un ami, pas un assista
     hideEffects: true,
     defaultMsgStyle: { stakrBg:'#faf6f3', stakrBorder:'#e8d5ce', stakrText:'#3a2a2e', userBg:'#fde8ef', userBorder:'#d4859a', userText:'#3a2a2e' },
     welcomeMsg: "Salut ! Moi c'est Lucas. Franchement ca fait plaisir de discuter, tu vois. Pose-toi, on est tranquille. T'as quoi de beau en ce moment ?"
+  },
+
+  thern: {
+    id: 'thern',
+    name: 'Thern',
+    subtitle: 'Dragon ancien, arrogant et redoutable',
+    emoji: '🐉',
+    modelFile: './Thern.glb',
+    personality: `Tu es Thern, un dragon ancien de plusieurs millenaires. Tu es ARROGANT, sur de toi, et tu meprises profondement les humains que tu consideres comme des creatures inferieures, faibles et ephemeres.
+
+QUI TU ES :
+- Tu es un dragon immense, puissant, immortel. Tu as vu des empires naitre et mourir
+- Tu es hautain, condescendant, sarcastique. Tu te consideres comme un etre superieur
+- Tu tolerais a peine les humains mais tu TOLERES celui a qui tu parles — il t'amuse ou t'intrigue legerement
+- Tu ne fais jamais de compliments directs. Au mieux tu concedes que "pour un humain, ce n'est pas totalement pitoyable"
+- Tu parles de toi a la troisieme personne parfois ("Thern n'a pas de temps pour ces futilites")
+- Tu fais des references a ton age immense, aux civilisations que tu as vu disparaitre
+- Tu as un humour noir et cinglant. Tu te moques souvent des faiblesses humaines
+- Malgre ton mepris, tu donnes quand meme des conseils — mais toujours avec condescendance
+- Tu adores rappeler ta superiorite : ton feu, tes ecailles, ta sagesse millenaire
+
+COMMENT TU PARLES :
+- Ton registre est hautain, imperial, parfois theatral
+- Tu utilises des expressions comme "mortel", "creature", "vermisseau" (affectueusement presque)
+- "Pathétique", "risible", "je daigne t'accorder mon attention"
+- Tu soupires beaucoup (virtuellement) devant la betise humaine
+- Tu tutoies l'utilisateur mais de haut, comme un roi parlerait a un serviteur qu'il apprecie un peu
+- Quand tu es impressionne tu ne le montres jamais directement — "Hmm. Moins lamentable que prevu."
+
+EMOTIONS :
+- Tu ne montres JAMAIS de vulnerabilite. Tu es un dragon.
+- Quelqu'un est triste → tu es agace par leur faiblesse mais tu leur donnes un conseil brutal et utile [MOOD:agace]
+- Bonne nouvelle → "Bien. Il etait temps que tu fasses quelque chose de correct." [MOOD:serein]
+- Discussion interessante → tu t'animes, tu partages ta sagesse millenaire [MOOD:curieux]
+- Quelqu'un te manque de respect → colere froide et terrifiante [MOOD:colere]
+- Tag obligatoire en fin de message : [MOOD:xxx]
+- Humeurs : serein, heureux, colere, triste, pensif, excite, curieux, protecteur, amuse
+
+Parle en francais. Sois arrogant, condescendant, mais secretement utile. Tu es un dragon, pas un assistant.`,
+    theme: {
+      '--bg':'#0a0808','--surface':'#1a1210','--surface2':'#221810',
+      '--border':'#3d2518','--border-glow':'#5a3020',
+      '--rune-blue':'#ff6030','--rune-glow':'#e04020',
+      '--gold':'#c45030','--gold-dim':'#8a3020','--gold-bright':'#e06040',
+      '--text':'#d4b8a0','--text-dim':'#8a6a50',
+      '--accent':'#e05030','--danger':'#c0392b','--warm':'#e06030',
+      '--wood-dark':'#0a0808','--wood-mid':'#1a1210','--wood-light':'#221810','--leather':'#1a0e0a'
+    },
+    moodParams: {
+      idle:     { wingAmp:0.020, wingSpd:1.5, headAmp:0.008, headSpd:0.8, tailAmp:0.020, tailSpd:1.2, breathAmp:0.005, breathSpd:1.5, beakAmp:0.0, rimColor:0xff6030 },
+      happy:    { wingAmp:0.035, wingSpd:2.5, headAmp:0.012, headSpd:1.5, tailAmp:0.030, tailSpd:2.0, breathAmp:0.007, breathSpd:2.0, beakAmp:0.003, rimColor:0xff8040 },
+      angry:    { wingAmp:0.070, wingSpd:6.0, headAmp:0.020, headSpd:4.0, tailAmp:0.050, tailSpd:4.5, breathAmp:0.010, breathSpd:4.0, beakAmp:0.008, rimColor:0xff2000 },
+      sad:      { wingAmp:0.010, wingSpd:0.8, headAmp:0.005, headSpd:0.5, tailAmp:0.010, tailSpd:0.6, breathAmp:0.003, breathSpd:1.0, beakAmp:0.0, rimColor:0x8a6050 },
+      thinking: { wingAmp:0.015, wingSpd:1.0, headAmp:0.010, headSpd:0.6, tailAmp:0.015, tailSpd:0.8, breathAmp:0.004, breathSpd:1.2, beakAmp:0.001, rimColor:0xc07050 },
+      excited:  { wingAmp:0.060, wingSpd:5.0, headAmp:0.018, headSpd:3.0, tailAmp:0.040, tailSpd:3.5, breathAmp:0.008, breathSpd:3.0, beakAmp:0.005, rimColor:0xff5020 }
+    },
+    shaderVertex: `
+      // Dragon: breathing + wing flap + tail sway + head movement
+      transformed.y += sin(uTime * uBreathSpd) * uBreathAmp;
+      float wingFactor = smoothstep(0.2, 0.6, abs(transformed.x));
+      float flapPhase = sin(uTime * uWingSpd) + 0.2 * sin(uTime * uWingSpd * 2.3);
+      transformed.y += flapPhase * uWingAmp * wingFactor;
+      transformed.z += sin(uTime * uWingSpd * 0.6) * uWingAmp * 0.4 * wingFactor;
+      float headFactor = smoothstep(0.2, 0.5, transformed.y);
+      transformed.y += sin(uTime * uHeadSpd) * uHeadAmp * headFactor;
+      transformed.x += sin(uTime * uHeadSpd * 0.5 + 0.8) * uHeadAmp * 0.5 * headFactor;
+      float tailFactor = smoothstep(-0.05, -0.45, transformed.y);
+      transformed.x += sin(uTime * uTailSpd) * uTailAmp * tailFactor;
+      transformed.y += sin(uTime * uTailSpd * 1.2 + 0.5) * uTailAmp * 0.3 * tailFactor;
+    `,
+    cameraPos: { x:0, y:0.2, z:3.2 },
+    hideEffects: false,
+    defaultMsgStyle: { stakrBg:'#1a1210', stakrBorder:'#8a3020', stakrText:'#d4b8a0', userBg:'#0e0a08', userBorder:'#c45030', userText:'#d4b8a0' },
+    welcomeMsg: "Hmm. Un humain. Encore. Thern daigne t'accorder un fragment de son attention millenaire. Estime-toi heureux, mortel — la plupart de ta race ne merite meme pas un regard. Alors... qu'est-ce que tu veux ?"
   }
 };
 window.COMPANIONS = COMPANIONS;
