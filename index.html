@@ -442,6 +442,40 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
   .mode-quick-btn{font-size:.65rem;padding:6px 10px}
   #mode-select{font-size:.7rem;padding:5px 8px}
 }
+
+/* ===== D20 DICE ROLL ANIMATION ===== */
+#dice-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;backdrop-filter:blur(4px)}
+#dice-overlay.active{display:flex}
+.dice-scene{width:120px;height:120px;perspective:600px}
+.dice-d20{width:100%;height:100%;position:relative;transform-style:preserve-3d;animation:diceRoll 1.4s ease-out forwards}
+.dice-face{position:absolute;top:50%;left:50%;width:100px;height:100px;margin:-50px 0 0 -50px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;font-weight:800;font-family:'Cinzel',serif;color:#0e0a06;clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);backface-visibility:hidden}
+.dice-face:nth-child(1){background:linear-gradient(135deg,#e8d5a3,#c9a84c);transform:rotateY(0deg) translateZ(50px)}
+.dice-face:nth-child(2){background:linear-gradient(135deg,#d4c088,#b8943a);transform:rotateY(72deg) translateZ(50px)}
+.dice-face:nth-child(3){background:linear-gradient(135deg,#e0ca95,#c4a244);transform:rotateY(144deg) translateZ(50px)}
+.dice-face:nth-child(4){background:linear-gradient(135deg,#dcc68e,#bfa040);transform:rotateY(216deg) translateZ(50px)}
+.dice-face:nth-child(5){background:linear-gradient(135deg,#e4cf9a,#c8a648);transform:rotateY(288deg) translateZ(50px)}
+@keyframes diceRoll{
+  0%{transform:rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(.3);opacity:0}
+  10%{opacity:1;transform:rotateX(120deg) rotateY(80deg) rotateZ(40deg) scale(1.1)}
+  25%{transform:rotateX(280deg) rotateY(200deg) rotateZ(120deg) scale(1)}
+  40%{transform:rotateX(400deg) rotateY(340deg) rotateZ(200deg) scale(1.05)}
+  55%{transform:rotateX(520deg) rotateY(500deg) rotateZ(260deg) scale(1)}
+  70%{transform:rotateX(640deg) rotateY(620deg) rotateZ(310deg) scale(1.02)}
+  85%{transform:rotateX(700deg) rotateY(700deg) rotateZ(350deg) scale(1)}
+  100%{transform:rotateX(720deg) rotateY(720deg) rotateZ(360deg) scale(1)}
+}
+@keyframes diceSettle{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes diceSpark{0%{box-shadow:0 0 0 0 rgba(212,175,55,.6)}50%{box-shadow:0 0 30px 10px rgba(212,175,55,.4)}100%{box-shadow:0 0 0 0 rgba(212,175,55,0)}}
+#dice-result{font-size:3.5rem;font-weight:800;font-family:'Cinzel',serif;opacity:0;transition:opacity .3s;text-shadow:0 0 20px currentColor}
+#dice-result.visible{opacity:1;animation:diceSettle .4s ease}
+#dice-result.critical{color:#ffd700;animation:diceSettle .4s ease, diceSpark .6s ease .2s}
+#dice-result.fumble{color:#e74c3c}
+#dice-result.success{color:#69f0ae}
+#dice-result.fail{color:#ff7043}
+#dice-label{font-size:.85rem;color:var(--text-dim);font-family:'Cinzel',serif;opacity:0;transition:opacity .3s;text-align:center;max-width:280px}
+#dice-label.visible{opacity:1}
+#dice-vs{font-size:.75rem;color:var(--text-dim);opacity:0;transition:opacity .3s;font-family:'Cinzel',serif}
+#dice-vs.visible{opacity:1}
 </style>
 </head>
 <body>
@@ -508,6 +542,22 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <input type="text" id="user-input" placeholder="Parle &#224; Stakr..." autocomplete="off"/>
     <button id="send-btn" title="Envoyer">&#9654;</button>
   </div>
+</div>
+
+<!-- DICE ROLL OVERLAY -->
+<div id="dice-overlay">
+  <div class="dice-scene">
+    <div class="dice-d20" id="dice-d20">
+      <div class="dice-face" id="dice-f1"></div>
+      <div class="dice-face" id="dice-f2"></div>
+      <div class="dice-face" id="dice-f3"></div>
+      <div class="dice-face" id="dice-f4"></div>
+      <div class="dice-face" id="dice-f5"></div>
+    </div>
+  </div>
+  <div id="dice-result"></div>
+  <div id="dice-vs"></div>
+  <div id="dice-label"></div>
 </div>
 
 <!-- PROJECT PANEL -->
@@ -6305,6 +6355,84 @@ function advRollCheck(statId, difficulty) {
   };
 }
 
+let _diceQueue = [];
+let _diceAnimating = false;
+
+function showDiceRoll(result, statId) {
+  _diceQueue.push({ result, statId });
+  if (!_diceAnimating) _playNextDice();
+}
+
+function _playNextDice() {
+  if (_diceQueue.length === 0) { _diceAnimating = false; return; }
+  _diceAnimating = true;
+  const { result, statId } = _diceQueue.shift();
+
+  const overlay = document.getElementById('dice-overlay');
+  const d20 = document.getElementById('dice-d20');
+  const resultEl = document.getElementById('dice-result');
+  const vsEl = document.getElementById('dice-vs');
+  const labelEl = document.getElementById('dice-label');
+
+  // Random numbers on faces during roll
+  const faces = [document.getElementById('dice-f1'), document.getElementById('dice-f2'), document.getElementById('dice-f3'), document.getElementById('dice-f4'), document.getElementById('dice-f5')];
+  const scramble = setInterval(() => {
+    faces.forEach(f => { f.textContent = Math.floor(Math.random() * 20) + 1; });
+  }, 80);
+
+  // Reset
+  resultEl.className = '';
+  resultEl.textContent = '';
+  vsEl.className = '';
+  vsEl.textContent = '';
+  labelEl.className = '';
+  labelEl.textContent = '';
+  d20.style.animation = 'none';
+  void d20.offsetHeight; // force reflow
+  d20.style.animation = 'diceRoll 1.4s ease-out forwards';
+
+  overlay.classList.add('active');
+  playDiceSound();
+
+  // After roll animation, show result
+  setTimeout(() => {
+    clearInterval(scramble);
+    // Show final number on all faces
+    faces.forEach(f => { f.textContent = result.roll; });
+
+    // Result number
+    let cls = result.success ? 'success' : 'fail';
+    if (result.critical) cls = 'critical';
+    if (result.fumble) cls = 'fumble';
+
+    resultEl.textContent = result.roll;
+    resultEl.className = 'visible ' + cls;
+
+    const statDef = ADV_STATS.find(s => s.id === statId);
+    const statName = statDef ? statDef.icon + ' ' + statDef.name : statId;
+
+    // Vs line
+    vsEl.textContent = `d20 (${result.roll}) + ${statName} (${result.statBonus}) = ${result.total}  vs  ${result.target}`;
+    vsEl.className = 'visible';
+
+    // Label
+    let lbl;
+    if (result.critical) lbl = '✨ CRITIQUE ! Succes legendaire !';
+    else if (result.fumble) lbl = '💀 FUMBLE ! Echec catastrophique !';
+    else if (result.success) lbl = '✅ Reussi !';
+    else lbl = '❌ Echoue...';
+    labelEl.textContent = lbl;
+    labelEl.className = 'visible';
+
+  }, 1500);
+
+  // Auto-close
+  setTimeout(() => {
+    overlay.classList.remove('active');
+    setTimeout(_playNextDice, 200);
+  }, 3200);
+}
+
 function saveAdventure() {
   // Garder le narrative court
   if (adv.narrative.length > 30) adv.narrative = adv.narrative.slice(-20);
@@ -7220,8 +7348,8 @@ function advParseAndExecuteTags(response) {
   // [SKILL_CHECK:stat:difficulty] — d20 + stat vs target, result narrated
   const skillMatches = [...text.matchAll(/\[SKILL_CHECK:(\w+):(\w+)\]/g)];
   for (const m of skillMatches) {
-    playDiceSound();
     const result = advRollCheck(m[1], m[2]);
+    showDiceRoll(result, m[1]);
     const statDef = ADV_STATS.find(s => s.id === m[1]);
     const statName = statDef ? statDef.icon + ' ' + statDef.name : m[1];
     let msg;
