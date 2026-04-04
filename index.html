@@ -7025,10 +7025,9 @@ NARRATION ELABOREE :
 TAGS D'ACTIONS — Utilise-les dans ta narration pour declencher les mecaniques :
 - [SKILL_CHECK:stat:difficulte] — OBLIGATOIRE pour toute action non-triviale. Stats: force, agilite, endurance, perception, charisme, sagesse. Difficultes: facile, moyen, difficile, extreme. Ex: [SKILL_CHECK:force:moyen]
   IMPORTANT: apres un SKILL_CHECK, adapte ta narration au resultat (le systeme affiche reussi/echoue). Si echoue, narre les consequences negatives !
+  ⚠️ EN COMBAT : le moteur calcule AUTOMATIQUEMENT les degats, ripostes et fin de combat a partir du SKILL_CHECK. N'utilise PAS [MONSTER_DAMAGE], [DAMAGE] ou [COMBAT_END] en combat — le systeme gere tout seul les PV, degats et la victoire/defaite.
 - [MONSTER:nom:pv:atk:icone] — Fait apparaitre un monstre. Le NOM doit correspondre a ce que le joueur rencontre (ex: si le joueur dit "un ours", utilise "Ours Sauvage" pas "Draugr"). Adapte PV/ATK au niveau (niv ${adv.level}). Ex: [MONSTER:Ours Sauvage:35:10:🐻]
-- [MONSTER_DAMAGE:n] — Degats du joueur sur le monstre. Base sur force/agilite du joueur. Ex: [MONSTER_DAMAGE:12]
-- [DAMAGE:n] — Degats subis par le joueur. Ex: [DAMAGE:5]
-- [COMBAT_END:victory] ou [COMBAT_END:defeat] — Fin de combat. SEULEMENT quand PV du monstre ou joueur atteint 0.
+- [DAMAGE:n] — Degats subis par le joueur HORS COMBAT (pieges, chutes, poison). Ne PAS utiliser en combat ! Ex: [DAMAGE:5]
 - [LOOT:nom:icone] — Le joueur recoit un objet. Ex: [LOOT:Epee runique:⚔️]
 - [USE_ITEM:nom] — Consomme un objet de l'inventaire. Ex: [USE_ITEM:Potion de soin]
 - [HEAL:n] — Recupere n PV. Ex: [HEAL:10]
@@ -7055,25 +7054,26 @@ ETAT DU JOUEUR :
 
 ${inCombat ? `COMBAT EN COURS — REGLES STRICTES :
 ⚠️ UN SEUL ROUND PAR MESSAGE. Ne resous JAMAIS le combat entier d'un coup.
+⚠️ LE MOTEUR GERE LES DEGATS AUTOMATIQUEMENT. Tu n'as besoin que de [SKILL_CHECK].
 
-Chaque message de combat doit contenir EXACTEMENT :
-1. Un [SKILL_CHECK] pour l'action du joueur
-2. Si reussi : [MONSTER_DAMAGE:n] (degats: ${4 + adv.stats.force * 2}-${6 + adv.stats.force * 3})
-3. Si echoue : l'attaque rate, decris
-4. Ensuite le monstre riposte : [DAMAGE:n] (ATK: ${adv._combat ? adv._combat.enemy.atk : '?'}) sauf si esquive reussie
-5. STOP. Attends le prochain message du joueur.
+Chaque message de combat doit contenir :
+1. Une narration immersive de l'action du joueur
+2. Un [SKILL_CHECK:stat:difficulte] adapte a l'action
+3. C'est TOUT. Le moteur calcule les degats, ripostes, PV et fin de combat automatiquement.
+4. STOP. Attends le prochain message du joueur.
+
+⛔ N'UTILISE PAS ces tags en combat (le moteur les gere) : [MONSTER_DAMAGE], [DAMAGE], [COMBAT_END]
 
 Actions possibles du joueur :
-- Attaque : [SKILL_CHECK:force:moyen] → [MONSTER_DAMAGE:n] si reussi
-- Esquive : [SKILL_CHECK:agilite:difficile] → le monstre rate si reussi, sinon [DAMAGE:n]
-- Magie : [SKILL_CHECK:sagesse:difficile] → [MONSTER_DAMAGE:n] si reussi, [ENERGY:-2]
+- Attaque physique : [SKILL_CHECK:force:moyen]
+- Esquive : [SKILL_CHECK:agilite:difficile]
+- Magie : [SKILL_CHECK:sagesse:difficile]
+- Tir a l'arc / finesse : [SKILL_CHECK:agilite:moyen]
+- Intimidation : [SKILL_CHECK:charisme:difficile]
 - Objet : [USE_ITEM:nom] + effet
-- Fuir : [SKILL_CHECK:agilite:moyen] → si echoue [DAMAGE:n]
+- Fuir : [SKILL_CHECK:agilite:moyen]
 
-FIN DE COMBAT (seulement quand les PV atteignent 0) :
-- PV ennemi <= 0 → [COMBAT_END:victory] + [XP:n] + [LOOT:...] + [GOLD:n]
-- PV joueur <= 0 → [COMBAT_END:defeat]
-Ne termine le combat que si les PV sont vraiment a 0 !` : ''}
+Adapte ta narration au RESULTAT du jet (le systeme affiche reussi/echoue apres ton message). Decris l'action du joueur de maniere cinematique !` : ''}
 ${!inCombat && zone.id === 'campement' ? 'Le joueur est au campement — lieu sur, repos, marchands, forgerons, PNJs avec quetes. Propose des interactions riches !' : ''}
 
 Sois un MJ exigeant mais juste. Le monde est dangereux, les echecs sont frequents, mais les victoires sont epiques !`;
@@ -7200,10 +7200,12 @@ function advParseAndExecuteTags(response) {
   }
   text = text.replace(/\[MONSTER:[^\]]+\]/g, '');
 
-  // [MONSTER_DAMAGE:n] — player damages the monster
+  // [MONSTER_DAMAGE:n] — legacy fallback (auto-resolve in SKILL_CHECK handles this now)
+  // Skip if SKILL_CHECK present (auto-resolve already handles damage)
+  const hasSkillCheck = /\[SKILL_CHECK:\w+:\w+\]/.test(text);
   const mDmgMatches = [...text.matchAll(/\[MONSTER_DAMAGE:(\d+)\]/g)];
   for (const m of mDmgMatches) {
-    if (adv._combat) {
+    if (adv._combat && !hasSkillCheck) {
       const dmg = parseInt(m[1]);
       adv._combat.enemy.currentHp = Math.max(0, adv._combat.enemy.currentHp - dmg);
       adv._combat.round++;
@@ -7211,9 +7213,9 @@ function advParseAndExecuteTags(response) {
   }
   text = text.replace(/\[MONSTER_DAMAGE:\d+\]/g, '');
 
-  // [COMBAT_END:victory] or [COMBAT_END:defeat]
+  // [COMBAT_END:victory] or [COMBAT_END:defeat] — skip if SKILL_CHECK auto-resolve handles it
   const combatEndMatch = text.match(/\[COMBAT_END:(\w+)\]/);
-  if (combatEndMatch && adv._combat) {
+  if (combatEndMatch && adv._combat && !hasSkillCheck) {
     const result = combatEndMatch[1];
     if (result === 'victory') {
       const enemy = adv._combat.enemy;
@@ -7274,9 +7276,10 @@ function advParseAndExecuteTags(response) {
   }
   text = text.replace(/\[LOOT:[^\]]+\]/g, '');
 
-  // [DAMAGE:n]
+  // [DAMAGE:n] — skip in combat if SKILL_CHECK present (auto-resolve handles it)
   const dmgMatches = [...text.matchAll(/\[DAMAGE:(\d+)\]/g)];
   for (const m of dmgMatches) {
+    if (adv._combat && hasSkillCheck) continue; // auto-resolve already applied damage
     const dmg = parseInt(m[1]);
     adv.hp = Math.max(0, adv.hp - dmg);
     if (adv._combat) adv._combat.playerHp = adv.hp;
@@ -7345,13 +7348,16 @@ function advParseAndExecuteTags(response) {
   }
   text = text.replace(/\[QUEST_PROGRESS:\w+\]/g, '');
 
-  // [SKILL_CHECK:stat:difficulty] — d20 + stat vs target, result narrated
+  // [SKILL_CHECK:stat:difficulty] — d20 + stat vs target, auto-resolves combat damage
   const skillMatches = [...text.matchAll(/\[SKILL_CHECK:(\w+):(\w+)\]/g)];
   for (const m of skillMatches) {
-    const result = advRollCheck(m[1], m[2]);
-    showDiceRoll(result, m[1]);
-    const statDef = ADV_STATS.find(s => s.id === m[1]);
-    const statName = statDef ? statDef.icon + ' ' + statDef.name : m[1];
+    const statId = m[1];
+    const result = advRollCheck(statId, m[2]);
+    showDiceRoll(result, statId);
+    const statDef = ADV_STATS.find(s => s.id === statId);
+    const statName = statDef ? statDef.icon + ' ' + statDef.name : statId;
+
+    // Dice result message
     let msg;
     if (result.critical) {
       msg = `🎲 **CRITIQUE !** Jet de ${statName} : d20 = **20** + ${result.statBonus} = ${result.total} vs ${result.target} — Succes legendaire !`;
@@ -7363,7 +7369,96 @@ function advParseAndExecuteTags(response) {
       msg = `🎲 Jet de ${statName} : d20 = ${result.roll} + ${result.statBonus} = ${result.total} vs ${result.target} — **Echoue !**`;
     }
     adv.narrative.push({ type: result.success ? 'loot' : 'combat-hit', text: msg, time: Date.now() });
-    // Replace this specific tag with the result marker for AI context
+
+    // ===== AUTO-RESOLVE COMBAT DAMAGE =====
+    if (adv._combat) {
+      const isAttack = (statId === 'force' || statId === 'sagesse');
+      const isEvasion = (statId === 'agilite');
+      const enemy = adv._combat.enemy;
+
+      if (isAttack) {
+        if (result.success) {
+          // Player hits the enemy
+          const baseDmg = 4 + (adv.stats[statId] || 1) * 2;
+          let dmg = baseDmg + Math.floor(Math.random() * (adv.stats[statId] || 1) * 2);
+          if (result.critical) dmg = Math.floor(dmg * 2);
+          if (result.fumble) dmg = 0;
+          if (statId === 'sagesse') { adv.energy = Math.max(0, adv.energy - 2); }
+          enemy.currentHp = Math.max(0, enemy.currentHp - dmg);
+          adv._combat.round++;
+          adv.narrative.push({ type: 'loot', text: `⚔️ Tu infliges **${dmg} degats** ! (Ennemi: ${enemy.currentHp}/${enemy.hp} PV)`, time: Date.now() });
+
+          // Enemy riposte (if still alive)
+          if (enemy.currentHp > 0) {
+            const riposte = Math.max(1, enemy.atk - Math.floor((adv.stats.endurance || 1) / 2) + Math.floor(Math.random() * 4) - 2);
+            adv.hp = Math.max(0, adv.hp - riposte);
+            adv._combat.playerHp = adv.hp;
+            adv.narrative.push({ type: 'combat-hit', text: `🩸 ${enemy.icon} ${enemy.name} riposte : **${riposte} degats** ! (Toi: ${adv.hp}/${adv.maxHp} PV)`, time: Date.now() });
+          }
+        } else {
+          // Player misses
+          adv.narrative.push({ type: 'combat-hit', text: `💨 Ton attaque rate !`, time: Date.now() });
+          if (statId === 'sagesse') { adv.energy = Math.max(0, adv.energy - 1); }
+          // Enemy attacks freely
+          const riposte = enemy.atk + Math.floor(Math.random() * 4);
+          if (result.fumble) {
+            const fumbleDmg = riposte + Math.floor(enemy.atk * 0.5);
+            adv.hp = Math.max(0, adv.hp - fumbleDmg);
+            adv._combat.playerHp = adv.hp;
+            adv.narrative.push({ type: 'combat-hit', text: `💀 ${enemy.icon} profite de ton fumble : **${fumbleDmg} degats** ! (Toi: ${adv.hp}/${adv.maxHp} PV)`, time: Date.now() });
+          } else {
+            adv.hp = Math.max(0, adv.hp - riposte);
+            adv._combat.playerHp = adv.hp;
+            adv.narrative.push({ type: 'combat-hit', text: `🩸 ${enemy.icon} ${enemy.name} attaque : **${riposte} degats** ! (Toi: ${adv.hp}/${adv.maxHp} PV)`, time: Date.now() });
+          }
+        }
+      } else if (isEvasion) {
+        if (result.success) {
+          adv.narrative.push({ type: 'loot', text: `💨 Tu esquives l'attaque !`, time: Date.now() });
+        } else {
+          const riposte = enemy.atk + Math.floor(Math.random() * 4);
+          const dmg = result.fumble ? Math.floor(riposte * 1.5) : riposte;
+          adv.hp = Math.max(0, adv.hp - dmg);
+          adv._combat.playerHp = adv.hp;
+          adv.narrative.push({ type: 'combat-hit', text: `🩸 Esquive ratee ! ${enemy.icon} frappe : **${dmg} degats** ! (Toi: ${adv.hp}/${adv.maxHp} PV)`, time: Date.now() });
+        }
+      }
+
+      // Auto-detect combat end (always authoritative when SKILL_CHECK present)
+      if (enemy.currentHp <= 0) {
+        const xpGain = enemy.xp || (15 + adv.level * 5);
+        adv.totalKills++;
+        adv.xp += xpGain;
+        stopCombatAmbience();
+        playVictorySound();
+        adv.narrative.push({ type: 'loot', text: `🏆 **VICTOIRE !** ${enemy.icon} ${enemy.name} vaincu ! +${xpGain} XP`, time: Date.now() });
+        // Level up
+        while (adv.xp >= adv.level * 60) {
+          adv.xp -= adv.level * 60;
+          adv.level++;
+          const hpUp = 5 + (adv.stats.endurance || 1) * 2;
+          adv.maxHp += hpUp;
+          adv.hp = Math.min(adv.hp + hpUp, adv.maxHp);
+          adv.maxEnergy += 1;
+          adv.narrative.push({ type: 'loot', text: `⬆️ **NIVEAU ${adv.level} !** PV max +${hpUp}, Energie max +1 !`, time: Date.now() });
+        }
+        advUpdateQuestProgress('kill', enemy.name);
+        advUpdateQuestProgress('combat_survive', null);
+        if (typeof addQuestXp === 'function') addQuestXp(Math.round(xpGain / 3));
+        adv._combat = null;
+        adv._encounter = null;
+      }
+      if (adv.hp <= 0 && adv._combat) {
+        stopCombatAmbience();
+        playDefeatSound();
+        adv.narrative.push({ type: 'combat-hit', text: '💀 **DEFAITE !** Tu te reveilles au campement...', time: Date.now() });
+        adv.hp = Math.floor(adv.maxHp * 0.3);
+        adv.currentZone = 'campement';
+        adv._combat = null;
+        adv._encounter = null;
+      }
+    }
+
     text = text.replace(m[0], result.success ? '[CHECK_SUCCESS]' : '[CHECK_FAIL]');
   }
   // Clean remaining SKILL_CHECK tags and result markers
