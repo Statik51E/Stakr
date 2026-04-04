@@ -6230,6 +6230,247 @@ function loadAdventure() {
 let _charTempStats = {};
 let _charTempClass = '';
 
+// ===== CHARACTER PREVIEW SVG =====
+function advCharPreviewSVG() {
+  const g = _charTempGender || 'homme';
+  const isFemme = g === 'femme';
+
+  // --- SKIN ---
+  const skinColor = '#c8956c';
+  const skinDark = '#a87550';
+
+  // --- BODY shape ---
+  const shoulderW = isFemme ? 28 : 34;
+  const hipW = isFemme ? 22 : 20;
+  const waistW = isFemme ? 16 : 20;
+  const torsoTop = 68;
+  const torsoBot = 110;
+
+  // --- OUTFIT COLORS ---
+  const outfitColors = {
+    fourrure:  { primary: '#6b4226', secondary: '#8b6340', accent: '#4a2d14', detail: '#9c7a56' },
+    cuir:      { primary: '#5c3d1e', secondary: '#7a5533', accent: '#3e2710', detail: '#96754e' },
+    maille:    { primary: '#6a7b8c', secondary: '#8a9bac', accent: '#4a5b6c', detail: '#b0b8c0' },
+    robe:      { primary: '#2d1a4e', secondary: '#4a2d7a', accent: '#1a0e33', detail: '#8060c0' },
+    cape:      { primary: '#2c2c2c', secondary: '#444', accent: '#1a1a1a', detail: '#666' }
+  };
+  const oc = outfitColors[_charTempOutfit] || { primary: '#555', secondary: '#777', accent: '#333', detail: '#999' };
+
+  // --- HAIR COLORS & SHAPES ---
+  const hairColor = '#c4973b';
+  const hairDark = '#96712a';
+
+  // --- CLASS AURA ---
+  const classGlow = {
+    guerrier: '#d4af37', eclaireur: '#69f0ae', skalde: '#bb86fc',
+    berserkr: '#ff5252', volva: '#64ffda'
+  };
+  const aura = classGlow[_charTempClass] || 'transparent';
+
+  let svg = `<svg viewBox="0 0 160 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:160px;height:auto;display:block;margin:0 auto;filter:drop-shadow(0 0 12px ${aura}40)">`;
+
+  // Aura glow behind character
+  if (_charTempClass) {
+    svg += `<ellipse cx="80" cy="200" rx="50" ry="20" fill="${aura}" opacity=".12"/>`;
+    svg += `<ellipse cx="80" cy="140" rx="35" ry="80" fill="${aura}" opacity=".06"/>`;
+  }
+
+  // === LEGS ===
+  svg += `<rect x="62" y="148" width="12" height="52" rx="4" fill="${skinColor}"/>`;
+  svg += `<rect x="86" y="148" width="12" height="52" rx="4" fill="${skinColor}"/>`;
+  // Boots
+  svg += `<rect x="59" y="192" width="18" height="12" rx="4" fill="${oc.accent}"/>`;
+  svg += `<rect x="83" y="192" width="18" height="12" rx="4" fill="${oc.accent}"/>`;
+  // Leg armor / wraps based on outfit
+  if (_charTempOutfit === 'maille') {
+    svg += `<rect x="62" y="148" width="12" height="30" rx="3" fill="${oc.primary}" opacity=".7"/>`;
+    svg += `<rect x="86" y="148" width="12" height="30" rx="3" fill="${oc.primary}" opacity=".7"/>`;
+  } else if (_charTempOutfit === 'fourrure') {
+    svg += `<rect x="60" y="175" width="16" height="18" rx="3" fill="${oc.detail}" opacity=".6"/>`;
+    svg += `<rect x="84" y="175" width="16" height="18" rx="3" fill="${oc.detail}" opacity=".6"/>`;
+  }
+
+  // === TORSO ===
+  // Body shape path
+  const tL = 80 - shoulderW;
+  const tR = 80 + shoulderW;
+  const wL = 80 - waistW;
+  const wR = 80 + waistW;
+  const hL = 80 - hipW;
+  const hR = 80 + hipW;
+  svg += `<path d="M${tL},${torsoTop} Q${80},${torsoTop - 4} ${tR},${torsoTop} L${wR},${torsoBot - 10} L${hR},${torsoBot + 40} L${hL},${torsoBot + 40} L${wL},${torsoBot - 10} Z" fill="${oc.primary}" stroke="${oc.accent}" stroke-width="1"/>`;
+
+  // Outfit details
+  if (_charTempOutfit === 'fourrure') {
+    // Fur collar
+    svg += `<ellipse cx="80" cy="${torsoTop + 2}" rx="${shoulderW - 2}" ry="6" fill="${oc.detail}" opacity=".8"/>`;
+    // Fur trim
+    svg += `<path d="M${80 - shoulderW + 4},${torsoTop} L${80 + shoulderW - 4},${torsoTop}" stroke="${oc.detail}" stroke-width="3" stroke-linecap="round"/>`;
+  } else if (_charTempOutfit === 'cuir') {
+    // Leather straps
+    svg += `<line x1="68" y1="${torsoTop}" x2="80" y2="${torsoBot + 20}" stroke="${oc.detail}" stroke-width="2"/>`;
+    svg += `<line x1="92" y1="${torsoTop}" x2="80" y2="${torsoBot + 20}" stroke="${oc.detail}" stroke-width="2"/>`;
+    svg += `<circle cx="80" cy="${torsoBot + 5}" r="3" fill="${oc.detail}"/>`;
+  } else if (_charTempOutfit === 'maille') {
+    // Chain pattern
+    for (let y = torsoTop + 6; y < torsoBot + 25; y += 6) {
+      svg += `<line x1="${80 - shoulderW + 8}" y1="${y}" x2="${80 + shoulderW - 8}" y2="${y}" stroke="${oc.detail}" stroke-width=".5" opacity=".5"/>`;
+    }
+    // Shoulder guards
+    svg += `<ellipse cx="${80 - shoulderW + 5}" cy="${torsoTop + 4}" rx="8" ry="5" fill="${oc.secondary}"/>`;
+    svg += `<ellipse cx="${80 + shoulderW - 5}" cy="${torsoTop + 4}" rx="8" ry="5" fill="${oc.secondary}"/>`;
+  } else if (_charTempOutfit === 'robe') {
+    // Rune patterns
+    svg += `<text x="80" y="${torsoBot}" text-anchor="middle" fill="${oc.detail}" font-size="10" opacity=".7">ᚠᚢᚦ</text>`;
+    svg += `<text x="80" y="${torsoBot + 15}" text-anchor="middle" fill="${oc.detail}" font-size="8" opacity=".5">ᚨᚱᚲ</text>`;
+    // Flowing bottom
+    svg += `<path d="M${hL},${torsoBot + 40} Q${80},${torsoBot + 55} ${hR},${torsoBot + 40}" fill="${oc.primary}" stroke="${oc.accent}" stroke-width=".5"/>`;
+  } else if (_charTempOutfit === 'cape') {
+    // Cape draping from shoulders
+    svg += `<path d="M${tL + 2},${torsoTop} Q${tL - 10},${torsoBot + 20} ${tL + 5},${torsoBot + 50}" fill="${oc.secondary}" opacity=".7" stroke="${oc.accent}" stroke-width=".5"/>`;
+    svg += `<path d="M${tR - 2},${torsoTop} Q${tR + 10},${torsoBot + 20} ${tR - 5},${torsoBot + 50}" fill="${oc.secondary}" opacity=".7" stroke="${oc.accent}" stroke-width=".5"/>`;
+    // Wolf head clasp
+    svg += `<circle cx="80" cy="${torsoTop + 2}" r="4" fill="#888" stroke="#555" stroke-width="1"/>`;
+  }
+
+  // Belt
+  svg += `<rect x="${80 - hipW}" y="${torsoBot + 2}" width="${hipW * 2}" height="5" rx="2" fill="${oc.accent}"/>`;
+  svg += `<rect x="77" y="${torsoBot + 1}" width="6" height="7" rx="1" fill="${oc.detail}"/>`;
+
+  // === ARMS ===
+  // Left arm
+  svg += `<rect x="${tL - 8}" y="${torsoTop + 2}" width="12" height="40" rx="5" fill="${skinColor}" transform="rotate(-8,${tL - 2},${torsoTop + 2})"/>`;
+  // Right arm
+  svg += `<rect x="${tR - 4}" y="${torsoTop + 2}" width="12" height="40" rx="5" fill="${skinColor}" transform="rotate(8,${tR + 2},${torsoTop + 2})"/>`;
+  // Arm armor
+  if (_charTempOutfit === 'maille' || _charTempOutfit === 'cuir') {
+    svg += `<rect x="${tL - 7}" y="${torsoTop + 2}" width="11" height="20" rx="4" fill="${oc.secondary}" opacity=".7" transform="rotate(-8,${tL - 2},${torsoTop + 2})"/>`;
+    svg += `<rect x="${tR - 3}" y="${torsoTop + 2}" width="11" height="20" rx="4" fill="${oc.secondary}" opacity=".7" transform="rotate(8,${tR + 2},${torsoTop + 2})"/>`;
+  }
+
+  // === HEAD ===
+  const headY = 44;
+  const headRx = isFemme ? 17 : 19;
+  const headRy = isFemme ? 20 : 21;
+  // Neck
+  svg += `<rect x="74" y="58" width="12" height="14" rx="4" fill="${skinColor}"/>`;
+  // Head shape
+  svg += `<ellipse cx="80" cy="${headY}" rx="${headRx}" ry="${headRy}" fill="${skinColor}" stroke="${skinDark}" stroke-width=".5"/>`;
+  // Eyes
+  const eyeY = headY - 2;
+  svg += `<ellipse cx="73" cy="${eyeY}" rx="2.5" ry="2" fill="#fff"/>`;
+  svg += `<ellipse cx="87" cy="${eyeY}" rx="2.5" ry="2" fill="#fff"/>`;
+  svg += `<circle cx="73.5" cy="${eyeY}" r="1.2" fill="#2c1810"/>`;
+  svg += `<circle cx="87.5" cy="${eyeY}" r="1.2" fill="#2c1810"/>`;
+  // Nose
+  svg += `<path d="M79,${headY} Q80,${headY + 5} 81,${headY + 3}" fill="none" stroke="${skinDark}" stroke-width=".8"/>`;
+  // Mouth
+  svg += `<path d="M75,${headY + 7} Q80,${headY + 10} 85,${headY + 7}" fill="none" stroke="${skinDark}" stroke-width=".8"/>`;
+
+  // Beard for homme (unless berserkr has war paint)
+  if (!isFemme) {
+    svg += `<path d="M67,${headY + 4} Q68,${headY + 18} 80,${headY + 22} Q92,${headY + 18} 93,${headY + 4}" fill="none" stroke="${hairDark}" stroke-width="2" opacity=".6"/>`;
+  }
+
+  // === HAIR ===
+  if (_charTempHair === 'long') {
+    // Long flowing hair
+    svg += `<path d="M${80 - headRx},${headY - 8} Q${80 - headRx - 6},${headY + 10} ${80 - headRx - 4},${torsoTop + 20}" stroke="${hairColor}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+    svg += `<path d="M${80 + headRx},${headY - 8} Q${80 + headRx + 6},${headY + 10} ${80 + headRx + 4},${torsoTop + 20}" stroke="${hairColor}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+    svg += `<ellipse cx="80" cy="${headY - 14}" rx="${headRx + 2}" ry="10" fill="${hairColor}"/>`;
+    if (isFemme) {
+      svg += `<path d="M${80 - headRx - 2},${headY} Q${80 - headRx - 8},${headY + 30} ${80 - headRx},${torsoTop + 35}" stroke="${hairColor}" stroke-width="3" fill="none"/>`;
+      svg += `<path d="M${80 + headRx + 2},${headY} Q${80 + headRx + 8},${headY + 30} ${80 + headRx},${torsoTop + 35}" stroke="${hairColor}" stroke-width="3" fill="none"/>`;
+    }
+  } else if (_charTempHair === 'court') {
+    svg += `<ellipse cx="80" cy="${headY - 12}" rx="${headRx + 1}" ry="11" fill="${hairColor}"/>`;
+    svg += `<rect x="${80 - headRx - 1}" y="${headY - 15}" width="${(headRx + 1) * 2}" height="14" rx="6" fill="${hairColor}"/>`;
+  } else if (_charTempHair === 'mohawk') {
+    // Mohawk crest
+    svg += `<path d="M80,${headY - 28} Q84,${headY - 18} 82,${headY - 8} L78,${headY - 8} Q76,${headY - 18} 80,${headY - 28}" fill="${hairColor}"/>`;
+    svg += `<rect x="76" y="${headY - 12}" width="8" height="8" rx="2" fill="${hairColor}"/>`;
+    // Shaved sides
+    svg += `<ellipse cx="80" cy="${headY - 10}" rx="${headRx - 2}" ry="6" fill="${hairDark}" opacity=".3"/>`;
+  } else if (_charTempHair === 'tresses') {
+    // Nordic braids
+    svg += `<ellipse cx="80" cy="${headY - 13}" rx="${headRx + 1}" ry="10" fill="${hairColor}"/>`;
+    // Left braid
+    for (let i = 0; i < 5; i++) {
+      const by = headY + i * 8;
+      svg += `<ellipse cx="${80 - headRx - 2}" cy="${by}" rx="3" ry="4" fill="${i % 2 ? hairColor : hairDark}" opacity=".8"/>`;
+    }
+    // Right braid
+    for (let i = 0; i < 5; i++) {
+      const by = headY + i * 8;
+      svg += `<ellipse cx="${80 + headRx + 2}" cy="${by}" rx="3" ry="4" fill="${i % 2 ? hairColor : hairDark}" opacity=".8"/>`;
+    }
+  } else if (_charTempHair === 'rasé') {
+    // Shaved head with stubble
+    svg += `<ellipse cx="80" cy="${headY - 10}" rx="${headRx - 1}" ry="8" fill="${hairDark}" opacity=".25"/>`;
+  } else {
+    // Default: short hair if nothing selected
+    svg += `<ellipse cx="80" cy="${headY - 12}" rx="${headRx}" ry="10" fill="${hairDark}" opacity=".3"/>`;
+  }
+
+  // === WEAPON (right hand) ===
+  const weaponX = tR + 6;
+  const weaponY = torsoTop + 35;
+  if (_charTempWeapon && _charTempClass) {
+    const wep = ADV_CLASSES[_charTempClass].weapons.find(w => w.id === _charTempWeapon);
+    if (wep) {
+      if (wep.id === 'epee') {
+        svg += `<rect x="${weaponX}" y="${weaponY - 40}" width="3" height="42" rx="1" fill="#b8c4d0"/>`;
+        svg += `<rect x="${weaponX - 4}" y="${weaponY}" width="11" height="4" rx="1" fill="${oc.detail}"/>`;
+        svg += `<polygon points="${weaponX + 1.5},${weaponY - 42} ${weaponX - 1},${weaponY - 38} ${weaponX + 4},${weaponY - 38}" fill="#d4e0ec"/>`;
+      } else if (wep.id === 'hache') {
+        svg += `<rect x="${weaponX + 1}" y="${weaponY - 38}" width="3" height="45" rx="1" fill="#7a5533"/>`;
+        svg += `<path d="M${weaponX - 6},${weaponY - 38} Q${weaponX - 10},${weaponY - 28} ${weaponX - 4},${weaponY - 18} L${weaponX + 2},${weaponY - 22} L${weaponX + 2},${weaponY - 34} Z" fill="#8a9bac" stroke="#6a7b8c" stroke-width=".5"/>`;
+      } else if (wep.id === 'arc') {
+        svg += `<path d="M${weaponX + 2},${weaponY - 42} Q${weaponX - 8},${weaponY - 18} ${weaponX + 2},${weaponY + 6}" fill="none" stroke="#7a5533" stroke-width="2.5"/>`;
+        svg += `<line x1="${weaponX + 2}" y1="${weaponY - 42}" x2="${weaponX + 2}" y2="${weaponY + 6}" stroke="#c8b888" stroke-width=".8"/>`;
+      } else if (wep.id === 'dagues') {
+        svg += `<rect x="${weaponX}" y="${weaponY - 22}" width="2" height="24" rx="1" fill="#b8c4d0"/>`;
+        svg += `<rect x="${weaponX - 2}" y="${weaponY}" width="6" height="3" rx="1" fill="#666"/>`;
+        // Second dagger (left hand)
+        svg += `<rect x="${tL - 6}" y="${weaponY - 22}" width="2" height="24" rx="1" fill="#b8c4d0"/>`;
+        svg += `<rect x="${tL - 8}" y="${weaponY}" width="6" height="3" rx="1" fill="#666"/>`;
+      } else if (wep.id === 'baton') {
+        svg += `<rect x="${weaponX + 1}" y="${weaponY - 50}" width="3" height="58" rx="1" fill="#5c3d1e"/>`;
+        svg += `<circle cx="${weaponX + 2.5}" cy="${weaponY - 52}" r="5" fill="${aura}" opacity=".5"/>`;
+        svg += `<circle cx="${weaponX + 2.5}" cy="${weaponY - 52}" r="3" fill="#fff" opacity=".3"/>`;
+      } else if (wep.id === 'lyre') {
+        svg += `<path d="M${weaponX - 2},${weaponY - 20} Q${weaponX - 6},${weaponY - 30} ${weaponX},${weaponY - 36} L${weaponX + 6},${weaponY - 36} Q${weaponX + 10},${weaponY - 30} ${weaponX + 6},${weaponY - 20} Z" fill="#c4973b" stroke="#96712a" stroke-width=".8"/>`;
+        svg += `<line x1="${weaponX + 1}" y1="${weaponY - 34}" x2="${weaponX + 1}" y2="${weaponY - 22}" stroke="#e8d8a0" stroke-width=".5"/>`;
+        svg += `<line x1="${weaponX + 3}" y1="${weaponY - 34}" x2="${weaponX + 3}" y2="${weaponY - 22}" stroke="#e8d8a0" stroke-width=".5"/>`;
+        svg += `<line x1="${weaponX + 5}" y1="${weaponY - 34}" x2="${weaponX + 5}" y2="${weaponY - 22}" stroke="#e8d8a0" stroke-width=".5"/>`;
+      } else if (wep.id === 'marteau') {
+        svg += `<rect x="${weaponX + 1}" y="${weaponY - 38}" width="3.5" height="46" rx="1" fill="#5c3d1e"/>`;
+        svg += `<rect x="${weaponX - 6}" y="${weaponY - 42}" width="18" height="10" rx="2" fill="#6a7b8c" stroke="#4a5b6c" stroke-width=".8"/>`;
+      } else if (wep.id === 'hache2m') {
+        svg += `<rect x="${weaponX + 1}" y="${weaponY - 42}" width="3" height="50" rx="1" fill="#7a5533"/>`;
+        svg += `<path d="M${weaponX - 5},${weaponY - 42} Q${weaponX - 10},${weaponY - 32} ${weaponX - 4},${weaponY - 20} L${weaponX + 2},${weaponY - 24} L${weaponX + 2},${weaponY - 38} Z" fill="#8a9bac"/>`;
+        svg += `<path d="M${weaponX + 9},${weaponY - 42} Q${weaponX + 14},${weaponY - 32} ${weaponX + 8},${weaponY - 20} L${weaponX + 3},${weaponY - 24} L${weaponX + 3},${weaponY - 38} Z" fill="#8a9bac"/>`;
+      } else if (wep.id === 'sceptre') {
+        svg += `<rect x="${weaponX + 1}" y="${weaponY - 45}" width="3" height="52" rx="1" fill="#4a2d7a"/>`;
+        svg += `<polygon points="${weaponX + 2.5},${weaponY - 52} ${weaponX - 3},${weaponY - 44} ${weaponX + 8},${weaponY - 44}" fill="${aura}" opacity=".7"/>`;
+        svg += `<circle cx="${weaponX + 2.5}" cy="${weaponY - 48}" r="3" fill="#fff" opacity=".4"/>`;
+      } else if (wep.id === 'faucille') {
+        svg += `<rect x="${weaponX + 1}" y="${weaponY - 15}" width="2.5" height="22" rx="1" fill="#5c3d1e"/>`;
+        svg += `<path d="M${weaponX + 2},${weaponY - 15} Q${weaponX + 12},${weaponY - 28} ${weaponX},${weaponY - 32}" fill="none" stroke="#b8c4d0" stroke-width="2" stroke-linecap="round"/>`;
+      }
+    }
+  }
+
+  // === CLASS ICON floating ===
+  if (_charTempClass) {
+    const clsIcon = ADV_CLASSES[_charTempClass].icon;
+    svg += `<text x="80" y="16" text-anchor="middle" font-size="14" opacity=".6">${clsIcon}</text>`;
+  }
+
+  svg += `</svg>`;
+  return svg;
+}
+
 function advShowCharCreation() {
   _charTempStats = { force: 1, agilite: 1, endurance: 1, perception: 1, charisme: 1, sagesse: 1 };
   _charTempClass = '';
@@ -6257,6 +6498,13 @@ function advRenderCharCreation() {
 
   let html = `<div style="padding:10px">
     <h3 style="color:var(--gold);font-family:'Cinzel',serif;text-align:center;margin-bottom:8px">⚔️ Creation de Personnage</h3>
+
+    <!-- Character Preview -->
+    <div style="background:linear-gradient(180deg,rgba(0,0,0,.3) 0%,rgba(20,15,10,.5) 100%);border:1px solid var(--border);border-radius:10px;padding:10px 0 6px;margin-bottom:12px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at center bottom,rgba(212,175,55,.06) 0%,transparent 70%);pointer-events:none"></div>
+      ${advCharPreviewSVG()}
+      <div style="text-align:center;font-size:.6rem;color:var(--text-dim);margin-top:4px;font-family:'Cinzel',serif">${_charTempGender ? ((_charTempGender === 'femme' ? 'Guerriere' : 'Guerrier') + ' Viking') : 'Choisis ton apparence...'}</div>
+    </div>
 
     <!-- Nom -->
     <div style="margin-bottom:10px">
@@ -6363,8 +6611,9 @@ function advRenderCharCreation() {
     </div>
   </div>`;
 
+  const prevScroll = content.scrollTop;
   content.innerHTML = html;
-  content.scrollTop = 0;
+  content.scrollTop = prevScroll || 0;
 
   const canStart = remaining === 0 && _charTempClass && _charTempGender && _charTempWeapon && _charTempOutfit && _charTempHair;
   if (actions) {
