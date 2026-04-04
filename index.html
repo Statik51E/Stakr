@@ -8832,7 +8832,9 @@ if (canvas) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(32, canvas.clientWidth / canvas.clientHeight, 0.01, 50);
+  const w0 = stage.clientWidth || 300;
+  const h0 = stage.clientHeight || 280;
+  const camera = new THREE.PerspectiveCamera(32, w0 / h0, 0.01, 50);
   camera.position.set(0, 0.15, 2.8);
   camera.lookAt(0, 0, 0);
 
@@ -8856,11 +8858,10 @@ if (canvas) {
   let currentModel = null;
   const loader = new GLTFLoader();
 
-  // Load a companion model dynamically
-  async function loadCompanionModel(companionId) {
-    console.log('[3D] Loading companion:', companionId);
+  // Load a companion model dynamically (callback-based for reliability)
+  function loadCompanionModel(companionId) {
     const comp = window.COMPANIONS?.[companionId] || window.COMPANIONS?.raven;
-    if (!comp) { console.error('[3D] No companion found for:', companionId); return; }
+    if (!comp) { console.warn('[3D] No companion data for:', companionId); return Promise.resolve(); }
 
     // Dispose old model
     if (currentModel) {
@@ -8883,74 +8884,72 @@ if (canvas) {
     // Update mood params
     activeMoodParams = comp.moodParams;
 
-    // Load .glb
-    try {
-      console.log('[3D] Fetching:', comp.modelFile);
-      const gltf = await new Promise((resolve, reject) => {
-        loader.load(comp.modelFile,
-          (g) => { console.log('[3D] GLB loaded OK'); resolve(g); },
-          (p) => { if (p.total) console.log('[3D] Progress:', Math.round(p.loaded/p.total*100)+'%'); },
-          (e) => { console.error('[3D] GLB load error:', e); reject(e); }
-        );
-      });
-      const model = gltf.scene;
+    return new Promise((resolve) => {
+      loader.load(comp.modelFile, (gltf) => {
+        const model = gltf.scene;
 
-      // Center & scale
-      const box = new THREE.Box3().setFromObject(model);
-      const center = box.getCenter(new THREE.Vector3());
-      const size = box.getSize(new THREE.Vector3());
-      const maxDim = Math.max(size.x, size.y, size.z);
-      const fitScale = comp.modelScale || (1.5 / maxDim);
-      model.scale.setScalar(fitScale);
-      model.position.set(-center.x * fitScale, -center.y * fitScale + (comp.modelOffsetY || 0), -center.z * fitScale);
-      console.log('[3D] Model size:', size.x.toFixed(2), size.y.toFixed(2), size.z.toFixed(2), 'scale:', fitScale.toFixed(4));
+        // Center & scale
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const fitScale = comp.modelScale || (1.5 / maxDim);
+        model.scale.setScalar(fitScale);
+        model.position.set(-center.x * fitScale, -center.y * fitScale + (comp.modelOffsetY || 0), -center.z * fitScale);
 
-      // Inject companion-specific vertex shader
-      model.traverse((child) => {
-        if (child.isMesh && child.material) {
-          child.material.onBeforeCompile = (shader) => {
-            shader.uniforms.uTime = { value: 0 };
-            shader.uniforms.uWingAmp = { value: 0.025 };
-            shader.uniforms.uWingSpd = { value: 2.5 };
-            shader.uniforms.uHeadAmp = { value: 0.012 };
-            shader.uniforms.uHeadSpd = { value: 1.3 };
-            shader.uniforms.uTailAmp = { value: 0.015 };
-            shader.uniforms.uTailSpd = { value: 1.8 };
-            shader.uniforms.uBreathAmp = { value: 0.004 };
-            shader.uniforms.uBreathSpd = { value: 2.0 };
-            shader.uniforms.uBeakAmp = { value: 0.003 };
+        // Inject companion-specific vertex shader
+        model.traverse((child) => {
+          if (child.isMesh && child.material) {
+            const mats = Array.isArray(child.material) ? child.material : [child.material];
+            mats.forEach(mat => {
+              mat.onBeforeCompile = (shader) => {
+                shader.uniforms.uTime = { value: 0 };
+                shader.uniforms.uWingAmp = { value: 0.025 };
+                shader.uniforms.uWingSpd = { value: 2.5 };
+                shader.uniforms.uHeadAmp = { value: 0.012 };
+                shader.uniforms.uHeadSpd = { value: 1.3 };
+                shader.uniforms.uTailAmp = { value: 0.015 };
+                shader.uniforms.uTailSpd = { value: 1.8 };
+                shader.uniforms.uBreathAmp = { value: 0.004 };
+                shader.uniforms.uBreathSpd = { value: 2.0 };
+                shader.uniforms.uBeakAmp = { value: 0.003 };
 
-            shader.vertexShader = shader.vertexShader.replace(
-              '#include <common>',
-              `#include <common>
-              uniform float uTime;
-              uniform float uWingAmp, uWingSpd;
-              uniform float uHeadAmp, uHeadSpd;
-              uniform float uTailAmp, uTailSpd;
-              uniform float uBreathAmp, uBreathSpd;
-              uniform float uBeakAmp;
-              `
-            );
+                shader.vertexShader = shader.vertexShader.replace(
+                  '#include <common>',
+                  `#include <common>
+                  uniform float uTime;
+                  uniform float uWingAmp, uWingSpd;
+                  uniform float uHeadAmp, uHeadSpd;
+                  uniform float uTailAmp, uTailSpd;
+                  uniform float uBreathAmp, uBreathSpd;
+                  uniform float uBeakAmp;
+                  `
+                );
 
-            shader.vertexShader = shader.vertexShader.replace(
-              '#include <begin_vertex>',
-              `#include <begin_vertex>\n${comp.shaderVertex}`
-            );
+                shader.vertexShader = shader.vertexShader.replace(
+                  '#include <begin_vertex>',
+                  `#include <begin_vertex>\n${comp.shaderVertex}`
+                );
 
-            shaderRef = shader;
-          };
-        }
-      });
+                shaderRef = shader;
+              };
+              mat.needsUpdate = true;
+            });
+          }
+        });
 
-      scene.add(model);
-      currentModel = model;
-      console.log('[3D] Model loaded OK:', comp.modelFile);
-    } catch(e) {
-      console.error('[3D] Failed to load companion model:', comp.modelFile, e);
-    }
+        scene.add(model);
+        currentModel = model;
+        resize();
+        resolve();
+      },
+      undefined,
+      (err) => { console.error('[3D] Load error:', comp.modelFile, err); resolve(); }
+      );
+    });
   }
 
-  // Resize handler
+  // Resize handler — use false to let CSS control display size
   function resize() {
     const w = stage.clientWidth;
     const h = stage.clientHeight;
@@ -8989,7 +8988,7 @@ if (canvas) {
   }
   animate();
 
-  // Expose API to main script (before loading so switchCompanion works)
+  // Expose API to main script
   window.raven3D = {
     setMood(mood) { currentMood = mood; },
     getMood() { return currentMood; },
@@ -8997,9 +8996,8 @@ if (canvas) {
   };
 
   // Load initial companion
-  const initCompanionId = window._stakrState?.companion || 'raven';
-  console.log('[3D] Init companion:', initCompanionId, 'COMPANIONS:', !!window.COMPANIONS);
-  loadCompanionModel(initCompanionId).catch(e => console.error('[3D] Init load failed:', e));
+  const initId = window._stakrState?.companion || 'raven';
+  loadCompanionModel(initId);
 }
 </script>
 </body>
