@@ -35,6 +35,7 @@ header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:lin
 header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)}
 header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,60,.4);font-variant:small-caps;letter-spacing:2px}
 #mood-indicator{font-size:.75rem;color:var(--text-dim);margin-left:auto}
+header button{flex-shrink:0}
 #settings-btn,#project-btn{background:none;border:none;color:var(--gold-dim);font-size:1.3rem;cursor:pointer;padding:4px 8px;transition:color .2s}
 #settings-btn:hover,#project-btn:hover{color:var(--gold)}
 
@@ -460,6 +461,11 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:480px){
+  header{gap:4px;padding:8px 8px}
+  header h1{font-size:.9rem;letter-spacing:1px}
+  #mood-indicator{display:none}
+  #settings-btn,#project-btn{font-size:1.1rem;padding:4px 4px}
+  #quest-btn,#map-btn,#leaderboard-btn,#account-btn,#customize-btn,#mute-btn{font-size:1rem;padding:2px 3px}
   #raven-stage{height:230px}
   .msg{max-width:92%;font-size:.83rem}
   .mode-quick-btn{font-size:.65rem;padding:6px 10px}
