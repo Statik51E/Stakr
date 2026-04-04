@@ -187,10 +187,11 @@ header button{flex-shrink:0}
 .quest-stat{background:var(--wood-mid);border:1px solid var(--border);border-radius:6px;padding:6px 10px;text-align:center;flex:1}
 .quest-stat .stat-val{font-size:1rem;color:var(--gold);font-weight:700}
 .quest-stat .stat-label{font-size:.6rem;color:var(--text-dim);display:block}
-.quest-tabs{display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch}
-.quest-tab{flex:1;padding:8px 4px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-size:.75rem;cursor:pointer;font-family:inherit;transition:all .2s}
-.quest-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
-.quest-tab:hover{color:var(--text)}
+.quest-tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;padding:4px;background:var(--wood-mid);border-radius:8px}
+.quest-tab{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;background:none;border:none;border-radius:6px;color:var(--text-dim);font-size:.55rem;cursor:pointer;font-family:inherit;transition:all .2s;line-height:1.1}
+.quest-tab .tab-icon{font-size:.9rem;line-height:1}
+.quest-tab.active{color:var(--gold);background:rgba(196,154,60,.12);box-shadow:0 0 0 1px var(--gold-dim)}
+.quest-tab:hover{color:var(--text);background:rgba(255,255,255,.04)}
 .quest-category{font-size:.7rem;color:var(--gold-dim);font-variant:small-caps;letter-spacing:1px;margin:10px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--border)}
 .quest-item{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:8px;transition:border-color .2s}
 .quest-item.completed{border-color:var(--gold-dim);background:linear-gradient(135deg,var(--surface),rgba(196,154,60,.06))}
@@ -810,15 +811,15 @@ header button{flex-shrink:0}
       </div>
     </div>
     <div class="quest-tabs">
-      <button class="quest-tab active" data-qtab="daily" onclick="switchQuestTab('daily')">Quotidien</button>
-      <button class="quest-tab" data-qtab="weekly" onclick="switchQuestTab('weekly')">Hebdo</button>
-      <button class="quest-tab" data-qtab="defis" onclick="switchQuestTab('defis')">Defis</button>
-      <button class="quest-tab" data-qtab="boss" onclick="switchQuestTab('boss')">Boss</button>
-      <button class="quest-tab" data-qtab="stakr" onclick="switchQuestTab('stakr')">Stakr</button>
-      <button class="quest-tab" data-qtab="runes" onclick="switchQuestTab('runes')">Runes</button>
-      <button class="quest-tab" data-qtab="arbre" onclick="switchQuestTab('arbre')">Arbre</button>
-      <button class="quest-tab" data-qtab="evolve" onclick="switchQuestTab('evolve')">Evoluer</button>
-      <button class="quest-tab" data-qtab="stats" onclick="switchQuestTab('stats')">Stats</button>
+      <button class="quest-tab active" data-qtab="daily" onclick="switchQuestTab('daily')"><span class="tab-icon">&#9876;</span>Jour</button>
+      <button class="quest-tab" data-qtab="weekly" onclick="switchQuestTab('weekly')"><span class="tab-icon">&#128197;</span>Semaine</button>
+      <button class="quest-tab" data-qtab="defis" onclick="switchQuestTab('defis')"><span class="tab-icon">&#9888;</span>Defis</button>
+      <button class="quest-tab" data-qtab="boss" onclick="switchQuestTab('boss')"><span class="tab-icon">&#128009;</span>Boss</button>
+      <button class="quest-tab" data-qtab="stakr" onclick="switchQuestTab('stakr')"><span class="tab-icon">&#129718;</span>Stakr</button>
+      <button class="quest-tab" data-qtab="runes" onclick="switchQuestTab('runes')"><span class="tab-icon">&#9883;</span>Runes</button>
+      <button class="quest-tab" data-qtab="arbre" onclick="switchQuestTab('arbre')"><span class="tab-icon">&#127794;</span>Arbre</button>
+      <button class="quest-tab" data-qtab="evolve" onclick="switchQuestTab('evolve')"><span class="tab-icon">&#11014;</span>Evoluer</button>
+      <button class="quest-tab" data-qtab="stats" onclick="switchQuestTab('stats')"><span class="tab-icon">&#128200;</span>Stats</button>
     </div>
     <div id="quest-list-daily"></div>
     <div id="quest-list-weekly" style="display:none"></div>
@@ -2843,20 +2844,20 @@ const DAILY_CHALLENGE_POOLS = {
     icon: '🏋️',
     desc: 'Forge ton corps au poids du corps, comme les guerriers du Nord.',
     quests: [
-      { id: 'ch_dips', name: 'Dips', icon: '💪', target: 10, unit: 'reps', xpReward: 35, category: 'physique' },
-      { id: 'ch_tractions', name: 'Tractions', icon: '🪨', target: 5, unit: 'reps', xpReward: 40, category: 'physique' },
-      { id: 'ch_squats', name: 'Squats', icon: '🦵', target: 30, unit: 'reps', xpReward: 30, category: 'physique' },
-      { id: 'ch_burpees', name: 'Burpees', icon: '🔥', target: 10, unit: 'reps', xpReward: 35, category: 'physique' },
-      { id: 'ch_gainage', name: 'Gainage', icon: '🛡️', target: 60, unit: 'sec', xpReward: 25, category: 'physique' },
-      { id: 'ch_pompes_dia', name: 'Pompes diamant', icon: '💎', target: 10, unit: 'reps', xpReward: 35, category: 'physique' },
-      { id: 'ch_fentes', name: 'Fentes marchees', icon: '🚶', target: 20, unit: 'reps', xpReward: 30, category: 'physique' },
-      { id: 'ch_mountain', name: 'Mountain climbers', icon: '⛰️', target: 20, unit: 'reps', xpReward: 30, category: 'physique' },
-      { id: 'ch_pompes_pike', name: 'Pompes pike', icon: '🔱', target: 8, unit: 'reps', xpReward: 35, category: 'physique' },
-      { id: 'ch_chaise', name: 'Chaise murale', icon: '🪑', target: 45, unit: 'sec', xpReward: 25, category: 'physique' },
-      { id: 'ch_superman', name: 'Superman hold', icon: '🦸', target: 30, unit: 'sec', xpReward: 20, category: 'physique' },
-      { id: 'ch_jumping_sq', name: 'Jump squats', icon: '🦘', target: 15, unit: 'reps', xpReward: 35, category: 'physique' },
-      { id: 'ch_muscle_up', name: 'Pompes explosives', icon: '💥', target: 8, unit: 'reps', xpReward: 40, category: 'physique' },
-      { id: 'ch_proteines', name: 'Repas proteine', icon: '🥩', target: 1, unit: 'repas', xpReward: 20, category: 'sante' }
+      { id: 'ch_dips', name: 'Dips', icon: '💪', target: 10, unit: 'reps', xpReward: 35, category: 'physique', desc: 'Mains sur une chaise ou un bord stable, descends et remonte a la force des bras. Travaille triceps et pectoraux.' },
+      { id: 'ch_tractions', name: 'Tractions', icon: '🪨', target: 5, unit: 'reps', xpReward: 40, category: 'physique', desc: 'Suspends-toi a une barre et hisse-toi jusqu\'au menton. Le roi des exercices du haut du corps.' },
+      { id: 'ch_squats', name: 'Squats', icon: '🦵', target: 30, unit: 'reps', xpReward: 30, category: 'physique', desc: 'Pieds ecart epaules, descends comme si tu t\'asseyais, remonte. Garde le dos droit et les genoux au-dessus des pieds.' },
+      { id: 'ch_burpees', name: 'Burpees', icon: '🔥', target: 10, unit: 'reps', xpReward: 35, category: 'physique', desc: 'Accroupi, saute en planche, pompe, remonte et saute en l\'air. L\'exercice le plus complet qui soit.' },
+      { id: 'ch_gainage', name: 'Gainage', icon: '🛡️', target: 60, unit: 'sec', xpReward: 25, category: 'physique', desc: 'Position planche sur les coudes, corps droit comme une epee viking. Tiens la position sans bouger.' },
+      { id: 'ch_pompes_dia', name: 'Pompes diamant', icon: '💎', target: 10, unit: 'reps', xpReward: 35, category: 'physique', desc: 'Pompes avec les mains rapprochees en forme de diamant. Cible les triceps et l\'interieur des pectoraux.' },
+      { id: 'ch_fentes', name: 'Fentes marchees', icon: '🚶', target: 20, unit: 'reps', xpReward: 30, category: 'physique', desc: 'Un pas en avant, genou arriere vers le sol, alterne les jambes en marchant. Sculpte cuisses et fessiers.' },
+      { id: 'ch_mountain', name: 'Mountain climbers', icon: '⛰️', target: 20, unit: 'reps', xpReward: 30, category: 'physique', desc: 'En position planche, ramene alternativement les genoux vers la poitrine rapidement. Cardio + abdos.' },
+      { id: 'ch_pompes_pike', name: 'Pompes pike', icon: '🔱', target: 8, unit: 'reps', xpReward: 35, category: 'physique', desc: 'En V inverse (fesses en l\'air), descends la tete vers le sol. Simule un developpe epaules au poids du corps.' },
+      { id: 'ch_chaise', name: 'Chaise murale', icon: '🪑', target: 45, unit: 'sec', xpReward: 25, category: 'physique', desc: 'Dos contre un mur, cuisses paralleles au sol, tiens la position. Test de volonte autant que de force.' },
+      { id: 'ch_superman', name: 'Superman hold', icon: '🦸', target: 30, unit: 'sec', xpReward: 20, category: 'physique', desc: 'Allonge sur le ventre, leve bras et jambes du sol en meme temps. Renforce le bas du dos et les fessiers.' },
+      { id: 'ch_jumping_sq', name: 'Jump squats', icon: '🦘', target: 15, unit: 'reps', xpReward: 35, category: 'physique', desc: 'Squat classique suivi d\'un saut explosif. Developpe la puissance des jambes de berserker.' },
+      { id: 'ch_muscle_up', name: 'Pompes explosives', icon: '💥', target: 8, unit: 'reps', xpReward: 40, category: 'physique', desc: 'Pompes avec une poussee explosive pour decoller les mains du sol. Puissance et vitesse combinees.' },
+      { id: 'ch_proteines', name: 'Repas proteine', icon: '🥩', target: 1, unit: 'repas', xpReward: 20, category: 'sante', desc: 'Mange un repas riche en proteines (oeufs, viande, poisson, legumineuses). Le carburant du guerrier.' }
     ]
   },
   philosophie: {
@@ -2864,20 +2865,20 @@ const DAILY_CHALLENGE_POOLS = {
     icon: '📜',
     desc: 'Nourris ton esprit et forge ta sagesse interieure.',
     quests: [
-      { id: 'ch_journal', name: 'Journal intime', icon: '📝', target: 1, unit: 'entree', xpReward: 25, category: 'mental' },
-      { id: 'ch_stoicisme', name: 'Reflexion stoique', icon: '🏛️', target: 5, unit: 'min', xpReward: 30, category: 'mental' },
-      { id: 'ch_memento', name: 'Memento mori', icon: '💀', target: 1, unit: 'reflexion', xpReward: 20, category: 'mental' },
-      { id: 'ch_valeurs', name: 'Definir ses valeurs', icon: '⚖️', target: 1, unit: 'reflexion', xpReward: 25, category: 'mental' },
-      { id: 'ch_silence', name: 'Silence volontaire', icon: '🤫', target: 10, unit: 'min', xpReward: 25, category: 'mental' },
-      { id: 'ch_discomfort', name: 'Zone d\'inconfort', icon: '🌊', target: 1, unit: 'action', xpReward: 35, category: 'mental' },
-      { id: 'ch_sagesse', name: 'Lire de la sagesse', icon: '📖', target: 10, unit: 'min', xpReward: 25, category: 'mental' },
-      { id: 'ch_pardon', name: 'Exercice de pardon', icon: '🕊️', target: 1, unit: 'reflexion', xpReward: 20, category: 'mental' },
-      { id: 'ch_nature_obs', name: 'Observer la nature', icon: '🌿', target: 5, unit: 'min', xpReward: 20, category: 'mental' },
-      { id: 'ch_dichotomie', name: 'Dichotomie du controle', icon: '🎯', target: 1, unit: 'exercice', xpReward: 30, category: 'mental' },
-      { id: 'ch_amor_fati', name: 'Amor fati', icon: '☀️', target: 1, unit: 'reflexion', xpReward: 25, category: 'mental' },
-      { id: 'ch_cold_face', name: 'Affronter une peur', icon: '🐺', target: 1, unit: 'action', xpReward: 40, category: 'mental' },
-      { id: 'ch_minimalisme', name: 'Acte minimaliste', icon: '🧹', target: 1, unit: 'action', xpReward: 20, category: 'mental' },
-      { id: 'ch_bienveillance', name: 'Acte de bienveillance', icon: '🤝', target: 1, unit: 'acte', xpReward: 25, category: 'social' }
+      { id: 'ch_journal', name: 'Journal intime', icon: '📝', target: 1, unit: 'entree', xpReward: 25, category: 'mental', desc: 'Ecris librement dans un carnet : ta journee, tes pensees, tes objectifs. L\'ecriture clarifie l\'esprit.' },
+      { id: 'ch_stoicisme', name: 'Reflexion stoique', icon: '🏛️', target: 5, unit: 'min', xpReward: 30, category: 'mental', desc: 'Assieds-toi au calme et reflechis : qu\'est-ce qui depend de toi aujourd\'hui ? Qu\'est-ce qui n\'en depend pas ?' },
+      { id: 'ch_memento', name: 'Memento mori', icon: '💀', target: 1, unit: 'reflexion', xpReward: 20, category: 'mental', desc: 'Rappelle-toi que la vie est ephemere. Qu\'est-ce que tu ferais si c\'etait ton dernier jour ? Vis en consequence.' },
+      { id: 'ch_valeurs', name: 'Definir ses valeurs', icon: '⚖️', target: 1, unit: 'reflexion', xpReward: 25, category: 'mental', desc: 'Note 3 valeurs qui comptent pour toi et demande-toi si tes actions d\'aujourd\'hui les respectent.' },
+      { id: 'ch_silence', name: 'Silence volontaire', icon: '🤫', target: 10, unit: 'min', xpReward: 25, category: 'mental', desc: 'Coupe tout bruit, ecran et distraction pendant 10 minutes. Reste seul avec tes pensees.' },
+      { id: 'ch_discomfort', name: 'Zone d\'inconfort', icon: '🌊', target: 1, unit: 'action', xpReward: 35, category: 'mental', desc: 'Fais une chose qui te met mal a l\'aise : parler a un inconnu, prendre une douche froide, dire non...' },
+      { id: 'ch_sagesse', name: 'Lire de la sagesse', icon: '📖', target: 10, unit: 'min', xpReward: 25, category: 'mental', desc: 'Lis un texte philosophique, stoicien ou de developpement personnel. Marc Aurele, Seneque, Epictete...' },
+      { id: 'ch_pardon', name: 'Exercice de pardon', icon: '🕊️', target: 1, unit: 'reflexion', xpReward: 20, category: 'mental', desc: 'Pense a quelqu\'un qui t\'a blesse et choisis de lacher cette rancune. Le pardon libere celui qui pardonne.' },
+      { id: 'ch_nature_obs', name: 'Observer la nature', icon: '🌿', target: 5, unit: 'min', xpReward: 20, category: 'mental', desc: 'Dehors, prends 5 minutes pour observer vraiment : le ciel, les arbres, les oiseaux. Sois present.' },
+      { id: 'ch_dichotomie', name: 'Dichotomie du controle', icon: '🎯', target: 1, unit: 'exercice', xpReward: 30, category: 'mental', desc: 'Liste ce qui te preoccupe, puis separe en deux colonnes : ce que tu controles, et ce que tu ne controles pas. Lache la 2e.' },
+      { id: 'ch_amor_fati', name: 'Amor fati', icon: '☀️', target: 1, unit: 'reflexion', xpReward: 25, category: 'mental', desc: 'Prends un evenement negatif recent et cherche ce qu\'il t\'apprend. Aime ton destin, meme les epreuves.' },
+      { id: 'ch_cold_face', name: 'Affronter une peur', icon: '🐺', target: 1, unit: 'action', xpReward: 40, category: 'mental', desc: 'Identifie une peur qui te limite et fais un petit pas pour l\'affronter aujourd\'hui. Le courage nait dans l\'action.' },
+      { id: 'ch_minimalisme', name: 'Acte minimaliste', icon: '🧹', target: 1, unit: 'action', xpReward: 20, category: 'mental', desc: 'Debarrasse-toi d\'un objet inutile ou simplifie un aspect de ta vie. Moins c\'est plus.' },
+      { id: 'ch_bienveillance', name: 'Acte de bienveillance', icon: '🤝', target: 1, unit: 'acte', xpReward: 25, category: 'social', desc: 'Fais quelque chose de gentil pour quelqu\'un sans rien attendre en retour. Un compliment, un service, un sourire.' }
     ]
   }
 };
@@ -3235,6 +3236,8 @@ function renderDailyChallenges() {
       html += `<span class="quest-item-xp">+${ch.xpReward} XP</span>`;
       html += `</div>`;
       html += `<div style="font-size:.6rem;color:var(--text-dim);margin:2px 0">${ch.target} ${ch.unit}</div>`;
+      const chDesc = ch.desc || (DAILY_CHALLENGE_POOLS[ch.pool]?.quests.find(q => q.id === ch.id)?.desc);
+      if (chDesc) html += `<div style="font-size:.6rem;color:var(--text-dim);margin:4px 0 6px;line-height:1.4;font-style:italic;padding:4px 6px;background:rgba(255,255,255,.03);border-radius:4px;border-left:2px solid var(--gold-dim)">${chDesc}</div>`;
 
       if (!ch.accepted) {
         html += `<div class="challenge-actions">`;
@@ -3484,7 +3487,7 @@ function renderQuests() {
   const defisTab = document.querySelector('.quest-tab[data-qtab="defis"]');
   if (defisTab && dc && dc.challenges) {
     const pending = dc.challenges.filter(c => !c.accepted && !c.declined).length;
-    defisTab.textContent = pending > 0 ? `Defis (${pending})` : 'Defis';
+    defisTab.innerHTML = pending > 0 ? `<span class="tab-icon">&#9888;</span>Defis <span style="background:var(--gold);color:#0e0a06;font-size:.5rem;padding:0 4px;border-radius:6px;font-weight:700">${pending}</span>` : '<span class="tab-icon">&#9888;</span>Defis';
   }
 
   // Refresh defis tab if visible
