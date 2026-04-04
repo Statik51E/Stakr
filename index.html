@@ -3185,7 +3185,9 @@ function renderQuestList(period) {
   });
 
   // Add custom objective button
-  html += `<button class="quest-add-btn" onclick="toggleAddQuest('${period}')">+ Ajouter un objectif</button>`;
+  const customCount = state.quests.objectives.filter(o => o.custom).length;
+  const canAddCustom = customCount < 3;
+  html += `<button class="quest-add-btn" onclick="${canAddCustom ? `toggleAddQuest('${period}')` : ''}" ${canAddCustom ? '' : 'disabled style="opacity:.5;cursor:not-allowed"'}>${canAddCustom ? '+ Ajouter un objectif' : `Limite : ${customCount}/3 objectifs personnels`}</button>`;
   html += `<div class="quest-add-form" id="quest-add-form-${period}">
     <input type="text" id="qa-name-${period}" placeholder="Nom (ex: Abdos)"/>
     <input type="text" id="qa-icon-${period}" placeholder="Emoji (ex: 🏃)" maxlength="4"/>
@@ -3200,7 +3202,7 @@ function renderQuestList(period) {
       <option value="social">Social</option>
       <option value="custom">Personnel</option>
     </select>
-    <input type="number" id="qa-xp-${period}" placeholder="XP recompense (ex: 30)" min="5" max="100"/>
+    <input type="number" id="qa-xp-${period}" placeholder="XP recompense (ex: 30)" min="5" max="50"/>
     <button class="btn-gold" onclick="addCustomQuest('${period}')" style="width:100%;margin-top:2px">Ajouter</button>
   </div>`;
 
@@ -3213,12 +3215,15 @@ function toggleAddQuest(period) {
 }
 
 function addCustomQuest(period) {
+  const customCount = state.quests.objectives.filter(o => o.custom).length;
+  if (customCount >= 3) { showToast('Limite atteinte', 'Tu ne peux avoir que 3 objectifs personnels. Supprime-en un d\'abord !'); return; }
+
   const name = $(`#qa-name-${period}`).value.trim();
   const icon = $(`#qa-icon-${period}`).value.trim() || '\u2694';
   const target = parseInt($(`#qa-target-${period}`).value) || 10;
   const unit = $(`#qa-unit-${period}`).value.trim() || 'fois';
   const category = $(`#qa-cat-${period}`).value;
-  const xpReward = parseInt($(`#qa-xp-${period}`).value) || 30;
+  const xpReward = Math.min(50, parseInt($(`#qa-xp-${period}`).value) || 30);
 
   if (!name) { showToast('Erreur', 'Donne un nom a ton objectif.'); return; }
 
