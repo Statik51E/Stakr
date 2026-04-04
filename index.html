@@ -1009,7 +1009,7 @@ TES FONCTIONNALITÉS (tu fais partie de l'application Stakr) :
 - Tu as un système de PROJETS : ton compagnon peut créer des projets séparés avec leur propre historique de messages
 - Tu as un système de QUÊTES VIKING (bien-être & santé) :
   * Objectifs QUOTIDIENS (pompes, marche, méditation, déconnexion téléphone, lecture, hydratation, sommeil, étirements, gratitude)
-  * Objectifs HEBDOMADAIRES (sport intense, repas sains, sortie nature, journal intime, moment social, douche froide, zéro malbouffe)
+  * Objectifs HEBDOMADAIRES (sport intense, repas sains, sortie nature, moment social, douche froide, zéro malbouffe)
   * Tu peux CRÉER DES QUÊTES PERSONNALISÉES via l'onglet "Stakr" — 4 quêtes adaptées au niveau du guerrier (facile/moyen/difficile/légendaire)
   * QUÊTES SECRÈTES : 13 quêtes cachées qui se débloquent quand certaines conditions sont remplies (ex: valider avant 6h, 100 pompes en un jour, streak 30 jours)
   * SYSTÈME XP & NIVEAUX : 10 rangs vikings (Thrall → Karl → Drengr → Huskarl → Berserkr → Hirdman → Jarl → Hersir → Konungr → Einherjar)
@@ -2741,7 +2741,7 @@ const DEFAULT_OBJECTIVES = [
   { id: 'sport', name: 'Sport intense', icon: '\uD83C\uDFCB', target: 2, unit: 'seances', period: 'weekly', xpReward: 70, category: 'physique' },
   { id: 'healthy_meal', name: 'Repas sain', icon: '\uD83E\uDD57', target: 3, unit: 'repas', period: 'weekly', xpReward: 40, category: 'sante' },
   { id: 'nature', name: 'Sortie nature', icon: '\uD83C\uDF33', target: 1, unit: 'sortie', period: 'weekly', xpReward: 40, category: 'mental' },
-  { id: 'journal', name: 'Journal intime', icon: '\uD83D\uDCDD', target: 2, unit: 'entrees', period: 'weekly', xpReward: 35, category: 'mental' },
+
   { id: 'social', name: 'Moment social', icon: '\uD83E\uDD1D', target: 1, unit: 'moment', period: 'weekly', xpReward: 30, category: 'social' },
   { id: 'cold_shower', name: 'Douche froide', icon: '\uD83E\uDDCA', target: 1, unit: 'douche', period: 'weekly', xpReward: 35, category: 'sante' },
   { id: 'no_junk', name: 'Zero malbouffe', icon: '\uD83D\uDEAB', target: 3, unit: 'jours', period: 'weekly', xpReward: 45, category: 'sante' }
@@ -3731,7 +3731,7 @@ const VIKING_WORLD_MAP = [
     unlock:{ levelMin:4, skillNodesMin:3 },
     challenges:[
       { name:'Cercle de Freya', icon:'🤝', desc:'3 moments sociaux cette semaine', reward:'+50 XP' },
-      { name:'Jardin interieur', icon:'🌱', desc:'Gratitude + journal + nature', reward:'+45 XP' },
+      { name:'Jardin interieur', icon:'🌱', desc:'Gratitude + meditation + nature', reward:'+45 XP' },
       { name:'Magie des Vanes', icon:'✨', desc:'Streak de 14 jours', reward:'+70 XP' }
     ]
   },
@@ -3833,7 +3833,7 @@ const YGGDRASIL_TREE = {
         unlock:{ lifetimeKey:'gratitude', lifetimeMin:30, lifetimeKey2:'meditation', lifetimeMin2:60, levelMin:4 },
         reward:{ type:'xp_mult', category:'mental', value:0.10, label:'+10% XP Mental' }},
       { id:'ment_4', name:'Memoire de Mimir', tier:4, desc:'Tu retiens tout ce que tu lis',
-        unlock:{ lifetimeKey:'reading', lifetimeMin:500, lifetimeKey2:'journal', lifetimeMin2:20, levelMin:6 },
+        unlock:{ lifetimeKey:'reading', lifetimeMin:500, lifetimeKey2:'meditation', lifetimeMin2:60, levelMin:6 },
         reward:{ type:'quest_unlock', questTemplate:{ name:'Etude profonde', icon:'📜', target:30, unit:'min', period:'daily', category:'mental', xpReward:40 }, label:'Debloque: Etude profonde' }},
       { id:'ment_5', name:'Sagesse d\'Odin', tier:5, desc:'Tu vois au-dela du voile',
         unlock:{ lifetimeKey:'meditation', lifetimeMin:200, lifetimeKey2:'gratitude', lifetimeMin2:100, levelMin:8 },
@@ -3867,13 +3867,13 @@ const YGGDRASIL_TREE = {
         unlock:{ lifetimeKey:'social', lifetimeMin:3 },
         reward:{ type:'xp_mult', category:'social', value:0.05, label:'+5% XP Social' }},
       { id:'soci_2', name:'Voix du Skald', tier:2, desc:'Tes mots portent loin',
-        unlock:{ lifetimeKey:'journal', lifetimeMin:10, lifetimeKey2:'social', lifetimeMin2:8 },
+        unlock:{ lifetimeKey:'gratitude', lifetimeMin:10, lifetimeKey2:'social', lifetimeMin2:8 },
         reward:{ type:'quest_unlock', questTemplate:{ name:'Acte de bonte', icon:'💛', target:1, unit:'fois', period:'daily', category:'social', xpReward:20 }, label:'Debloque: Acte de bonte' }},
       { id:'soci_3', name:'Charisme du Jarl', tier:3, desc:'On te suit naturellement',
         unlock:{ lifetimeKey:'social', lifetimeMin:20, streakMin:14 },
         reward:{ type:'xp_mult', category:'social', value:0.10, label:'+10% XP Social' }},
       { id:'soci_4', name:'Cercle du Thing', tier:4, desc:'Tu rassembles les gens',
-        unlock:{ lifetimeKey:'social', lifetimeMin:40, lifetimeKey2:'journal', lifetimeMin2:30, runesMin:8, levelMin:6 },
+        unlock:{ lifetimeKey:'social', lifetimeMin:40, lifetimeKey2:'gratitude', lifetimeMin2:30, runesMin:8, levelMin:6 },
         reward:{ type:'quest_unlock', questTemplate:{ name:'Mentorat', icon:'🤝', target:1, unit:'session', period:'weekly', category:'social', xpReward:60 }, label:'Debloque: Mentorat' }},
       { id:'soci_5', name:'Lumiere de Baldur', tier:5, desc:'Ta presence illumine les autres',
         unlock:{ lifetimeKey:'social', lifetimeMin:80, streakMin:30, levelMin:9 },
