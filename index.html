@@ -2819,6 +2819,34 @@ function initQuests() {
   checkSkillTreeUnlocks();
   checkWorldMapUnlocks();
 
+  // ===== CHECK EVOLUTION TRIALS before daily reset =====
+  q.objectives.forEach(o => {
+    if (!o.evolveTrial || !o.evolveTrial.active || o.period !== 'daily') return;
+    if (o.lastReset === today) return; // Already checked today
+
+    // Check if yesterday's progress met the evolved target
+    if (o.progress >= o.target) {
+      o.evolveTrial.consecutiveDays++;
+      o.evolveTrial.lastCompletedDate = o.lastReset;
+      if (o.evolveTrial.consecutiveDays >= 3) {
+        // SUCCESS — evolution permanently locked!
+        delete o.evolveTrial;
+        addMessage('stakr', `KRAA ! L'epreuve est reussie ! ${o.icon} **${o.name}** est desormais au rang **${EVOLVE_TIER_NAMES[o.evolveTier]}** pour toujours ! Les dieux saluent ta perseverance ! [MOOD:excite]`);
+        showToast('Evolution confirmee !', `${o.icon} ${o.name} — rang ${EVOLVE_TIER_NAMES[o.evolveTier]} verrouille !`);
+      }
+    } else {
+      // FAILED — revert evolution, set cooldown
+      const trial = o.evolveTrial;
+      o.evolveTier = trial.prevTier;
+      o.target = trial.prevTarget;
+      o.xpReward = trial.prevXp;
+      delete o.evolveTrial;
+      q.lastEvolveDate = getTodayStr(); // Reset cooldown (must wait 7 days)
+      addMessage('stakr', `L'epreuve a echoue pour ${o.icon} **${o.name}**... L'amelioration est annulee. Tu pourras reessayer dans une semaine. Persevere, Viking ! [MOOD:triste]`);
+      showToast('Epreuve echouee', `${o.icon} ${o.name} — retour au rang precedent`);
+    }
+  });
+
   // Reset daily objectives if new day
   q.objectives.forEach(o => {
     if (o.period === 'daily' && o.lastReset !== today) {
@@ -2843,7 +2871,8 @@ function initQuests() {
         o.lastReset = today;
       }
       // Scale physical quest targets progressively (only default quests, not custom)
-      if (!o.custom) {
+      // Skip scaling for quests with active evolution trials or evolved tiers (evolution takes precedence)
+      if (!o.custom && !o.evolveTrial?.active && !(o.evolveTier > 0)) {
         const def = DEFAULT_OBJECTIVES.find(d => d.id === o.id);
         if (def && def.category === 'physique') {
           // Physical quests scale with level/weeks
@@ -3122,11 +3151,12 @@ function renderQuestList(period) {
       const doubleLabel = isDouble ? '⚡ x2 ACCOMPLI !' : isComplete ? `x2 : ${o.progress}/${o.target * 2} ${o.unit}` : '';
       const eTier = o.evolveTier || 0;
       const eTierBadge = eTier > 0 ? `<span class="evolve-tier evolve-tier-${eTier}" style="font-size:.5rem;margin-left:4px">${EVOLVE_TIER_NAMES[eTier]}</span>` : '';
+      const trialBadge = o.evolveTrial?.active ? `<span style="font-size:.5rem;margin-left:4px;background:rgba(255,165,0,.2);color:#ffa726;padding:1px 5px;border-radius:4px;font-weight:700">⚔️ ${o.evolveTrial.consecutiveDays}/3</span>` : '';
       html += `
         <div class="quest-item ${isDouble ? 'completed double' : isComplete ? 'completed' : ''}">
           <div class="quest-item-header">
             <span class="quest-item-icon">${o.icon}</span>
-            <span class="quest-item-name">${o.name}${eTierBadge}</span>
+            <span class="quest-item-name">${o.name}${eTierBadge}${trialBadge}</span>
             <span class="quest-item-xp">${isDouble ? '⚡x2' : isComplete ? '&#10003;' : ''} +${o.xpReward} XP</span>
             ${o.custom ? `<button onclick="deleteCustomQuest('${o.id}')" style="background:none;border:none;color:#c0392b;font-size:.8rem;cursor:pointer;padding:2px 4px;margin-left:4px" title="Supprimer">✕</button>` : ''}
           </div>
@@ -3349,6 +3379,8 @@ function renderQuestEvolution() {
   const q = state.quests;
   const canEvolve = canEvolveThisWeek();
   const daysLeft = daysUntilNextEvolve();
+  const trialsActive = hasActiveTrials();
+  const trialsInProgress = q.objectives.filter(o => o.evolveTrial?.active);
 
   let html = `<div style="padding:2px">`;
 
@@ -3359,20 +3391,72 @@ function renderQuestEvolution() {
     <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px;line-height:1.4">Rends tes quetes plus difficiles pour gagner plus d'XP.<br>Tu peux evoluer une fois par semaine.</div>
   </div>`;
 
+  // ===== ACTIVE TRIALS SECTION =====
+  if (trialsInProgress.length > 0) {
+    html += `<div style="margin-bottom:12px">
+      <div class="quest-category" style="color:#ffa726">⚔️ Epreuves en cours</div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-bottom:8px;text-align:center;line-height:1.4">Complete les objectifs ameliores 3 jours de suite pour confirmer l'evolution.<br>Si tu echoues un jour, l'amelioration est annulee.</div>`;
+
+    trialsInProgress.forEach(o => {
+      const trial = o.evolveTrial;
+      const tier = o.evolveTier;
+      const daysOk = trial.consecutiveDays;
+      const pctTrial = Math.round((daysOk / 3) * 100);
+      const todayDone = o.progress >= o.target;
+
+      html += `<div class="quest-evolve-card" style="border-color:#ffa726;background:rgba(255,167,38,.06)">
+        <div class="evolve-header">
+          <span class="evolve-icon">${o.icon}</span>
+          <span class="evolve-name">${o.name}</span>
+          <span class="evolve-tier evolve-tier-${tier}">${EVOLVE_TIER_NAMES[tier]}</span>
+        </div>
+        <div class="evolve-detail">Objectif : <strong>${o.target} ${o.unit}</strong> (avant : ${trial.prevTarget} ${o.unit})</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+          <div style="flex:1;height:8px;background:rgba(255,167,38,.15);border-radius:4px;overflow:hidden">
+            <div style="width:${pctTrial}%;height:100%;background:linear-gradient(90deg,#ff9800,#ffa726);border-radius:4px;transition:width .3s"></div>
+          </div>
+          <span style="font-size:.65rem;font-weight:700;color:#ffa726">${daysOk}/3 jours</span>
+        </div>
+        <div style="display:flex;gap:4px;margin-top:6px;justify-content:center">
+          ${[0,1,2].map(i => {
+            const done = i < daysOk;
+            const current = i === daysOk;
+            return `<div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;
+              ${done ? 'background:#ffa726;color:#1a0f0a' : current ? 'background:rgba(255,167,38,.2);color:#ffa726;border:2px solid #ffa726' : 'background:rgba(255,167,38,.08);color:var(--text-dim);border:1px solid rgba(255,167,38,.2)'}">
+              ${done ? '✓' : `J${i + 1}`}
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="text-align:center;margin-top:6px;font-size:.6rem;font-weight:600;color:${todayDone ? '#69f0ae' : 'var(--text-dim)'}">
+          ${todayDone ? '✓ Objectif du jour atteint !' : `Aujourd'hui : ${o.progress}/${o.target} ${o.unit}`}
+        </div>
+      </div>`;
+    });
+
+    html += `</div>`;
+  }
+
   // Cooldown banner
-  if (!canEvolve) {
+  if (!canEvolve && !trialsActive) {
     html += `<div class="quest-evolve-cooldown">
       <div style="font-size:1.2rem;margin-bottom:4px">⏳</div>
       <div style="font-size:.8rem;color:var(--gold);font-weight:600">Prochaine evolution dans ${daysLeft} jour${daysLeft > 1 ? 's' : ''}</div>
       <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">Tu as deja evolue tes quetes cette semaine. Reviens ${daysLeft === 1 ? 'demain' : 'dans ' + daysLeft + ' jours'} !</div>
     </div>`;
+  } else if (trialsActive) {
+    html += `<div class="quest-evolve-cooldown" style="border-color:#ffa726">
+      <div style="font-size:1.2rem;margin-bottom:4px">⚔️</div>
+      <div style="font-size:.8rem;color:#ffa726;font-weight:600">Epreuves en cours</div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">Termine tes epreuves avant de pouvoir evoluer d'autres quetes.</div>
+    </div>`;
   }
 
-  // Quest cards
-  const evolvable = q.objectives.filter(o => !o.custom && (o.evolveTier || 0) < 5);
+  // Quest cards (only show if no trials active and can evolve)
+  const evolvable = q.objectives.filter(o => !o.custom && (o.evolveTier || 0) < 5 && !o.evolveTrial?.active);
   const maxedOut = q.objectives.filter(o => !o.custom && (o.evolveTier || 0) >= 5);
+  const canSelect = canEvolve && !trialsActive;
 
-  if (evolvable.length === 0 && maxedOut.length > 0) {
+  if (evolvable.length === 0 && maxedOut.length > 0 && !trialsActive) {
     html += `<div style="text-align:center;padding:20px;color:var(--gold)">
       <div style="font-size:1.5rem;margin-bottom:8px">🏆</div>
       <div style="font-size:.8rem;font-weight:700">Toutes tes quetes sont au rang Divin !</div>
@@ -3380,39 +3464,40 @@ function renderQuestEvolution() {
     </div>`;
   }
 
-  const CATEGORY_NAMES = { physique: 'Physique', mental: 'Mental', sante: 'Sante', social: 'Social' };
-  const categories = [...new Set(evolvable.map(o => o.category))];
+  if (evolvable.length > 0) {
+    const CATEGORY_NAMES = { physique: 'Physique', mental: 'Mental', sante: 'Sante', social: 'Social' };
+    const categories = [...new Set(evolvable.map(o => o.category))];
 
-  categories.forEach(cat => {
-    html += `<div class="quest-category">${CATEGORY_NAMES[cat] || cat}</div>`;
-    evolvable.filter(o => o.category === cat).forEach(o => {
-      const tier = getQuestEvolveTier(o);
-      const nextTier = tier + 1;
-      const isSelected = !!_evolveSelected[o.id];
-      const currentTarget = o.target;
-      const newTarget = getEvolvedTarget(o, nextTier);
-      const currentXp = o.xpReward;
-      const newXp = getEvolvedXp(o, nextTier);
-      const tierClass = `evolve-tier-${Math.min(nextTier, 5)}`;
+    categories.forEach(cat => {
+      html += `<div class="quest-category">${CATEGORY_NAMES[cat] || cat}</div>`;
+      evolvable.filter(o => o.category === cat).forEach(o => {
+        const tier = getQuestEvolveTier(o);
+        const nextTier = tier + 1;
+        const isSelected = !!_evolveSelected[o.id];
+        const currentTarget = o.target;
+        const newTarget = getEvolvedTarget(o, nextTier);
+        const currentXp = o.xpReward;
+        const newXp = getEvolvedXp(o, nextTier);
 
-      html += `<div class="quest-evolve-card ${isSelected ? 'selected' : ''}" onclick="${canEvolve ? `_evolveSelected['${o.id}']=!_evolveSelected['${o.id}'];renderQuestEvolution()` : ''}" style="${canEvolve ? 'cursor:pointer' : 'opacity:.6'}">
-        <div class="evolve-header">
-          <span class="evolve-icon">${o.icon}</span>
-          <span class="evolve-name">${o.name}</span>
-          <span class="evolve-tier ${tier > 0 ? `evolve-tier-${tier}` : ''}" style="${tier === 0 ? 'background:var(--wood-mid);color:var(--text-dim)' : ''}">${EVOLVE_TIER_NAMES[tier]}</span>
-          ${isSelected ? '<span style="font-size:1rem">✓</span>' : ''}
-        </div>
-        <div class="evolve-detail">${o.period === 'daily' ? 'Quotidien' : 'Hebdomadaire'} — ${o.unit}</div>
-        <div class="evolve-arrow">
-          <span>Objectif :</span> <span class="old">${currentTarget} ${o.unit}</span> <span class="arrow">→</span> <span class="new">${newTarget} ${o.unit}</span>
-        </div>
-        <div class="evolve-arrow">
-          <span>XP :</span> <span class="old">+${currentXp}</span> <span class="arrow">→</span> <span class="new">+${newXp} XP</span>
-        </div>
-        <div style="font-size:.55rem;color:var(--text-dim);margin-top:2px">Rang suivant : <strong style="color:var(--gold)">${EVOLVE_TIER_NAMES[nextTier]}</strong></div>
-      </div>`;
+        html += `<div class="quest-evolve-card ${isSelected ? 'selected' : ''}" onclick="${canSelect ? `_evolveSelected['${o.id}']=!_evolveSelected['${o.id}'];renderQuestEvolution()` : ''}" style="${canSelect ? 'cursor:pointer' : 'opacity:.6'}">
+          <div class="evolve-header">
+            <span class="evolve-icon">${o.icon}</span>
+            <span class="evolve-name">${o.name}</span>
+            <span class="evolve-tier ${tier > 0 ? `evolve-tier-${tier}` : ''}" style="${tier === 0 ? 'background:var(--wood-mid);color:var(--text-dim)' : ''}">${EVOLVE_TIER_NAMES[tier]}</span>
+            ${isSelected ? '<span style="font-size:1rem">✓</span>' : ''}
+          </div>
+          <div class="evolve-detail">${o.period === 'daily' ? 'Quotidien' : 'Hebdomadaire'} — ${o.unit}</div>
+          <div class="evolve-arrow">
+            <span>Objectif :</span> <span class="old">${currentTarget} ${o.unit}</span> <span class="arrow">→</span> <span class="new">${newTarget} ${o.unit}</span>
+          </div>
+          <div class="evolve-arrow">
+            <span>XP :</span> <span class="old">+${currentXp}</span> <span class="arrow">→</span> <span class="new">+${newXp} XP</span>
+          </div>
+          <div style="font-size:.55rem;color:var(--text-dim);margin-top:2px">Rang suivant : <strong style="color:var(--gold)">${EVOLVE_TIER_NAMES[nextTier]}</strong>${o.period === 'daily' ? ' — epreuve de 3 jours' : ''}</div>
+        </div>`;
+      });
     });
-  });
+  }
 
   // Maxed out quests
   if (maxedOut.length > 0) {
@@ -3431,12 +3516,12 @@ function renderQuestEvolution() {
 
   // Confirm button
   const selectedCount = Object.values(_evolveSelected).filter(v => v).length;
-  if (canEvolve) {
+  if (canSelect) {
     html += `<button class="quest-evolve-confirm" onclick="confirmQuestEvolution()" ${selectedCount === 0 ? 'disabled' : ''}>
       ⚔️ Evoluer ${selectedCount} quete${selectedCount > 1 ? 's' : ''} selectionnee${selectedCount > 1 ? 's' : ''}
     </button>`;
     if (selectedCount > 0) {
-      html += `<div style="text-align:center;font-size:.6rem;color:var(--text-dim);margin-top:6px">Les objectifs seront plus difficiles mais rapporteront plus d'XP !</div>`;
+      html += `<div style="text-align:center;font-size:.6rem;color:var(--text-dim);margin-top:6px">Les objectifs seront plus difficiles — epreuve de 3 jours pour confirmer !</div>`;
     }
   }
 
@@ -3444,8 +3529,13 @@ function renderQuestEvolution() {
   container.innerHTML = html;
 }
 
+function hasActiveTrials() {
+  return (state.quests.objectives || []).some(o => o.evolveTrial && o.evolveTrial.active);
+}
+
 function confirmQuestEvolution() {
   if (!canEvolveThisWeek()) { showToast('Cooldown', 'Tu as deja evolue cette semaine !'); return; }
+  if (hasActiveTrials()) { showToast('Epreuve en cours', 'Termine tes epreuves avant d\'evoluer !'); return; }
 
   const selectedIds = Object.keys(_evolveSelected).filter(id => _evolveSelected[id]);
   if (selectedIds.length === 0) return;
@@ -3459,10 +3549,33 @@ function confirmQuestEvolution() {
     const tier = (obj.evolveTier || 0);
     if (tier >= 5) return;
     const nextTier = tier + 1;
+
+    // Save previous state for potential revert
+    const prevTier = tier;
+    const prevTarget = obj.target;
+    const prevXp = obj.xpReward;
+
+    // Apply evolution
     obj.evolveTier = nextTier;
     obj.target = getEvolvedTarget(obj, nextTier);
     obj.xpReward = getEvolvedXp(obj, nextTier);
-    evolvedNames.push(`${obj.icon} ${obj.name} → **${EVOLVE_TIER_NAMES[nextTier]}**`);
+
+    // Set trial (daily quests need 3-day proof, weekly quests lock immediately)
+    if (obj.period === 'daily') {
+      obj.evolveTrial = {
+        active: true,
+        startDate: getTodayStr(),
+        prevTier: prevTier,
+        prevTarget: prevTarget,
+        prevXp: prevXp,
+        consecutiveDays: 0,
+        lastCompletedDate: null
+      };
+      evolvedNames.push(`${obj.icon} ${obj.name} → **${EVOLVE_TIER_NAMES[nextTier]}** (epreuve 3 jours)`);
+    } else {
+      // Weekly quests lock immediately
+      evolvedNames.push(`${obj.icon} ${obj.name} → **${EVOLVE_TIER_NAMES[nextTier]}**`);
+    }
   });
 
   q.lastEvolveDate = getTodayStr();
@@ -3474,8 +3587,10 @@ function confirmQuestEvolution() {
 
   if (evolvedNames.length > 0) {
     const list = evolvedNames.join('\n');
-    addMessage('stakr', `KRAA ! Tu as forge tes quetes dans le feu des dieux !\n\n${list}\n\nLes objectifs sont plus durs, mais les recompenses a la hauteur ! Prouve ta valeur, Viking ! [MOOD:excite]`);
-    showToast('Quetes evoluees !', `${evolvedNames.length} quete${evolvedNames.length > 1 ? 's' : ''} renforcee${evolvedNames.length > 1 ? 's' : ''} !`);
+    const hasTrials = selectedIds.some(id => { const o = q.objectives.find(x => x.id === id); return o && o.evolveTrial?.active; });
+    const trialMsg = hasTrials ? '\n\n⚔️ **Epreuve lancee !** Complete les nouveaux objectifs 3 jours de suite pour confirmer l\'evolution. Si tu echoues, l\'amelioration sera annulee et tu devras attendre une semaine.' : '';
+    addMessage('stakr', `KRAA ! Tu as forge tes quetes dans le feu des dieux !\n\n${list}${trialMsg}\n\nProuve ta valeur, Viking ! [MOOD:excite]`);
+    showToast('Quetes evoluees !', `${evolvedNames.length} quete${evolvedNames.length > 1 ? 's' : ''} en epreuve !`);
   }
 }
 
