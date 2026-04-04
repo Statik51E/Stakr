@@ -7607,20 +7607,6 @@ function advCharPreviewSVG() {
     ];
     // Right side dreads (mirror)
     const rightDreads = leftDreads.map(d => ({ sx: -d.sx, sy: d.sy, len: d.len, sway: -d.sway }));
-    // Back dreads (behind head, visible between sides)
-    const backDreads = [
-      { sx: -4, sy: -8, len: 46, sway: -2 },
-      { sx: 4,  sy: -8, len: 46, sway: 2 },
-    ];
-    // Render back dreads first (behind head)
-    backDreads.forEach((d, i) => {
-      const x = 80 + d.sx;
-      const y = headY + d.sy;
-      const endX = x + d.sway;
-      const endY = y + d.len;
-      const col = i % 2 ? hairColor : hairDark;
-      svg += `<path d="M${x},${y} Q${(x + endX) / 2 + d.sway},${(y + endY) / 2} ${endX},${endY}" stroke="${col}" stroke-width="4.5" fill="none" stroke-linecap="round" opacity=".5"/>`;
-    });
     // Render side dreads
     [...leftDreads, ...rightDreads].forEach((d, i) => {
       const x = 80 + d.sx;
