@@ -6870,7 +6870,8 @@ const ADV_HAIR = [
   { id: 'court', name: 'Courts', icon: '💈' },
   { id: 'mohawk', name: 'Crete', icon: '🔥' },
   { id: 'tresses', name: 'Tresses', icon: '🪢' },
-  { id: 'rasé', name: 'Rase', icon: '🧑‍🦲' }
+  { id: 'rasé', name: 'Rase', icon: '🧑‍🦲' },
+  { id: 'dreads', name: 'Dreadlocks', icon: '🦁' }
 ];
 
 const ADV_HAIR_COLORS = [
@@ -7271,6 +7272,27 @@ function advCharPreviewSVG() {
     svg += `<circle cx="${80 + headRx + 3}" cy="${headY + 46}" r="2.5" fill="#b08030"/>`;
   } else if (_charTempHair === 'rasé') {
     svg += `<ellipse cx="80" cy="${headY - 11}" rx="${headRx - 1}" ry="9" fill="${hairDark}" opacity=".2"/>`;
+  } else if (_charTempHair === 'dreads') {
+    // Scalp cap
+    svg += `<ellipse cx="80" cy="${headY - 14}" rx="${headRx + 2}" ry="11" fill="${hairColor}"/>`;
+    // Individual dreadlocks falling around the head
+    const dreadCount = 8;
+    for (let i = 0; i < dreadCount; i++) {
+      const angle = -90 + (i / (dreadCount - 1)) * 180; // -90 to 90 degrees
+      const rad = angle * Math.PI / 180;
+      const startX = 80 + Math.cos(rad) * (headRx + 1);
+      const startY = headY - 4 + Math.sin(rad) * 4;
+      const len = 30 + (Math.abs(angle) < 40 ? 12 : 0); // center dreads longer
+      const sway = (i % 2 ? 3 : -3);
+      const endX = startX + Math.cos(rad) * 8 + sway;
+      const endY = startY + len;
+      const ctrlX = (startX + endX) / 2 + sway * 1.5;
+      const ctrlY = (startY + endY) / 2;
+      const col = i % 2 ? hairColor : hairDark;
+      svg += `<path d="M${startX},${startY} Q${ctrlX},${ctrlY} ${endX},${endY}" stroke="${col}" stroke-width="4" fill="none" stroke-linecap="round" opacity=".85"/>`;
+      // Dread tip bead (every other dread)
+      if (i % 3 === 0) svg += `<circle cx="${endX}" cy="${endY + 1}" r="2.5" fill="#b08030"/>`;
+    }
   } else {
     svg += `<ellipse cx="80" cy="${headY - 13}" rx="${headRx}" ry="10" fill="${hairDark}" opacity=".25"/>`;
   }
