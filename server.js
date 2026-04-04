@@ -16,7 +16,8 @@ const MIME = {
   '.svg':  'image/svg+xml',
   '.ico':  'image/x-icon',
   '.glb':  'model/gltf-binary',
-  '.gltf': 'model/gltf+json'
+  '.gltf': 'model/gltf+json',
+  '.mp3':  'audio/mpeg'
 };
 
 const server = http.createServer((req, res) => {
