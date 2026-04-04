@@ -3114,24 +3114,23 @@ const VIKING_RANKS = [
 ];
 
 const DEFAULT_OBJECTIVES = [
-  // Daily — adapte debutant
-  { id: 'pushups', name: 'Pompes', icon: '\uD83D\uDCAA', target: 20, unit: 'pompes', period: 'daily', xpReward: 40, category: 'physique' },
-  { id: 'walk', name: 'Marche', icon: '\uD83D\uDEB6', target: 3, unit: 'km', period: 'daily', xpReward: 40, category: 'physique' },
-  { id: 'meditation', name: 'Meditation', icon: '\uD83E\uDDD8', target: 5, unit: 'min', period: 'daily', xpReward: 30, category: 'mental' },
-  { id: 'phonefree', name: 'Deconnexion', icon: '\uD83D\uDCF5', target: 30, unit: 'min sans tel', period: 'daily', xpReward: 30, category: 'mental' },
-  { id: 'reading', name: 'Lecture', icon: '\uD83D\uDCD6', target: 15, unit: 'min', period: 'daily', xpReward: 30, category: 'mental' },
-  { id: 'water', name: 'Hydratation', icon: '\uD83D\uDCA7', target: 1.5, unit: 'litres', period: 'daily', xpReward: 20, category: 'sante' },
-  { id: 'sleep', name: 'Sommeil', icon: '\uD83D\uDE34', target: 7, unit: 'heures', period: 'daily', xpReward: 35, category: 'sante' },
-  { id: 'stretching', name: 'Etirements', icon: '\uD83E\uDD38', target: 5, unit: 'min', period: 'daily', xpReward: 15, category: 'physique' },
-  { id: 'gratitude', name: 'Gratitude', icon: '\uD83D\uDE4F', target: 3, unit: 'choses', period: 'daily', xpReward: 15, category: 'mental' },
+  // Daily — facile par defaut, l'utilisateur peut augmenter via le systeme d'evolution
+  { id: 'pushups', name: 'Pompes', icon: '\uD83D\uDCAA', target: 10, unit: 'pompes', period: 'daily', xpReward: 30, category: 'physique' },
+  { id: 'walk', name: 'Marche', icon: '\uD83D\uDEB6', target: 2, unit: 'km', period: 'daily', xpReward: 30, category: 'physique' },
+  { id: 'meditation', name: 'Meditation', icon: '\uD83E\uDDD8', target: 3, unit: 'min', period: 'daily', xpReward: 20, category: 'mental' },
+  { id: 'phonefree', name: 'Deconnexion', icon: '\uD83D\uDCF5', target: 15, unit: 'min sans tel', period: 'daily', xpReward: 20, category: 'mental' },
+  { id: 'reading', name: 'Lecture', icon: '\uD83D\uDCD6', target: 10, unit: 'min', period: 'daily', xpReward: 20, category: 'mental' },
+  { id: 'water', name: 'Hydratation', icon: '\uD83D\uDCA7', target: 1, unit: 'litres', period: 'daily', xpReward: 15, category: 'sante' },
+  { id: 'sleep', name: 'Sommeil', icon: '\uD83D\uDE34', target: 7, unit: 'heures', period: 'daily', xpReward: 25, category: 'sante' },
+  { id: 'stretching', name: 'Etirements', icon: '\uD83E\uDD38', target: 3, unit: 'min', period: 'daily', xpReward: 10, category: 'physique' },
+  { id: 'gratitude', name: 'Gratitude', icon: '\uD83D\uDE4F', target: 1, unit: 'choses', period: 'daily', xpReward: 10, category: 'mental' },
   // Weekly
-  { id: 'sport', name: 'Sport intense', icon: '\uD83C\uDFCB', target: 2, unit: 'seances', period: 'weekly', xpReward: 70, category: 'physique' },
-  { id: 'healthy_meal', name: 'Repas sain', icon: '\uD83E\uDD57', target: 3, unit: 'repas', period: 'weekly', xpReward: 40, category: 'sante' },
-  { id: 'nature', name: 'Sortie nature', icon: '\uD83C\uDF33', target: 1, unit: 'sortie', period: 'weekly', xpReward: 40, category: 'mental' },
-
-  { id: 'social', name: 'Moment social', icon: '\uD83E\uDD1D', target: 1, unit: 'moment', period: 'weekly', xpReward: 30, category: 'social' },
-  { id: 'cold_shower', name: 'Douche froide', icon: '\uD83E\uDDCA', target: 1, unit: 'douche', period: 'weekly', xpReward: 35, category: 'sante' },
-  { id: 'no_junk', name: 'Zero malbouffe', icon: '\uD83D\uDEAB', target: 3, unit: 'jours', period: 'weekly', xpReward: 45, category: 'sante' }
+  { id: 'sport', name: 'Sport intense', icon: '\uD83C\uDFCB', target: 1, unit: 'seance', period: 'weekly', xpReward: 50, category: 'physique' },
+  { id: 'healthy_meal', name: 'Repas sain', icon: '\uD83E\uDD57', target: 2, unit: 'repas', period: 'weekly', xpReward: 30, category: 'sante' },
+  { id: 'nature', name: 'Sortie nature', icon: '\uD83C\uDF33', target: 1, unit: 'sortie', period: 'weekly', xpReward: 30, category: 'mental' },
+  { id: 'social', name: 'Moment social', icon: '\uD83E\uDD1D', target: 1, unit: 'moment', period: 'weekly', xpReward: 25, category: 'social' },
+  { id: 'cold_shower', name: 'Douche froide', icon: '\uD83E\uDDCA', target: 1, unit: 'douche', period: 'weekly', xpReward: 25, category: 'sante' },
+  { id: 'no_junk', name: 'Zero malbouffe', icon: '\uD83D\uDEAB', target: 2, unit: 'jours', period: 'weekly', xpReward: 35, category: 'sante' }
 ];
 
 const QUEST_CONGRATS = [
@@ -3177,11 +3176,22 @@ function initQuests() {
   const weekStart = getWeekStart();
 
   // Initialize or reset objectives (v2 = adjusted for beginners)
-  const questVersion = 2;
+  const questVersion = 3;
   if (!q.objectives || q.objectives.length === 0 || q.version !== questVersion) {
-    // Keep custom objectives if upgrading
+    // Keep custom objectives and evolution data if upgrading
     const customObjs = (q.objectives || []).filter(o => o.custom);
-    q.objectives = DEFAULT_OBJECTIVES.map(o => ({ ...o, progress: 0, lastReset: today }));
+    const evolveData = {};
+    (q.objectives || []).forEach(o => {
+      if (o.tier || o.consecutiveDays || o.trialStart) {
+        evolveData[o.id] = { tier: o.tier, consecutiveDays: o.consecutiveDays, trialStart: o.trialStart, trialTarget: o.trialTarget };
+      }
+    });
+    q.objectives = DEFAULT_OBJECTIVES.map(o => {
+      const obj = { ...o, progress: 0, lastReset: today };
+      // Restore evolution progress
+      if (evolveData[o.id]) Object.assign(obj, evolveData[o.id]);
+      return obj;
+    });
     q.objectives.push(...customObjs);
     q.weekStartDate = weekStart;
     q.version = questVersion;
