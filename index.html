@@ -2924,9 +2924,10 @@ function toggleCompanionPicker() {
 }
 
 async function switchCompanion(id) {
-  if (!COMPANIONS[id] || state.companion === id) return;
-  state.companion = id;
+  if (!COMPANIONS[id]) return;
   const comp = COMPANIONS[id];
+  const wasAlready = state.companion === id;
+  state.companion = id;
 
   // 1. Apply CSS theme + clear old particles
   applyCompanionTheme(id);
@@ -2944,16 +2945,16 @@ async function switchCompanion(id) {
     applyAppearanceToSVG(a);
   } else {
     // No custom appearance for this companion — clear custom overrides
-    const chatArea = document.getElementById('chat-area');
+    const ca = document.getElementById('chat-area');
     const stage = document.getElementById('raven-stage');
-    if (chatArea) { chatArea.style.removeProperty('background-image'); chatArea.style.removeProperty('background-size'); chatArea.style.removeProperty('background-position'); }
+    if (ca) { ca.style.removeProperty('background-image'); ca.style.removeProperty('background-size'); ca.style.removeProperty('background-position'); }
     if (stage) { stage.style.removeProperty('background'); stage.style.removeProperty('background-size'); stage.style.removeProperty('background-position'); }
     let msgStyle = document.getElementById('msg-custom-style');
     if (msgStyle) msgStyle.textContent = '';
     loadAppearanceToUI(DEFAULT_APPEARANCE);
   }
 
-  // 4. Load 3D model
+  // 4. Load 3D model (always reload — user may re-select after a failed load)
   if (window.raven3D?.loadCompanion) {
     try {
       await window.raven3D.loadCompanion(id);
@@ -2983,7 +2984,7 @@ async function switchCompanion(id) {
   if (overlay) overlay.style.display = 'none';
   if (btn) btn.style.display = '';
 
-  showToast('Compagnon change', `${comp.emoji} ${comp.name} est a tes cotes.`);
+  if (!wasAlready) showToast('Compagnon change', `${comp.emoji} ${comp.name} est a tes cotes.`);
 }
 
 function applyAppearanceToSVG(a) {
@@ -9357,8 +9358,11 @@ if (canvas) {
     // Update mood params
     activeMoodParams = comp.moodParams;
 
+    console.log('[3D] Loading companion:', companionId, comp.modelFile);
+
     return new Promise((resolve) => {
       loader.load(comp.modelFile, (gltf) => {
+        console.log('[3D] Model loaded:', companionId);
         const model = gltf.scene;
 
         // Center & scale
@@ -9371,8 +9375,10 @@ if (canvas) {
         model.position.set(-center.x * fitScale, -center.y * fitScale + (comp.modelOffsetY || 0), -center.z * fitScale);
 
         // Inject companion-specific vertex shader
+        let meshCount = 0;
         model.traverse((child) => {
           if (child.isMesh && child.material) {
+            meshCount++;
             const mats = Array.isArray(child.material) ? child.material : [child.material];
             mats.forEach(mat => {
               mat.onBeforeCompile = (shader) => {
@@ -9410,13 +9416,16 @@ if (canvas) {
             });
           }
         });
+        console.log('[3D] Meshes found:', meshCount);
 
         scene.add(model);
         currentModel = model;
         resize();
         resolve();
       },
-      undefined,
+      (progress) => {
+        if (progress.total) console.log('[3D] Loading progress:', Math.round(progress.loaded / progress.total * 100) + '%');
+      },
       (err) => { console.error('[3D] Load error:', comp.modelFile, err); resolve(); }
       );
     });
