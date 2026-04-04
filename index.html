@@ -7594,26 +7594,46 @@ function advCharPreviewSVG() {
   } else if (_charTempHair === 'rasé') {
     svg += `<ellipse cx="80" cy="${headY - 11}" rx="${headRx - 1}" ry="9" fill="${hairDark}" opacity=".2"/>`;
   } else if (_charTempHair === 'dreads') {
-    // Scalp cap
-    svg += `<ellipse cx="80" cy="${headY - 14}" rx="${headRx + 2}" ry="11" fill="${hairColor}"/>`;
-    // Individual dreadlocks falling around the head
-    const dreadCount = 8;
-    for (let i = 0; i < dreadCount; i++) {
-      const angle = -90 + (i / (dreadCount - 1)) * 180; // -90 to 90 degrees
-      const rad = angle * Math.PI / 180;
-      const startX = 80 + Math.cos(rad) * (headRx + 1);
-      const startY = headY - 4 + Math.sin(rad) * 4;
-      const len = 30 + (Math.abs(angle) < 40 ? 12 : 0); // center dreads longer
-      const sway = (i % 2 ? 3 : -3);
-      const endX = startX + Math.cos(rad) * 8 + sway;
-      const endY = startY + len;
-      const ctrlX = (startX + endX) / 2 + sway * 1.5;
-      const ctrlY = (startY + endY) / 2;
+    // Scalp cap — hair mass on top of head
+    svg += `<ellipse cx="80" cy="${headY - 14}" rx="${headRx + 2}" ry="12" fill="${hairColor}"/>`;
+    svg += `<ellipse cx="80" cy="${headY - 16}" rx="${headRx}" ry="8" fill="${hairDark}" opacity=".3"/>`;
+    // Left side dreads (falling from left of skull)
+    const leftDreads = [
+      { sx: -headRx - 1, sy: -10, len: 38, sway: -5 },
+      { sx: -headRx,     sy: -5,  len: 42, sway: -7 },
+      { sx: -headRx + 1, sy: 0,   len: 44, sway: -6 },
+      { sx: -headRx + 3, sy: 4,   len: 40, sway: -4 },
+      { sx: -headRx + 5, sy: 7,   len: 35, sway: -3 },
+    ];
+    // Right side dreads (mirror)
+    const rightDreads = leftDreads.map(d => ({ sx: -d.sx, sy: d.sy, len: d.len, sway: -d.sway }));
+    // Back dreads (behind head, visible between sides)
+    const backDreads = [
+      { sx: -4, sy: -8, len: 46, sway: -2 },
+      { sx: 4,  sy: -8, len: 46, sway: 2 },
+    ];
+    // Render back dreads first (behind head)
+    backDreads.forEach((d, i) => {
+      const x = 80 + d.sx;
+      const y = headY + d.sy;
+      const endX = x + d.sway;
+      const endY = y + d.len;
       const col = i % 2 ? hairColor : hairDark;
-      svg += `<path d="M${startX},${startY} Q${ctrlX},${ctrlY} ${endX},${endY}" stroke="${col}" stroke-width="4" fill="none" stroke-linecap="round" opacity=".85"/>`;
-      // Dread tip bead (every other dread)
-      if (i % 3 === 0) svg += `<circle cx="${endX}" cy="${endY + 1}" r="2.5" fill="#b08030"/>`;
-    }
+      svg += `<path d="M${x},${y} Q${(x + endX) / 2 + d.sway},${(y + endY) / 2} ${endX},${endY}" stroke="${col}" stroke-width="4.5" fill="none" stroke-linecap="round" opacity=".5"/>`;
+    });
+    // Render side dreads
+    [...leftDreads, ...rightDreads].forEach((d, i) => {
+      const x = 80 + d.sx;
+      const y = headY + d.sy;
+      const endX = x + d.sway * 1.5;
+      const endY = y + d.len;
+      const ctrlX = x + d.sway * 0.8;
+      const ctrlY = (y + endY) / 2;
+      const col = i % 2 ? hairColor : hairDark;
+      svg += `<path d="M${x},${y} Q${ctrlX},${ctrlY} ${endX},${endY}" stroke="${col}" stroke-width="4" fill="none" stroke-linecap="round" opacity=".85"/>`;
+      // Gold bead on some tips
+      if (i % 3 === 0) svg += `<circle cx="${endX}" cy="${endY + 1.5}" r="2.5" fill="#b08030"/>`;
+    });
   } else {
     svg += `<ellipse cx="80" cy="${headY - 13}" rx="${headRx}" ry="10" fill="${hairDark}" opacity=".25"/>`;
   }
