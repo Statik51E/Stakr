@@ -1185,6 +1185,16 @@ function getCompanion() {
   return COMPANIONS[state?.companion] || COMPANIONS.raven;
 }
 
+function getAppearance() {
+  const id = state.companion || 'raven';
+  return state.appearances[id] || null;
+}
+
+function setAppearance(a) {
+  const id = state.companion || 'raven';
+  state.appearances[id] = a;
+}
+
 // ===== MODES =====
 const MODES = {
   conversation: { label:'Chat', prompt:'' },
@@ -1205,7 +1215,8 @@ let state = {
   currentMode: 'conversation',
   currentProject: null,
   projects: [],
-  appearance: null, // custom appearance overrides
+  appearance: null, // DEPRECATED — migrated to appearances
+  appearances: {},  // per-companion appearance overrides {raven: {...}, lucas: {...}}
   stakrLife: {
     messageCount: 0,
     lastSeen: null,
@@ -1661,17 +1672,30 @@ function loadState() {
       if (!state.projects) state.projects = [];
       if (!state.currentProject) state.currentProject = null;
       if (!state.currentMode) state.currentMode = 'conversation';
-      if (!state.appearance) state.appearance = null;
+      if (!state.appearances) state.appearances = {};
       if (!state.quests) state.quests = { level:1, xp:0, totalXp:0, streak:0, lastActiveDate:null, weekStartDate:null, objectives:[], history:[] };
-      // Restore bg images from separate storage
-      if (state.appearance) {
+      // Migrate old global appearance to per-companion
+      if (state.appearance && typeof state.appearance === 'object') {
+        // Restore old bg images
         if (state.appearance.chatBgImage === '__stored__') {
           state.appearance.chatBgImage = localStorage.getItem('stakr_chatBgImg') || '';
         }
         if (state.appearance.stageBgImage === '__stored__') {
           state.appearance.stageBgImage = localStorage.getItem('stakr_stageBgImg') || '';
         }
+        state.appearances.raven = state.appearance;
+        state.appearance = null;
       }
+      // Restore bg images per companion from separate storage
+      Object.keys(state.appearances).forEach(cid => {
+        const a = state.appearances[cid];
+        if (a && a.chatBgImage === '__stored__') {
+          a.chatBgImage = localStorage.getItem('stakr_bgChat_' + cid) || '';
+        }
+        if (a && a.stageBgImage === '__stored__') {
+          a.stageBgImage = localStorage.getItem('stakr_bgStage_' + cid) || '';
+        }
+      });
       // Restore message images from separate storage
       try {
         const imgStore = JSON.parse(localStorage.getItem('stakr_msgImages') || '{}');
@@ -1696,13 +1720,19 @@ function saveState() {
     // Deep clone to strip large data before saving
     const toSave = JSON.parse(JSON.stringify(state));
 
-    // Strip bg images from appearance — store separately
-    let chatBgImg = '', stageBgImg = '';
-    if (toSave.appearance) {
-      chatBgImg = toSave.appearance.chatBgImage || '';
-      stageBgImg = toSave.appearance.stageBgImage || '';
-      toSave.appearance.chatBgImage = chatBgImg ? '__stored__' : '';
-      toSave.appearance.stageBgImage = stageBgImg ? '__stored__' : '';
+    // Strip bg images from per-companion appearances — store separately
+    toSave.appearance = null; // clear deprecated field
+    const bgImgKeys = {};
+    if (toSave.appearances) {
+      Object.keys(toSave.appearances).forEach(cid => {
+        const a = toSave.appearances[cid];
+        if (!a) return;
+        const chatImg = a.chatBgImage || '';
+        const stageImg = a.stageBgImage || '';
+        bgImgKeys[cid] = { chatImg, stageImg };
+        a.chatBgImage = chatImg ? '__stored__' : '';
+        a.stageBgImage = stageImg ? '__stored__' : '';
+      });
     }
 
     // Strip inline images from messages — store separately
@@ -1722,11 +1752,14 @@ function saveState() {
 
     localStorage.setItem('stakr_state', JSON.stringify(toSave));
 
-    // Store bg images separately
-    try { if (chatBgImg && chatBgImg !== '__stored__') localStorage.setItem('stakr_chatBgImg', chatBgImg); } catch(e2) {}
-    try { if (stageBgImg && stageBgImg !== '__stored__') localStorage.setItem('stakr_stageBgImg', stageBgImg); } catch(e2) {}
-    if (!chatBgImg) localStorage.removeItem('stakr_chatBgImg');
-    if (!stageBgImg) localStorage.removeItem('stakr_stageBgImg');
+    // Store bg images separately per companion
+    Object.keys(bgImgKeys).forEach(cid => {
+      const { chatImg, stageImg } = bgImgKeys[cid];
+      try { if (chatImg && chatImg !== '__stored__') localStorage.setItem('stakr_bgChat_' + cid, chatImg); } catch(e2) {}
+      try { if (stageImg && stageImg !== '__stored__') localStorage.setItem('stakr_bgStage_' + cid, stageImg); } catch(e2) {}
+      if (!chatImg) localStorage.removeItem('stakr_bgChat_' + cid);
+      if (!stageImg) localStorage.removeItem('stakr_bgStage_' + cid);
+    });
 
     // Store message images separately (best effort)
     try { localStorage.setItem('stakr_msgImages', JSON.stringify(imgStore)); } catch(e2) {
@@ -1770,11 +1803,15 @@ function exportFullBackup() {
   };
 
   // Restore full images into the state copy for export
-  if (backup.state.appearance) {
-    const chatImg = localStorage.getItem('stakr_chatBgImg');
-    const stageImg = localStorage.getItem('stakr_stageBgImg');
-    if (chatImg) backup.state.appearance.chatBgImage = chatImg;
-    if (stageImg) backup.state.appearance.stageBgImage = stageImg;
+  if (backup.state.appearances) {
+    Object.keys(backup.state.appearances).forEach(cid => {
+      const a = backup.state.appearances[cid];
+      if (!a) return;
+      const chatImg = localStorage.getItem('stakr_bgChat_' + cid);
+      const stageImg = localStorage.getItem('stakr_bgStage_' + cid);
+      if (chatImg) a.chatBgImage = chatImg;
+      if (stageImg) a.stageBgImage = stageImg;
+    });
   }
 
   // Restore message images
@@ -1848,9 +1885,10 @@ function importFullBackup(event) {
       // Reload everything
       applyConfig();
       setupCustomize();
-      if (state.appearance) {
-        applyAppearanceToSVG(state.appearance);
-        applyMessageStyles(state.appearance);
+      const importedAppearance = getAppearance();
+      if (importedAppearance) {
+        applyAppearanceToSVG(importedAppearance);
+        applyMessageStyles(importedAppearance);
       }
       initQuests();
       setMood(state.mood);
@@ -2498,9 +2536,10 @@ const SHAPE_VARIANTS = {
 
 function setupCustomize() {
   renderPresets();
-  if (state.appearance) {
-    loadAppearanceToUI(state.appearance);
-    applyAppearanceToSVG(state.appearance);
+  const a = getAppearance();
+  if (a) {
+    loadAppearanceToUI(a);
+    applyAppearanceToSVG(a);
   }
 }
 
@@ -2593,7 +2632,7 @@ function getAppearanceFromUI() {
     shapeEye: $('#cust-shape-eye').value,
     shapeHorn: $('#cust-shape-horn').value,
     stageBg: $('#cust-stage-bg').value,
-    stageBgImage: (state.appearance && state.appearance.stageBgImage) || '',
+    stageBgImage: (getAppearance() && getAppearance().stageBgImage) || '',
     stageBgOpacity: parseInt($('#cust-stage-bg-opacity').value),
     msgStakrBg: $('#cust-msg-stakr-bg').value,
     msgStakrBorder: $('#cust-msg-stakr-border').value,
@@ -2601,7 +2640,7 @@ function getAppearanceFromUI() {
     msgUserBg: $('#cust-msg-user-bg').value,
     msgUserBorder: $('#cust-msg-user-border').value,
     msgUserText: $('#cust-msg-user-text').value,
-    chatBgImage: (state.appearance && state.appearance.chatBgImage) || '',
+    chatBgImage: (getAppearance() && getAppearance().chatBgImage) || '',
     chatBgOpacity: parseInt($('#cust-chat-bg-opacity').value)
   };
 }
@@ -2609,7 +2648,7 @@ function getAppearanceFromUI() {
 function applyAppearanceLive() {
   const a = getAppearanceFromUI();
   applyAppearanceToSVG(a);
-  state.appearance = a;
+  setAppearance(a);
   saveState();
 }
 
@@ -2729,7 +2768,23 @@ async function switchCompanion(id) {
   const pInput = document.getElementById('personality-input');
   if (pInput) pInput.value = comp.personality;
 
-  // 3. Load 3D model
+  // 3. Load companion's appearance (per-companion customization)
+  const a = getAppearance();
+  if (a) {
+    loadAppearanceToUI(a);
+    applyAppearanceToSVG(a);
+  } else {
+    // No custom appearance for this companion — clear custom overrides
+    const chatArea = document.getElementById('chat-area');
+    const stage = document.getElementById('raven-stage');
+    if (chatArea) { chatArea.style.removeProperty('background-image'); chatArea.style.removeProperty('background-size'); chatArea.style.removeProperty('background-position'); }
+    if (stage) { stage.style.removeProperty('background'); stage.style.removeProperty('background-size'); stage.style.removeProperty('background-position'); }
+    let msgStyle = document.getElementById('msg-custom-style');
+    if (msgStyle) msgStyle.textContent = '';
+    loadAppearanceToUI(DEFAULT_APPEARANCE);
+  }
+
+  // 4. Load 3D model
   if (window.raven3D?.loadCompanion) {
     try {
       await window.raven3D.loadCompanion(id);
@@ -2740,7 +2795,7 @@ async function switchCompanion(id) {
     console.warn('raven3D not available yet');
   }
 
-  // 4. Persist
+  // 5. Persist
   saveState();
   renderCompanionSelect();
 
@@ -2771,25 +2826,31 @@ function applyMessageStyles(a) {
     .msg.user{background:${a.msgUserBg} !important;border-color:${darken(a.msgUserBorder,0.3)} !important;border-right:3px solid ${a.msgUserBorder} !important;color:${a.msgUserText} !important}
   `;
 
-  // Chat background image
+  // Chat background image — use setProperty with !important to override companion theme
   const chatArea = document.getElementById('chat-area');
   if (chatArea) {
     if (a.chatBgImage) {
-      chatArea.style.backgroundImage = `linear-gradient(rgba(0,0,0,${1 - a.chatBgOpacity/100}),rgba(0,0,0,${1 - a.chatBgOpacity/100})), url(${a.chatBgImage})`;
+      chatArea.style.setProperty('background-image', `linear-gradient(rgba(0,0,0,${1 - a.chatBgOpacity/100}),rgba(0,0,0,${1 - a.chatBgOpacity/100})), url(${a.chatBgImage})`, 'important');
+      chatArea.style.setProperty('background-size', 'cover', 'important');
+      chatArea.style.setProperty('background-position', 'center', 'important');
     } else {
-      chatArea.style.backgroundImage = '';
+      chatArea.style.removeProperty('background-image');
+      chatArea.style.removeProperty('background-size');
+      chatArea.style.removeProperty('background-position');
     }
   }
 
-  // Raven stage background
+  // Raven stage background — use setProperty with !important to override companion theme
   const stage = document.getElementById('raven-stage');
   if (stage) {
     if (a.stageBgImage) {
-      stage.style.background = `linear-gradient(rgba(0,0,0,${1 - a.stageBgOpacity/100}),rgba(0,0,0,${1 - a.stageBgOpacity/100})), url(${a.stageBgImage})`;
-      stage.style.backgroundSize = 'cover';
-      stage.style.backgroundPosition = 'center';
+      stage.style.setProperty('background', `linear-gradient(rgba(0,0,0,${1 - a.stageBgOpacity/100}),rgba(0,0,0,${1 - a.stageBgOpacity/100})), url(${a.stageBgImage})`, 'important');
+      stage.style.setProperty('background-size', 'cover', 'important');
+      stage.style.setProperty('background-position', 'center', 'important');
     } else {
-      stage.style.background = `radial-gradient(ellipse at 50% 80%, ${lighten(a.stageBg,0.08)} 0%, ${a.stageBg} 40%, ${darken(a.stageBg,0.3)} 70%)`;
+      stage.style.removeProperty('background');
+      stage.style.removeProperty('background-size');
+      stage.style.removeProperty('background-position');
     }
   }
 }
@@ -2867,15 +2928,17 @@ function resetAppearance() {
   loadAppearanceToUI(DEFAULT_APPEARANCE);
   applyAppearanceLive();
   // Also clear bg images
-  if (state.appearance) { state.appearance.chatBgImage = ''; state.appearance.stageBgImage = ''; }
+  const a = getAppearance();
+  if (a) { a.chatBgImage = ''; a.stageBgImage = ''; }
   const chatArea = document.getElementById('chat-area');
   if (chatArea) chatArea.style.backgroundImage = '';
   saveState();
-  showToast('Apparence reinitialise', 'Stakr retrouve ses couleurs originales.');
+  showToast('Apparence reinitialise', 'Couleurs par defaut restaurees.');
 }
 
 function removeChatBg() {
-  if (state.appearance) state.appearance.chatBgImage = '';
+  const a = getAppearance();
+  if (a) a.chatBgImage = '';
   const chatArea = document.getElementById('chat-area');
   if (chatArea) chatArea.style.backgroundImage = '';
   saveState();
@@ -2883,7 +2946,8 @@ function removeChatBg() {
 }
 
 function removeStageBg() {
-  if (state.appearance) state.appearance.stageBgImage = '';
+  const a = getAppearance();
+  if (a) a.stageBgImage = '';
   applyAppearanceLive();
   showToast('Arriere-plan Stakr retire', 'Fond par defaut restaure.');
 }
@@ -2946,8 +3010,8 @@ function setupListeners() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      if (!state.appearance) state.appearance = { ...DEFAULT_APPEARANCE };
-      state.appearance.stageBgImage = ev.target.result;
+      if (!getAppearance()) setAppearance({ ...DEFAULT_APPEARANCE });
+      getAppearance().stageBgImage = ev.target.result;
       applyAppearanceLive();
     };
     reader.readAsDataURL(file);
@@ -2958,8 +3022,8 @@ function setupListeners() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      if (!state.appearance) state.appearance = { ...DEFAULT_APPEARANCE };
-      state.appearance.chatBgImage = ev.target.result;
+      if (!getAppearance()) setAppearance({ ...DEFAULT_APPEARANCE });
+      getAppearance().chatBgImage = ev.target.result;
       applyAppearanceLive();
     };
     reader.readAsDataURL(file);
