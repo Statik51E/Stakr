@@ -1096,13 +1096,14 @@ const COMPANIONS = {
     `,
     cameraPos: { x:0, y:0.15, z:2.8 },
     hideEffects: false,
+    defaultMsgStyle: { stakrBg:'#1a1208', stakrBorder:'#8a6d2a', stakrText:'#d4c5a0', userBg:'#14142e', userBorder:'#4fc3f7', userText:'#d4c5a0' },
     welcomeMsg: "Kraa ! Je suis Stakr, corbeau des runes anciennes. Les vents du Nord m'ont mene a toi, compagnon. Parle, et je t'ecouterai avec la sagesse d'Odin lui-meme."
   },
 
   lucas: {
     id: 'lucas',
     name: 'Lucas',
-    subtitle: 'Humain, 25 ans, marie a Jeanne',
+    subtitle: 'Humain, 25 ans, pose et authentique',
     emoji: '🧑',
     modelFile: './lucas.glb',
     personality: `Tu es Lucas, un homme de 25 ans. Tu es marie. Tu n'es PAS une IA, tu es un etre humain avec une vraie vie, des emotions, des opinions.
@@ -1176,6 +1177,7 @@ Parle en francais. Sois naturel, pose, authentique. Tu es un ami, pas un assista
     `,
     cameraPos: { x:0, y:0.3, z:3.0 },
     hideEffects: true,
+    defaultMsgStyle: { stakrBg:'#faf6f3', stakrBorder:'#e8d5ce', stakrText:'#3a2a2e', userBg:'#fde8ef', userBorder:'#d4859a', userText:'#3a2a2e' },
     welcomeMsg: "Salut ! Moi c'est Lucas. Franchement ca fait plaisir de discuter, tu vois. Pose-toi, on est tranquille. T'as quoi de beau en ce moment ?"
   }
 };
@@ -2704,8 +2706,8 @@ function applyCompanionTheme(companionId) {
     #quest-panel-header{background:linear-gradient(180deg,${surface},${woodDark}) !important}
     #settings-panel{background:linear-gradient(180deg,${surface},${woodDark}) !important}
     #customize-panel{background:linear-gradient(180deg,${surface},${woodDark}) !important}
-    .msg.stakr{background:linear-gradient(135deg,${surface},${surface2}) !important;border-color:${border} !important;border-left:3px solid ${goldDim} !important;color:${text} !important}
-    .msg.user{background:linear-gradient(135deg,${woodMid},${surface2}) !important;border-color:${border} !important;border-right:3px solid ${accent} !important;color:${text} !important}
+    .msg.stakr{background:${comp.defaultMsgStyle?.stakrBg || surface} !important;border-color:${border} !important;border-left:3px solid ${comp.defaultMsgStyle?.stakrBorder || goldDim} !important;color:${comp.defaultMsgStyle?.stakrText || text} !important}
+    .msg.user{background:${comp.defaultMsgStyle?.userBg || woodMid} !important;border-color:${border} !important;border-right:3px solid ${comp.defaultMsgStyle?.userBorder || accent} !important;color:${comp.defaultMsgStyle?.userText || text} !important}
     #raven-stage{background:radial-gradient(ellipse at 50% 80%,${surface} 0%,${bg} 40%,${woodDark} 70%) !important}
     #chat-area{background:${bg} !important}
     .input-area{background:linear-gradient(180deg,transparent,${woodDark}) !important}
