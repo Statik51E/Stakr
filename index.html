@@ -8690,8 +8690,9 @@ if (canvas) {
 
   // Load a companion model dynamically
   async function loadCompanionModel(companionId) {
+    console.log('[3D] Loading companion:', companionId);
     const comp = window.COMPANIONS?.[companionId] || window.COMPANIONS?.raven;
-    if (!comp) return;
+    if (!comp) { console.error('[3D] No companion found for:', companionId); return; }
 
     // Dispose old model
     if (currentModel) {
@@ -8769,8 +8770,9 @@ if (canvas) {
 
       scene.add(model);
       currentModel = model;
+      console.log('[3D] Model loaded OK:', comp.modelFile);
     } catch(e) {
-      console.error('Failed to load companion model:', comp.modelFile, e);
+      console.error('[3D] Failed to load companion model:', comp.modelFile, e);
     }
   }
 
@@ -8813,16 +8815,17 @@ if (canvas) {
   }
   animate();
 
-  // Load initial companion
-  const initCompanionId = window._stakrState?.companion || 'raven';
-  loadCompanionModel(initCompanionId);
-
-  // Expose API to main script
+  // Expose API to main script (before loading so switchCompanion works)
   window.raven3D = {
     setMood(mood) { currentMood = mood; },
     getMood() { return currentMood; },
     loadCompanion(id) { return loadCompanionModel(id); }
   };
+
+  // Load initial companion
+  const initCompanionId = window._stakrState?.companion || 'raven';
+  console.log('[3D] Init companion:', initCompanionId, 'COMPANIONS:', !!window.COMPANIONS);
+  loadCompanionModel(initCompanionId).catch(e => console.error('[3D] Init load failed:', e));
 }
 </script>
 </body>
