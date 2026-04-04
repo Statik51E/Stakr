@@ -1074,6 +1074,7 @@ const ADV_AMBIENCE_VOLUME = 0.35;
 
 function startAdventureAmbience() {
   if (_audioMuted) return;
+  stopChatAmbience();
   if (!_advAmbienceAudio) {
     _advAmbienceAudio = new Audio('./adventure-ambience.mp3');
     _advAmbienceAudio.loop = true;
@@ -1092,7 +1093,7 @@ function startAdventureAmbience() {
 }
 
 function stopAdventureAmbience() {
-  if (!_advAmbienceAudio) { _advAmbienceNodes = null; return; }
+  if (!_advAmbienceAudio) { _advAmbienceNodes = null; startChatAmbience(); return; }
   // Fade out
   let vol = _advAmbienceAudio.volume;
   const fadeOut = setInterval(() => {
@@ -1104,6 +1105,41 @@ function stopAdventureAmbience() {
     }
   }, 40);
   _advAmbienceNodes = null;
+  startChatAmbience();
+}
+
+// --- Chat Ambience (MP3 music loop for chat/code/recherche/etc.) ---
+let _chatAmbienceAudio = null;
+const CHAT_AMBIENCE_VOLUME = 0.25;
+
+function startChatAmbience() {
+  if (_audioMuted) return;
+  if (!_chatAmbienceAudio) {
+    _chatAmbienceAudio = new Audio('./chat-ambience.mp3');
+    _chatAmbienceAudio.loop = true;
+    _chatAmbienceAudio.volume = 0;
+  }
+  _chatAmbienceAudio.volume = 0;
+  _chatAmbienceAudio.play().catch(() => {});
+  let vol = 0;
+  const fadeIn = setInterval(() => {
+    vol = Math.min(vol + 0.008, CHAT_AMBIENCE_VOLUME);
+    if (_chatAmbienceAudio) _chatAmbienceAudio.volume = vol;
+    if (vol >= CHAT_AMBIENCE_VOLUME) clearInterval(fadeIn);
+  }, 50);
+}
+
+function stopChatAmbience() {
+  if (!_chatAmbienceAudio) return;
+  let vol = _chatAmbienceAudio.volume;
+  const fadeOut = setInterval(() => {
+    vol = Math.max(vol - 0.008, 0);
+    if (_chatAmbienceAudio) _chatAmbienceAudio.volume = vol;
+    if (vol <= 0) {
+      clearInterval(fadeOut);
+      if (_chatAmbienceAudio) _chatAmbienceAudio.pause();
+    }
+  }, 40);
 }
 
 // --- Combat Ambience (war drums + tension drone) ---
@@ -1314,11 +1350,14 @@ function toggleAudioMute() {
   _audioMuted = !_audioMuted;
   if (_audioMuted) {
     if (_advAmbienceAudio) { _advAmbienceAudio.pause(); _advAmbienceAudio.volume = 0; }
+    if (_chatAmbienceAudio) { _chatAmbienceAudio.pause(); _chatAmbienceAudio.volume = 0; }
     _advAmbienceNodes = null;
     stopCombatAmbience();
   } else if (state.currentMode === 'aventure') {
     startAdventureAmbience();
     if (adv && adv._combat) startCombatAmbience();
+  } else {
+    startChatAmbience();
   }
   const btn = document.getElementById('mute-btn');
   if (btn) btn.textContent = _audioMuted ? '🔇' : '🔊';
@@ -1326,6 +1365,7 @@ function toggleAudioMute() {
 }
 
 // --- Global click sound via event delegation ---
+let _audioFirstInteraction = false;
 function setupAudioListeners() {
   _audioMuted = localStorage.getItem('stakr_audio_muted') === '1';
   const btn = document.getElementById('mute-btn');
@@ -1334,6 +1374,12 @@ function setupAudioListeners() {
   document.addEventListener('click', (e) => {
     const target = e.target.closest('button, .mode-quick-btn, .adv-btn, .quest-tab, select, .adv-zone-pin');
     if (target && !target.id?.includes('mute')) playClickSound();
+    // Start ambience on first user interaction (required by browsers)
+    if (!_audioFirstInteraction && !_audioMuted) {
+      _audioFirstInteraction = true;
+      if (state.currentMode === 'aventure') startAdventureAmbience();
+      else startChatAmbience();
+    }
   }, true);
 }
 
