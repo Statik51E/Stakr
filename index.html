@@ -1211,7 +1211,8 @@ const MODES = {
 let state = {
   companion: 'raven', // ID du compagnon actif (cle dans COMPANIONS)
   mood: 'serein',
-  memory: [],         // {role, content, timestamp}
+  memory: [],         // DEPRECATED — migrated to memories
+  memories: {},       // per-companion chat {raven: [...], lucas: [...]}
   longTermMemory: [], // facts Stakr remembers about user
   reminders: [],      // {time, message, id}
   currentMode: 'conversation',
@@ -1675,7 +1676,14 @@ function loadState() {
       if (!state.currentProject) state.currentProject = null;
       if (!state.currentMode) state.currentMode = 'conversation';
       if (!state.appearances) state.appearances = {};
+      if (!state.memories) state.memories = {};
       if (!state.quests) state.quests = { level:1, xp:0, totalXp:0, streak:0, lastActiveDate:null, weekStartDate:null, objectives:[], history:[] };
+      // Migrate old global memory to per-companion
+      if (state.memory && Array.isArray(state.memory) && state.memory.length > 0) {
+        const cid = state.companion || 'raven';
+        state.memories[cid] = state.memory;
+        state.memory = [];
+      }
       // Migrate old global appearance to per-companion
       if (state.appearance && typeof state.appearance === 'object') {
         // Restore old bg images
@@ -1710,7 +1718,7 @@ function loadState() {
             }
           });
         }
-        restoreImages(state.memory);
+        Object.values(state.memories || {}).forEach(msgs => restoreImages(msgs));
         (state.projects || []).forEach(p => restoreImages(p.messages));
       } catch(e2) {}
     }
@@ -1749,7 +1757,7 @@ function saveState() {
         }
       });
     }
-    stripImages(toSave.memory);
+    Object.values(toSave.memories || {}).forEach(msgs => stripImages(msgs));
     (toSave.projects || []).forEach(p => stripImages(p.messages));
 
     localStorage.setItem('stakr_state', JSON.stringify(toSave));
@@ -1781,14 +1789,16 @@ function _debouncedCloudSync() {
 }
 
 function clearMemory() {
-  if (confirm('Effacer toute la mémoire de Stakr ?')) {
-    state.memory = [];
+  const comp = getCompanion();
+  if (confirm(`Effacer la mémoire de ${comp.name} ?`)) {
+    const cid = state.companion || 'raven';
+    state.memories[cid] = [];
     state.longTermMemory = [];
     state.reminders = [];
     saveState();
     chatArea.innerHTML = '';
-    addMessage('stakr', "Les runes se sont effacées... Ma mémoire est vierge, comme une page de saga non écrite. Qui es-tu, voyageur ?");
-    showToast('Mémoire effacée', 'Stakr repart de zéro.');
+    addMessage('stakr', comp.welcomeMsg);
+    showToast('Mémoire effacée', `${comp.name} repart de zéro.`);
   }
 }
 
@@ -1828,7 +1838,7 @@ function exportFullBackup() {
         }
       });
     };
-    restoreImgs(backup.state.memory);
+    Object.values(backup.state.memories || {}).forEach(msgs => restoreImgs(msgs));
     (backup.state.projects || []).forEach(p => restoreImgs(p.messages));
   } catch(e) {}
 
@@ -2797,7 +2807,16 @@ async function switchCompanion(id) {
     console.warn('raven3D not available yet');
   }
 
-  // 5. Persist
+  // 5. Reload chat for this companion
+  chatArea.innerHTML = '';
+  const msgs = getCurrentMessages();
+  if (msgs.length === 0) {
+    addMessage('stakr', comp.welcomeMsg);
+  } else {
+    msgs.slice(-30).forEach(m => addMessage(m.role === 'user' ? 'user' : 'stakr', m.content, m.timestamp, true, m.image || null));
+  }
+
+  // 6. Persist
   saveState();
   renderCompanionSelect();
 
@@ -5398,7 +5417,9 @@ function getCurrentMessages() {
     const proj = state.projects.find(p => p.id === state.currentProject);
     return proj ? proj.messages : [];
   }
-  return state.memory;
+  const cid = state.companion || 'raven';
+  if (!state.memories[cid]) state.memories[cid] = [];
+  return state.memories[cid];
 }
 
 function pushMessage(msg) {
@@ -5406,7 +5427,9 @@ function pushMessage(msg) {
     const proj = state.projects.find(p => p.id === state.currentProject);
     if (proj) { proj.messages.push(msg); proj.updatedAt = Date.now(); }
   } else {
-    state.memory.push(msg);
+    const cid = state.companion || 'raven';
+    if (!state.memories[cid]) state.memories[cid] = [];
+    state.memories[cid].push(msg);
   }
 }
 
@@ -5885,7 +5908,7 @@ function checkReminders() {
         sendNotification('Stakr — Rappel 🪶', r.message);
         showToast('Rappel de Stakr', r.message);
         addMessage('stakr', `⏰ **Rappel !** ${r.message}\n\n*Les runes ne mentent jamais — tu m'avais demandé de te rappeler ceci.* [MOOD:protecteur]`);
-        state.memory.push({ role: 'assistant', content: `Rappel: ${r.message}`, timestamp: currentTime });
+        pushMessage({ role: 'assistant', content: `Rappel: ${r.message}`, timestamp: currentTime });
         saveState();
         return false;
       }
@@ -5900,7 +5923,7 @@ async function scheduleSpontaneousThought() {
   try {
     // Build context for the spontaneous thought
     const recentTopics = (state.stakrLife.topics || []).slice(-5).join(', ');
-    const lastMessages = state.memory.slice(-6).map(m => `${m.role}: ${m.content.slice(0,80)}`).join('\n');
+    const lastMessages = getCurrentMessages().slice(-6).map(m => `${m.role}: ${m.content.slice(0,80)}`).join('\n');
     const level = state.stakrLife.relationshipLevel || 0;
     const hoursSinceLastSeen = state.stakrLife.lastSeen
       ? Math.round((Date.now() - state.stakrLife.lastSeen) / 3600000)
