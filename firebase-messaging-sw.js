@@ -87,16 +87,31 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 // PWA Cache
-const CACHE_NAME = 'stakr-v9';
-const CACHE_FILES = ['./index.html', './stakr-raven.glb', './map.png', './adventure-ambience.mp3', './chat-ambience.mp3'];
+const CACHE_NAME = 'stakr-v10';
+const CACHE_FILES = ['./index.html', './stakr-raven.glb', './map.png'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(CACHE_FILES)));
+  e.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(c => c.addAll(CACHE_FILES))
+      .catch(() => {}) // Don't block install if cache fails
+  );
   self.skipWaiting();
 });
 
 self.addEventListener('fetch', (e) => {
-  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+  // Network-first for HTML (always get latest), cache-first for assets
+  if (e.request.url.endsWith('.html') || e.request.url.endsWith('/')) {
+    e.respondWith(
+      fetch(e.request).then(r => {
+        const clone = r.clone();
+        caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+        return r;
+      }).catch(() => caches.match(e.request))
+    );
+  } else {
+    e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+  }
 });
 
 self.addEventListener('activate', (e) => {
