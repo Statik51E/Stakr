@@ -6123,12 +6123,48 @@ const ADV_QUEST_TEMPLATES = [
 // — Etat aventure —
 // ===== CHARACTER CLASSES =====
 const ADV_CLASSES = {
-  guerrier: { name: 'Guerrier', icon: '⚔️', desc: 'Fort au combat, resistant aux coups', bonus: { force: 2, endurance: 2 } },
-  eclaireur: { name: 'Eclaireur', icon: '🏹', desc: 'Agile et perceptif, expert en survie', bonus: { agilite: 2, perception: 2 } },
-  skalde: { name: 'Skalde', icon: '🎵', desc: 'Maitre des mots et de la magie runique', bonus: { charisme: 2, sagesse: 2 } },
-  berserkr: { name: 'Berserkr', icon: '🐻', desc: 'Fureur devastatrice, mais imprudent', bonus: { force: 3, agilite: 1, endurance: -1 } },
-  volva: { name: 'Volva', icon: '🔮', desc: 'Voyante et guerisseuse, maitrise les runes', bonus: { sagesse: 3, perception: 1, force: -1 } }
+  guerrier: { name: 'Guerrier', icon: '⚔️', desc: 'Fort au combat, resistant aux coups', bonus: { force: 2, endurance: 2 }, weapons: [
+    { id: 'epee', name: 'Epee longue', icon: '⚔️', desc: 'Equilibree, degats constants', statBonus: 'force', dmgBonus: 2 },
+    { id: 'hache', name: 'Hache de guerre', icon: '🪓', desc: 'Devastatrice mais lourde', statBonus: 'force', dmgBonus: 3 }
+  ]},
+  eclaireur: { name: 'Eclaireur', icon: '🏹', desc: 'Agile et perceptif, expert en survie', bonus: { agilite: 2, perception: 2 }, weapons: [
+    { id: 'arc', name: 'Arc long', icon: '🏹', desc: 'Precision a distance', statBonus: 'agilite', dmgBonus: 2 },
+    { id: 'dagues', name: 'Dagues jumelles', icon: '🗡️', desc: 'Rapides et letales de pres', statBonus: 'agilite', dmgBonus: 3 }
+  ]},
+  skalde: { name: 'Skalde', icon: '🎵', desc: 'Maitre des mots et de la magie runique', bonus: { charisme: 2, sagesse: 2 }, weapons: [
+    { id: 'baton', name: 'Baton runique', icon: '🪄', desc: 'Canalise la magie des runes', statBonus: 'sagesse', dmgBonus: 2 },
+    { id: 'lyre', name: 'Lyre enchantee', icon: '🎶', desc: 'Ensorcelle et affaiblit les ennemis', statBonus: 'charisme', dmgBonus: 2 }
+  ]},
+  berserkr: { name: 'Berserkr', icon: '🐻', desc: 'Fureur devastatrice, mais imprudent', bonus: { force: 3, agilite: 1, endurance: -1 }, weapons: [
+    { id: 'marteau', name: 'Marteau de guerre', icon: '🔨', desc: 'Coups devastateurs, inspire la peur', statBonus: 'force', dmgBonus: 4 },
+    { id: 'hache2m', name: 'Hache a deux mains', icon: '⚒️', desc: 'Balayage brutal, frappe multiple', statBonus: 'force', dmgBonus: 3 }
+  ]},
+  volva: { name: 'Volva', icon: '🔮', desc: 'Voyante et guerisseuse, maitrise les runes', bonus: { sagesse: 3, perception: 1, force: -1 }, weapons: [
+    { id: 'sceptre', name: 'Sceptre des Nornes', icon: '🔮', desc: 'Puissant focus de magie ancienne', statBonus: 'sagesse', dmgBonus: 3 },
+    { id: 'faucille', name: 'Faucille sacree', icon: '🌙', desc: 'Lame rituelle, precise et rapide', statBonus: 'agilite', dmgBonus: 2 }
+  ]}
 };
+
+const ADV_GENDERS = [
+  { id: 'homme', label: 'Homme', icon: '♂️' },
+  { id: 'femme', label: 'Femme', icon: '♀️' }
+];
+
+const ADV_OUTFITS = [
+  { id: 'fourrure', name: 'Fourrures de chasseur', icon: '🦊', desc: 'Peaux de betes, robuste et sauvage' },
+  { id: 'cuir', name: 'Armure de cuir', icon: '🛡️', desc: 'Souple et legere, favorise la mobilite' },
+  { id: 'maille', name: 'Cotte de mailles', icon: '⛓️', desc: 'Protection solide, classique viking' },
+  { id: 'robe', name: 'Robe runique', icon: '✨', desc: 'Tissu enchante, impregne de magie' },
+  { id: 'cape', name: 'Cape de loup', icon: '🐺', desc: 'Sombre et mysterieuse, inspire la crainte' }
+];
+
+const ADV_HAIR = [
+  { id: 'long', name: 'Longs tresses', icon: '💇' },
+  { id: 'court', name: 'Courts et rases', icon: '💈' },
+  { id: 'mohawk', name: 'Crete de guerre', icon: '🔥' },
+  { id: 'tresses', name: 'Tresses nordiques', icon: '🪢' },
+  { id: 'rasé', name: 'Crane rase', icon: '🧑‍🦲' }
+];
 
 const ADV_STATS = [
   { id: 'force', name: 'Force', icon: '💪', desc: 'Degats physiques, porter des objets lourds, enfoncer des portes' },
@@ -6151,6 +6187,10 @@ function defaultAdventureState() {
     charCreated: false,
     charName: '',
     charClass: '',
+    charGender: '',
+    charWeapon: null,
+    charOutfit: '',
+    charHair: '',
     stats: { force: 1, agilite: 1, endurance: 1, perception: 1, charisme: 1, sagesse: 1 },
     // Gameplay
     inventory: [],
@@ -6193,6 +6233,10 @@ let _charTempClass = '';
 function advShowCharCreation() {
   _charTempStats = { force: 1, agilite: 1, endurance: 1, perception: 1, charisme: 1, sagesse: 1 };
   _charTempClass = '';
+  _charTempGender = '';
+  _charTempWeapon = '';
+  _charTempOutfit = '';
+  _charTempHair = '';
   advRenderCharCreation();
 }
 
@@ -6206,30 +6250,93 @@ function advRenderCharCreation() {
   if (hud) hud.style.display = 'none';
   if (inputBar) inputBar.style.display = 'none';
 
-  const usedPoints = Object.values(_charTempStats).reduce((a, b) => a + b, 0) - 6; // 6 = base (1 each)
+  const usedPoints = Object.values(_charTempStats).reduce((a, b) => a + b, 0) - 6;
   const remaining = ADV_STAT_POINTS - usedPoints;
   const classBonus = _charTempClass ? ADV_CLASSES[_charTempClass].bonus : {};
+  const selStyle = (sel) => `border:1px solid ${sel ? 'var(--gold)' : 'var(--border)'};border-radius:6px;background:${sel ? 'rgba(212,175,55,.15)' : 'var(--wood-mid)'};color:${sel ? 'var(--gold)' : 'var(--text)'};cursor:pointer;font-family:'Cinzel',serif;`;
 
   let html = `<div style="padding:10px">
     <h3 style="color:var(--gold);font-family:'Cinzel',serif;text-align:center;margin-bottom:8px">⚔️ Creation de Personnage</h3>
+
+    <!-- Nom -->
     <div style="margin-bottom:10px">
       <label style="font-size:.7rem;color:var(--text-dim)">Nom du Viking :</label>
       <input type="text" id="char-name-input" placeholder="Ton nom de guerrier..." value="${adv.charName || ''}" style="width:100%;padding:8px;background:var(--wood-mid);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Cinzel',serif;font-size:.8rem;margin-top:4px"/>
     </div>
+
+    <!-- Genre -->
+    <div style="margin-bottom:10px">
+      <label style="font-size:.7rem;color:var(--text-dim)">Genre :</label>
+      <div style="display:flex;gap:6px;margin-top:4px">`;
+
+  ADV_GENDERS.forEach(g => {
+    const sel = _charTempGender === g.id;
+    html += `<button onclick="_charTempGender='${g.id}';advRenderCharCreation()" style="flex:1;padding:8px;${selStyle(sel)}font-size:.7rem;text-align:center">
+      <span style="font-size:1.1rem">${g.icon}</span><br>${g.label}
+    </button>`;
+  });
+
+  html += `</div></div>
+
+    <!-- Classe -->
     <div style="margin-bottom:10px">
       <label style="font-size:.7rem;color:var(--text-dim)">Classe :</label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">`;
 
   Object.entries(ADV_CLASSES).forEach(([id, cls]) => {
     const selected = _charTempClass === id;
-    html += `<button onclick="advSelectClass('${id}')" style="padding:8px;border:1px solid ${selected ? 'var(--gold)' : 'var(--border)'};border-radius:6px;background:${selected ? 'rgba(212,175,55,.15)' : 'var(--wood-mid)'};color:${selected ? 'var(--gold)' : 'var(--text)'};cursor:pointer;text-align:left;font-size:.65rem;font-family:'Cinzel',serif">
+    html += `<button onclick="advSelectClass('${id}')" style="padding:8px;${selStyle(selected)}text-align:left;font-size:.65rem">
       <div style="font-weight:700">${cls.icon} ${cls.name}</div>
       <div style="font-size:.55rem;color:var(--text-dim);margin-top:2px">${cls.desc}</div>
     </button>`;
   });
 
-  html += `</div></div>
-    <div style="margin-bottom:6px">
+  html += `</div></div>`;
+
+  // Arme (only if class selected)
+  if (_charTempClass) {
+    const weapons = ADV_CLASSES[_charTempClass].weapons;
+    html += `<div style="margin-bottom:10px">
+      <label style="font-size:.7rem;color:var(--text-dim)">Arme de depart :</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">`;
+    weapons.forEach(w => {
+      const sel = _charTempWeapon === w.id;
+      html += `<button onclick="_charTempWeapon='${w.id}';advRenderCharCreation()" style="padding:8px;${selStyle(sel)}text-align:left;font-size:.65rem">
+        <div style="font-weight:700">${w.icon} ${w.name}</div>
+        <div style="font-size:.55rem;color:var(--text-dim);margin-top:2px">${w.desc}</div>
+        <div style="font-size:.5rem;color:#69f0ae;margin-top:2px">+${w.dmgBonus} degats (${w.statBonus})</div>
+      </button>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Apparence : Tenue
+  html += `<div style="margin-bottom:10px">
+    <label style="font-size:.7rem;color:var(--text-dim)">Tenue :</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:4px">`;
+  ADV_OUTFITS.forEach(o => {
+    const sel = _charTempOutfit === o.id;
+    html += `<button onclick="_charTempOutfit='${o.id}';advRenderCharCreation()" style="padding:6px 4px;${selStyle(sel)}text-align:center;font-size:.6rem">
+      <div style="font-size:1rem">${o.icon}</div>
+      <div style="font-weight:600;margin-top:2px">${o.name}</div>
+    </button>`;
+  });
+  html += `</div></div>`;
+
+  // Apparence : Cheveux
+  html += `<div style="margin-bottom:10px">
+    <label style="font-size:.7rem;color:var(--text-dim)">Cheveux :</label>
+    <div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap">`;
+  ADV_HAIR.forEach(h => {
+    const sel = _charTempHair === h.id;
+    html += `<button onclick="_charTempHair='${h.id}';advRenderCharCreation()" style="padding:6px 8px;${selStyle(sel)}text-align:center;font-size:.6rem;flex:1;min-width:60px">
+      <span style="font-size:.9rem">${h.icon}</span> ${h.name}
+    </button>`;
+  });
+  html += `</div></div>`;
+
+  // Stats
+  html += `<div style="margin-bottom:6px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <label style="font-size:.7rem;color:var(--text-dim)">Stats (${ADV_STAT_POINTS} points) :</label>
         <span style="font-size:.75rem;font-weight:700;color:${remaining > 0 ? 'var(--gold)' : remaining === 0 ? '#69f0ae' : '#e74c3c'}">${remaining} restant${remaining !== 1 ? 's' : ''}</span>
@@ -6259,8 +6366,9 @@ function advRenderCharCreation() {
   content.innerHTML = html;
   content.scrollTop = 0;
 
+  const canStart = remaining === 0 && _charTempClass && _charTempGender && _charTempWeapon && _charTempOutfit && _charTempHair;
   if (actions) {
-    actions.innerHTML = `<button class="adv-btn primary" onclick="advConfirmCharacter()" style="flex:2" ${remaining !== 0 || !_charTempClass ? 'disabled' : ''}>⚔️ Commencer l'Aventure</button>
+    actions.innerHTML = `<button class="adv-btn primary" onclick="advConfirmCharacter()" style="flex:2" ${canStart ? '' : 'disabled'}>⚔️ Commencer l'Aventure</button>
     ${adv.charCreated ? `<button class="adv-btn" onclick="advCancelCharCreation()">Annuler</button>` : ''}`;
   }
 }
@@ -6284,9 +6392,16 @@ function advConfirmCharacter() {
   const name = nameInput ? nameInput.value.trim() : '';
   if (!name) { showToast('Erreur', 'Donne un nom a ton Viking !'); return; }
   if (!_charTempClass) { showToast('Erreur', 'Choisis une classe !'); return; }
+  if (!_charTempGender) { showToast('Erreur', 'Choisis un genre !'); return; }
+  if (!_charTempWeapon) { showToast('Erreur', 'Choisis une arme !'); return; }
+  if (!_charTempOutfit) { showToast('Erreur', 'Choisis une tenue !'); return; }
+  if (!_charTempHair) { showToast('Erreur', 'Choisis une coiffure !'); return; }
 
   adv.charName = name;
   adv.charClass = _charTempClass;
+  adv.charGender = _charTempGender;
+  adv.charOutfit = _charTempOutfit;
+  adv.charHair = _charTempHair;
   adv.stats = { ..._charTempStats };
 
   // Apply class bonuses
@@ -6294,6 +6409,15 @@ function advConfirmCharacter() {
   Object.entries(bonus).forEach(([stat, val]) => {
     adv.stats[stat] = Math.max(1, (adv.stats[stat] || 1) + val);
   });
+
+  // Save weapon
+  const cls = ADV_CLASSES[_charTempClass];
+  const weapon = cls.weapons.find(w => w.id === _charTempWeapon);
+  adv.charWeapon = weapon ? { id: weapon.id, name: weapon.name, icon: weapon.icon, statBonus: weapon.statBonus, dmgBonus: weapon.dmgBonus } : null;
+  // Add weapon to inventory
+  if (weapon) {
+    adv.inventory.push({ name: weapon.name, icon: weapon.icon, type: 'weapon', equipped: true, found: Date.now() });
+  }
 
   // Stats affect HP and energy
   adv.maxHp = 80 + adv.stats.endurance * 15;
@@ -6312,8 +6436,12 @@ function advConfirmCharacter() {
   if (hud) hud.style.display = '';
   if (inputBar) inputBar.style.display = '';
 
-  const cls = ADV_CLASSES[_charTempClass];
-  adv.narrative = [{ type: 'dm', text: `⚔️ **${name}**, ${cls.icon} ${cls.name}, se reveille au campement viking. Le feu crépite, l'air est charge de brume nordique. Ton aventure commence ici, guerrier. Que veux-tu faire ?`, time: Date.now() }];
+  const genderLabel = _charTempGender === 'femme' ? 'guerriere' : 'guerrier';
+  const outfitObj = ADV_OUTFITS.find(o => o.id === _charTempOutfit);
+  const hairObj = ADV_HAIR.find(h => h.id === _charTempHair);
+  const outfitDesc = outfitObj ? outfitObj.name.toLowerCase() : 'tenue viking';
+  const hairDesc = hairObj ? hairObj.name.toLowerCase() : 'cheveux';
+  adv.narrative = [{ type: 'dm', text: `⚔️ **${name}**, ${cls.icon} ${cls.name}, se reveille au campement viking. Vetu${_charTempGender === 'femme' ? 'e' : ''} de ${outfitDesc}, ${hairDesc} au vent, ${weapon ? weapon.icon + ' ' + weapon.name + ' a la main' : 'arme au poing'}. Le feu crépite, l'air est charge de brume nordique. Ton aventure commence ici, ${genderLabel}. Que veux-tu faire ?`, time: Date.now() }];
   saveAdventure();
 
   advRenderMap();
@@ -6868,8 +6996,15 @@ function advShowCharSheet() {
     return `${s.icon} **${s.name}** : ${val} ${'█'.repeat(Math.min(val, 10))}${'░'.repeat(Math.max(0, 10 - val))}`;
   }).join('\n');
 
+  const genderIcon = adv.charGender === 'femme' ? '♀️' : '♂️';
+  const outfitObj = ADV_OUTFITS.find(o => o.id === adv.charOutfit);
+  const hairObj = ADV_HAIR.find(h => h.id === adv.charHair);
+  const weaponStr = adv.charWeapon ? `${adv.charWeapon.icon} ${adv.charWeapon.name} (+${adv.charWeapon.dmgBonus} degats)` : 'Aucune';
+
   const text = `📋 **FICHE DE PERSONNAGE**\n` +
-    `${cls.icon || ''} **${adv.charName}** — ${cls.name || 'Inconnu'} (Niv. ${adv.level})\n` +
+    `${cls.icon || ''} **${adv.charName}** ${genderIcon} — ${cls.name || 'Inconnu'} (Niv. ${adv.level})\n` +
+    `🗡️ Arme: ${weaponStr}\n` +
+    `👤 ${outfitObj ? outfitObj.icon + ' ' + outfitObj.name : 'Tenue viking'} | ${hairObj ? hairObj.icon + ' ' + hairObj.name : 'Cheveux nordiques'}\n` +
     `❤️ PV: ${adv.hp}/${adv.maxHp} | ⚡ Energie: ${adv.energy}/${adv.maxEnergy}\n` +
     `💰 Or: ${adv.gold} | ⭐ Reputation: ${adv.reputation}/100\n` +
     `⚔️ Monstres vaincus: ${adv.totalKills} | 🗺️ Zones explorees: ${adv.totalExplored}\n\n` +
@@ -6983,7 +7118,9 @@ function getAdvSystemPrompt() {
   return `Tu es Stakr, corbeau viking IA et MAITRE DU JEU (MJ) d'un RPG nordique immersif et DIFFICILE.
 
 PERSONNAGE DU JOUEUR :
-- Nom : ${adv.charName || 'Viking'} | Classe : ${cls.icon || ''} ${cls.name || 'Inconnu'}
+- Nom : ${adv.charName || 'Viking'} | Classe : ${cls.icon || ''} ${cls.name || 'Inconnu'} | Genre : ${adv.charGender === 'femme' ? 'Femme' : 'Homme'}
+- Arme : ${adv.charWeapon ? adv.charWeapon.icon + ' ' + adv.charWeapon.name + ' (+' + adv.charWeapon.dmgBonus + ' degats)' : 'Aucune'}
+- Apparence : ${(ADV_OUTFITS.find(o => o.id === adv.charOutfit) || {}).name || 'Tenue viking'}, ${(ADV_HAIR.find(h => h.id === adv.charHair) || {}).name || 'cheveux nordiques'}
 - Stats : ${statsStr}
 - Or : ${adv.gold || 0} | Reputation : ${adv.reputation || 0}/100
 - Savoirs decouverts : ${loreStr}
@@ -7019,6 +7156,7 @@ NARRATION ELABOREE :
 - Cree des evenements aleatoires (tempetes, embuscades, marchands ambulants, visions divines)
 - Les consequences des choix du joueur persistent (tuer un PNJ = il ne revient pas, reputation change)
 - **ADAPTE-TOI au joueur** : si le joueur mentionne un ennemi, un lieu ou une situation specifique, utilise CE contexte. Ne remplace pas un ours par un draugr, ni une grotte par une foret. Respecte ce que le joueur imagine.
+- **APPARENCE** : Utilise le genre, la tenue, les cheveux et l'arme du personnage dans tes descriptions narratives. ${adv.charGender === 'femme' ? 'Accorde au feminin (elle, guerriere, vêtue...).' : 'Accorde au masculin (il, guerrier, vêtu...).'}
 - Garde tes reponses entre 3 et 8 phrases — immersif mais rythme
 - Tutoie le joueur, 2e personne ("Tu vois...", "Tu entends...")
 
@@ -7378,8 +7516,9 @@ function advParseAndExecuteTags(response) {
 
       if (isAttack) {
         if (result.success) {
-          // Player hits the enemy
-          const baseDmg = 4 + (adv.stats[statId] || 1) * 2;
+          // Player hits the enemy — weapon bonus applies if stat matches
+          const weaponBonus = (adv.charWeapon && adv.charWeapon.statBonus === statId) ? adv.charWeapon.dmgBonus : 0;
+          const baseDmg = 4 + (adv.stats[statId] || 1) * 2 + weaponBonus;
           let dmg = baseDmg + Math.floor(Math.random() * (adv.stats[statId] || 1) * 2);
           if (result.critical) dmg = Math.floor(dmg * 2);
           if (result.fumble) dmg = 0;
