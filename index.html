@@ -1366,6 +1366,13 @@ function toggleAudioMute() {
 
 // --- Global click sound via event delegation ---
 let _audioFirstInteraction = false;
+function _tryStartAmbience() {
+  if (_audioFirstInteraction || _audioMuted) return;
+  _audioFirstInteraction = true;
+  if (state.currentMode === 'aventure') startAdventureAmbience();
+  else startChatAmbience();
+}
+
 function setupAudioListeners() {
   _audioMuted = localStorage.getItem('stakr_audio_muted') === '1';
   const btn = document.getElementById('mute-btn');
@@ -1374,13 +1381,12 @@ function setupAudioListeners() {
   document.addEventListener('click', (e) => {
     const target = e.target.closest('button, .mode-quick-btn, .adv-btn, .quest-tab, select, .adv-zone-pin');
     if (target && !target.id?.includes('mute')) playClickSound();
-    // Start ambience on first user interaction (required by browsers)
-    if (!_audioFirstInteraction && !_audioMuted) {
-      _audioFirstInteraction = true;
-      if (state.currentMode === 'aventure') startAdventureAmbience();
-      else startChatAmbience();
-    }
+    _tryStartAmbience();
   }, true);
+
+  // Also start on keydown or touch (first message via Enter, mobile tap)
+  document.addEventListener('keydown', _tryStartAmbience, { once: true });
+  document.addEventListener('touchstart', _tryStartAmbience, { once: true });
 }
 
 // ===== INIT =====
