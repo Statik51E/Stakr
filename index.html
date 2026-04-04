@@ -1841,6 +1841,18 @@ function setupModes() {
     select.value = state.currentMode || 'conversation';
   }
 
+  // First click on select while in adventure = exit adventure, don't open dropdown
+  select.addEventListener('mousedown', (e) => {
+    if (state.currentMode === 'aventure') {
+      e.preventDefault();
+      state.currentMode = select.value || 'conversation';
+      saveState();
+      advBtn.classList.remove('active');
+      toggleAdventureMode(false);
+      showToast('Mode ' + (MODES[state.currentMode]?.label || ''), 'Stakr adapte ses reponses.');
+    }
+  });
+
   // Dropdown change = switch AI chat mode
   select.addEventListener('change', () => {
     const prevMode = state.currentMode;
