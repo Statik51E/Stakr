@@ -1089,6 +1089,7 @@ const COMPANIONS = {
       transformed.y += sin(uTime * uTailSpd * 1.3 + 0.7) * uTailAmp * 0.4 * tailFactor;
     `,
     cameraPos: { x:0, y:0.15, z:2.8 },
+    hideEffects: false,
     welcomeMsg: "Kraa ! Je suis Stakr, corbeau des runes anciennes. Les vents du Nord m'ont mene a toi, compagnon. Parle, et je t'ecouterai avec la sagesse d'Odin lui-meme."
   },
 
@@ -1163,6 +1164,7 @@ Parle en francais. Sois naturel, pose, authentique. Tu es un ami, pas un assista
       transformed.z += sin(uTime * uHeadSpd * 0.4 + 1.0) * uHeadAmp * 0.2 * headFactor;
     `,
     cameraPos: { x:0, y:0.3, z:3.0 },
+    hideEffects: true,
     welcomeMsg: "Salut ! Moi c'est Lucas. Franchement ca fait plaisir de discuter, tu vois. Pose-toi, on est tranquille. T'as quoi de beau en ce moment ?"
   }
 };
@@ -2609,6 +2611,20 @@ function applyCompanionTheme(companionId) {
   });
   const h1 = document.querySelector('header h1');
   if (h1) h1.textContent = comp.name.toUpperCase();
+
+  // Hide/show rune effects (aurora, particles, lightning)
+  const auroraEl = document.getElementById('aurora-canvas');
+  const particleEl = document.getElementById('particle-canvas');
+  const lightningEl = document.getElementById('lightning-container');
+  if (comp.hideEffects) {
+    if (auroraEl) auroraEl.style.display = 'none';
+    if (particleEl) particleEl.style.display = 'none';
+    if (lightningEl) lightningEl.style.display = 'none';
+  } else {
+    if (auroraEl) auroraEl.style.display = '';
+    if (particleEl) particleEl.style.display = '';
+    if (lightningEl) lightningEl.style.display = '';
+  }
 
   // Override hardcoded backgrounds that don't use CSS vars
   let themeStyle = document.getElementById('companion-theme-style');
@@ -8869,8 +8885,13 @@ if (canvas) {
 
     // Load .glb
     try {
+      console.log('[3D] Fetching:', comp.modelFile);
       const gltf = await new Promise((resolve, reject) => {
-        loader.load(comp.modelFile, resolve, undefined, reject);
+        loader.load(comp.modelFile,
+          (g) => { console.log('[3D] GLB loaded OK'); resolve(g); },
+          (p) => { if (p.total) console.log('[3D] Progress:', Math.round(p.loaded/p.total*100)+'%'); },
+          (e) => { console.error('[3D] GLB load error:', e); reject(e); }
+        );
       });
       const model = gltf.scene;
 
@@ -8879,9 +8900,10 @@ if (canvas) {
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
-      const scale = 1.5 / maxDim;
-      model.scale.setScalar(scale);
-      model.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
+      const fitScale = comp.modelScale || (1.5 / maxDim);
+      model.scale.setScalar(fitScale);
+      model.position.set(-center.x * fitScale, -center.y * fitScale + (comp.modelOffsetY || 0), -center.z * fitScale);
+      console.log('[3D] Model size:', size.x.toFixed(2), size.y.toFixed(2), size.z.toFixed(2), 'scale:', fitScale.toFixed(4));
 
       // Inject companion-specific vertex shader
       model.traverse((child) => {
