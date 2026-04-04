@@ -2842,6 +2842,7 @@ const DAILY_CHALLENGE_POOLS = {
   masse: {
     name: 'Prise de Masse Viking',
     icon: '🏋️',
+    pick: 4,
     desc: 'Forge ton corps au poids du corps, comme les guerriers du Nord.',
     quests: [
       { id: 'ch_dips', name: 'Dips', icon: '💪', target: 10, unit: 'reps', xpReward: 35, category: 'physique', desc: 'Mains sur une chaise ou un bord stable, descends et remonte a la force des bras. Travaille triceps et pectoraux.' },
@@ -2857,12 +2858,19 @@ const DAILY_CHALLENGE_POOLS = {
       { id: 'ch_superman', name: 'Superman hold', icon: '🦸', target: 30, unit: 'sec', xpReward: 20, category: 'physique', desc: 'Allonge sur le ventre, leve bras et jambes du sol en meme temps. Renforce le bas du dos et les fessiers.' },
       { id: 'ch_jumping_sq', name: 'Jump squats', icon: '🦘', target: 15, unit: 'reps', xpReward: 35, category: 'physique', desc: 'Squat classique suivi d\'un saut explosif. Developpe la puissance des jambes de berserker.' },
       { id: 'ch_muscle_up', name: 'Pompes explosives', icon: '💥', target: 8, unit: 'reps', xpReward: 40, category: 'physique', desc: 'Pompes avec une poussee explosive pour decoller les mains du sol. Puissance et vitesse combinees.' },
-      { id: 'ch_proteines', name: 'Repas proteine', icon: '🥩', target: 1, unit: 'repas', xpReward: 20, category: 'sante', desc: 'Mange un repas riche en proteines (oeufs, viande, poisson, legumineuses). Le carburant du guerrier.' }
+      { id: 'ch_proteines', name: 'Repas proteine', icon: '🥩', target: 1, unit: 'repas', xpReward: 20, category: 'sante', desc: 'Mange un repas riche en proteines (oeufs, viande, poisson, legumineuses). Le carburant du guerrier.' },
+      { id: 'ch_abdos', name: 'Crunchs', icon: '🔥', target: 25, unit: 'reps', xpReward: 25, category: 'physique', desc: 'Allonge sur le dos, genoux plies, contracte les abdos pour decoller les epaules du sol. Lentement.' },
+      { id: 'ch_pont', name: 'Pont fessier', icon: '🌉', target: 20, unit: 'reps', xpReward: 25, category: 'physique', desc: 'Sur le dos, pieds au sol, pousse les hanches vers le ciel en serrant les fessiers. Tiens 2 sec en haut.' },
+      { id: 'ch_commando', name: 'Pompes commando', icon: '🪖', target: 10, unit: 'reps', xpReward: 35, category: 'physique', desc: 'En planche sur les coudes, monte en position pompe bras par bras, puis redescends. Travaille tout le haut du corps.' },
+      { id: 'ch_calf', name: 'Mollets debout', icon: '🦶', target: 30, unit: 'reps', xpReward: 20, category: 'physique', desc: 'Debout sur une marche, monte sur la pointe des pieds et redescends lentement. Forge des mollets d\'acier.' },
+      { id: 'ch_bear_crawl', name: 'Bear crawl', icon: '🐻', target: 30, unit: 'sec', xpReward: 30, category: 'physique', desc: 'A quatre pattes, genoux a 2 cm du sol, avance en coordonnant bras et jambes opposes. Cardio et gainage total.' },
+      { id: 'ch_hindu', name: 'Pompes hindoues', icon: '🐍', target: 8, unit: 'reps', xpReward: 35, category: 'physique', desc: 'De la position pike, plonge vers le sol en arc puis remonte bras tendus. Epaules, dos, pectoraux — tout travaille.' }
     ]
   },
   philosophie: {
     name: 'Philosophie Viking',
     icon: '📜',
+    pick: 3,
     desc: 'Nourris ton esprit et forge ta sagesse interieure.',
     quests: [
       { id: 'ch_journal', name: 'Journal intime', icon: '📝', target: 1, unit: 'entree', xpReward: 25, category: 'mental', desc: 'Ecris librement dans un carnet : ta journee, tes pensees, tes objectifs. L\'ecriture clarifie l\'esprit.' },
@@ -2878,7 +2886,37 @@ const DAILY_CHALLENGE_POOLS = {
       { id: 'ch_amor_fati', name: 'Amor fati', icon: '☀️', target: 1, unit: 'reflexion', xpReward: 25, category: 'mental', desc: 'Prends un evenement negatif recent et cherche ce qu\'il t\'apprend. Aime ton destin, meme les epreuves.' },
       { id: 'ch_cold_face', name: 'Affronter une peur', icon: '🐺', target: 1, unit: 'action', xpReward: 40, category: 'mental', desc: 'Identifie une peur qui te limite et fais un petit pas pour l\'affronter aujourd\'hui. Le courage nait dans l\'action.' },
       { id: 'ch_minimalisme', name: 'Acte minimaliste', icon: '🧹', target: 1, unit: 'action', xpReward: 20, category: 'mental', desc: 'Debarrasse-toi d\'un objet inutile ou simplifie un aspect de ta vie. Moins c\'est plus.' },
-      { id: 'ch_bienveillance', name: 'Acte de bienveillance', icon: '🤝', target: 1, unit: 'acte', xpReward: 25, category: 'social', desc: 'Fais quelque chose de gentil pour quelqu\'un sans rien attendre en retour. Un compliment, un service, un sourire.' }
+      { id: 'ch_bienveillance', name: 'Acte de bienveillance', icon: '🤝', target: 1, unit: 'acte', xpReward: 25, category: 'social', desc: 'Fais quelque chose de gentil pour quelqu\'un sans rien attendre en retour. Un compliment, un service, un sourire.' },
+      { id: 'ch_negative_vis', name: 'Visualisation negative', icon: '🌑', target: 1, unit: 'exercice', xpReward: 25, category: 'mental', desc: 'Imagine que tu perds tout ce que tu as. Ressens la gratitude de l\'avoir encore. Premeditatio malorum des stoiciens.' },
+      { id: 'ch_vertu', name: 'Pratiquer une vertu', icon: '🏅', target: 1, unit: 'action', xpReward: 25, category: 'mental', desc: 'Choisis une vertu (courage, temperance, justice, sagesse) et applique-la consciemment dans une situation aujourd\'hui.' },
+      { id: 'ch_digital_detox', name: 'Detox digitale', icon: '📵', target: 30, unit: 'min', xpReward: 30, category: 'mental', desc: 'Eteins tous tes ecrans pendant 30 minutes. Pas de telephone, pas d\'ordinateur. Juste toi et le monde reel.' },
+      { id: 'ch_lettre', name: 'Lettre a soi', icon: '✉️', target: 1, unit: 'lettre', xpReward: 30, category: 'mental', desc: 'Ecris une lettre a ton futur toi dans 1 an. Quels objectifs ? Quels conseils ? Que veux-tu avoir accompli ?' }
+    ]
+  },
+  mental_dur: {
+    name: 'Forge Mentale',
+    icon: '🧠',
+    pick: 3,
+    desc: 'Endurci ton esprit par la douleur, l\'inconfort et la discipline brute.',
+    quests: [
+      { id: 'ch_douche_froide', name: 'Douche glaciale', icon: '🧊', target: 2, unit: 'min', xpReward: 40, category: 'mental', desc: 'Termine ta douche par 2 minutes d\'eau froide au maximum. Respire calmement, ne fuis pas la douleur.' },
+      { id: 'ch_planche_max', name: 'Planche jusqu\'a l\'echec', icon: '⏱️', target: 1, unit: 'serie', xpReward: 35, category: 'physique', desc: 'Mets un chrono et tiens la planche jusqu\'a ce que ton corps lache. Note ton temps. C\'est ton mental qui decide quand tu arretes.' },
+      { id: 'ch_chaise_max', name: 'Chaise murale max', icon: '🔥', target: 1, unit: 'serie', xpReward: 35, category: 'physique', desc: 'Dos au mur, cuisses a 90 degres. Tiens le plus longtemps possible. Quand ca brule, c\'est la que ca commence.' },
+      { id: 'ch_sprint', name: 'Sprint total', icon: '⚡', target: 3, unit: 'sprints', xpReward: 35, category: 'physique', desc: 'Cours a fond pendant 20 secondes, marche 40 secondes. Repete 3 fois. Donne absolument tout a chaque sprint.' },
+      { id: 'ch_no_excuse', name: 'Zero excuse', icon: '🚫', target: 1, unit: 'journee', xpReward: 30, category: 'mental', desc: 'Aujourd\'hui, pas une seule excuse. Pas de "j\'ai pas le temps", "je suis fatigue", "demain". Fais ce que tu dois faire.' },
+      { id: 'ch_reveil_froid', name: 'Reveil a froid', icon: '⏰', target: 1, unit: 'reveil', xpReward: 30, category: 'mental', desc: 'Mets ton alarme et leve-toi immediatement. Pas de snooze, pas de "5 minutes de plus". Les pieds au sol des la premiere sonnerie.' },
+      { id: 'ch_junk_resist', name: 'Resister a la tentation', icon: '🍬', target: 1, unit: 'victoire', xpReward: 25, category: 'mental', desc: 'Identifie une envie (sucre, telephone, procrastination) et resiste-y volontairement toute la journee.' },
+      { id: 'ch_silence_douleur', name: 'Souffrir en silence', icon: '🤐', target: 1, unit: 'epreuve', xpReward: 30, category: 'mental', desc: 'Quand tu as mal (sport, froid, fatigue), ne te plains pas. Ni a voix haute, ni interieurement. Accepte et avance.' },
+      { id: 'ch_jeuner', name: 'Jeune volontaire', icon: '🍽️', target: 4, unit: 'heures', xpReward: 35, category: 'sante', desc: 'Saute un repas ou retarde-le de 4 heures minimum. Apprends a ton corps que la faim n\'est pas une urgence.' },
+      { id: 'ch_inconfort_physique', name: 'Position inconfortable', icon: '🪨', target: 5, unit: 'min', xpReward: 25, category: 'mental', desc: 'Assieds-toi par terre sans coussin, ou reste debout immobile 5 minutes. Le confort rend faible — l\'inconfort forge.' },
+      { id: 'ch_running', name: 'Courir sans s\'arreter', icon: '🏃', target: 10, unit: 'min', xpReward: 30, category: 'physique', desc: 'Cours 10 minutes sans jamais t\'arreter, meme lentement. Quand ton cerveau dit "stop", dis-lui "non".' },
+      { id: 'ch_froid_mains', name: 'Mains dans le froid', icon: '❄️', target: 1, unit: 'min', xpReward: 25, category: 'mental', desc: 'Plonge tes mains dans un bol d\'eau glacee pendant 1 minute. Respire, reste calme, observe la douleur sans reagir.' },
+      { id: 'ch_last_rep', name: 'Toujours une de plus', icon: '➕', target: 3, unit: 'series', xpReward: 30, category: 'physique', desc: 'Sur 3 exercices differents aujourd\'hui, quand tu penses avoir fini, fais UNE repetition de plus. Toujours.' },
+      { id: 'ch_breath_hold', name: 'Retenir son souffle', icon: '🫁', target: 3, unit: 'essais', xpReward: 25, category: 'mental', desc: 'Inspire a fond, bloque ta respiration le plus longtemps possible. Repete 3 fois. Maitrise la panique.' },
+      { id: 'ch_heavy_carry', name: 'Portage lourd', icon: '🪵', target: 2, unit: 'min', xpReward: 30, category: 'physique', desc: 'Porte quelque chose de lourd (sac, bidon d\'eau, sac a dos charge) et marche 2 minutes sans le poser.' },
+      { id: 'ch_no_phone_matin', name: 'Pas de tel au reveil', icon: '📱', target: 1, unit: 'heure', xpReward: 25, category: 'mental', desc: 'Ne touche pas ton telephone pendant la premiere heure apres le reveil. Commence ta journee pour toi, pas pour les autres.' },
+      { id: 'ch_sol_dormir', name: 'Dormir au sol', icon: '🛏️', target: 1, unit: 'nuit', xpReward: 35, category: 'mental', desc: 'Dors sur le sol dur ce soir, sans matelas. Les Vikings dormaient sur de la paille. Le confort est une prison.' },
+      { id: 'ch_eye_contact', name: 'Contact visuel', icon: '👁️', target: 5, unit: 'personnes', xpReward: 25, category: 'social', desc: 'Maintiens un contact visuel soutenu avec 5 personnes aujourd\'hui (conversations, passants). Ne baisse pas les yeux le premier.' }
     ]
   }
 };
@@ -3094,9 +3132,11 @@ function getDailySeed(dateStr) {
 function pickDailyChallenges(dateStr) {
   const seed = getDailySeed(dateStr);
   const picked = [];
-  // Pick 2 from masse, 2 from philosophie
-  ['masse', 'philosophie'].forEach((poolKey, pi) => {
-    const pool = DAILY_CHALLENGE_POOLS[poolKey].quests;
+  // Pick from each pool based on its 'pick' count
+  Object.keys(DAILY_CHALLENGE_POOLS).forEach((poolKey, pi) => {
+    const poolDef = DAILY_CHALLENGE_POOLS[poolKey];
+    const pool = poolDef.quests;
+    const count = poolDef.pick || 3;
     const indices = [];
     for (let i = 0; i < pool.length; i++) indices.push(i);
     // Seeded shuffle
@@ -3106,8 +3146,9 @@ function pickDailyChallenges(dateStr) {
       const j = s % (i + 1);
       [indices[i], indices[j]] = [indices[j], indices[i]];
     }
-    picked.push({ ...pool[indices[0]], pool: poolKey, accepted: false, progress: 0 });
-    picked.push({ ...pool[indices[1]], pool: poolKey, accepted: false, progress: 0 });
+    for (let k = 0; k < Math.min(count, pool.length); k++) {
+      picked.push({ ...pool[indices[k]], pool: poolKey, accepted: false, progress: 0 });
+    }
   });
   return picked;
 }
@@ -3213,7 +3254,7 @@ function renderDailyChallenges() {
   let html = '<div style="padding:4px 0 8px;color:var(--text-dim);font-size:.7rem;text-align:center">Chaque jour, les dieux te proposent des defis. Accepte-les... mais gare a toi si tu echoues !</div>';
 
   // Group by pool
-  ['masse', 'philosophie'].forEach(poolKey => {
+  Object.keys(DAILY_CHALLENGE_POOLS).forEach(poolKey => {
     const pool = DAILY_CHALLENGE_POOLS[poolKey];
     html += `<div class="quest-category">${pool.icon} ${pool.name}</div>`;
     html += `<div style="font-size:.6rem;color:var(--text-dim);margin:-6px 0 8px;padding:0 2px">${pool.desc}</div>`;
