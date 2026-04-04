@@ -538,8 +538,9 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <canvas id="aurora-canvas"></canvas>
     <canvas id="particle-canvas"></canvas>
     <div id="lightning-container"></div>
-
     <canvas id="raven-3d"></canvas>
+    <div id="companion-picker-overlay" style="position:absolute;bottom:8px;right:8px;z-index:5;display:none;background:rgba(0,0,0,.7);border:1px solid var(--border);border-radius:10px;padding:8px;backdrop-filter:blur(6px)"></div>
+    <button id="companion-picker-btn" onclick="toggleCompanionPicker()" style="position:absolute;bottom:8px;right:8px;z-index:4;background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:8px;color:var(--gold-dim);font-size:.7rem;padding:4px 8px;cursor:pointer;backdrop-filter:blur(4px)">🔄 Compagnon</button>
   </div>
 
   <!-- ADVENTURE MODE -->
@@ -2549,6 +2550,27 @@ function renderCompanionSelect() {
   `).join('');
 }
 
+function toggleCompanionPicker() {
+  const overlay = document.getElementById('companion-picker-overlay');
+  const btn = document.getElementById('companion-picker-btn');
+  if (!overlay) return;
+  const isOpen = overlay.style.display !== 'none';
+  if (isOpen) {
+    overlay.style.display = 'none';
+    btn.style.display = '';
+  } else {
+    overlay.innerHTML = Object.values(COMPANIONS).map(c => `
+      <div class="companion-card ${state.companion === c.id ? 'active' : ''}" onclick="switchCompanion('${c.id}')" style="min-width:70px;padding:8px 10px">
+        <span style="font-size:1.5rem">${c.emoji}</span>
+        <span style="font-size:.65rem;font-weight:600;margin-top:2px">${c.name}</span>
+      </div>
+    `).join('');
+    overlay.style.display = 'flex';
+    overlay.style.gap = '6px';
+    btn.style.display = 'none';
+  }
+}
+
 async function switchCompanion(id) {
   if (!COMPANIONS[id] || state.companion === id) return;
   state.companion = id;
@@ -2570,6 +2592,12 @@ async function switchCompanion(id) {
   // 4. Persist
   saveState();
   renderCompanionSelect();
+
+  // Close picker overlay
+  const overlay = document.getElementById('companion-picker-overlay');
+  const btn = document.getElementById('companion-picker-btn');
+  if (overlay) overlay.style.display = 'none';
+  if (btn) btn.style.display = '';
 
   showToast('Compagnon change', `${comp.emoji} ${comp.name} est a tes cotes.`);
 }
