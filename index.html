@@ -3658,6 +3658,14 @@ function addQuestXp(amount, category) {
   q.xp += totalAmount;
   q.totalXp += totalAmount;
 
+  // Track daily XP for leaderboard
+  const todayKey = getTodayKey();
+  if (q.dailyXpDate !== todayKey) {
+    q.dailyXpDate = todayKey;
+    q.dailyXpToday = 0;
+  }
+  q.dailyXpToday += totalAmount;
+
   // Level up check
   let xpNeeded = getXpForLevel(q.level);
   while (q.xp >= xpNeeded && q.level < 10) {
@@ -5758,11 +5766,9 @@ function getTodayKey() {
 function getDailyXp() {
   const q = state.quests || {};
   const today = getTodayKey();
-  let dailyXp = 0;
-  (q.history || []).forEach(h => {
-    if (h.date === today && h.xp) dailyXp += h.xp;
-  });
-  return dailyXp;
+  // If the daily XP tracker is from today, use it; otherwise it's 0
+  if (q.dailyXpDate === today) return q.dailyXpToday || 0;
+  return 0;
 }
 
 async function syncToCloud() {
