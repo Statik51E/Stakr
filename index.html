@@ -6347,6 +6347,13 @@ const ADV_CLASSES = {
   ]}
 };
 
+const ADV_DIFFICULTIES = [
+  { id: 'facile', name: 'Facile', icon: '🌿', color: '#69f0ae', desc: 'Pour decouvrir l\'histoire sans trop de risques', details: 'PV +50%, Degats ennemis -30%, Echecs moins punitifs', hpMult: 1.5, enemyDmgMult: 0.7, xpMult: 0.7, prompt: 'DIFFICULTE FACILE — Sois indulgent avec le joueur. Les echecs ont des consequences legeres, les PNJs sont cooperatifs, les ennemis font moins de degats. L\'aventure est agreable et accessible.' },
+  { id: 'moyen', name: 'Intermediaire', icon: '⚔️', color: '#ffd740', desc: 'L\'experience viking equilibree', details: 'PV et degats normaux, Bon equilibre risque/recompense', hpMult: 1.0, enemyDmgMult: 1.0, xpMult: 1.0, prompt: 'DIFFICULTE INTERMEDIAIRE — Equilibre entre defi et plaisir. Les echecs ont des consequences moderees, le monde est dangereux mais juste.' },
+  { id: 'difficile', name: 'Difficile', icon: '💀', color: '#ff5252', desc: 'Pour les guerriers aguerris', details: 'PV -20%, Degats ennemis +30%, Pieges et embuscades frequents', hpMult: 0.8, enemyDmgMult: 1.3, xpMult: 1.4, prompt: 'DIFFICULTE DIFFICILE — Sois un MJ severe. Les echecs ont des consequences graves (perte d\'objets, blessures durables, PNJs hostiles). Les pieges sont mortels, les embuscades frequentes. Les ennemis sont strategiques et impitoyables.' },
+  { id: 'viking', name: 'Viking', icon: '🔥', color: '#ff1744', desc: 'La mort rode a chaque coin. Seuls les legendes survivent.', details: 'PV -40%, Degats ennemis +60%, Pas de pitie, XP x2', hpMult: 0.6, enemyDmgMult: 1.6, xpMult: 2.0, prompt: 'DIFFICULTE VIKING (MAXIMUM) — AUCUNE PITIE. Tu es un MJ IMPITOYABLE. Chaque erreur peut etre fatale. Les ennemis sont brutaux et intelligents. Les pieges sont partout. Les PNJs peuvent trahir. Les echecs critiques causent des blessures permanentes ou la perte d\'equipement. Les prix sont exorbitants, les soins rares. Seuls les vrais Vikings survivent. Le monde est HOSTILE et MORTEL.' }
+];
+
 const ADV_GENDERS = [
   { id: 'homme', label: 'Homme', icon: '♂️' },
   { id: 'femme', label: 'Femme', icon: '♀️' }
@@ -6412,6 +6419,7 @@ function defaultAdventureState() {
     charHair: '',
     charHairColor: '',
     charBeard: '',
+    charDifficulty: 'moyen',
     stats: { force: 1, agilite: 1, endurance: 1, perception: 1, charisme: 1, sagesse: 1 },
     // Gameplay
     inventory: [],
@@ -6787,6 +6795,7 @@ function advShowCharCreation() {
   _charTempHair = '';
   _charTempHairColor = 'blond';
   _charTempBeard = 'aucune';
+  _charTempDifficulty = 'moyen';
   _charCreationTab = 'identite';
   advRenderCharCreation();
 }
@@ -6822,7 +6831,8 @@ function advRenderCharCreation() {
     <div style="display:flex;gap:0;margin-top:6px;border-bottom:1px solid var(--border)">
       ${tabBtn('identite', '👤', 'Identite')}
       ${tabBtn('apparence', '✨', 'Apparence')}
-      ${tabBtn('equipement', '⚔️', 'Equipement')}
+      ${tabBtn('equipement', '⚔️', 'Equip.')}
+      ${tabBtn('difficulte', '💀', 'Difficulte')}
       ${tabBtn('stats', '📊', 'Stats')}
     </div>
   </div>`;
@@ -6933,6 +6943,27 @@ function advRenderCharCreation() {
     }
   }
 
+  // === TAB: DIFFICULTE ===
+  if (tab === 'difficulte') {
+    html += `<div style="text-align:center;margin-bottom:10px">
+      <div style="font-size:.7rem;color:var(--text-dim);line-height:1.4">Choisis le niveau de defi de ta campagne.<br>Ce choix affecte les PV, les degats ennemis et l'XP gagnee.</div>
+    </div>`;
+    ADV_DIFFICULTIES.forEach(d => {
+      const s = (_charTempDifficulty || 'moyen') === d.id;
+      html += `<button onclick="_charTempDifficulty='${d.id}';advRenderCharCreation()" style="display:block;width:100%;padding:12px;margin-bottom:8px;${sel(s)}text-align:left;font-size:.7rem;position:relative;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span style="font-size:1.3rem">${d.icon}</span>
+          <span style="font-weight:700;font-size:.85rem;color:${s ? d.color : 'var(--text)'}">${d.name}</span>
+          ${d.id === 'viking' ? '<span style="font-size:.5rem;font-weight:700;padding:2px 6px;border-radius:8px;background:#ff1744;color:#fff;margin-left:4px">MAX</span>' : ''}
+        </div>
+        <div style="font-size:.6rem;color:var(--text-dim);margin-bottom:4px">${d.desc}</div>
+        <div style="font-size:.55rem;color:${d.color};font-weight:600">${d.details}</div>
+        ${d.id === 'viking' ? '<div style="font-size:.5rem;color:#ff5252;margin-top:3px;font-style:italic">⚠️ Recommande uniquement aux joueurs experimentes</div>' : ''}
+        ${d.xpMult !== 1 ? `<div style="font-size:.55rem;color:var(--gold);margin-top:2px">XP x${d.xpMult}</div>` : ''}
+      </button>`;
+    });
+  }
+
   // === TAB: STATS ===
   if (tab === 'stats') {
     html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -7013,6 +7044,7 @@ function advConfirmCharacter() {
   adv.charHair = _charTempHair;
   adv.charHairColor = _charTempHairColor || 'blond';
   adv.charBeard = _charTempBeard || 'aucune';
+  adv.charDifficulty = _charTempDifficulty || 'moyen';
   adv.stats = { ..._charTempStats };
 
   // Apply class bonuses
@@ -7030,8 +7062,9 @@ function advConfirmCharacter() {
     adv.inventory.push({ name: weapon.name, icon: weapon.icon, type: 'weapon', equipped: true, found: Date.now() });
   }
 
-  // Stats affect HP and energy
-  adv.maxHp = 80 + adv.stats.endurance * 15;
+  // Stats affect HP and energy — difficulty modifies HP
+  const diff = ADV_DIFFICULTIES.find(d => d.id === adv.charDifficulty) || ADV_DIFFICULTIES[1];
+  adv.maxHp = Math.round((80 + adv.stats.endurance * 15) * diff.hpMult);
   adv.hp = adv.maxHp;
   adv.maxEnergy = 6 + adv.stats.sagesse * 2;
   adv.energy = adv.maxEnergy;
@@ -7533,7 +7566,7 @@ function advRenderHud() {
     <div class="adv-hud-zone">${zone?.icon || ''} ${zone?.name || 'Inconnu'}</div>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:0 4px">
       <span style="font-size:.55rem;color:var(--gold);font-family:'Cinzel',serif">${cls.icon || ''} ${adv.charName || 'Viking'} — ${cls.name || ''} Niv.${adv.level}</span>
-      <span style="font-size:.55rem;color:var(--text-dim)">💰${adv.gold || 0} | ⭐${adv.reputation || 0}</span>
+      <span style="font-size:.55rem;color:var(--text-dim)">${(ADV_DIFFICULTIES.find(d => d.id === adv.charDifficulty) || {}).icon || '⚔️'} 💰${adv.gold || 0} | ⭐${adv.reputation || 0}</span>
     </div>
     <div class="adv-hud-bar"><label>PV</label><div class="adv-bar adv-bar-hp"><div class="adv-bar-fill" style="width:${hpPct}%"></div></div><span style="font-size:.5rem;color:var(--text-dim)">${adv.hp}/${adv.maxHp}</span></div>
     <div class="adv-hud-bar"><label>⚡</label><div class="adv-bar adv-bar-en"><div class="adv-bar-fill" style="width:${enPct}%"></div></div><span style="font-size:.5rem;color:var(--text-dim)">${adv.energy}/${adv.maxEnergy}</span></div>
@@ -7732,7 +7765,11 @@ function getAdvSystemPrompt() {
   const statsStr = ADV_STATS.map(s => `${s.icon} ${s.name}: ${adv.stats[s.id]}`).join(', ');
   const loreStr = adv.discoveredLore.length > 0 ? adv.discoveredLore.slice(-5).join(', ') : 'aucun';
 
-  return `Tu es Stakr, corbeau viking IA et MAITRE DU JEU (MJ) d'un RPG nordique immersif et DIFFICILE.
+  const diffObj = ADV_DIFFICULTIES.find(d => d.id === (adv.charDifficulty || 'moyen')) || ADV_DIFFICULTIES[1];
+
+  return `Tu es Stakr, corbeau viking IA et MAITRE DU JEU (MJ) d'un RPG nordique immersif.
+
+${diffObj.prompt}
 
 PERSONNAGE DU JOUEUR :
 - Nom : ${adv.charName || 'Viking'} | Classe : ${cls.icon || ''} ${cls.name || 'Inconnu'} | Genre : ${adv.charGender === 'femme' ? 'Femme' : 'Homme'}
@@ -7763,7 +7800,7 @@ REGLES RPG FONDAMENTALES :
    - Critique (d20=20) : succes spectaculaire avec bonus !
    - Fumble (d20=1) : echec catastrophique avec malus severe !
 3. Les difficultes sont : facile(8), moyen(12), difficile(15), extreme(18). Choisis en fonction de la situation et du contexte.
-4. **NE RENDS PAS L'AVENTURE FACILE** — Un Viking sans les bonnes stats DOIT echouer regulierement. C'est un vrai RPG.
+4. **DIFFICULTE "${diffObj.name.toUpperCase()}"** — Adapte le niveau de defi en consequence. ${adv.charDifficulty === 'facile' ? 'Sois indulgent, les echecs ont des consequences legeres.' : adv.charDifficulty === 'viking' ? 'AUCUNE PITIE. Chaque erreur peut etre fatale.' : 'Un Viking sans les bonnes stats DOIT echouer regulierement.'}
 
 NARRATION ELABOREE :
 - Decris des environnements riches et varies — chaque lieu a une atmosphere unique
@@ -7831,7 +7868,7 @@ Actions possibles du joueur :
 Adapte ta narration au RESULTAT du jet (le systeme affiche reussi/echoue apres ton message). Decris l'action du joueur de maniere cinematique !` : ''}
 ${!inCombat && zone.id === 'campement' ? 'Le joueur est au campement — lieu sur, repos, marchands, forgerons, PNJs avec quetes. Propose des interactions riches !' : ''}
 
-Sois un MJ exigeant mais juste. Le monde est dangereux, les echecs sont frequents, mais les victoires sont epiques !`;
+${adv.charDifficulty === 'facile' ? 'Sois un MJ bienveillant. Guide le joueur, encourage-le, rends l\'aventure agreable !' : adv.charDifficulty === 'viking' ? 'Sois un MJ IMPITOYABLE. Le monde veut la mort du joueur. Chaque victoire est un miracle !' : 'Sois un MJ exigeant mais juste. Le monde est dangereux, les echecs sont frequents, mais les victoires sont epiques !'}`;
 }
 
 async function advSendMessage() {
@@ -8130,6 +8167,8 @@ function advParseAndExecuteTags(response) {
       const isAttack = (statId === 'force' || statId === 'sagesse');
       const isEvasion = (statId === 'agilite');
       const enemy = adv._combat.enemy;
+      const diffSetting = ADV_DIFFICULTIES.find(d => d.id === (adv.charDifficulty || 'moyen')) || ADV_DIFFICULTIES[1];
+      const eDmgMult = diffSetting.enemyDmgMult;
 
       if (isAttack) {
         if (result.success) {
@@ -8144,9 +8183,9 @@ function advParseAndExecuteTags(response) {
           adv._combat.round++;
           adv.narrative.push({ type: 'loot', text: `⚔️ Tu infliges **${dmg} degats** ! (Ennemi: ${enemy.currentHp}/${enemy.hp} PV)`, time: Date.now() });
 
-          // Enemy riposte (if still alive)
+          // Enemy riposte (if still alive) — scaled by difficulty
           if (enemy.currentHp > 0) {
-            const riposte = Math.max(1, enemy.atk - Math.floor((adv.stats.endurance || 1) / 2) + Math.floor(Math.random() * 4) - 2);
+            const riposte = Math.max(1, Math.round((enemy.atk - Math.floor((adv.stats.endurance || 1) / 2) + Math.floor(Math.random() * 4) - 2) * eDmgMult));
             adv.hp = Math.max(0, adv.hp - riposte);
             adv._combat.playerHp = adv.hp;
             adv.narrative.push({ type: 'combat-hit', text: `🩸 ${enemy.icon} ${enemy.name} riposte : **${riposte} degats** ! (Toi: ${adv.hp}/${adv.maxHp} PV)`, time: Date.now() });
@@ -8155,10 +8194,10 @@ function advParseAndExecuteTags(response) {
           // Player misses
           adv.narrative.push({ type: 'combat-hit', text: `💨 Ton attaque rate !`, time: Date.now() });
           if (statId === 'sagesse') { adv.energy = Math.max(0, adv.energy - 1); }
-          // Enemy attacks freely
-          const riposte = enemy.atk + Math.floor(Math.random() * 4);
+          // Enemy attacks freely — scaled by difficulty
+          const riposte = Math.round((enemy.atk + Math.floor(Math.random() * 4)) * eDmgMult);
           if (result.fumble) {
-            const fumbleDmg = riposte + Math.floor(enemy.atk * 0.5);
+            const fumbleDmg = Math.round((riposte + Math.floor(enemy.atk * 0.5)) * eDmgMult);
             adv.hp = Math.max(0, adv.hp - fumbleDmg);
             adv._combat.playerHp = adv.hp;
             adv.narrative.push({ type: 'combat-hit', text: `💀 ${enemy.icon} profite de ton fumble : **${fumbleDmg} degats** ! (Toi: ${adv.hp}/${adv.maxHp} PV)`, time: Date.now() });
@@ -8172,7 +8211,7 @@ function advParseAndExecuteTags(response) {
         if (result.success) {
           adv.narrative.push({ type: 'loot', text: `💨 Tu esquives l'attaque !`, time: Date.now() });
         } else {
-          const riposte = enemy.atk + Math.floor(Math.random() * 4);
+          const riposte = Math.round((enemy.atk + Math.floor(Math.random() * 4)) * eDmgMult);
           const dmg = result.fumble ? Math.floor(riposte * 1.5) : riposte;
           adv.hp = Math.max(0, adv.hp - dmg);
           adv._combat.playerHp = adv.hp;
@@ -8182,7 +8221,7 @@ function advParseAndExecuteTags(response) {
 
       // Auto-detect combat end (always authoritative when SKILL_CHECK present)
       if (enemy.currentHp <= 0) {
-        const xpGain = enemy.xp || (15 + adv.level * 5);
+        const xpGain = Math.round((enemy.xp || (15 + adv.level * 5)) * (diffSetting.xpMult || 1));
         adv.totalKills++;
         adv.xp += xpGain;
         stopCombatAmbience();
