@@ -6159,11 +6159,28 @@ const ADV_OUTFITS = [
 ];
 
 const ADV_HAIR = [
-  { id: 'long', name: 'Longs tresses', icon: '💇' },
-  { id: 'court', name: 'Courts et rases', icon: '💈' },
-  { id: 'mohawk', name: 'Crete de guerre', icon: '🔥' },
-  { id: 'tresses', name: 'Tresses nordiques', icon: '🪢' },
-  { id: 'rasé', name: 'Crane rase', icon: '🧑‍🦲' }
+  { id: 'long', name: 'Longs', icon: '💇' },
+  { id: 'court', name: 'Courts', icon: '💈' },
+  { id: 'mohawk', name: 'Crete', icon: '🔥' },
+  { id: 'tresses', name: 'Tresses', icon: '🪢' },
+  { id: 'rasé', name: 'Rase', icon: '🧑‍🦲' }
+];
+
+const ADV_HAIR_COLORS = [
+  { id: 'blond', name: 'Blond', color: '#c4973b', dark: '#96712a' },
+  { id: 'brun', name: 'Brun', color: '#4a3020', dark: '#2e1c12' },
+  { id: 'roux', name: 'Roux', color: '#b34215', dark: '#7a2d0e' },
+  { id: 'noir', name: 'Noir', color: '#1a1a1a', dark: '#0d0d0d' },
+  { id: 'blanc', name: 'Blanc', color: '#d0ccc4', dark: '#a8a498' },
+  { id: 'gris', name: 'Gris', color: '#7a7a7a', dark: '#555' }
+];
+
+const ADV_BEARDS = [
+  { id: 'aucune', name: 'Aucune', icon: '😶' },
+  { id: 'courte', name: 'Courte', icon: '🧔' },
+  { id: 'longue', name: 'Longue', icon: '🧙' },
+  { id: 'tressée', name: 'Tressee', icon: '🪢' },
+  { id: 'bouc', name: 'Bouc', icon: '🐐' }
 ];
 
 const ADV_STATS = [
@@ -6191,6 +6208,8 @@ function defaultAdventureState() {
     charWeapon: null,
     charOutfit: '',
     charHair: '',
+    charHairColor: '',
+    charBeard: '',
     stats: { force: 1, agilite: 1, endurance: 1, perception: 1, charisme: 1, sagesse: 1 },
     // Gameplay
     inventory: [],
@@ -6234,240 +6253,326 @@ let _charTempClass = '';
 function advCharPreviewSVG() {
   const g = _charTempGender || 'homme';
   const isFemme = g === 'femme';
-
-  // --- SKIN ---
   const skinColor = '#c8956c';
   const skinDark = '#a87550';
 
-  // --- BODY shape ---
+  // Body proportions
   const shoulderW = isFemme ? 28 : 34;
-  const hipW = isFemme ? 22 : 20;
-  const waistW = isFemme ? 16 : 20;
-  const torsoTop = 68;
-  const torsoBot = 110;
+  const hipW = isFemme ? 24 : 20;
+  const waistW = isFemme ? 17 : 21;
+  const torsoTop = 72;
+  const torsoBot = 115;
 
-  // --- OUTFIT COLORS ---
+  // Outfit colors
   const outfitColors = {
-    fourrure:  { primary: '#6b4226', secondary: '#8b6340', accent: '#4a2d14', detail: '#9c7a56' },
-    cuir:      { primary: '#5c3d1e', secondary: '#7a5533', accent: '#3e2710', detail: '#96754e' },
-    maille:    { primary: '#6a7b8c', secondary: '#8a9bac', accent: '#4a5b6c', detail: '#b0b8c0' },
-    robe:      { primary: '#2d1a4e', secondary: '#4a2d7a', accent: '#1a0e33', detail: '#8060c0' },
-    cape:      { primary: '#2c2c2c', secondary: '#444', accent: '#1a1a1a', detail: '#666' }
+    fourrure: { primary: '#6b4226', secondary: '#8b6340', accent: '#4a2d14', detail: '#9c7a56' },
+    cuir:     { primary: '#5c3d1e', secondary: '#7a5533', accent: '#3e2710', detail: '#96754e' },
+    maille:   { primary: '#6a7b8c', secondary: '#8a9bac', accent: '#4a5b6c', detail: '#b0b8c0' },
+    robe:     { primary: '#2d1a4e', secondary: '#4a2d7a', accent: '#1a0e33', detail: '#8060c0' },
+    cape:     { primary: '#2c2c2c', secondary: '#444', accent: '#1a1a1a', detail: '#666' }
   };
   const oc = outfitColors[_charTempOutfit] || { primary: '#555', secondary: '#777', accent: '#333', detail: '#999' };
 
-  // --- HAIR COLORS & SHAPES ---
-  const hairColor = '#c4973b';
-  const hairDark = '#96712a';
+  // Hair color
+  const hcObj = ADV_HAIR_COLORS.find(h => h.id === (_charTempHairColor || 'blond')) || ADV_HAIR_COLORS[0];
+  const hairColor = hcObj.color;
+  const hairDark = hcObj.dark;
 
-  // --- CLASS AURA ---
-  const classGlow = {
-    guerrier: '#d4af37', eclaireur: '#69f0ae', skalde: '#bb86fc',
-    berserkr: '#ff5252', volva: '#64ffda'
-  };
+  // Class aura
+  const classGlow = { guerrier: '#d4af37', eclaireur: '#69f0ae', skalde: '#bb86fc', berserkr: '#ff5252', volva: '#64ffda' };
   const aura = classGlow[_charTempClass] || 'transparent';
 
-  let svg = `<svg viewBox="0 0 160 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:160px;height:auto;display:block;margin:0 auto;filter:drop-shadow(0 0 12px ${aura}40)">`;
-
-  // Aura glow behind character
-  if (_charTempClass) {
-    svg += `<ellipse cx="80" cy="200" rx="50" ry="20" fill="${aura}" opacity=".12"/>`;
-    svg += `<ellipse cx="80" cy="140" rx="35" ry="80" fill="${aura}" opacity=".06"/>`;
-  }
-
-  // === LEGS ===
-  svg += `<rect x="62" y="148" width="12" height="52" rx="4" fill="${skinColor}"/>`;
-  svg += `<rect x="86" y="148" width="12" height="52" rx="4" fill="${skinColor}"/>`;
-  // Boots
-  svg += `<rect x="59" y="192" width="18" height="12" rx="4" fill="${oc.accent}"/>`;
-  svg += `<rect x="83" y="192" width="18" height="12" rx="4" fill="${oc.accent}"/>`;
-  // Leg armor / wraps based on outfit
-  if (_charTempOutfit === 'maille') {
-    svg += `<rect x="62" y="148" width="12" height="30" rx="3" fill="${oc.primary}" opacity=".7"/>`;
-    svg += `<rect x="86" y="148" width="12" height="30" rx="3" fill="${oc.primary}" opacity=".7"/>`;
-  } else if (_charTempOutfit === 'fourrure') {
-    svg += `<rect x="60" y="175" width="16" height="18" rx="3" fill="${oc.detail}" opacity=".6"/>`;
-    svg += `<rect x="84" y="175" width="16" height="18" rx="3" fill="${oc.detail}" opacity=".6"/>`;
-  }
-
-  // === TORSO ===
-  // Body shape path
-  const tL = 80 - shoulderW;
-  const tR = 80 + shoulderW;
-  const wL = 80 - waistW;
-  const wR = 80 + waistW;
-  const hL = 80 - hipW;
-  const hR = 80 + hipW;
-  svg += `<path d="M${tL},${torsoTop} Q${80},${torsoTop - 4} ${tR},${torsoTop} L${wR},${torsoBot - 10} L${hR},${torsoBot + 40} L${hL},${torsoBot + 40} L${wL},${torsoBot - 10} Z" fill="${oc.primary}" stroke="${oc.accent}" stroke-width="1"/>`;
-
-  // Outfit details
-  if (_charTempOutfit === 'fourrure') {
-    // Fur collar
-    svg += `<ellipse cx="80" cy="${torsoTop + 2}" rx="${shoulderW - 2}" ry="6" fill="${oc.detail}" opacity=".8"/>`;
-    // Fur trim
-    svg += `<path d="M${80 - shoulderW + 4},${torsoTop} L${80 + shoulderW - 4},${torsoTop}" stroke="${oc.detail}" stroke-width="3" stroke-linecap="round"/>`;
-  } else if (_charTempOutfit === 'cuir') {
-    // Leather straps
-    svg += `<line x1="68" y1="${torsoTop}" x2="80" y2="${torsoBot + 20}" stroke="${oc.detail}" stroke-width="2"/>`;
-    svg += `<line x1="92" y1="${torsoTop}" x2="80" y2="${torsoBot + 20}" stroke="${oc.detail}" stroke-width="2"/>`;
-    svg += `<circle cx="80" cy="${torsoBot + 5}" r="3" fill="${oc.detail}"/>`;
-  } else if (_charTempOutfit === 'maille') {
-    // Chain pattern
-    for (let y = torsoTop + 6; y < torsoBot + 25; y += 6) {
-      svg += `<line x1="${80 - shoulderW + 8}" y1="${y}" x2="${80 + shoulderW - 8}" y2="${y}" stroke="${oc.detail}" stroke-width=".5" opacity=".5"/>`;
-    }
-    // Shoulder guards
-    svg += `<ellipse cx="${80 - shoulderW + 5}" cy="${torsoTop + 4}" rx="8" ry="5" fill="${oc.secondary}"/>`;
-    svg += `<ellipse cx="${80 + shoulderW - 5}" cy="${torsoTop + 4}" rx="8" ry="5" fill="${oc.secondary}"/>`;
-  } else if (_charTempOutfit === 'robe') {
-    // Rune patterns
-    svg += `<text x="80" y="${torsoBot}" text-anchor="middle" fill="${oc.detail}" font-size="10" opacity=".7">ᚠᚢᚦ</text>`;
-    svg += `<text x="80" y="${torsoBot + 15}" text-anchor="middle" fill="${oc.detail}" font-size="8" opacity=".5">ᚨᚱᚲ</text>`;
-    // Flowing bottom
-    svg += `<path d="M${hL},${torsoBot + 40} Q${80},${torsoBot + 55} ${hR},${torsoBot + 40}" fill="${oc.primary}" stroke="${oc.accent}" stroke-width=".5"/>`;
-  } else if (_charTempOutfit === 'cape') {
-    // Cape draping from shoulders
-    svg += `<path d="M${tL + 2},${torsoTop} Q${tL - 10},${torsoBot + 20} ${tL + 5},${torsoBot + 50}" fill="${oc.secondary}" opacity=".7" stroke="${oc.accent}" stroke-width=".5"/>`;
-    svg += `<path d="M${tR - 2},${torsoTop} Q${tR + 10},${torsoBot + 20} ${tR - 5},${torsoBot + 50}" fill="${oc.secondary}" opacity=".7" stroke="${oc.accent}" stroke-width=".5"/>`;
-    // Wolf head clasp
-    svg += `<circle cx="80" cy="${torsoTop + 2}" r="4" fill="#888" stroke="#555" stroke-width="1"/>`;
-  }
-
-  // Belt
-  svg += `<rect x="${80 - hipW}" y="${torsoBot + 2}" width="${hipW * 2}" height="5" rx="2" fill="${oc.accent}"/>`;
-  svg += `<rect x="77" y="${torsoBot + 1}" width="6" height="7" rx="1" fill="${oc.detail}"/>`;
-
-  // === ARMS ===
-  // Left arm
-  svg += `<rect x="${tL - 8}" y="${torsoTop + 2}" width="12" height="40" rx="5" fill="${skinColor}" transform="rotate(-8,${tL - 2},${torsoTop + 2})"/>`;
-  // Right arm
-  svg += `<rect x="${tR - 4}" y="${torsoTop + 2}" width="12" height="40" rx="5" fill="${skinColor}" transform="rotate(8,${tR + 2},${torsoTop + 2})"/>`;
-  // Arm armor
-  if (_charTempOutfit === 'maille' || _charTempOutfit === 'cuir') {
-    svg += `<rect x="${tL - 7}" y="${torsoTop + 2}" width="11" height="20" rx="4" fill="${oc.secondary}" opacity=".7" transform="rotate(-8,${tL - 2},${torsoTop + 2})"/>`;
-    svg += `<rect x="${tR - 3}" y="${torsoTop + 2}" width="11" height="20" rx="4" fill="${oc.secondary}" opacity=".7" transform="rotate(8,${tR + 2},${torsoTop + 2})"/>`;
-  }
-
-  // === HEAD ===
-  const headY = 44;
+  // Key positions
+  const tL = 80 - shoulderW, tR = 80 + shoulderW;
+  const hL = 80 - hipW, hR = 80 + hipW;
+  const headY = 46;
   const headRx = isFemme ? 17 : 19;
   const headRy = isFemme ? 20 : 21;
-  // Neck
-  svg += `<rect x="74" y="58" width="12" height="14" rx="4" fill="${skinColor}"/>`;
-  // Head shape
-  svg += `<ellipse cx="80" cy="${headY}" rx="${headRx}" ry="${headRy}" fill="${skinColor}" stroke="${skinDark}" stroke-width=".5"/>`;
-  // Eyes
-  const eyeY = headY - 2;
-  svg += `<ellipse cx="73" cy="${eyeY}" rx="2.5" ry="2" fill="#fff"/>`;
-  svg += `<ellipse cx="87" cy="${eyeY}" rx="2.5" ry="2" fill="#fff"/>`;
-  svg += `<circle cx="73.5" cy="${eyeY}" r="1.2" fill="#2c1810"/>`;
-  svg += `<circle cx="87.5" cy="${eyeY}" r="1.2" fill="#2c1810"/>`;
-  // Nose
-  svg += `<path d="M79,${headY} Q80,${headY + 5} 81,${headY + 3}" fill="none" stroke="${skinDark}" stroke-width=".8"/>`;
-  // Mouth
-  svg += `<path d="M75,${headY + 7} Q80,${headY + 10} 85,${headY + 7}" fill="none" stroke="${skinDark}" stroke-width=".8"/>`;
 
-  // Beard for homme (unless berserkr has war paint)
-  if (!isFemme) {
-    svg += `<path d="M67,${headY + 4} Q68,${headY + 18} 80,${headY + 22} Q92,${headY + 18} 93,${headY + 4}" fill="none" stroke="${hairDark}" stroke-width="2" opacity=".6"/>`;
+  // Hand positions (end of arms) — arms angle outward 12deg
+  const rHandX = tR + 10;   // right hand X
+  const rHandY = torsoTop + 44; // right hand Y
+  const lHandX = tL - 10;   // left hand X
+  const lHandY = torsoTop + 44;
+
+  // Is weapon two-handed?
+  const wepId = _charTempWeapon || '';
+  const isTwoHand = ['hache2m', 'marteau', 'arc', 'baton', 'sceptre'].includes(wepId);
+
+  let svg = `<svg viewBox="0 0 180 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:180px;height:auto;display:block;margin:0 auto;filter:drop-shadow(0 0 14px ${aura}40)">`;
+
+  // Ground shadow + aura
+  if (_charTempClass) {
+    svg += `<ellipse cx="90" cy="260" rx="50" ry="8" fill="${aura}" opacity=".15"/>`;
+    svg += `<ellipse cx="90" cy="160" rx="40" ry="90" fill="${aura}" opacity=".04"/>`;
+  }
+  svg += `<ellipse cx="90" cy="260" rx="35" ry="5" fill="#000" opacity=".2"/>`;
+
+  // Offset everything +10 to center in 180-wide viewbox
+  svg += `<g transform="translate(10,10)">`;
+
+  // === CAPE (behind body) ===
+  if (_charTempOutfit === 'cape') {
+    svg += `<path d="M${tL + 4},${torsoTop - 2} Q${80 - 35},${torsoBot + 40} ${80 - 20},${torsoBot + 75} L${80 + 20},${torsoBot + 75} Q${80 + 35},${torsoBot + 40} ${tR - 4},${torsoTop - 2}" fill="${oc.secondary}" opacity=".6" stroke="${oc.accent}" stroke-width=".5"/>`;
+    svg += `<path d="M${80 - 15},${torsoBot + 75} Q${80},${torsoBot + 80} ${80 + 15},${torsoBot + 75}" fill="${oc.secondary}" opacity=".4"/>`;
   }
 
-  // === HAIR ===
-  if (_charTempHair === 'long') {
-    // Long flowing hair
-    svg += `<path d="M${80 - headRx},${headY - 8} Q${80 - headRx - 6},${headY + 10} ${80 - headRx - 4},${torsoTop + 20}" stroke="${hairColor}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
-    svg += `<path d="M${80 + headRx},${headY - 8} Q${80 + headRx + 6},${headY + 10} ${80 + headRx + 4},${torsoTop + 20}" stroke="${hairColor}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
-    svg += `<ellipse cx="80" cy="${headY - 14}" rx="${headRx + 2}" ry="10" fill="${hairColor}"/>`;
-    if (isFemme) {
-      svg += `<path d="M${80 - headRx - 2},${headY} Q${80 - headRx - 8},${headY + 30} ${80 - headRx},${torsoTop + 35}" stroke="${hairColor}" stroke-width="3" fill="none"/>`;
-      svg += `<path d="M${80 + headRx + 2},${headY} Q${80 + headRx + 8},${headY + 30} ${80 + headRx},${torsoTop + 35}" stroke="${hairColor}" stroke-width="3" fill="none"/>`;
-    }
-  } else if (_charTempHair === 'court') {
-    svg += `<ellipse cx="80" cy="${headY - 12}" rx="${headRx + 1}" ry="11" fill="${hairColor}"/>`;
-    svg += `<rect x="${80 - headRx - 1}" y="${headY - 15}" width="${(headRx + 1) * 2}" height="14" rx="6" fill="${hairColor}"/>`;
-  } else if (_charTempHair === 'mohawk') {
-    // Mohawk crest
-    svg += `<path d="M80,${headY - 28} Q84,${headY - 18} 82,${headY - 8} L78,${headY - 8} Q76,${headY - 18} 80,${headY - 28}" fill="${hairColor}"/>`;
-    svg += `<rect x="76" y="${headY - 12}" width="8" height="8" rx="2" fill="${hairColor}"/>`;
-    // Shaved sides
-    svg += `<ellipse cx="80" cy="${headY - 10}" rx="${headRx - 2}" ry="6" fill="${hairDark}" opacity=".3"/>`;
-  } else if (_charTempHair === 'tresses') {
-    // Nordic braids
-    svg += `<ellipse cx="80" cy="${headY - 13}" rx="${headRx + 1}" ry="10" fill="${hairColor}"/>`;
-    // Left braid
-    for (let i = 0; i < 5; i++) {
-      const by = headY + i * 8;
-      svg += `<ellipse cx="${80 - headRx - 2}" cy="${by}" rx="3" ry="4" fill="${i % 2 ? hairColor : hairDark}" opacity=".8"/>`;
-    }
-    // Right braid
-    for (let i = 0; i < 5; i++) {
-      const by = headY + i * 8;
-      svg += `<ellipse cx="${80 + headRx + 2}" cy="${by}" rx="3" ry="4" fill="${i % 2 ? hairColor : hairDark}" opacity=".8"/>`;
-    }
-  } else if (_charTempHair === 'rasé') {
-    // Shaved head with stubble
-    svg += `<ellipse cx="80" cy="${headY - 10}" rx="${headRx - 1}" ry="8" fill="${hairDark}" opacity=".25"/>`;
-  } else {
-    // Default: short hair if nothing selected
-    svg += `<ellipse cx="80" cy="${headY - 12}" rx="${headRx}" ry="10" fill="${hairDark}" opacity=".3"/>`;
-  }
-
-  // === WEAPON (right hand) ===
-  const weaponX = tR + 6;
-  const weaponY = torsoTop + 35;
-  if (_charTempWeapon && _charTempClass) {
+  // === WEAPON BEHIND (two-handed: draw shaft behind body) ===
+  if (isTwoHand && _charTempWeapon && _charTempClass) {
     const wep = ADV_CLASSES[_charTempClass].weapons.find(w => w.id === _charTempWeapon);
     if (wep) {
-      if (wep.id === 'epee') {
-        svg += `<rect x="${weaponX}" y="${weaponY - 40}" width="3" height="42" rx="1" fill="#b8c4d0"/>`;
-        svg += `<rect x="${weaponX - 4}" y="${weaponY}" width="11" height="4" rx="1" fill="${oc.detail}"/>`;
-        svg += `<polygon points="${weaponX + 1.5},${weaponY - 42} ${weaponX - 1},${weaponY - 38} ${weaponX + 4},${weaponY - 38}" fill="#d4e0ec"/>`;
-      } else if (wep.id === 'hache') {
-        svg += `<rect x="${weaponX + 1}" y="${weaponY - 38}" width="3" height="45" rx="1" fill="#7a5533"/>`;
-        svg += `<path d="M${weaponX - 6},${weaponY - 38} Q${weaponX - 10},${weaponY - 28} ${weaponX - 4},${weaponY - 18} L${weaponX + 2},${weaponY - 22} L${weaponX + 2},${weaponY - 34} Z" fill="#8a9bac" stroke="#6a7b8c" stroke-width=".5"/>`;
-      } else if (wep.id === 'arc') {
-        svg += `<path d="M${weaponX + 2},${weaponY - 42} Q${weaponX - 8},${weaponY - 18} ${weaponX + 2},${weaponY + 6}" fill="none" stroke="#7a5533" stroke-width="2.5"/>`;
-        svg += `<line x1="${weaponX + 2}" y1="${weaponY - 42}" x2="${weaponX + 2}" y2="${weaponY + 6}" stroke="#c8b888" stroke-width=".8"/>`;
-      } else if (wep.id === 'dagues') {
-        svg += `<rect x="${weaponX}" y="${weaponY - 22}" width="2" height="24" rx="1" fill="#b8c4d0"/>`;
-        svg += `<rect x="${weaponX - 2}" y="${weaponY}" width="6" height="3" rx="1" fill="#666"/>`;
-        // Second dagger (left hand)
-        svg += `<rect x="${tL - 6}" y="${weaponY - 22}" width="2" height="24" rx="1" fill="#b8c4d0"/>`;
-        svg += `<rect x="${tL - 8}" y="${weaponY}" width="6" height="3" rx="1" fill="#666"/>`;
-      } else if (wep.id === 'baton') {
-        svg += `<rect x="${weaponX + 1}" y="${weaponY - 50}" width="3" height="58" rx="1" fill="#5c3d1e"/>`;
-        svg += `<circle cx="${weaponX + 2.5}" cy="${weaponY - 52}" r="5" fill="${aura}" opacity=".5"/>`;
-        svg += `<circle cx="${weaponX + 2.5}" cy="${weaponY - 52}" r="3" fill="#fff" opacity=".3"/>`;
-      } else if (wep.id === 'lyre') {
-        svg += `<path d="M${weaponX - 2},${weaponY - 20} Q${weaponX - 6},${weaponY - 30} ${weaponX},${weaponY - 36} L${weaponX + 6},${weaponY - 36} Q${weaponX + 10},${weaponY - 30} ${weaponX + 6},${weaponY - 20} Z" fill="#c4973b" stroke="#96712a" stroke-width=".8"/>`;
-        svg += `<line x1="${weaponX + 1}" y1="${weaponY - 34}" x2="${weaponX + 1}" y2="${weaponY - 22}" stroke="#e8d8a0" stroke-width=".5"/>`;
-        svg += `<line x1="${weaponX + 3}" y1="${weaponY - 34}" x2="${weaponX + 3}" y2="${weaponY - 22}" stroke="#e8d8a0" stroke-width=".5"/>`;
-        svg += `<line x1="${weaponX + 5}" y1="${weaponY - 34}" x2="${weaponX + 5}" y2="${weaponY - 22}" stroke="#e8d8a0" stroke-width=".5"/>`;
+      if (wep.id === 'hache2m') {
+        // Giant shaft from right hand up past left shoulder — 120px long
+        svg += `<line x1="${rHandX}" y1="${rHandY}" x2="${lHandX - 8}" y2="${headY - 25}" stroke="#7a5533" stroke-width="4" stroke-linecap="round"/>`;
+        // Double-sided axe head at top
+        const axTipX = lHandX - 8, axTipY = headY - 25;
+        svg += `<path d="M${axTipX},${axTipY - 2} Q${axTipX - 16},${axTipY + 8} ${axTipX - 6},${axTipY + 20} L${axTipX},${axTipY + 14} Z" fill="#8a9bac" stroke="#6a7b8c" stroke-width=".8"/>`;
+        svg += `<path d="M${axTipX},${axTipY - 2} Q${axTipX + 16},${axTipY + 8} ${axTipX + 6},${axTipY + 20} L${axTipX},${axTipY + 14} Z" fill="#7a8b9c" stroke="#6a7b8c" stroke-width=".8"/>`;
       } else if (wep.id === 'marteau') {
-        svg += `<rect x="${weaponX + 1}" y="${weaponY - 38}" width="3.5" height="46" rx="1" fill="#5c3d1e"/>`;
-        svg += `<rect x="${weaponX - 6}" y="${weaponY - 42}" width="18" height="10" rx="2" fill="#6a7b8c" stroke="#4a5b6c" stroke-width=".8"/>`;
-      } else if (wep.id === 'hache2m') {
-        svg += `<rect x="${weaponX + 1}" y="${weaponY - 42}" width="3" height="50" rx="1" fill="#7a5533"/>`;
-        svg += `<path d="M${weaponX - 5},${weaponY - 42} Q${weaponX - 10},${weaponY - 32} ${weaponX - 4},${weaponY - 20} L${weaponX + 2},${weaponY - 24} L${weaponX + 2},${weaponY - 38} Z" fill="#8a9bac"/>`;
-        svg += `<path d="M${weaponX + 9},${weaponY - 42} Q${weaponX + 14},${weaponY - 32} ${weaponX + 8},${weaponY - 20} L${weaponX + 3},${weaponY - 24} L${weaponX + 3},${weaponY - 38} Z" fill="#8a9bac"/>`;
+        // Giant war hammer shaft
+        svg += `<line x1="${rHandX}" y1="${rHandY}" x2="${lHandX - 4}" y2="${headY - 22}" stroke="#5c3d1e" stroke-width="4.5" stroke-linecap="round"/>`;
+        // Massive hammer head
+        const hmX = lHandX - 4, hmY = headY - 22;
+        svg += `<rect x="${hmX - 12}" y="${hmY - 6}" width="24" height="14" rx="3" fill="#6a7b8c" stroke="#4a5b6c" stroke-width="1"/>`;
+        svg += `<rect x="${hmX - 13}" y="${hmY - 4}" width="4" height="10" rx="1" fill="#556677"/>`;
+        svg += `<rect x="${hmX + 9}" y="${hmY - 4}" width="4" height="10" rx="1" fill="#556677"/>`;
+      } else if (wep.id === 'arc') {
+        // Large bow — curved arc from above head to below hand
+        const bowCX = rHandX + 6;
+        svg += `<path d="M${bowCX},${headY - 18} Q${bowCX + 18},${rHandY - 10} ${bowCX},${rHandY + 15}" fill="none" stroke="#7a5533" stroke-width="3" stroke-linecap="round"/>`;
+        // Bowstring
+        svg += `<line x1="${bowCX}" y1="${headY - 18}" x2="${bowCX}" y2="${rHandY + 15}" stroke="#c8b888" stroke-width="1"/>`;
+        // Arrow nocked
+        svg += `<line x1="${bowCX - 3}" y1="${headY - 12}" x2="${bowCX + 2}" y2="${rHandY + 8}" stroke="#8a7550" stroke-width="1.5"/>`;
+        svg += `<polygon points="${bowCX - 3},${headY - 14} ${bowCX - 6},${headY - 10} ${bowCX - 1},${headY - 10}" fill="#6a7b8c"/>`;
+      } else if (wep.id === 'baton') {
+        // Tall runic staff
+        svg += `<line x1="${rHandX}" y1="${rHandY}" x2="${rHandX + 2}" y2="${headY - 30}" stroke="#5c3d1e" stroke-width="3.5" stroke-linecap="round"/>`;
+        // Glowing crystal top
+        const stX = rHandX + 2, stY = headY - 30;
+        svg += `<circle cx="${stX}" cy="${stY - 4}" r="7" fill="${aura}" opacity=".3"/>`;
+        svg += `<circle cx="${stX}" cy="${stY - 4}" r="4" fill="${aura}" opacity=".5"/>`;
+        svg += `<circle cx="${stX}" cy="${stY - 4}" r="2" fill="#fff" opacity=".6"/>`;
+        // Rune marks on staff
+        svg += `<text x="${rHandX + 1}" y="${rHandY - 15}" text-anchor="middle" fill="${aura}" font-size="6" opacity=".6">ᚠ</text>`;
+        svg += `<text x="${rHandX + 1}" y="${rHandY - 30}" text-anchor="middle" fill="${aura}" font-size="6" opacity=".5">ᚦ</text>`;
       } else if (wep.id === 'sceptre') {
-        svg += `<rect x="${weaponX + 1}" y="${weaponY - 45}" width="3" height="52" rx="1" fill="#4a2d7a"/>`;
-        svg += `<polygon points="${weaponX + 2.5},${weaponY - 52} ${weaponX - 3},${weaponY - 44} ${weaponX + 8},${weaponY - 44}" fill="${aura}" opacity=".7"/>`;
-        svg += `<circle cx="${weaponX + 2.5}" cy="${weaponY - 48}" r="3" fill="#fff" opacity=".4"/>`;
-      } else if (wep.id === 'faucille') {
-        svg += `<rect x="${weaponX + 1}" y="${weaponY - 15}" width="2.5" height="22" rx="1" fill="#5c3d1e"/>`;
-        svg += `<path d="M${weaponX + 2},${weaponY - 15} Q${weaponX + 12},${weaponY - 28} ${weaponX},${weaponY - 32}" fill="none" stroke="#b8c4d0" stroke-width="2" stroke-linecap="round"/>`;
+        // Ornate scepter — tall
+        svg += `<line x1="${rHandX}" y1="${rHandY}" x2="${rHandX + 2}" y2="${headY - 26}" stroke="#4a2d7a" stroke-width="3" stroke-linecap="round"/>`;
+        const scX = rHandX + 2, scY = headY - 26;
+        svg += `<polygon points="${scX},${scY - 10} ${scX - 7},${scY + 2} ${scX + 7},${scY + 2}" fill="${aura}" opacity=".6" stroke="${aura}" stroke-width=".5"/>`;
+        svg += `<circle cx="${scX}" cy="${scY - 4}" r="4" fill="#fff" opacity=".3"/>`;
+        svg += `<circle cx="${scX}" cy="${scY - 4}" r="2" fill="${aura}" opacity=".7"/>`;
       }
     }
   }
 
-  // === CLASS ICON floating ===
-  if (_charTempClass) {
-    const clsIcon = ADV_CLASSES[_charTempClass].icon;
-    svg += `<text x="80" y="16" text-anchor="middle" font-size="14" opacity=".6">${clsIcon}</text>`;
+  // === LEGS ===
+  svg += `<rect x="65" y="${torsoBot + 28}" width="13" height="55" rx="5" fill="${skinColor}"/>`;
+  svg += `<rect x="82" y="${torsoBot + 28}" width="13" height="55" rx="5" fill="${skinColor}"/>`;
+  // Pants / leg covering
+  svg += `<rect x="64" y="${torsoBot + 28}" width="14" height="35" rx="4" fill="${oc.accent}" opacity=".7"/>`;
+  svg += `<rect x="82" y="${torsoBot + 28}" width="14" height="35" rx="4" fill="${oc.accent}" opacity=".7"/>`;
+  // Boots
+  svg += `<path d="M62,${torsoBot + 78} L62,${torsoBot + 85} Q68,${torsoBot + 90} 80,${torsoBot + 85} L80,${torsoBot + 78} Z" fill="${oc.accent}" stroke="${oc.accent}" stroke-width=".5"/>`;
+  svg += `<path d="M80,${torsoBot + 78} L80,${torsoBot + 85} Q88,${torsoBot + 90} 98,${torsoBot + 85} L98,${torsoBot + 78} Z" fill="${oc.accent}" stroke="${oc.accent}" stroke-width=".5"/>`;
+  if (_charTempOutfit === 'fourrure') {
+    svg += `<rect x="62" y="${torsoBot + 72}" width="16" height="10" rx="3" fill="${oc.detail}" opacity=".7"/>`;
+    svg += `<rect x="82" y="${torsoBot + 72}" width="16" height="10" rx="3" fill="${oc.detail}" opacity=".7"/>`;
   }
 
-  svg += `</svg>`;
+  // === TORSO ===
+  const wL = 80 - waistW, wR = 80 + waistW;
+  svg += `<path d="M${tL},${torsoTop} Q${80},${torsoTop - 5} ${tR},${torsoTop} L${wR},${torsoBot} L${hR},${torsoBot + 32} L${hL},${torsoBot + 32} L${wL},${torsoBot} Z" fill="${oc.primary}" stroke="${oc.accent}" stroke-width="1"/>`;
+
+  // Outfit details on torso
+  if (_charTempOutfit === 'fourrure') {
+    svg += `<ellipse cx="80" cy="${torsoTop + 3}" rx="${shoulderW - 3}" ry="7" fill="${oc.detail}" opacity=".8"/>`;
+    svg += `<line x1="${80 - shoulderW + 6}" y1="${torsoTop + 1}" x2="${80 + shoulderW - 6}" y2="${torsoTop + 1}" stroke="${oc.detail}" stroke-width="3.5" stroke-linecap="round"/>`;
+  } else if (_charTempOutfit === 'cuir') {
+    svg += `<line x1="68" y1="${torsoTop + 2}" x2="80" y2="${torsoBot + 15}" stroke="${oc.detail}" stroke-width="2.5"/>`;
+    svg += `<line x1="92" y1="${torsoTop + 2}" x2="80" y2="${torsoBot + 15}" stroke="${oc.detail}" stroke-width="2.5"/>`;
+    svg += `<circle cx="80" cy="${torsoBot + 2}" r="3.5" fill="${oc.detail}"/>`;
+  } else if (_charTempOutfit === 'maille') {
+    for (let y = torsoTop + 6; y < torsoBot + 20; y += 5) {
+      svg += `<line x1="${80 - shoulderW + 6}" y1="${y}" x2="${80 + shoulderW - 6}" y2="${y}" stroke="${oc.detail}" stroke-width=".6" opacity=".4"/>`;
+    }
+    svg += `<ellipse cx="${tL + 5}" cy="${torsoTop + 4}" rx="9" ry="6" fill="${oc.secondary}" stroke="${oc.accent}" stroke-width=".5"/>`;
+    svg += `<ellipse cx="${tR - 5}" cy="${torsoTop + 4}" rx="9" ry="6" fill="${oc.secondary}" stroke="${oc.accent}" stroke-width=".5"/>`;
+  } else if (_charTempOutfit === 'robe') {
+    svg += `<text x="80" y="${torsoBot - 5}" text-anchor="middle" fill="${oc.detail}" font-size="11" opacity=".7">ᚠᚢᚦ</text>`;
+    svg += `<text x="80" y="${torsoBot + 12}" text-anchor="middle" fill="${oc.detail}" font-size="9" opacity=".5">ᚨᚱᚲ</text>`;
+    svg += `<path d="M${hL - 4},${torsoBot + 32} Q${80},${torsoBot + 55} ${hR + 4},${torsoBot + 32}" fill="${oc.primary}" stroke="${oc.accent}" stroke-width=".5"/>`;
+  } else if (_charTempOutfit === 'cape') {
+    svg += `<circle cx="80" cy="${torsoTop + 3}" r="4.5" fill="#888" stroke="#555" stroke-width="1"/>`;
+    svg += `<text x="80" y="${torsoTop + 5}" text-anchor="middle" font-size="5" fill="#333">🐺</text>`;
+  }
+
+  // Belt
+  svg += `<rect x="${hL}" y="${torsoBot + 1}" width="${hR - hL}" height="5" rx="2" fill="${oc.accent}"/>`;
+  svg += `<rect x="77" y="${torsoBot}" width="6" height="7" rx="1.5" fill="${oc.detail}"/>`;
+
+  // === ARMS ===
+  // Arm angle: ~12 degrees outward. Upper arm + forearm.
+  // RIGHT arm (weapon hand)
+  const rArmAngle = isTwoHand ? 15 : 10;
+  svg += `<g transform="rotate(${rArmAngle},${tR - 2},${torsoTop + 3})">`;
+  svg += `<rect x="${tR - 5}" y="${torsoTop + 2}" width="13" height="22" rx="5" fill="${oc.secondary || oc.primary}"/>`;
+  svg += `<rect x="${tR - 4}" y="${torsoTop + 20}" width="11" height="22" rx="5" fill="${skinColor}"/>`;
+  svg += `</g>`;
+  // RIGHT hand (circle at end)
+  svg += `<circle cx="${rHandX}" cy="${rHandY}" r="5" fill="${skinColor}" stroke="${skinDark}" stroke-width=".5"/>`;
+
+  // LEFT arm
+  const lArmAngle = isTwoHand ? -20 : -10;
+  svg += `<g transform="rotate(${lArmAngle},${tL + 2},${torsoTop + 3})">`;
+  svg += `<rect x="${tL - 8}" y="${torsoTop + 2}" width="13" height="22" rx="5" fill="${oc.secondary || oc.primary}"/>`;
+  svg += `<rect x="${tL - 7}" y="${torsoTop + 20}" width="11" height="22" rx="5" fill="${skinColor}"/>`;
+  svg += `</g>`;
+  // LEFT hand
+  svg += `<circle cx="${lHandX}" cy="${lHandY}" r="5" fill="${skinColor}" stroke="${skinDark}" stroke-width=".5"/>`;
+
+  // === ONE-HANDED WEAPONS (drawn at right hand) ===
+  if (!isTwoHand && _charTempWeapon && _charTempClass) {
+    const wep = ADV_CLASSES[_charTempClass].weapons.find(w => w.id === _charTempWeapon);
+    if (wep) {
+      const hx = rHandX, hy = rHandY;
+      if (wep.id === 'epee') {
+        // Sword blade going up from hand — 45px
+        svg += `<rect x="${hx - 1.5}" y="${hy - 48}" width="3.5" height="48" rx="1" fill="#c0ccd8"/>`;
+        svg += `<polygon points="${hx},${hy - 50} ${hx - 2.5},${hy - 46} ${hx + 3},${hy - 46}" fill="#d8e4f0"/>`;
+        // Cross guard
+        svg += `<rect x="${hx - 6}" y="${hy - 2}" width="12" height="4" rx="1.5" fill="#b08030"/>`;
+        // Grip
+        svg += `<rect x="${hx - 1.5}" y="${hy + 2}" width="3.5" height="8" rx="1" fill="#5c3d1e"/>`;
+        // Pommel
+        svg += `<circle cx="${hx}" cy="${hy + 12}" r="2.5" fill="#b08030"/>`;
+      } else if (wep.id === 'hache') {
+        // War axe — handle down from hand, blade up
+        svg += `<rect x="${hx - 1}" y="${hy - 35}" width="3" height="48" rx="1" fill="#7a5533"/>`;
+        // Axe head (one-sided, bigger than before)
+        svg += `<path d="M${hx + 1},${hy - 36} Q${hx - 14},${hy - 28} ${hx - 8},${hy - 16} L${hx},${hy - 18} Z" fill="#8a9bac" stroke="#6a7b8c" stroke-width=".8"/>`;
+        svg += `<path d="M${hx - 8},${hy - 16} L${hx - 10},${hy - 14}" stroke="#fff" stroke-width=".5" opacity=".4"/>`;
+      } else if (wep.id === 'dagues') {
+        // Right dagger
+        svg += `<rect x="${hx - 1}" y="${hy - 26}" width="2.5" height="28" rx="1" fill="#c0ccd8"/>`;
+        svg += `<rect x="${hx - 3}" y="${hy}" width="7" height="3.5" rx="1" fill="#666"/>`;
+        svg += `<polygon points="${hx},${hy - 28} ${hx - 2},${hy - 24} ${hx + 2},${hy - 24}" fill="#d8e4f0"/>`;
+        // Left dagger
+        const lx = lHandX;
+        svg += `<rect x="${lx - 1}" y="${lHandY - 26}" width="2.5" height="28" rx="1" fill="#c0ccd8"/>`;
+        svg += `<rect x="${lx - 3}" y="${lHandY}" width="7" height="3.5" rx="1" fill="#666"/>`;
+        svg += `<polygon points="${lx},${lHandY - 28} ${lx - 2},${lHandY - 24} ${lx + 2},${lHandY - 24}" fill="#d8e4f0"/>`;
+      } else if (wep.id === 'lyre') {
+        // Lyre held in front — frame + strings
+        const ly = hy - 10;
+        svg += `<path d="M${hx - 5},${ly} Q${hx - 10},${ly - 16} ${hx - 2},${ly - 22} L${hx + 4},${ly - 22} Q${hx + 12},${ly - 16} ${hx + 7},${ly} Z" fill="#c4973b" stroke="#96712a" stroke-width="1"/>`;
+        for (let s = 0; s < 4; s++) {
+          svg += `<line x1="${hx - 3 + s * 3}" y1="${ly - 20}" x2="${hx - 3 + s * 3}" y2="${ly - 2}" stroke="#e8d8a0" stroke-width=".7"/>`;
+        }
+      } else if (wep.id === 'faucille') {
+        // Sacred sickle — handle + curved blade
+        svg += `<rect x="${hx - 1}" y="${hy - 4}" width="3" height="18" rx="1" fill="#5c3d1e"/>`;
+        svg += `<path d="M${hx},${hy - 4} Q${hx + 16},${hy - 22} ${hx + 4},${hy - 32}" fill="none" stroke="#c0ccd8" stroke-width="3" stroke-linecap="round"/>`;
+        svg += `<path d="M${hx + 4},${hy - 32} L${hx + 2},${hy - 30}" stroke="#fff" stroke-width="1" opacity=".5"/>`;
+      }
+    }
+  }
+
+  // === TWO-HANDED: draw hand grip on weapon shaft ===
+  if (isTwoHand && _charTempWeapon) {
+    // Left hand grabs the shaft too (second grip marker)
+    svg += `<circle cx="${lHandX}" cy="${lHandY}" r="5" fill="${skinColor}" stroke="${skinDark}" stroke-width=".5"/>`;
+  }
+
+  // === NECK ===
+  svg += `<rect x="74" y="60" width="12" height="16" rx="4" fill="${skinColor}"/>`;
+
+  // === HEAD ===
+  svg += `<ellipse cx="80" cy="${headY}" rx="${headRx}" ry="${headRy}" fill="${skinColor}" stroke="${skinDark}" stroke-width=".5"/>`;
+  // Eyes
+  const eyeY = headY - 2;
+  svg += `<ellipse cx="73" cy="${eyeY}" rx="2.8" ry="2.2" fill="#fff"/>`;
+  svg += `<ellipse cx="87" cy="${eyeY}" rx="2.8" ry="2.2" fill="#fff"/>`;
+  svg += `<circle cx="73.8" cy="${eyeY}" r="1.4" fill="#2c1810"/>`;
+  svg += `<circle cx="87.8" cy="${eyeY}" r="1.4" fill="#2c1810"/>`;
+  svg += `<circle cx="74.2" cy="${eyeY - .5}" r=".4" fill="#fff"/>`;
+  svg += `<circle cx="88.2" cy="${eyeY - .5}" r=".4" fill="#fff"/>`;
+  // Eyebrows
+  svg += `<path d="M69,${eyeY - 4} Q73,${eyeY - 6} 77,${eyeY - 4}" fill="none" stroke="${hairDark}" stroke-width="1.2"/>`;
+  svg += `<path d="M83,${eyeY - 4} Q87,${eyeY - 6} 91,${eyeY - 4}" fill="none" stroke="${hairDark}" stroke-width="1.2"/>`;
+  // Nose
+  svg += `<path d="M79,${headY + 1} Q80,${headY + 6} 82,${headY + 4}" fill="none" stroke="${skinDark}" stroke-width="1"/>`;
+  // Mouth
+  svg += `<path d="M75,${headY + 8} Q80,${headY + 11} 85,${headY + 8}" fill="none" stroke="${skinDark}" stroke-width=".8"/>`;
+
+  // === BEARD ===
+  const beard = _charTempBeard || 'aucune';
+  if (beard === 'courte') {
+    svg += `<path d="M66,${headY + 6} Q68,${headY + 16} 80,${headY + 19} Q92,${headY + 16} 94,${headY + 6}" fill="${hairColor}" opacity=".6" stroke="${hairDark}" stroke-width=".5"/>`;
+    svg += `<path d="M70,${headY + 10} Q80,${headY + 14} 90,${headY + 10}" fill="${hairDark}" opacity=".2"/>`;
+  } else if (beard === 'longue') {
+    svg += `<path d="M65,${headY + 5} Q66,${headY + 22} 80,${headY + 34} Q94,${headY + 22} 95,${headY + 5}" fill="${hairColor}" opacity=".7" stroke="${hairDark}" stroke-width=".5"/>`;
+    svg += `<path d="M72,${headY + 18} Q80,${headY + 22} 88,${headY + 18}" fill="${hairDark}" opacity=".15"/>`;
+    svg += `<path d="M76,${headY + 26} Q80,${headY + 30} 84,${headY + 26}" fill="${hairDark}" opacity=".1"/>`;
+  } else if (beard === 'tressée') {
+    svg += `<path d="M65,${headY + 5} Q66,${headY + 18} 80,${headY + 22} Q94,${headY + 18} 95,${headY + 5}" fill="${hairColor}" opacity=".6" stroke="${hairDark}" stroke-width=".5"/>`;
+    // Two braided strands
+    for (let i = 0; i < 4; i++) {
+      const by = headY + 22 + i * 6;
+      svg += `<ellipse cx="75" cy="${by}" rx="2.5" ry="3" fill="${i % 2 ? hairColor : hairDark}" opacity=".7"/>`;
+      svg += `<ellipse cx="85" cy="${by}" rx="2.5" ry="3" fill="${i % 2 ? hairDark : hairColor}" opacity=".7"/>`;
+    }
+    // Bead at end
+    svg += `<circle cx="75" cy="${headY + 46}" r="2" fill="#b08030"/>`;
+    svg += `<circle cx="85" cy="${headY + 46}" r="2" fill="#b08030"/>`;
+  } else if (beard === 'bouc') {
+    svg += `<path d="M74,${headY + 9} Q76,${headY + 14} 80,${headY + 24} Q84,${headY + 14} 86,${headY + 9}" fill="${hairColor}" opacity=".7" stroke="${hairDark}" stroke-width=".5"/>`;
+    // Mustache
+    svg += `<path d="M72,${headY + 6} Q77,${headY + 10} 80,${headY + 7}" fill="${hairColor}" opacity=".5"/>`;
+    svg += `<path d="M88,${headY + 6} Q83,${headY + 10} 80,${headY + 7}" fill="${hairColor}" opacity=".5"/>`;
+  }
+
+  // === HAIR ===
+  if (_charTempHair === 'long') {
+    svg += `<ellipse cx="80" cy="${headY - 14}" rx="${headRx + 3}" ry="11" fill="${hairColor}"/>`;
+    svg += `<path d="M${80 - headRx - 1},${headY - 6} Q${80 - headRx - 8},${headY + 12} ${80 - headRx - 5},${torsoTop + 25}" stroke="${hairColor}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+    svg += `<path d="M${80 + headRx + 1},${headY - 6} Q${80 + headRx + 8},${headY + 12} ${80 + headRx + 5},${torsoTop + 25}" stroke="${hairColor}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+    if (isFemme) {
+      svg += `<path d="M${80 - headRx - 3},${headY + 5} Q${80 - headRx - 10},${headY + 35} ${80 - headRx - 2},${torsoTop + 40}" stroke="${hairColor}" stroke-width="3.5" fill="none"/>`;
+      svg += `<path d="M${80 + headRx + 3},${headY + 5} Q${80 + headRx + 10},${headY + 35} ${80 + headRx + 2},${torsoTop + 40}" stroke="${hairColor}" stroke-width="3.5" fill="none"/>`;
+    }
+  } else if (_charTempHair === 'court') {
+    svg += `<ellipse cx="80" cy="${headY - 13}" rx="${headRx + 2}" ry="12" fill="${hairColor}"/>`;
+    svg += `<rect x="${80 - headRx - 2}" y="${headY - 16}" width="${(headRx + 2) * 2}" height="12" rx="7" fill="${hairColor}"/>`;
+    svg += `<path d="M${80 - headRx},${headY - 4} L${80 - headRx - 2},${headY + 4}" stroke="${hairColor}" stroke-width="3" stroke-linecap="round"/>`;
+    svg += `<path d="M${80 + headRx},${headY - 4} L${80 + headRx + 2},${headY + 4}" stroke="${hairColor}" stroke-width="3" stroke-linecap="round"/>`;
+  } else if (_charTempHair === 'mohawk') {
+    svg += `<ellipse cx="80" cy="${headY - 10}" rx="${headRx - 2}" ry="7" fill="${hairDark}" opacity=".25"/>`;
+    svg += `<path d="M77,${headY - 6} L77,${headY - 32} Q80,${headY - 36} 83,${headY - 32} L83,${headY - 6}" fill="${hairColor}"/>`;
+    svg += `<path d="M78,${headY - 30} L80,${headY - 34} L82,${headY - 30}" fill="${hairDark}" opacity=".3"/>`;
+  } else if (_charTempHair === 'tresses') {
+    svg += `<ellipse cx="80" cy="${headY - 14}" rx="${headRx + 2}" ry="11" fill="${hairColor}"/>`;
+    // Braids
+    for (let i = 0; i < 6; i++) {
+      const by = headY - 2 + i * 8;
+      svg += `<ellipse cx="${80 - headRx - 3}" cy="${by}" rx="3.5" ry="4.5" fill="${i % 2 ? hairColor : hairDark}" opacity=".8"/>`;
+      svg += `<ellipse cx="${80 + headRx + 3}" cy="${by}" rx="3.5" ry="4.5" fill="${i % 2 ? hairColor : hairDark}" opacity=".8"/>`;
+    }
+    svg += `<circle cx="${80 - headRx - 3}" cy="${headY + 46}" r="2.5" fill="#b08030"/>`;
+    svg += `<circle cx="${80 + headRx + 3}" cy="${headY + 46}" r="2.5" fill="#b08030"/>`;
+  } else if (_charTempHair === 'rasé') {
+    svg += `<ellipse cx="80" cy="${headY - 11}" rx="${headRx - 1}" ry="9" fill="${hairDark}" opacity=".2"/>`;
+  } else {
+    svg += `<ellipse cx="80" cy="${headY - 13}" rx="${headRx}" ry="10" fill="${hairDark}" opacity=".25"/>`;
+  }
+
+  // === CLASS ICON floating above ===
+  if (_charTempClass) {
+    svg += `<text x="80" y="14" text-anchor="middle" font-size="16" opacity=".5">${ADV_CLASSES[_charTempClass].icon}</text>`;
+  }
+
+  svg += `</g></svg>`;
   return svg;
 }
 
@@ -6478,6 +6583,9 @@ function advShowCharCreation() {
   _charTempWeapon = '';
   _charTempOutfit = '';
   _charTempHair = '';
+  _charTempHairColor = 'blond';
+  _charTempBeard = 'aucune';
+  _charCreationTab = 'identite';
   advRenderCharCreation();
 }
 
@@ -6494,131 +6602,181 @@ function advRenderCharCreation() {
   const usedPoints = Object.values(_charTempStats).reduce((a, b) => a + b, 0) - 6;
   const remaining = ADV_STAT_POINTS - usedPoints;
   const classBonus = _charTempClass ? ADV_CLASSES[_charTempClass].bonus : {};
-  const selStyle = (sel) => `border:1px solid ${sel ? 'var(--gold)' : 'var(--border)'};border-radius:6px;background:${sel ? 'rgba(212,175,55,.15)' : 'var(--wood-mid)'};color:${sel ? 'var(--gold)' : 'var(--text)'};cursor:pointer;font-family:'Cinzel',serif;`;
+  const tab = _charCreationTab || 'identite';
+  const sel = (s) => `border:1px solid ${s ? 'var(--gold)' : 'var(--border)'};border-radius:6px;background:${s ? 'rgba(212,175,55,.15)' : 'var(--wood-mid)'};color:${s ? 'var(--gold)' : 'var(--text)'};cursor:pointer;font-family:'Cinzel',serif;`;
+  const tabBtn = (id, icon, label) => {
+    const active = tab === id;
+    return `<button onclick="_charCreationTab='${id}';advRenderCharCreation()" style="flex:1;padding:6px 2px;border:none;border-bottom:2px solid ${active ? 'var(--gold)' : 'transparent'};background:${active ? 'rgba(212,175,55,.1)' : 'transparent'};color:${active ? 'var(--gold)' : 'var(--text-dim)'};cursor:pointer;font-family:'Cinzel',serif;font-size:.6rem;font-weight:${active ? '700' : '400'}">${icon} ${label}</button>`;
+  };
 
-  let html = `<div style="padding:10px">
-    <h3 style="color:var(--gold);font-family:'Cinzel',serif;text-align:center;margin-bottom:8px">⚔️ Creation de Personnage</h3>
-
-    <!-- Character Preview -->
-    <div style="background:linear-gradient(180deg,rgba(0,0,0,.3) 0%,rgba(20,15,10,.5) 100%);border:1px solid var(--border);border-radius:10px;padding:10px 0 6px;margin-bottom:12px;position:relative;overflow:hidden">
-      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at center bottom,rgba(212,175,55,.06) 0%,transparent 70%);pointer-events:none"></div>
+  // === STICKY PREVIEW + TITLE ===
+  let html = `<div style="position:sticky;top:0;z-index:5;background:var(--bg);padding-bottom:4px">
+    <h3 style="color:var(--gold);font-family:'Cinzel',serif;text-align:center;margin:6px 0 4px;font-size:.85rem">⚔️ Creation de Personnage</h3>
+    <div style="background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(20,15,10,.55) 100%);border:1px solid var(--border);border-radius:10px;padding:6px 0 4px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at center bottom,rgba(212,175,55,.08) 0%,transparent 70%);pointer-events:none"></div>
       ${advCharPreviewSVG()}
-      <div style="text-align:center;font-size:.6rem;color:var(--text-dim);margin-top:4px;font-family:'Cinzel',serif">${_charTempGender ? ((_charTempGender === 'femme' ? 'Guerriere' : 'Guerrier') + ' Viking') : 'Choisis ton apparence...'}</div>
     </div>
+    <!-- TABS -->
+    <div style="display:flex;gap:0;margin-top:6px;border-bottom:1px solid var(--border)">
+      ${tabBtn('identite', '👤', 'Identite')}
+      ${tabBtn('apparence', '✨', 'Apparence')}
+      ${tabBtn('equipement', '⚔️', 'Equipement')}
+      ${tabBtn('stats', '📊', 'Stats')}
+    </div>
+  </div>`;
 
-    <!-- Nom -->
-    <div style="margin-bottom:10px">
+  html += `<div style="padding:8px 6px">`;
+
+  // === TAB: IDENTITE ===
+  if (tab === 'identite') {
+    // Nom
+    html += `<div style="margin-bottom:10px">
       <label style="font-size:.7rem;color:var(--text-dim)">Nom du Viking :</label>
-      <input type="text" id="char-name-input" placeholder="Ton nom de guerrier..." value="${adv.charName || ''}" style="width:100%;padding:8px;background:var(--wood-mid);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Cinzel',serif;font-size:.8rem;margin-top:4px"/>
-    </div>
-
-    <!-- Genre -->
-    <div style="margin-bottom:10px">
+      <input type="text" id="char-name-input" placeholder="Ton nom de guerrier..." value="${adv.charName || ''}" style="width:100%;padding:8px;background:var(--wood-mid);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Cinzel',serif;font-size:.8rem;margin-top:4px;box-sizing:border-box"/>
+    </div>`;
+    // Genre
+    html += `<div style="margin-bottom:10px">
       <label style="font-size:.7rem;color:var(--text-dim)">Genre :</label>
       <div style="display:flex;gap:6px;margin-top:4px">`;
-
-  ADV_GENDERS.forEach(g => {
-    const sel = _charTempGender === g.id;
-    html += `<button onclick="_charTempGender='${g.id}';advRenderCharCreation()" style="flex:1;padding:8px;${selStyle(sel)}font-size:.7rem;text-align:center">
-      <span style="font-size:1.1rem">${g.icon}</span><br>${g.label}
-    </button>`;
-  });
-
-  html += `</div></div>
-
-    <!-- Classe -->
-    <div style="margin-bottom:10px">
+    ADV_GENDERS.forEach(g => {
+      const s = _charTempGender === g.id;
+      html += `<button onclick="_charTempGender='${g.id}';advRenderCharCreation()" style="flex:1;padding:10px 8px;${sel(s)}font-size:.75rem;text-align:center">
+        <span style="font-size:1.2rem">${g.icon}</span><br>${g.label}
+      </button>`;
+    });
+    html += `</div></div>`;
+    // Classe
+    html += `<div style="margin-bottom:6px">
       <label style="font-size:.7rem;color:var(--text-dim)">Classe :</label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">`;
-
-  Object.entries(ADV_CLASSES).forEach(([id, cls]) => {
-    const selected = _charTempClass === id;
-    html += `<button onclick="advSelectClass('${id}')" style="padding:8px;${selStyle(selected)}text-align:left;font-size:.65rem">
-      <div style="font-weight:700">${cls.icon} ${cls.name}</div>
-      <div style="font-size:.55rem;color:var(--text-dim);margin-top:2px">${cls.desc}</div>
-    </button>`;
-  });
-
-  html += `</div></div>`;
-
-  // Arme (only if class selected)
-  if (_charTempClass) {
-    const weapons = ADV_CLASSES[_charTempClass].weapons;
-    html += `<div style="margin-bottom:10px">
-      <label style="font-size:.7rem;color:var(--text-dim)">Arme de depart :</label>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">`;
-    weapons.forEach(w => {
-      const sel = _charTempWeapon === w.id;
-      html += `<button onclick="_charTempWeapon='${w.id}';advRenderCharCreation()" style="padding:8px;${selStyle(sel)}text-align:left;font-size:.65rem">
-        <div style="font-weight:700">${w.icon} ${w.name}</div>
-        <div style="font-size:.55rem;color:var(--text-dim);margin-top:2px">${w.desc}</div>
-        <div style="font-size:.5rem;color:#69f0ae;margin-top:2px">+${w.dmgBonus} degats (${w.statBonus})</div>
+    Object.entries(ADV_CLASSES).forEach(([id, cls]) => {
+      const s = _charTempClass === id;
+      html += `<button onclick="advSelectClass('${id}')" style="padding:8px;${sel(s)}text-align:left;font-size:.65rem">
+        <div style="font-weight:700">${cls.icon} ${cls.name}</div>
+        <div style="font-size:.55rem;color:var(--text-dim);margin-top:2px">${cls.desc}</div>
       </button>`;
     });
     html += `</div></div>`;
   }
 
-  // Apparence : Tenue
-  html += `<div style="margin-bottom:10px">
-    <label style="font-size:.7rem;color:var(--text-dim)">Tenue :</label>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:4px">`;
-  ADV_OUTFITS.forEach(o => {
-    const sel = _charTempOutfit === o.id;
-    html += `<button onclick="_charTempOutfit='${o.id}';advRenderCharCreation()" style="padding:6px 4px;${selStyle(sel)}text-align:center;font-size:.6rem">
-      <div style="font-size:1rem">${o.icon}</div>
-      <div style="font-weight:600;margin-top:2px">${o.name}</div>
-    </button>`;
-  });
-  html += `</div></div>`;
+  // === TAB: APPARENCE ===
+  if (tab === 'apparence') {
+    // Cheveux style
+    html += `<div style="margin-bottom:10px">
+      <label style="font-size:.7rem;color:var(--text-dim)">Coiffure :</label>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:4px">`;
+    ADV_HAIR.forEach(h => {
+      const s = _charTempHair === h.id;
+      html += `<button onclick="_charTempHair='${h.id}';advRenderCharCreation()" style="padding:6px 2px;${sel(s)}text-align:center;font-size:.55rem">
+        <div style="font-size:.9rem">${h.icon}</div>${h.name}
+      </button>`;
+    });
+    html += `</div></div>`;
+    // Couleur cheveux
+    html += `<div style="margin-bottom:10px">
+      <label style="font-size:.7rem;color:var(--text-dim)">Couleur des cheveux :</label>
+      <div style="display:flex;gap:5px;margin-top:4px">`;
+    ADV_HAIR_COLORS.forEach(c => {
+      const s = (_charTempHairColor || 'blond') === c.id;
+      html += `<button onclick="_charTempHairColor='${c.id}';advRenderCharCreation()" style="flex:1;padding:6px 2px;${sel(s)}text-align:center;font-size:.5rem;min-width:0">
+        <div style="width:18px;height:18px;border-radius:50%;background:${c.color};margin:0 auto 3px;border:2px solid ${s ? 'var(--gold)' : c.dark}"></div>${c.name}
+      </button>`;
+    });
+    html += `</div></div>`;
+    // Barbe
+    html += `<div style="margin-bottom:10px">
+      <label style="font-size:.7rem;color:var(--text-dim)">Barbe :</label>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:4px">`;
+    ADV_BEARDS.forEach(b => {
+      const s = (_charTempBeard || 'aucune') === b.id;
+      html += `<button onclick="_charTempBeard='${b.id}';advRenderCharCreation()" style="padding:6px 2px;${sel(s)}text-align:center;font-size:.55rem">
+        <div style="font-size:.9rem">${b.icon}</div>${b.name}
+      </button>`;
+    });
+    html += `</div></div>`;
+    // Tenue
+    html += `<div style="margin-bottom:6px">
+      <label style="font-size:.7rem;color:var(--text-dim)">Tenue :</label>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:4px">`;
+    ADV_OUTFITS.forEach(o => {
+      const s = _charTempOutfit === o.id;
+      html += `<button onclick="_charTempOutfit='${o.id}';advRenderCharCreation()" style="padding:6px 2px;${sel(s)}text-align:center;font-size:.5rem">
+        <div style="font-size:1rem">${o.icon}</div>${o.name}
+      </button>`;
+    });
+    html += `</div></div>`;
+  }
 
-  // Apparence : Cheveux
-  html += `<div style="margin-bottom:10px">
-    <label style="font-size:.7rem;color:var(--text-dim)">Cheveux :</label>
-    <div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap">`;
-  ADV_HAIR.forEach(h => {
-    const sel = _charTempHair === h.id;
-    html += `<button onclick="_charTempHair='${h.id}';advRenderCharCreation()" style="padding:6px 8px;${selStyle(sel)}text-align:center;font-size:.6rem;flex:1;min-width:60px">
-      <span style="font-size:.9rem">${h.icon}</span> ${h.name}
-    </button>`;
-  });
-  html += `</div></div>`;
-
-  // Stats
-  html += `<div style="margin-bottom:6px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <label style="font-size:.7rem;color:var(--text-dim)">Stats (${ADV_STAT_POINTS} points) :</label>
-        <span style="font-size:.75rem;font-weight:700;color:${remaining > 0 ? 'var(--gold)' : remaining === 0 ? '#69f0ae' : '#e74c3c'}">${remaining} restant${remaining !== 1 ? 's' : ''}</span>
+  // === TAB: EQUIPEMENT ===
+  if (tab === 'equipement') {
+    if (!_charTempClass) {
+      html += `<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:.7rem">Choisis d'abord une <strong>classe</strong> dans l'onglet Identite pour voir les armes disponibles.</div>`;
+    } else {
+      const weapons = ADV_CLASSES[_charTempClass].weapons;
+      html += `<div style="margin-bottom:10px">
+        <label style="font-size:.7rem;color:var(--text-dim)">Arme de depart (${ADV_CLASSES[_charTempClass].name}) :</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">`;
+      weapons.forEach(w => {
+        const s = _charTempWeapon === w.id;
+        html += `<button onclick="_charTempWeapon='${w.id}';advRenderCharCreation()" style="padding:10px 8px;${sel(s)}text-align:left;font-size:.65rem">
+          <div style="font-weight:700;font-size:.75rem">${w.icon} ${w.name}</div>
+          <div style="font-size:.55rem;color:var(--text-dim);margin-top:3px">${w.desc}</div>
+          <div style="font-size:.55rem;color:#69f0ae;margin-top:3px;font-weight:600">+${w.dmgBonus} degats (${w.statBonus})</div>
+        </button>`;
+      });
+      html += `</div></div>`;
+      html += `<div style="font-size:.55rem;color:var(--text-dim);line-height:1.4;padding:6px;background:var(--surface);border-radius:6px;border:1px solid var(--border)">
+        💡 Le bonus de degats s'applique quand tu attaques avec la stat correspondante. L'arme apparait dans les mains de ton personnage ci-dessus.
       </div>`;
+    }
+  }
 
-  ADV_STATS.forEach(s => {
-    const val = _charTempStats[s.id];
-    const bonus = classBonus[s.id] || 0;
-    const total = val + bonus;
-    html += `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--border)">
-      <span style="font-size:.9rem;width:22px;text-align:center">${s.icon}</span>
-      <span style="font-size:.65rem;color:var(--text);flex:1;font-weight:600">${s.name}</span>
-      <button onclick="advAdjustStat('${s.id}',-1)" style="width:24px;height:24px;border:1px solid var(--border);border-radius:4px;background:var(--wood-mid);color:var(--text);cursor:pointer;font-size:.8rem;font-weight:700" ${val <= 1 ? 'disabled' : ''}>-</button>
-      <span style="width:20px;text-align:center;font-weight:700;color:var(--gold);font-size:.85rem">${val}</span>
-      <button onclick="advAdjustStat('${s.id}',1)" style="width:24px;height:24px;border:1px solid var(--border);border-radius:4px;background:var(--wood-mid);color:var(--text);cursor:pointer;font-size:.8rem;font-weight:700" ${remaining <= 0 || val >= 8 ? 'disabled' : ''}>+</button>
-      ${bonus ? `<span style="font-size:.55rem;color:${bonus > 0 ? '#69f0ae' : '#e74c3c'}">${bonus > 0 ? '+' : ''}${bonus}</span>` : '<span style="width:20px"></span>'}
-      <span style="font-size:.85rem;font-weight:700;color:var(--text);width:20px;text-align:center">${total}</span>
+  // === TAB: STATS ===
+  if (tab === 'stats') {
+    html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <label style="font-size:.7rem;color:var(--text-dim)">Stats (${ADV_STAT_POINTS} points) :</label>
+      <span style="font-size:.75rem;font-weight:700;color:${remaining > 0 ? 'var(--gold)' : remaining === 0 ? '#69f0ae' : '#e74c3c'}">${remaining} restant${remaining !== 1 ? 's' : ''}</span>
     </div>`;
-  });
+    ADV_STATS.forEach(s => {
+      const val = _charTempStats[s.id];
+      const bonus = classBonus[s.id] || 0;
+      const total = val + bonus;
+      html += `<div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;padding:5px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--border)">
+        <span style="font-size:.9rem;width:20px;text-align:center">${s.icon}</span>
+        <span style="font-size:.62rem;color:var(--text);flex:1;font-weight:600">${s.name}</span>
+        <button onclick="advAdjustStat('${s.id}',-1)" style="width:26px;height:26px;border:1px solid var(--border);border-radius:4px;background:var(--wood-mid);color:var(--text);cursor:pointer;font-size:.85rem;font-weight:700" ${val <= 1 ? 'disabled' : ''}>-</button>
+        <span style="width:22px;text-align:center;font-weight:700;color:var(--gold);font-size:.85rem">${val}</span>
+        <button onclick="advAdjustStat('${s.id}',1)" style="width:26px;height:26px;border:1px solid var(--border);border-radius:4px;background:var(--wood-mid);color:var(--text);cursor:pointer;font-size:.85rem;font-weight:700" ${remaining <= 0 || val >= 8 ? 'disabled' : ''}>+</button>
+        ${bonus ? `<span style="font-size:.55rem;color:${bonus > 0 ? '#69f0ae' : '#e74c3c'};width:20px;text-align:center">${bonus > 0 ? '+' : ''}${bonus}</span>` : '<span style="width:20px"></span>'}
+        <span style="font-size:.85rem;font-weight:700;color:var(--text);width:22px;text-align:center">${total}</span>
+      </div>`;
+    });
+    html += `<div style="font-size:.55rem;color:var(--text-dim);margin-top:6px;line-height:1.4;padding:6px;background:var(--surface);border-radius:6px;border:1px solid var(--border)">
+      ⚔️ Tes stats influencent tout : jets de des, degats, esquive, negociation, magie... Chaque action a une chance d'echec !
+    </div>`;
+  }
 
-  html += `</div>
-    <div style="font-size:.55rem;color:var(--text-dim);margin-top:6px;line-height:1.4">
-      Tes stats influencent TOUT : jets de des, degats, esquive, negociation, detection de pieges, magie... Chaque action a une chance d'echec basee sur tes stats !
-    </div>
-  </div>`;
+  html += `</div>`;
 
   const prevScroll = content.scrollTop;
   content.innerHTML = html;
-  content.scrollTop = prevScroll || 0;
+  // Only reset scroll when switching tabs
+  if (content._lastTab !== tab) { content.scrollTop = 0; content._lastTab = tab; }
+  else { content.scrollTop = prevScroll || 0; }
 
   const canStart = remaining === 0 && _charTempClass && _charTempGender && _charTempWeapon && _charTempOutfit && _charTempHair;
   if (actions) {
-    actions.innerHTML = `<button class="adv-btn primary" onclick="advConfirmCharacter()" style="flex:2" ${canStart ? '' : 'disabled'}>⚔️ Commencer l'Aventure</button>
-    ${adv.charCreated ? `<button class="adv-btn" onclick="advCancelCharCreation()">Annuler</button>` : ''}`;
+    // Show what's missing
+    let missing = [];
+    if (!_charTempGender) missing.push('genre');
+    if (!_charTempClass) missing.push('classe');
+    if (!_charTempOutfit || !_charTempHair) missing.push('apparence');
+    if (!_charTempWeapon) missing.push('arme');
+    if (remaining !== 0) missing.push('stats');
+    const missingStr = missing.length ? `<div style="font-size:.5rem;color:var(--text-dim);text-align:center;margin-top:4px">Manque : ${missing.join(', ')}</div>` : '';
+    actions.innerHTML = `<div style="width:100%"><button class="adv-btn primary" onclick="advConfirmCharacter()" style="width:100%" ${canStart ? '' : 'disabled'}>⚔️ Commencer l'Aventure</button>
+    ${adv.charCreated ? `<button class="adv-btn" onclick="advCancelCharCreation()" style="width:100%;margin-top:4px">Annuler</button>` : ''}
+    ${missingStr}</div>`;
   }
 }
 
@@ -6651,6 +6809,8 @@ function advConfirmCharacter() {
   adv.charGender = _charTempGender;
   adv.charOutfit = _charTempOutfit;
   adv.charHair = _charTempHair;
+  adv.charHairColor = _charTempHairColor || 'blond';
+  adv.charBeard = _charTempBeard || 'aucune';
   adv.stats = { ..._charTempStats };
 
   // Apply class bonuses
@@ -6688,9 +6848,12 @@ function advConfirmCharacter() {
   const genderLabel = _charTempGender === 'femme' ? 'guerriere' : 'guerrier';
   const outfitObj = ADV_OUTFITS.find(o => o.id === _charTempOutfit);
   const hairObj = ADV_HAIR.find(h => h.id === _charTempHair);
+  const hairColObj = ADV_HAIR_COLORS.find(c => c.id === (_charTempHairColor || 'blond'));
+  const beardObj = ADV_BEARDS.find(b => b.id === (_charTempBeard || 'aucune'));
   const outfitDesc = outfitObj ? outfitObj.name.toLowerCase() : 'tenue viking';
-  const hairDesc = hairObj ? hairObj.name.toLowerCase() : 'cheveux';
-  adv.narrative = [{ type: 'dm', text: `⚔️ **${name}**, ${cls.icon} ${cls.name}, se reveille au campement viking. Vetu${_charTempGender === 'femme' ? 'e' : ''} de ${outfitDesc}, ${hairDesc} au vent, ${weapon ? weapon.icon + ' ' + weapon.name + ' a la main' : 'arme au poing'}. Le feu crépite, l'air est charge de brume nordique. Ton aventure commence ici, ${genderLabel}. Que veux-tu faire ?`, time: Date.now() }];
+  const hairDesc = `cheveux ${hairColObj ? hairColObj.name.toLowerCase() : 'blonds'} ${hairObj ? hairObj.name.toLowerCase() : ''}`.trim();
+  const beardDesc = beardObj && beardObj.id !== 'aucune' ? `, barbe ${beardObj.name.toLowerCase()}` : '';
+  adv.narrative = [{ type: 'dm', text: `⚔️ **${name}**, ${cls.icon} ${cls.name}, se reveille au campement viking. Vetu${_charTempGender === 'femme' ? 'e' : ''} de ${outfitDesc}, ${hairDesc}${beardDesc}, ${weapon ? weapon.icon + ' ' + weapon.name + ' a la main' : 'arme au poing'}. Le feu crépite, l'air est charge de brume nordique. Ton aventure commence ici, ${genderLabel}. Que veux-tu faire ?`, time: Date.now() }];
   saveAdventure();
 
   advRenderMap();
@@ -7248,12 +7411,15 @@ function advShowCharSheet() {
   const genderIcon = adv.charGender === 'femme' ? '♀️' : '♂️';
   const outfitObj = ADV_OUTFITS.find(o => o.id === adv.charOutfit);
   const hairObj = ADV_HAIR.find(h => h.id === adv.charHair);
+  const hairColObj = ADV_HAIR_COLORS.find(c => c.id === adv.charHairColor);
+  const beardObj = ADV_BEARDS.find(b => b.id === adv.charBeard);
   const weaponStr = adv.charWeapon ? `${adv.charWeapon.icon} ${adv.charWeapon.name} (+${adv.charWeapon.dmgBonus} degats)` : 'Aucune';
+  const beardStr = beardObj && beardObj.id !== 'aucune' ? `| 🧔 Barbe ${beardObj.name.toLowerCase()}` : '';
 
   const text = `📋 **FICHE DE PERSONNAGE**\n` +
     `${cls.icon || ''} **${adv.charName}** ${genderIcon} — ${cls.name || 'Inconnu'} (Niv. ${adv.level})\n` +
     `🗡️ Arme: ${weaponStr}\n` +
-    `👤 ${outfitObj ? outfitObj.icon + ' ' + outfitObj.name : 'Tenue viking'} | ${hairObj ? hairObj.icon + ' ' + hairObj.name : 'Cheveux nordiques'}\n` +
+    `👤 ${outfitObj ? outfitObj.icon + ' ' + outfitObj.name : 'Tenue viking'} | 💇 Cheveux ${hairColObj ? hairColObj.name.toLowerCase() : 'blonds'} ${hairObj ? hairObj.name.toLowerCase() : ''} ${beardStr}\n` +
     `❤️ PV: ${adv.hp}/${adv.maxHp} | ⚡ Energie: ${adv.energy}/${adv.maxEnergy}\n` +
     `💰 Or: ${adv.gold} | ⭐ Reputation: ${adv.reputation}/100\n` +
     `⚔️ Monstres vaincus: ${adv.totalKills} | 🗺️ Zones explorees: ${adv.totalExplored}\n\n` +
@@ -7369,7 +7535,7 @@ function getAdvSystemPrompt() {
 PERSONNAGE DU JOUEUR :
 - Nom : ${adv.charName || 'Viking'} | Classe : ${cls.icon || ''} ${cls.name || 'Inconnu'} | Genre : ${adv.charGender === 'femme' ? 'Femme' : 'Homme'}
 - Arme : ${adv.charWeapon ? adv.charWeapon.icon + ' ' + adv.charWeapon.name + ' (+' + adv.charWeapon.dmgBonus + ' degats)' : 'Aucune'}
-- Apparence : ${(ADV_OUTFITS.find(o => o.id === adv.charOutfit) || {}).name || 'Tenue viking'}, ${(ADV_HAIR.find(h => h.id === adv.charHair) || {}).name || 'cheveux nordiques'}
+- Apparence : ${(ADV_OUTFITS.find(o => o.id === adv.charOutfit) || {}).name || 'Tenue viking'}, cheveux ${(ADV_HAIR_COLORS.find(c => c.id === adv.charHairColor) || {}).name || 'blonds'} ${(ADV_HAIR.find(h => h.id === adv.charHair) || {}).name || ''}, ${adv.charBeard && adv.charBeard !== 'aucune' ? 'barbe ' + ((ADV_BEARDS.find(b => b.id === adv.charBeard) || {}).name || '').toLowerCase() : 'pas de barbe'}
 - Stats : ${statsStr}
 - Or : ${adv.gold || 0} | Reputation : ${adv.reputation || 0}/100
 - Savoirs decouverts : ${loreStr}
