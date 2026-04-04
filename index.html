@@ -161,6 +161,9 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
 .cust-presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .cust-preset{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);cursor:pointer;transition:all .2s;position:relative}
 .cust-preset:hover,.cust-preset.active{border-color:var(--gold);transform:scale(1.15)}
+.companion-card{display:flex;flex-direction:column;align-items:center;padding:10px 14px;border:2px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);cursor:pointer;font-family:'Cinzel',serif;min-width:80px;transition:all .2s}
+.companion-card:hover{border-color:var(--gold-dim);background:rgba(196,154,60,.08)}
+.companion-card.active{border-color:var(--gold);background:rgba(196,154,60,.15);box-shadow:0 0 12px rgba(196,154,60,.3)}
 .cust-preset::after{content:'';position:absolute;inset:3px;border-radius:50%}
 .btn-gold{background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:4px;padding:8px 16px;color:#0e0a06;cursor:pointer;font-size:.85rem;font-weight:600;margin-top:8px;transition:transform .15s}
 .btn-gold:active{transform:scale(.95)}
@@ -603,6 +606,10 @@ header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,6
     <button class="btn-secondary" onclick="toggleSettings()" style="margin:0;padding:6px 14px">&#10003; OK</button>
   </div>
   <div class="setting-group">
+    <label>Compagnon</label>
+    <div id="companion-select" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px"></div>
+  </div>
+  <div class="setting-group">
     <label>Backend IA</label>
     <select id="api-backend">
       <option value="ollama">Ollama (local)</option>
@@ -1038,6 +1045,59 @@ const MOODS = {
   amuse:      { label:'≋ Amusé',       anim:'happy',    color:'#81c784', particles:'green' }
 };
 
+// ===== COMPANIONS REGISTRY =====
+const COMPANIONS = {
+  raven: {
+    id: 'raven',
+    name: 'Stakr',
+    subtitle: 'Corbeau Viking Millenaire',
+    emoji: '🪶',
+    modelFile: './stakr-raven.glb',
+    personality: DEFAULT_PERSONALITY,
+    theme: {
+      '--bg':'#0e0a06','--surface':'#1a1208','--surface2':'#231a0e',
+      '--border':'#3d2b1a','--border-glow':'#5a3f24',
+      '--rune-blue':'#4fc3f7','--rune-glow':'#00bcd4',
+      '--gold':'#c49a3c','--gold-dim':'#8a6d2a','--gold-bright':'#daa520',
+      '--text':'#d4c5a0','--text-dim':'#8a7a5a',
+      '--accent':'#c49a3c','--danger':'#c0392b','--warm':'#d4a030',
+      '--wood-dark':'#120d07','--wood-mid':'#1e150c','--wood-light':'#2a1c10','--leather':'#1a1a30'
+    },
+    moodParams: {
+      idle:     { wingAmp:0.025, wingSpd:2.5, headAmp:0.012, headSpd:1.3, tailAmp:0.015, tailSpd:1.8, breathAmp:0.004, breathSpd:2.0, beakAmp:0.003, rimColor:0x4fc3f7 },
+      happy:    { wingAmp:0.045, wingSpd:4.0, headAmp:0.020, headSpd:2.5, tailAmp:0.025, tailSpd:3.0, breathAmp:0.006, breathSpd:2.5, beakAmp:0.005, rimColor:0x69f0ae },
+      angry:    { wingAmp:0.060, wingSpd:7.0, headAmp:0.015, headSpd:5.0, tailAmp:0.035, tailSpd:5.0, breathAmp:0.008, breathSpd:4.0, beakAmp:0.008, rimColor:0xff5252 },
+      sad:      { wingAmp:0.010, wingSpd:1.2, headAmp:0.006, headSpd:0.7, tailAmp:0.008, tailSpd:0.8, breathAmp:0.003, breathSpd:1.2, beakAmp:0.001, rimColor:0x90a4ae },
+      thinking: { wingAmp:0.015, wingSpd:1.5, headAmp:0.018, headSpd:1.0, tailAmp:0.010, tailSpd:1.2, breathAmp:0.004, breathSpd:1.5, beakAmp:0.002, rimColor:0xce93d8 },
+      excited:  { wingAmp:0.055, wingSpd:6.0, headAmp:0.025, headSpd:4.0, tailAmp:0.030, tailSpd:4.5, breathAmp:0.007, breathSpd:3.5, beakAmp:0.006, rimColor:0xffab40 }
+    },
+    shaderVertex: `
+      transformed.y += sin(uTime * uBreathSpd) * uBreathAmp;
+      float wingFactor = smoothstep(0.25, 0.65, abs(transformed.x));
+      float flapPhase = sin(uTime * uWingSpd) + 0.3 * sin(uTime * uWingSpd * 2.1);
+      transformed.y += flapPhase * uWingAmp * wingFactor;
+      transformed.z += sin(uTime * uWingSpd * 0.7) * uWingAmp * 0.5 * wingFactor;
+      float headFactor = smoothstep(0.15, 0.45, transformed.y);
+      transformed.y += sin(uTime * uHeadSpd) * uHeadAmp * headFactor;
+      transformed.z += sin(uTime * uHeadSpd * 0.8 + 0.5) * uHeadAmp * 0.6 * headFactor;
+      transformed.x += sin(uTime * uHeadSpd * 0.6 + 1.0) * uHeadAmp * 0.4 * headFactor;
+      float beakFactor = smoothstep(0.35, 0.55, transformed.y) * smoothstep(0.1, 0.5, transformed.z);
+      transformed.z += sin(uTime * uHeadSpd * 1.5) * uBeakAmp * beakFactor;
+      float tailFactor = smoothstep(-0.05, -0.40, transformed.y);
+      transformed.x += sin(uTime * uTailSpd) * uTailAmp * tailFactor;
+      transformed.y += sin(uTime * uTailSpd * 1.3 + 0.7) * uTailAmp * 0.4 * tailFactor;
+    `,
+    cameraPos: { x:0, y:0.15, z:2.8 },
+    welcomeMsg: "Kraa ! Je suis Stakr, corbeau des runes anciennes. Les vents du Nord m'ont mene a toi, compagnon. Parle, et je t'ecouterai avec la sagesse d'Odin lui-meme."
+  }
+  // Futurs compagnons : ajouter une entree ici (wolf, dragon, bear, etc.)
+};
+window.COMPANIONS = COMPANIONS;
+
+function getCompanion() {
+  return COMPANIONS[state?.companion] || COMPANIONS.raven;
+}
+
 // ===== MODES =====
 const MODES = {
   conversation: { label:'Chat', prompt:'' },
@@ -1050,6 +1110,7 @@ const MODES = {
 
 // ===== STATE =====
 let state = {
+  companion: 'raven', // ID du compagnon actif (cle dans COMPANIONS)
   mood: 'serein',
   memory: [],         // {role, content, timestamp}
   longTermMemory: [], // facts Stakr remembers about user
@@ -1464,7 +1525,9 @@ function setupAudioListeners() {
 // ===== INIT =====
 function init() {
   loadState();
+  applyCompanionTheme(state.companion || 'raven');
   applyConfig();
+  renderCompanionSelect();
   setupListeners();
   setupModes();
   setupAudioListeners();
@@ -1483,7 +1546,7 @@ function init() {
 
   const msgs = getCurrentMessages();
   if (msgs.length === 0) {
-    addMessage('stakr', "Kraa ! Je suis Stakr, corbeau des runes anciennes. Les vents du Nord m'ont mene a toi, compagnon. Parle, et je t'ecouterai avec la sagesse d'Odin lui-meme.");
+    addMessage('stakr', getCompanion().welcomeMsg);
   } else {
     const recent = msgs.slice(-30);
     recent.forEach(m => addMessage(m.role === 'user' ? 'user' : 'stakr', m.content, m.timestamp, true, m.image || null));
@@ -1503,7 +1566,10 @@ function loadState() {
     if (saved) {
       const parsed = JSON.parse(saved);
       state = { ...state, ...parsed };
-      state.config.personality = DEFAULT_PERSONALITY;
+      // Companion migration + personality
+      if (!state.companion) state.companion = 'raven';
+      const comp = COMPANIONS[state.companion] || COMPANIONS.raven;
+      state.config.personality = comp.personality;
       // Ensure new fields exist
       if (!state.projects) state.projects = [];
       if (!state.currentProject) state.currentProject = null;
@@ -2458,6 +2524,54 @@ function applyAppearanceLive() {
   applyAppearanceToSVG(a);
   state.appearance = a;
   saveState();
+}
+
+// ===== COMPANION THEME & SWITCHING =====
+function applyCompanionTheme(companionId) {
+  const comp = COMPANIONS[companionId] || COMPANIONS.raven;
+  const root = document.documentElement;
+  Object.entries(comp.theme).forEach(([prop, val]) => {
+    root.style.setProperty(prop, val);
+  });
+  const h1 = document.querySelector('header h1');
+  if (h1) h1.textContent = comp.name.toUpperCase();
+}
+
+function renderCompanionSelect() {
+  const container = document.getElementById('companion-select');
+  if (!container) return;
+  container.innerHTML = Object.values(COMPANIONS).map(c => `
+    <div class="companion-card ${state.companion === c.id ? 'active' : ''}" onclick="switchCompanion('${c.id}')">
+      <span style="font-size:1.8rem">${c.emoji}</span>
+      <span style="font-size:.75rem;font-weight:600;margin-top:4px">${c.name}</span>
+      <span style="font-size:.55rem;color:var(--text-dim)">${c.subtitle}</span>
+    </div>
+  `).join('');
+}
+
+async function switchCompanion(id) {
+  if (!COMPANIONS[id] || state.companion === id) return;
+  state.companion = id;
+  const comp = COMPANIONS[id];
+
+  // 1. Apply CSS theme
+  applyCompanionTheme(id);
+
+  // 2. Switch personality
+  state.config.personality = comp.personality;
+  const pInput = document.getElementById('personality-input');
+  if (pInput) pInput.value = comp.personality;
+
+  // 3. Load 3D model
+  if (window.raven3D?.loadCompanion) {
+    await window.raven3D.loadCompanion(id);
+  }
+
+  // 4. Persist
+  saveState();
+  renderCompanionSelect();
+
+  showToast('Compagnon change', `${comp.emoji} ${comp.name} est a tes cotes.`);
 }
 
 function applyAppearanceToSVG(a) {
@@ -5737,6 +5851,7 @@ async function syncToCloud() {
   try {
     // Leaderboard data (public profile)
     const profileData = {
+      companion: state.companion || 'raven',
       name: currentUser.displayName || 'Viking',
       avatar: currentUser.photoURL || '',
       level: q.level || 1,
@@ -5772,6 +5887,19 @@ async function syncToCloud() {
 async function loadFromCloud() {
   if (!currentUser || !db) return;
   try {
+    // Load companion choice from profile
+    const profileSnap = await db.collection('users').doc(currentUser.uid).get();
+    if (profileSnap.exists) {
+      const profile = profileSnap.data();
+      if (profile.companion && COMPANIONS[profile.companion] && profile.companion !== state.companion) {
+        state.companion = profile.companion;
+        applyCompanionTheme(state.companion);
+        state.config.personality = getCompanion().personality;
+        if (window.raven3D?.loadCompanion) window.raven3D.loadCompanion(state.companion);
+        renderCompanionSelect();
+      }
+    }
+
     // Load quests
     const questSnap = await db.collection('users').doc(currentUser.uid).collection('data').doc('quests').get();
     if (questSnap.exists) {
@@ -8517,9 +8645,11 @@ advRenderContent = function() {
 // ===== START =====
 loadAdventure();
 init();
+// Expose state reference for Three.js module
+window._stakrState = state;
 </script>
 
-<!-- THREE.JS RAVEN 3D -->
+<!-- THREE.JS COMPANION 3D -->
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -8553,103 +8683,102 @@ if (canvas) {
 
   // Mood state
   let currentMood = 'idle';
-  const moodParams = {
-    idle:     { wingAmp: 0.025, wingSpd: 2.5, headAmp: 0.012, headSpd: 1.3, tailAmp: 0.015, tailSpd: 1.8, breathAmp: 0.004, breathSpd: 2.0, beakAmp: 0.003, rimColor: 0x4fc3f7 },
-    happy:    { wingAmp: 0.045, wingSpd: 4.0, headAmp: 0.020, headSpd: 2.5, tailAmp: 0.025, tailSpd: 3.0, breathAmp: 0.006, breathSpd: 2.5, beakAmp: 0.005, rimColor: 0x69f0ae },
-    angry:    { wingAmp: 0.060, wingSpd: 7.0, headAmp: 0.015, headSpd: 5.0, tailAmp: 0.035, tailSpd: 5.0, breathAmp: 0.008, breathSpd: 4.0, beakAmp: 0.008, rimColor: 0xff5252 },
-    sad:      { wingAmp: 0.010, wingSpd: 1.2, headAmp: 0.006, headSpd: 0.7, tailAmp: 0.008, tailSpd: 0.8, breathAmp: 0.003, breathSpd: 1.2, beakAmp: 0.001, rimColor: 0x90a4ae },
-    thinking: { wingAmp: 0.015, wingSpd: 1.5, headAmp: 0.018, headSpd: 1.0, tailAmp: 0.010, tailSpd: 1.2, breathAmp: 0.004, breathSpd: 1.5, beakAmp: 0.002, rimColor: 0xce93d8 },
-    excited:  { wingAmp: 0.055, wingSpd: 6.0, headAmp: 0.025, headSpd: 4.0, tailAmp: 0.030, tailSpd: 4.5, breathAmp: 0.007, breathSpd: 3.5, beakAmp: 0.006, rimColor: 0xffab40 }
-  };
-
-  let ravenShaderRef = null;
-
-  // Load model
+  let activeMoodParams = {};
+  let shaderRef = null;
+  let currentModel = null;
   const loader = new GLTFLoader();
-  loader.load('./stakr-raven.glb', (gltf) => {
-    const model = gltf.scene;
-    // Center & scale
-    const box = new THREE.Box3().setFromObject(model);
-    const center = box.getCenter(new THREE.Vector3());
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 1.5 / maxDim;
-    model.scale.setScalar(scale);
-    model.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
 
-    // Inject vertex shader for procedural animation
-    model.traverse((child) => {
-      if (child.isMesh && child.material) {
-        const mat = child.material;
-        mat.onBeforeCompile = (shader) => {
-          shader.uniforms.uTime = { value: 0 };
-          shader.uniforms.uWingAmp = { value: 0.025 };
-          shader.uniforms.uWingSpd = { value: 2.5 };
-          shader.uniforms.uHeadAmp = { value: 0.012 };
-          shader.uniforms.uHeadSpd = { value: 1.3 };
-          shader.uniforms.uTailAmp = { value: 0.015 };
-          shader.uniforms.uTailSpd = { value: 1.8 };
-          shader.uniforms.uBreathAmp = { value: 0.004 };
-          shader.uniforms.uBreathSpd = { value: 2.0 };
-          shader.uniforms.uBeakAmp = { value: 0.003 };
+  // Load a companion model dynamically
+  async function loadCompanionModel(companionId) {
+    const comp = window.COMPANIONS?.[companionId] || window.COMPANIONS?.raven;
+    if (!comp) return;
 
-          shader.vertexShader = shader.vertexShader.replace(
-            '#include <common>',
-            `#include <common>
-            uniform float uTime;
-            uniform float uWingAmp, uWingSpd;
-            uniform float uHeadAmp, uHeadSpd;
-            uniform float uTailAmp, uTailSpd;
-            uniform float uBreathAmp, uBreathSpd;
-            uniform float uBeakAmp;
-            `
-          );
+    // Dispose old model
+    if (currentModel) {
+      scene.remove(currentModel);
+      currentModel.traverse(child => {
+        if (child.isMesh) {
+          child.geometry?.dispose();
+          if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+          else child.material?.dispose();
+        }
+      });
+      currentModel = null;
+      shaderRef = null;
+    }
 
-          shader.vertexShader = shader.vertexShader.replace(
-            '#include <begin_vertex>',
-            `#include <begin_vertex>
+    // Update camera position for this companion
+    camera.position.set(comp.cameraPos.x, comp.cameraPos.y, comp.cameraPos.z);
+    camera.lookAt(0, 0, 0);
 
-            // Breathing — whole body subtle Y oscillation
-            transformed.y += sin(uTime * uBreathSpd) * uBreathAmp;
+    // Update mood params
+    activeMoodParams = comp.moodParams;
 
-            // Wing flap — vertices far from center X
-            float wingFactor = smoothstep(0.25, 0.65, abs(transformed.x));
-            float flapPhase = sin(uTime * uWingSpd) + 0.3 * sin(uTime * uWingSpd * 2.1);
-            transformed.y += flapPhase * uWingAmp * wingFactor;
-            // Wing tips rotate outward slightly
-            transformed.z += sin(uTime * uWingSpd * 0.7) * uWingAmp * 0.5 * wingFactor;
+    // Load .glb
+    try {
+      const gltf = await new Promise((resolve, reject) => {
+        loader.load(comp.modelFile, resolve, undefined, reject);
+      });
+      const model = gltf.scene;
 
-            // Head bob — vertices with high Y
-            float headFactor = smoothstep(0.15, 0.45, transformed.y);
-            transformed.y += sin(uTime * uHeadSpd) * uHeadAmp * headFactor;
-            transformed.z += sin(uTime * uHeadSpd * 0.8 + 0.5) * uHeadAmp * 0.6 * headFactor;
-            // Subtle head tilt
-            transformed.x += sin(uTime * uHeadSpd * 0.6 + 1.0) * uHeadAmp * 0.4 * headFactor;
+      // Center & scale
+      const box = new THREE.Box3().setFromObject(model);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const scale = 1.5 / maxDim;
+      model.scale.setScalar(scale);
+      model.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
 
-            // Beak — highest Y + front Z
-            float beakFactor = smoothstep(0.35, 0.55, transformed.y) * smoothstep(0.1, 0.5, transformed.z);
-            transformed.z += sin(uTime * uHeadSpd * 1.5) * uBeakAmp * beakFactor;
+      // Inject companion-specific vertex shader
+      model.traverse((child) => {
+        if (child.isMesh && child.material) {
+          child.material.onBeforeCompile = (shader) => {
+            shader.uniforms.uTime = { value: 0 };
+            shader.uniforms.uWingAmp = { value: 0.025 };
+            shader.uniforms.uWingSpd = { value: 2.5 };
+            shader.uniforms.uHeadAmp = { value: 0.012 };
+            shader.uniforms.uHeadSpd = { value: 1.3 };
+            shader.uniforms.uTailAmp = { value: 0.015 };
+            shader.uniforms.uTailSpd = { value: 1.8 };
+            shader.uniforms.uBreathAmp = { value: 0.004 };
+            shader.uniforms.uBreathSpd = { value: 2.0 };
+            shader.uniforms.uBeakAmp = { value: 0.003 };
 
-            // Tail sway — vertices with low Y
-            float tailFactor = smoothstep(-0.05, -0.40, transformed.y);
-            transformed.x += sin(uTime * uTailSpd) * uTailAmp * tailFactor;
-            transformed.y += sin(uTime * uTailSpd * 1.3 + 0.7) * uTailAmp * 0.4 * tailFactor;
-            `
-          );
+            shader.vertexShader = shader.vertexShader.replace(
+              '#include <common>',
+              `#include <common>
+              uniform float uTime;
+              uniform float uWingAmp, uWingSpd;
+              uniform float uHeadAmp, uHeadSpd;
+              uniform float uTailAmp, uTailSpd;
+              uniform float uBreathAmp, uBreathSpd;
+              uniform float uBeakAmp;
+              `
+            );
 
-          ravenShaderRef = shader;
-        };
-      }
-    });
+            shader.vertexShader = shader.vertexShader.replace(
+              '#include <begin_vertex>',
+              `#include <begin_vertex>\n${comp.shaderVertex}`
+            );
 
-    scene.add(model);
-  });
+            shaderRef = shader;
+          };
+        }
+      });
+
+      scene.add(model);
+      currentModel = model;
+    } catch(e) {
+      console.error('Failed to load companion model:', comp.modelFile, e);
+    }
+  }
 
   // Resize handler
   function resize() {
     const w = stage.clientWidth;
     const h = stage.clientHeight;
-    if (w === 0 || h === 0) return; // hidden, skip resize
+    if (w === 0 || h === 0) return;
     renderer.setSize(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
@@ -8663,33 +8792,36 @@ if (canvas) {
     requestAnimationFrame(animate);
     const t = clock.getElapsedTime();
 
-    if (ravenShaderRef) {
-      const p = moodParams[currentMood] || moodParams.idle;
-      const u = ravenShaderRef.uniforms;
+    if (shaderRef) {
+      const params = activeMoodParams[currentMood] || activeMoodParams.idle || {};
+      const u = shaderRef.uniforms;
       u.uTime.value = t;
-      // Smooth lerp toward target values
-      u.uWingAmp.value += (p.wingAmp - u.uWingAmp.value) * 0.03;
-      u.uWingSpd.value += (p.wingSpd - u.uWingSpd.value) * 0.03;
-      u.uHeadAmp.value += (p.headAmp - u.uHeadAmp.value) * 0.03;
-      u.uHeadSpd.value += (p.headSpd - u.uHeadSpd.value) * 0.03;
-      u.uTailAmp.value += (p.tailAmp - u.uTailAmp.value) * 0.03;
-      u.uTailSpd.value += (p.tailSpd - u.uTailSpd.value) * 0.03;
-      u.uBreathAmp.value += (p.breathAmp - u.uBreathAmp.value) * 0.03;
-      u.uBreathSpd.value += (p.breathSpd - u.uBreathSpd.value) * 0.03;
-      u.uBeakAmp.value += (p.beakAmp - u.uBeakAmp.value) * 0.03;
+      u.uWingAmp.value += ((params.wingAmp || 0) - u.uWingAmp.value) * 0.03;
+      u.uWingSpd.value += ((params.wingSpd || 0) - u.uWingSpd.value) * 0.03;
+      u.uHeadAmp.value += ((params.headAmp || 0) - u.uHeadAmp.value) * 0.03;
+      u.uHeadSpd.value += ((params.headSpd || 0) - u.uHeadSpd.value) * 0.03;
+      u.uTailAmp.value += ((params.tailAmp || 0) - u.uTailAmp.value) * 0.03;
+      u.uTailSpd.value += ((params.tailSpd || 0) - u.uTailSpd.value) * 0.03;
+      u.uBreathAmp.value += ((params.breathAmp || 0) - u.uBreathAmp.value) * 0.03;
+      u.uBreathSpd.value += ((params.breathSpd || 0) - u.uBreathSpd.value) * 0.03;
+      u.uBeakAmp.value += ((params.beakAmp || 0) - u.uBeakAmp.value) * 0.03;
 
-      // Update rim light color
-      rimLight.color.lerp(new THREE.Color(p.rimColor), 0.03);
+      rimLight.color.lerp(new THREE.Color(params.rimColor || 0x4fc3f7), 0.03);
     }
 
     renderer.render(scene, camera);
   }
   animate();
 
-  // Expose mood control to main script
+  // Load initial companion
+  const initCompanionId = window._stakrState?.companion || 'raven';
+  loadCompanionModel(initCompanionId);
+
+  // Expose API to main script
   window.raven3D = {
     setMood(mood) { currentMood = mood; },
-    getMood() { return currentMood; }
+    getMood() { return currentMood; },
+    loadCompanion(id) { return loadCompanionModel(id); }
   };
 }
 </script>

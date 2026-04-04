@@ -87,7 +87,7 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 // PWA Cache
-const CACHE_NAME = 'stakr-v12';
+const CACHE_NAME = 'stakr-v13';
 const CACHE_FILES = ['./index.html', './stakr-raven.glb', './map.png'];
 
 self.addEventListener('install', (e) => {
@@ -110,7 +110,19 @@ self.addEventListener('fetch', (e) => {
       }).catch(() => caches.match(e.request))
     );
   } else {
-    e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+    e.respondWith(
+      caches.match(e.request).then(r => {
+        if (r) return r;
+        return fetch(e.request).then(resp => {
+          // Auto-cache .glb model files for offline use
+          if (e.request.url.endsWith('.glb')) {
+            const clone = resp.clone();
+            caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+          }
+          return resp;
+        });
+      })
+    );
   }
 });
 
