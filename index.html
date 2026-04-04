@@ -1581,6 +1581,15 @@ function saveState() {
       console.warn('Could not save chat images, dropping them');
     }
   } catch(e) { console.warn('Save state error', e); }
+
+  // Debounced cloud sync (save quests+adventure to Firestore)
+  _debouncedCloudSync();
+}
+
+let _cloudSyncTimer = null;
+function _debouncedCloudSync() {
+  if (_cloudSyncTimer) clearTimeout(_cloudSyncTimer);
+  _cloudSyncTimer = setTimeout(() => { syncToCloud(); }, 5000);
 }
 
 function clearMemory() {
@@ -5648,6 +5657,7 @@ function initAuth() {
     currentUser = user;
     updateAccountUI();
     if (user) {
+      await loadFromCloud();
       await syncToCloud();
       loadLeaderboard(currentLeaderboardTab);
     }
@@ -5725,7 +5735,8 @@ async function syncToCloud() {
   const dailyXp = getDailyXp();
 
   try {
-    const data = {
+    // Leaderboard data (public profile)
+    const profileData = {
       name: currentUser.displayName || 'Viking',
       avatar: currentUser.photoURL || '',
       level: q.level || 1,
@@ -5737,13 +5748,67 @@ async function syncToCloud() {
       rank: getRank(q.level || 1).name,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
-    console.log('Syncing to Firestore:', data);
-    await db.collection('users').doc(currentUser.uid).set(data, { merge: true });
+    await db.collection('users').doc(currentUser.uid).set(profileData, { merge: true });
+
+    // Full quest data (private, tied to account)
+    const questData = JSON.parse(JSON.stringify(state.quests || {}));
+    await db.collection('users').doc(currentUser.uid).collection('data').doc('quests').set(questData);
+
+    // Adventure progress (private, tied to account)
+    if (adv && adv.charCreated) {
+      const advData = JSON.parse(JSON.stringify(adv));
+      await db.collection('users').doc(currentUser.uid).collection('data').doc('adventure').set(advData);
+    }
+
     console.log('Synced to Firestore OK');
-    showToast('Sync', 'Donnees synchronisees !');
   } catch(e) {
     console.error('Sync error:', e.code, e.message);
-    showToast('Erreur sync', e.code === 'permission-denied' ? 'Regles Firestore : va dans Firebase Console → Firestore → Rules et mets allow read, write: if request.auth != null;' : e.message);
+    if (e.code === 'permission-denied') {
+      showToast('Erreur sync', 'Regles Firestore : va dans Firebase Console → Firestore → Rules et autorise les utilisateurs connectes.');
+    }
+  }
+}
+
+async function loadFromCloud() {
+  if (!currentUser || !db) return;
+  try {
+    // Load quests
+    const questSnap = await db.collection('users').doc(currentUser.uid).collection('data').doc('quests').get();
+    if (questSnap.exists) {
+      const cloudQuests = questSnap.data();
+      // Cloud wins if it has more XP or is more recent
+      const localXp = state.quests?.totalXp || 0;
+      const cloudXp = cloudQuests.totalXp || 0;
+      if (cloudXp >= localXp) {
+        state.quests = { ...state.quests, ...cloudQuests };
+        console.log('Quests loaded from cloud (cloudXp:', cloudXp, 'localXp:', localXp, ')');
+      } else {
+        console.log('Local quests kept (localXp:', localXp, 'cloudXp:', cloudXp, ')');
+      }
+    }
+
+    // Load adventure
+    const advSnap = await db.collection('users').doc(currentUser.uid).collection('data').doc('adventure').get();
+    if (advSnap.exists) {
+      const cloudAdv = advSnap.data();
+      const localLevel = adv?.level || 0;
+      const cloudLevel = cloudAdv.level || 0;
+      const localCreated = adv?.charCreated || false;
+      const cloudCreated = cloudAdv.charCreated || false;
+      if (cloudCreated && (cloudLevel >= localLevel || !localCreated)) {
+        adv = { ...defaultAdventureState(), ...cloudAdv };
+        saveAdventure(); // persist to localStorage too
+        console.log('Adventure loaded from cloud');
+      }
+    }
+
+    saveState();
+    initQuests();
+    renderQuests();
+    updateAccountUI();
+    showToast('Donnees restaurees', 'Quetes et aventure synchronisees !');
+  } catch(e) {
+    console.error('Load from cloud error:', e);
   }
 }
 
@@ -7336,6 +7401,8 @@ function saveAdventure() {
   // Garder le narrative court
   if (adv.narrative.length > 30) adv.narrative = adv.narrative.slice(-20);
   localStorage.setItem('stakr_adventure_progress', JSON.stringify(adv));
+  // Debounced cloud sync
+  _debouncedCloudSync();
 }
 
 // — Aventure: Deplacement —
