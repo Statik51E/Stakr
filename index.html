@@ -1096,6 +1096,7 @@ const COMPANIONS = {
     `,
     cameraPos: { x:0, y:0.15, z:2.8 },
     hideEffects: false,
+    particleMode: 'runes',
     defaultMsgStyle: { stakrBg:'#1a1208', stakrBorder:'#8a6d2a', stakrText:'#d4c5a0', userBg:'#14142e', userBorder:'#4fc3f7', userText:'#d4c5a0' },
     welcomeMsg: "Kraa ! Je suis Stakr, corbeau des runes anciennes. Les vents du Nord m'ont mene a toi, compagnon. Parle, et je t'ecouterai avec la sagesse d'Odin lui-meme."
   },
@@ -1251,6 +1252,7 @@ Parle en francais. Sois arrogant, condescendant, mais secretement utile. Tu es u
     `,
     cameraPos: { x:0, y:0.2, z:3.2 },
     hideEffects: false,
+    particleMode: 'flames',
     defaultMsgStyle: { stakrBg:'#1a1210', stakrBorder:'#8a3020', stakrText:'#d4b8a0', userBg:'#0e0a08', userBorder:'#c45030', userText:'#d4b8a0' },
     welcomeMsg: "Hmm. Un humain. Encore. Thern daigne t'accorder un fragment de son attention millenaire. Estime-toi heureux, mortel — la plupart de ta race ne merite meme pas un regard. Alors... qu'est-ce que tu veux ?"
   }
@@ -2846,8 +2848,9 @@ async function switchCompanion(id) {
   state.companion = id;
   const comp = COMPANIONS[id];
 
-  // 1. Apply CSS theme
+  // 1. Apply CSS theme + clear old particles
   applyCompanionTheme(id);
+  particles.length = 0;
 
   // 2. Switch personality
   state.config.personality = comp.personality;
@@ -6632,30 +6635,58 @@ function startAurora() {
     aCtx.clearRect(0, 0, auroraCanvas.width, auroraCanvas.height);
     const w = auroraCanvas.width;
     const h = auroraCanvas.height;
+    const mode = getCompanion().particleMode || 'runes';
 
-    for (let band = 0; band < 3; band++) {
-      aCtx.beginPath();
-      const baseY = 20 + band * 25;
-      aCtx.moveTo(0, baseY);
-      for (let x = 0; x <= w; x += 4) {
-        const y = baseY + Math.sin(x * 0.008 + t + band * 1.5) * 15
-                        + Math.sin(x * 0.015 + t * 1.3 + band) * 8;
-        aCtx.lineTo(x, y);
+    if (mode === 'flames') {
+      // Fire heat haze — waves rising from bottom
+      for (let band = 0; band < 4; band++) {
+        aCtx.beginPath();
+        const baseY = h - 30 - band * 30;
+        aCtx.moveTo(0, h);
+        for (let x = 0; x <= w; x += 3) {
+          const y = baseY + Math.sin(x * 0.012 + t * 2 + band * 2) * 12
+                          + Math.sin(x * 0.02 + t * 3.5 + band) * 6;
+          aCtx.lineTo(x, y);
+        }
+        aCtx.lineTo(w, h);
+        aCtx.closePath();
+        const grad = aCtx.createLinearGradient(0, baseY, 0, h);
+        const fireColors = [
+          ['rgba(255,80,20,0.07)', 'rgba(255,40,0,0.02)'],
+          ['rgba(255,140,30,0.05)', 'rgba(255,80,0,0.01)'],
+          ['rgba(255,200,50,0.04)', 'rgba(255,120,0,0)'],
+          ['rgba(200,40,0,0.03)', 'rgba(100,20,0,0)']
+        ];
+        grad.addColorStop(0, fireColors[band][0]);
+        grad.addColorStop(1, fireColors[band][1]);
+        aCtx.fillStyle = grad;
+        aCtx.fill();
       }
-      aCtx.lineTo(w, h);
-      aCtx.lineTo(0, h);
-      aCtx.closePath();
-
-      const grad = aCtx.createLinearGradient(0, baseY, 0, baseY + 80);
-      const colors = [
-        ['rgba(79,195,247,0.06)', 'rgba(79,195,247,0)'],
-        ['rgba(100,50,200,0.04)', 'rgba(100,50,200,0)'],
-        ['rgba(0,200,150,0.03)', 'rgba(0,200,150,0)']
-      ];
-      grad.addColorStop(0, colors[band][0]);
-      grad.addColorStop(1, colors[band][1]);
-      aCtx.fillStyle = grad;
-      aCtx.fill();
+    } else {
+      // Rune aurora — original
+      for (let band = 0; band < 3; band++) {
+        aCtx.beginPath();
+        const baseY = 20 + band * 25;
+        aCtx.moveTo(0, baseY);
+        for (let x = 0; x <= w; x += 4) {
+          const y = baseY + Math.sin(x * 0.008 + t + band * 1.5) * 15
+                          + Math.sin(x * 0.015 + t * 1.3 + band) * 8;
+          aCtx.lineTo(x, y);
+        }
+        aCtx.lineTo(w, h);
+        aCtx.lineTo(0, h);
+        aCtx.closePath();
+        const grad = aCtx.createLinearGradient(0, baseY, 0, baseY + 80);
+        const colors = [
+          ['rgba(79,195,247,0.06)', 'rgba(79,195,247,0)'],
+          ['rgba(100,50,200,0.04)', 'rgba(100,50,200,0)'],
+          ['rgba(0,200,150,0.03)', 'rgba(0,200,150,0)']
+        ];
+        grad.addColorStop(0, colors[band][0]);
+        grad.addColorStop(1, colors[band][1]);
+        aCtx.fillStyle = grad;
+        aCtx.fill();
+      }
     }
     requestAnimationFrame(draw);
   }
@@ -6682,65 +6713,107 @@ function startParticles() {
 
   function spawn() {
     if (particles.length > 45) return;
+    const mode = getCompanion().particleMode || 'runes';
     const roll = Math.random();
 
-    if (roll < 0.3) {
-      // Wisp — sinuous trail of light rising from around the raven
-      const angle = Math.random() * Math.PI * 2;
-      const dist = 30 + Math.random() * 50;
-      particles.push({
-        type: 'wisp',
-        x: centerX() + Math.cos(angle) * dist,
-        y: centerY() + Math.sin(angle) * dist * 0.5 + 20,
-        vx: (Math.random() - 0.5) * 0.15,
-        vy: -(0.15 + Math.random() * 0.35),
-        size: 1 + Math.random() * 1.5,
-        life: 1, decay: 0.003 + Math.random() * 0.003,
-        trail: [], maxTrail: 8 + Math.floor(Math.random() * 8),
-        wobble: Math.random() * Math.PI * 2,
-        wobbleAmp: 0.4 + Math.random() * 0.8,
-        wobbleSpeed: 0.03 + Math.random() * 0.02
-      });
-    } else if (roll < 0.5) {
-      // Ember — tiny spark that drifts up and fades
-      particles.push({
-        type: 'ember',
-        x: centerX() + (Math.random() - 0.5) * 80,
-        y: centerY() + 30 + Math.random() * 30,
-        vx: (Math.random() - 0.5) * 0.8,
-        vy: -(0.5 + Math.random() * 1.2),
-        size: 0.8 + Math.random() * 1.2,
-        life: 1, decay: 0.008 + Math.random() * 0.008,
-        flicker: Math.random() * Math.PI * 2
-      });
-    } else if (roll < 0.62) {
-      // Floating rune
-      particles.push({
-        type: 'rune',
-        x: centerX() + (Math.random() - 0.5) * 120,
-        y: ch() + 5,
-        vx: (Math.random() - 0.5) * 0.2,
-        vy: -(0.12 + Math.random() * 0.25),
-        size: 11 + Math.random() * 7,
-        life: 1, decay: 0.0015 + Math.random() * 0.002,
-        rune: runeChars[Math.floor(Math.random() * runeChars.length)],
-        wobble: Math.random() * Math.PI * 2,
-        wobbleSpeed: 0.015 + Math.random() * 0.02,
-        rotation: (Math.random() - 0.5) * 0.3
-      });
-    } else if (roll < 0.72) {
-      // Dust mote — tiny slow drifter
-      particles.push({
-        type: 'dust',
-        x: Math.random() * cw(),
-        y: Math.random() * ch(),
-        vx: (Math.random() - 0.5) * 0.1,
-        vy: (Math.random() - 0.5) * 0.1,
-        size: 0.5 + Math.random() * 1,
-        life: 1, decay: 0.001 + Math.random() * 0.002,
-        wobble: Math.random() * Math.PI * 2,
-        wobbleSpeed: 0.008 + Math.random() * 0.01
-      });
+    if (mode === 'flames') {
+      // FLAME MODE — fire particles for dragons
+      if (roll < 0.35) {
+        // Fire wisp — rising flame tongue
+        particles.push({
+          type: 'flame',
+          x: centerX() + (Math.random() - 0.5) * 100,
+          y: ch() - 10 + Math.random() * 20,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: -(0.8 + Math.random() * 1.5),
+          size: 3 + Math.random() * 4,
+          life: 1, decay: 0.008 + Math.random() * 0.008,
+          wobble: Math.random() * Math.PI * 2,
+          wobbleAmp: 0.6 + Math.random() * 1.2,
+          wobbleSpeed: 0.04 + Math.random() * 0.03
+        });
+      } else if (roll < 0.65) {
+        // Fire ember — bright spark shooting up
+        particles.push({
+          type: 'ember',
+          x: centerX() + (Math.random() - 0.5) * 120,
+          y: ch() - 5 + Math.random() * 15,
+          vx: (Math.random() - 0.5) * 1.2,
+          vy: -(1.0 + Math.random() * 2.0),
+          size: 1 + Math.random() * 1.5,
+          life: 1, decay: 0.010 + Math.random() * 0.012,
+          flicker: Math.random() * Math.PI * 2
+        });
+      } else if (roll < 0.80) {
+        // Smoke — dark wisp rising slowly
+        particles.push({
+          type: 'smoke',
+          x: centerX() + (Math.random() - 0.5) * 80,
+          y: centerY() - 20 + Math.random() * 40,
+          vx: (Math.random() - 0.5) * 0.2,
+          vy: -(0.2 + Math.random() * 0.4),
+          size: 5 + Math.random() * 8,
+          life: 1, decay: 0.003 + Math.random() * 0.003,
+          wobble: Math.random() * Math.PI * 2,
+          wobbleSpeed: 0.01 + Math.random() * 0.01
+        });
+      }
+    } else {
+      // RUNE MODE — original particles
+      if (roll < 0.3) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 30 + Math.random() * 50;
+        particles.push({
+          type: 'wisp',
+          x: centerX() + Math.cos(angle) * dist,
+          y: centerY() + Math.sin(angle) * dist * 0.5 + 20,
+          vx: (Math.random() - 0.5) * 0.15,
+          vy: -(0.15 + Math.random() * 0.35),
+          size: 1 + Math.random() * 1.5,
+          life: 1, decay: 0.003 + Math.random() * 0.003,
+          trail: [], maxTrail: 8 + Math.floor(Math.random() * 8),
+          wobble: Math.random() * Math.PI * 2,
+          wobbleAmp: 0.4 + Math.random() * 0.8,
+          wobbleSpeed: 0.03 + Math.random() * 0.02
+        });
+      } else if (roll < 0.5) {
+        particles.push({
+          type: 'ember',
+          x: centerX() + (Math.random() - 0.5) * 80,
+          y: centerY() + 30 + Math.random() * 30,
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: -(0.5 + Math.random() * 1.2),
+          size: 0.8 + Math.random() * 1.2,
+          life: 1, decay: 0.008 + Math.random() * 0.008,
+          flicker: Math.random() * Math.PI * 2
+        });
+      } else if (roll < 0.62) {
+        particles.push({
+          type: 'rune',
+          x: centerX() + (Math.random() - 0.5) * 120,
+          y: ch() + 5,
+          vx: (Math.random() - 0.5) * 0.2,
+          vy: -(0.12 + Math.random() * 0.25),
+          size: 11 + Math.random() * 7,
+          life: 1, decay: 0.0015 + Math.random() * 0.002,
+          rune: runeChars[Math.floor(Math.random() * runeChars.length)],
+          wobble: Math.random() * Math.PI * 2,
+          wobbleSpeed: 0.015 + Math.random() * 0.02,
+          rotation: (Math.random() - 0.5) * 0.3
+        });
+      } else if (roll < 0.72) {
+        particles.push({
+          type: 'dust',
+          x: Math.random() * cw(),
+          y: Math.random() * ch(),
+          vx: (Math.random() - 0.5) * 0.1,
+          vy: (Math.random() - 0.5) * 0.1,
+          size: 0.5 + Math.random() * 1,
+          life: 1, decay: 0.001 + Math.random() * 0.002,
+          wobble: Math.random() * Math.PI * 2,
+          wobbleSpeed: 0.008 + Math.random() * 0.01
+        });
+      }
     }
   }
 
@@ -6786,12 +6859,13 @@ function startParticles() {
         p.y += p.vy;
         p.vy *= 0.995;
         const flick = 0.5 + 0.5 * Math.sin(p.flicker);
+        const isFlame = (getCompanion().particleMode === 'flames');
         pCtx.beginPath();
         pCtx.arc(p.x, p.y, p.size * (0.6 + flick * 0.4), 0, Math.PI * 2);
-        pCtx.fillStyle = p.life > 0.5 ? '#ffd54f' : particleColor;
+        pCtx.fillStyle = isFlame ? (p.life > 0.5 ? '#ffcc30' : '#ff6020') : (p.life > 0.5 ? '#ffd54f' : particleColor);
         pCtx.globalAlpha = p.life * 0.7 * flick;
-        pCtx.shadowColor = p.life > 0.5 ? '#ff8f00' : particleColor;
-        pCtx.shadowBlur = 6;
+        pCtx.shadowColor = isFlame ? '#ff4500' : (p.life > 0.5 ? '#ff8f00' : particleColor);
+        pCtx.shadowBlur = isFlame ? 10 : 6;
         pCtx.fill();
         pCtx.shadowBlur = 0;
         pCtx.globalAlpha = 1;
@@ -6813,6 +6887,38 @@ function startParticles() {
         pCtx.shadowBlur = 0;
         pCtx.restore();
         pCtx.globalAlpha = 1;
+
+      } else if (p.type === 'flame') {
+        p.wobble += p.wobbleSpeed;
+        p.x += p.vx + Math.sin(p.wobble) * p.wobbleAmp;
+        p.y += p.vy;
+        p.vy *= 0.997;
+        p.size *= 0.997;
+        // Flame gradient: yellow core → orange → red → transparent
+        const r = Math.min(255, 255);
+        const g = Math.min(255, Math.floor(200 * p.life));
+        const b = Math.floor(40 * p.life * p.life);
+        const grd = pCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+        grd.addColorStop(0, `rgba(${r},${g},${b},${p.life * 0.6})`);
+        grd.addColorStop(0.4, `rgba(255,${Math.floor(100*p.life)},0,${p.life * 0.3})`);
+        grd.addColorStop(1, `rgba(200,30,0,0)`);
+        pCtx.beginPath();
+        pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        pCtx.fillStyle = grd;
+        pCtx.shadowColor = `rgba(255,100,20,${p.life * 0.4})`;
+        pCtx.shadowBlur = 12;
+        pCtx.fill();
+        pCtx.shadowBlur = 0;
+
+      } else if (p.type === 'smoke') {
+        p.wobble += p.wobbleSpeed;
+        p.x += p.vx + Math.sin(p.wobble) * 0.3;
+        p.y += p.vy;
+        p.size += 0.03;
+        pCtx.beginPath();
+        pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        pCtx.fillStyle = `rgba(60,40,30,${p.life * 0.12})`;
+        pCtx.fill();
 
       } else if (p.type === 'dust') {
         p.wobble += p.wobbleSpeed;
