@@ -2835,15 +2835,19 @@ function initQuests() {
         showToast('Evolution confirmee !', `${o.icon} ${o.name} — rang ${EVOLVE_TIER_NAMES[o.evolveTier]} verrouille !`);
       }
     } else {
-      // FAILED — revert evolution, set cooldown
+      // FAILED — revert evolution, set cooldown, XP penalty (2x the quest XP reward)
       const trial = o.evolveTrial;
+      const xpPenalty = o.xpReward * 2;
       o.evolveTier = trial.prevTier;
       o.target = trial.prevTarget;
       o.xpReward = trial.prevXp;
       delete o.evolveTrial;
       q.lastEvolveDate = getTodayStr(); // Reset cooldown (must wait 7 days)
-      addMessage('stakr', `L'epreuve a echoue pour ${o.icon} **${o.name}**... L'amelioration est annulee. Tu pourras reessayer dans une semaine. Persevere, Viking ! [MOOD:triste]`);
-      showToast('Epreuve echouee', `${o.icon} ${o.name} — retour au rang precedent`);
+      // Apply XP penalty (don't go below 0)
+      q.xp = Math.max(0, q.xp - xpPenalty);
+      q.totalXp = Math.max(0, q.totalXp - xpPenalty);
+      addMessage('stakr', `L'epreuve a echoue pour ${o.icon} **${o.name}**... L'amelioration est annulee et tu perds **${xpPenalty} XP** ! Tu pourras reessayer dans une semaine. Les dieux n'aiment pas les laches, Viking ! [MOOD:triste]`);
+      showToast('Epreuve echouee !', `${o.icon} ${o.name} — -${xpPenalty} XP`);
     }
   });
 
@@ -3395,7 +3399,7 @@ function renderQuestEvolution() {
   if (trialsInProgress.length > 0) {
     html += `<div style="margin-bottom:12px">
       <div class="quest-category" style="color:#ffa726">⚔️ Epreuves en cours</div>
-      <div style="font-size:.6rem;color:var(--text-dim);margin-bottom:8px;text-align:center;line-height:1.4">Complete les objectifs ameliores 3 jours de suite pour confirmer l'evolution.<br>Si tu echoues un jour, l'amelioration est annulee.</div>`;
+      <div style="font-size:.6rem;color:var(--text-dim);margin-bottom:8px;text-align:center;line-height:1.4">Complete les objectifs ameliores 3 jours de suite pour confirmer l'evolution.<br><span style="color:#ff5252">Si tu echoues un jour : revert + perte de 2x l'XP !</span></div>`;
 
     trialsInProgress.forEach(o => {
       const trial = o.evolveTrial;
@@ -3521,7 +3525,7 @@ function renderQuestEvolution() {
       ⚔️ Evoluer ${selectedCount} quete${selectedCount > 1 ? 's' : ''} selectionnee${selectedCount > 1 ? 's' : ''}
     </button>`;
     if (selectedCount > 0) {
-      html += `<div style="text-align:center;font-size:.6rem;color:var(--text-dim);margin-top:6px">Les objectifs seront plus difficiles — epreuve de 3 jours pour confirmer !</div>`;
+      html += `<div style="text-align:center;font-size:.6rem;color:var(--text-dim);margin-top:6px">Les objectifs seront plus difficiles — epreuve de 3 jours pour confirmer !<br><span style="color:#ff5252">Attention : echouer = perte de 2x l'XP de la quete !</span></div>`;
     }
   }
 
@@ -3588,7 +3592,7 @@ function confirmQuestEvolution() {
   if (evolvedNames.length > 0) {
     const list = evolvedNames.join('\n');
     const hasTrials = selectedIds.some(id => { const o = q.objectives.find(x => x.id === id); return o && o.evolveTrial?.active; });
-    const trialMsg = hasTrials ? '\n\n⚔️ **Epreuve lancee !** Complete les nouveaux objectifs 3 jours de suite pour confirmer l\'evolution. Si tu echoues, l\'amelioration sera annulee et tu devras attendre une semaine.' : '';
+    const trialMsg = hasTrials ? '\n\n⚔️ **Epreuve lancee !** Complete les nouveaux objectifs 3 jours de suite pour confirmer l\'evolution. Si tu echoues, l\'amelioration sera annulee, tu perdras **2x l\'XP** de chaque quete ratee, et tu devras attendre une semaine !' : '';
     addMessage('stakr', `KRAA ! Tu as forge tes quetes dans le feu des dieux !\n\n${list}${trialMsg}\n\nProuve ta valeur, Viking ! [MOOD:excite]`);
     showToast('Quetes evoluees !', `${evolvedNames.length} quete${evolvedNames.length > 1 ? 's' : ''} en epreuve !`);
   }
