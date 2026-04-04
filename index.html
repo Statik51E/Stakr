@@ -213,6 +213,16 @@ header button{flex-shrink:0}
 .quest-progress-text{font-size:.65rem;color:var(--text-dim);min-width:55px;text-align:right}
 .quest-add-btn{width:100%;background:var(--surface);border:1px dashed var(--border);border-radius:6px;padding:10px;color:var(--text-dim);font-size:.75rem;cursor:pointer;text-align:center;margin-top:6px;font-family:inherit;transition:all .2s}
 .quest-add-btn:hover{border-color:var(--gold-dim);color:var(--gold-dim)}
+.challenge-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;transition:all .3s}
+.challenge-card.accepted{border-color:var(--gold-dim);background:linear-gradient(135deg,rgba(196,154,60,.08),var(--surface))}
+.challenge-card.completed{border-color:#4caf50;background:linear-gradient(135deg,rgba(76,175,80,.1),var(--surface))}
+.challenge-card.declined{display:flex;align-items:center;gap:6px;padding:6px 10px;opacity:.5}
+.challenge-header{display:flex;align-items:center;gap:6px}
+.challenge-actions{display:flex;gap:6px;margin-top:8px}
+.challenge-accept{flex:1;background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;border:none;border-radius:6px;padding:8px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.challenge-accept:hover{filter:brightness(1.1);transform:scale(1.02)}
+.challenge-decline{background:none;border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text-dim);font-size:.7rem;cursor:pointer;font-family:inherit;transition:all .2s}
+.challenge-decline:hover{border-color:var(--text-dim)}
 .quest-add-form{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-top:6px;display:none}
 .quest-add-form.visible{display:block}
 .quest-add-form input,.quest-add-form select{width:100%;background:var(--wood-mid);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-size:.75rem;margin-bottom:6px;font-family:inherit}
@@ -802,6 +812,7 @@ header button{flex-shrink:0}
     <div class="quest-tabs">
       <button class="quest-tab active" data-qtab="daily" onclick="switchQuestTab('daily')">Quotidien</button>
       <button class="quest-tab" data-qtab="weekly" onclick="switchQuestTab('weekly')">Hebdo</button>
+      <button class="quest-tab" data-qtab="defis" onclick="switchQuestTab('defis')">Defis</button>
       <button class="quest-tab" data-qtab="boss" onclick="switchQuestTab('boss')">Boss</button>
       <button class="quest-tab" data-qtab="stakr" onclick="switchQuestTab('stakr')">Stakr</button>
       <button class="quest-tab" data-qtab="runes" onclick="switchQuestTab('runes')">Runes</button>
@@ -811,6 +822,7 @@ header button{flex-shrink:0}
     </div>
     <div id="quest-list-daily"></div>
     <div id="quest-list-weekly" style="display:none"></div>
+    <div id="quest-defis-tab" style="display:none"></div>
     <div id="quest-boss-tab" style="display:none"></div>
     <div id="quest-list-stakr" style="display:none"></div>
     <div id="quest-runes-tab" style="display:none"></div>
@@ -2824,6 +2836,64 @@ const DEFAULT_OBJECTIVES = [
   { id: 'no_junk', name: 'Zero malbouffe', icon: '\uD83D\uDEAB', target: 2, unit: 'jours', period: 'weekly', xpReward: 35, category: 'sante' }
 ];
 
+// ===== DEFIS QUOTIDIENS — Pools de quetes proposees chaque jour =====
+const DAILY_CHALLENGE_POOLS = {
+  masse: {
+    name: 'Prise de Masse Viking',
+    icon: '🏋️',
+    desc: 'Forge ton corps au poids du corps, comme les guerriers du Nord.',
+    quests: [
+      { id: 'ch_dips', name: 'Dips', icon: '💪', target: 10, unit: 'reps', xpReward: 35, category: 'physique' },
+      { id: 'ch_tractions', name: 'Tractions', icon: '🪨', target: 5, unit: 'reps', xpReward: 40, category: 'physique' },
+      { id: 'ch_squats', name: 'Squats', icon: '🦵', target: 30, unit: 'reps', xpReward: 30, category: 'physique' },
+      { id: 'ch_burpees', name: 'Burpees', icon: '🔥', target: 10, unit: 'reps', xpReward: 35, category: 'physique' },
+      { id: 'ch_gainage', name: 'Gainage', icon: '🛡️', target: 60, unit: 'sec', xpReward: 25, category: 'physique' },
+      { id: 'ch_pompes_dia', name: 'Pompes diamant', icon: '💎', target: 10, unit: 'reps', xpReward: 35, category: 'physique' },
+      { id: 'ch_fentes', name: 'Fentes marchees', icon: '🚶', target: 20, unit: 'reps', xpReward: 30, category: 'physique' },
+      { id: 'ch_mountain', name: 'Mountain climbers', icon: '⛰️', target: 20, unit: 'reps', xpReward: 30, category: 'physique' },
+      { id: 'ch_pompes_pike', name: 'Pompes pike', icon: '🔱', target: 8, unit: 'reps', xpReward: 35, category: 'physique' },
+      { id: 'ch_chaise', name: 'Chaise murale', icon: '🪑', target: 45, unit: 'sec', xpReward: 25, category: 'physique' },
+      { id: 'ch_superman', name: 'Superman hold', icon: '🦸', target: 30, unit: 'sec', xpReward: 20, category: 'physique' },
+      { id: 'ch_jumping_sq', name: 'Jump squats', icon: '🦘', target: 15, unit: 'reps', xpReward: 35, category: 'physique' },
+      { id: 'ch_muscle_up', name: 'Pompes explosives', icon: '💥', target: 8, unit: 'reps', xpReward: 40, category: 'physique' },
+      { id: 'ch_proteines', name: 'Repas proteine', icon: '🥩', target: 1, unit: 'repas', xpReward: 20, category: 'sante' }
+    ]
+  },
+  philosophie: {
+    name: 'Philosophie Viking',
+    icon: '📜',
+    desc: 'Nourris ton esprit et forge ta sagesse interieure.',
+    quests: [
+      { id: 'ch_journal', name: 'Journal intime', icon: '📝', target: 1, unit: 'entree', xpReward: 25, category: 'mental' },
+      { id: 'ch_stoicisme', name: 'Reflexion stoique', icon: '🏛️', target: 5, unit: 'min', xpReward: 30, category: 'mental' },
+      { id: 'ch_memento', name: 'Memento mori', icon: '💀', target: 1, unit: 'reflexion', xpReward: 20, category: 'mental' },
+      { id: 'ch_valeurs', name: 'Definir ses valeurs', icon: '⚖️', target: 1, unit: 'reflexion', xpReward: 25, category: 'mental' },
+      { id: 'ch_silence', name: 'Silence volontaire', icon: '🤫', target: 10, unit: 'min', xpReward: 25, category: 'mental' },
+      { id: 'ch_discomfort', name: 'Zone d\'inconfort', icon: '🌊', target: 1, unit: 'action', xpReward: 35, category: 'mental' },
+      { id: 'ch_sagesse', name: 'Lire de la sagesse', icon: '📖', target: 10, unit: 'min', xpReward: 25, category: 'mental' },
+      { id: 'ch_pardon', name: 'Exercice de pardon', icon: '🕊️', target: 1, unit: 'reflexion', xpReward: 20, category: 'mental' },
+      { id: 'ch_nature_obs', name: 'Observer la nature', icon: '🌿', target: 5, unit: 'min', xpReward: 20, category: 'mental' },
+      { id: 'ch_dichotomie', name: 'Dichotomie du controle', icon: '🎯', target: 1, unit: 'exercice', xpReward: 30, category: 'mental' },
+      { id: 'ch_amor_fati', name: 'Amor fati', icon: '☀️', target: 1, unit: 'reflexion', xpReward: 25, category: 'mental' },
+      { id: 'ch_cold_face', name: 'Affronter une peur', icon: '🐺', target: 1, unit: 'action', xpReward: 40, category: 'mental' },
+      { id: 'ch_minimalisme', name: 'Acte minimaliste', icon: '🧹', target: 1, unit: 'action', xpReward: 20, category: 'mental' },
+      { id: 'ch_bienveillance', name: 'Acte de bienveillance', icon: '🤝', target: 1, unit: 'acte', xpReward: 25, category: 'social' }
+    ]
+  }
+};
+
+const CHALLENGE_PENALTY_MSGS = [
+  "Kraa ! Tu avais accepte le defi {name} mais tu ne l'as pas accompli... Les dieux sont decus. **-{xp} XP** ! [MOOD:triste]",
+  "Viking ! Le defi {name} n'a pas ete releve... Un serment brise coute cher : **-{xp} XP** ! [MOOD:triste]",
+  "Par Odin ! Tu as failli au defi {name}. La penalite est de **-{xp} XP**. Ne fais pas de promesses que tu ne peux tenir ! [MOOD:triste]"
+];
+
+const CHALLENGE_ACCEPT_MSGS = [
+  "Kraa ! Tu acceptes le defi {name} ! Les dieux observent — ne les decois pas, Viking ! [MOOD:excite]",
+  "Le serment est scelle ! {name} — accomplis-le avant minuit ou subis la colere des Nornes ! [MOOD:protecteur]",
+  "Par Thor ! {name} accepte ! Montre aux dieux que tu es digne du Valhalla ! [MOOD:excite]"
+];
+
 const QUEST_CONGRATS = [
   "Kraa ! Par les dieux, tu as accompli {obj} ! {xp} XP gagnes, guerrier !",
   "Odin serait fier ! {obj} complete — +{xp} XP pour toi, compagnon !",
@@ -3004,7 +3074,194 @@ function initQuests() {
 
   saveState();
   renderQuests();
+  // ===== DAILY CHALLENGES — propose & check penalties =====
+  checkDailyChallenges();
+
   scheduleQuestReminders();
+}
+
+// ===== DAILY CHALLENGES SYSTEM =====
+function getDailySeed(dateStr) {
+  let hash = 0;
+  for (let i = 0; i < dateStr.length; i++) {
+    hash = ((hash << 5) - hash) + dateStr.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function pickDailyChallenges(dateStr) {
+  const seed = getDailySeed(dateStr);
+  const picked = [];
+  // Pick 2 from masse, 2 from philosophie
+  ['masse', 'philosophie'].forEach((poolKey, pi) => {
+    const pool = DAILY_CHALLENGE_POOLS[poolKey].quests;
+    const indices = [];
+    for (let i = 0; i < pool.length; i++) indices.push(i);
+    // Seeded shuffle
+    let s = seed + pi * 1000;
+    for (let i = indices.length - 1; i > 0; i--) {
+      s = (s * 16807 + 0) % 2147483647;
+      const j = s % (i + 1);
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    picked.push({ ...pool[indices[0]], pool: poolKey, accepted: false, progress: 0 });
+    picked.push({ ...pool[indices[1]], pool: poolKey, accepted: false, progress: 0 });
+  });
+  return picked;
+}
+
+function checkDailyChallenges() {
+  const q = state.quests;
+  const today = getTodayStr();
+
+  if (!q.dailyChallenges) q.dailyChallenges = { date: null, challenges: [], penaltyChecked: null };
+
+  const dc = q.dailyChallenges;
+
+  // Check penalties for yesterday's accepted-but-incomplete challenges
+  if (dc.date && dc.date !== today && dc.penaltyChecked !== today) {
+    dc.challenges.forEach(ch => {
+      if (ch.accepted && ch.progress < ch.target) {
+        const penalty = ch.xpReward * 2;
+        q.xp = Math.max(0, q.xp - penalty);
+        q.totalXp = Math.max(0, q.totalXp - penalty);
+        const msg = CHALLENGE_PENALTY_MSGS[Math.floor(Math.random() * CHALLENGE_PENALTY_MSGS.length)]
+          .replace('{name}', `${ch.icon} ${ch.name}`)
+          .replace('{xp}', penalty);
+        addMessage('stakr', msg);
+        showToast('Defi echoue !', `${ch.icon} ${ch.name} — -${penalty} XP`);
+      }
+    });
+    dc.penaltyChecked = today;
+  }
+
+  // Generate new challenges for today
+  if (dc.date !== today) {
+    dc.date = today;
+    dc.challenges = pickDailyChallenges(today);
+    dc.penaltyChecked = today;
+    saveState();
+  }
+}
+
+function acceptChallenge(index) {
+  const dc = state.quests.dailyChallenges;
+  if (!dc || !dc.challenges[index]) return;
+  const ch = dc.challenges[index];
+  if (ch.accepted) return;
+  ch.accepted = true;
+  saveState();
+
+  const msg = CHALLENGE_ACCEPT_MSGS[Math.floor(Math.random() * CHALLENGE_ACCEPT_MSGS.length)]
+    .replace('{name}', `${ch.icon} **${ch.name}**`);
+  addMessage('stakr', msg);
+  showToast('Defi accepte !', `${ch.icon} ${ch.name} — a completer aujourd'hui !`);
+  renderDailyChallenges();
+}
+
+function declineChallenge(index) {
+  const dc = state.quests.dailyChallenges;
+  if (!dc || !dc.challenges[index]) return;
+  dc.challenges[index].declined = true;
+  saveState();
+  renderDailyChallenges();
+}
+
+function logChallengeProgress(index) {
+  const dc = state.quests.dailyChallenges;
+  if (!dc || !dc.challenges[index]) return;
+  const ch = dc.challenges[index];
+  if (!ch.accepted) return;
+
+  const input = $(`#ch-input-${index}`);
+  const value = parseFloat(input.value);
+  if (!value || value <= 0) return;
+
+  const wasDone = ch.progress >= ch.target;
+  ch.progress = Math.min(ch.progress + value, ch.target * 2);
+  const isNowDone = ch.progress >= ch.target;
+  input.value = '';
+
+  // XP proportional
+  if (!wasDone) {
+    const earnedXp = Math.round(ch.xpReward * (value / ch.target));
+    const cappedXp = Math.min(earnedXp, ch.xpReward);
+    if (cappedXp > 0) addQuestXp(cappedXp, ch.category);
+  }
+
+  if (!wasDone && isNowDone) {
+    const bonusMsg = QUEST_CONGRATS[Math.floor(Math.random() * QUEST_CONGRATS.length)]
+      .replace('{obj}', `${ch.icon} ${ch.name}`)
+      .replace('{xp}', ch.xpReward);
+    addMessage('stakr', bonusMsg + ' [MOOD:excite]');
+    showToast('Defi accompli !', `${ch.icon} ${ch.name} — Bien joue, Viking !`);
+  }
+
+  saveState();
+  renderDailyChallenges();
+  renderQuests();
+}
+
+function renderDailyChallenges() {
+  const container = $('#quest-defis-tab');
+  if (!container) return;
+  const dc = state.quests.dailyChallenges;
+  if (!dc || !dc.challenges) { container.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:20px">Aucun defi disponible.</p>'; return; }
+
+  let html = '<div style="padding:4px 0 8px;color:var(--text-dim);font-size:.7rem;text-align:center">Chaque jour, les dieux te proposent des defis. Accepte-les... mais gare a toi si tu echoues !</div>';
+
+  // Group by pool
+  ['masse', 'philosophie'].forEach(poolKey => {
+    const pool = DAILY_CHALLENGE_POOLS[poolKey];
+    html += `<div class="quest-category">${pool.icon} ${pool.name}</div>`;
+    html += `<div style="font-size:.6rem;color:var(--text-dim);margin:-6px 0 8px;padding:0 2px">${pool.desc}</div>`;
+
+    dc.challenges.forEach((ch, i) => {
+      if (ch.pool !== poolKey) return;
+      const isDone = ch.progress >= ch.target;
+      const pct = Math.min(100, Math.round((ch.progress / ch.target) * 100));
+      const fillClass = pct >= 100 ? 'full' : pct >= 60 ? 'high' : pct >= 30 ? 'mid' : 'low';
+
+      if (ch.declined && !ch.accepted) {
+        html += `<div class="challenge-card declined"><span class="quest-item-icon">${ch.icon}</span> <span style="color:var(--text-dim);text-decoration:line-through">${ch.name}</span> <span style="font-size:.6rem;color:var(--text-dim);margin-left:auto">Decline</span></div>`;
+        return;
+      }
+
+      html += `<div class="challenge-card ${ch.accepted ? 'accepted' : ''} ${isDone ? 'completed' : ''}">`;
+      html += `<div class="challenge-header">`;
+      html += `<span class="quest-item-icon">${ch.icon}</span>`;
+      html += `<span class="quest-item-name">${ch.name}</span>`;
+      html += `<span class="quest-item-xp">+${ch.xpReward} XP</span>`;
+      html += `</div>`;
+      html += `<div style="font-size:.6rem;color:var(--text-dim);margin:2px 0">${ch.target} ${ch.unit}</div>`;
+
+      if (!ch.accepted) {
+        html += `<div class="challenge-actions">`;
+        html += `<button class="challenge-accept" onclick="acceptChallenge(${i})">⚔️ Accepter le defi</button>`;
+        html += `<button class="challenge-decline" onclick="declineChallenge(${i})">Passer</button>`;
+        html += `</div>`;
+        html += `<div style="font-size:.55rem;color:#e57373;margin-top:4px">⚠️ Si accepte et non complete : -${ch.xpReward * 2} XP</div>`;
+      } else if (!isDone) {
+        html += `<div class="quest-item-progress">`;
+        html += `<div class="quest-progress-bar"><div class="quest-progress-fill ${fillClass}" style="width:${pct}%"></div></div>`;
+        html += `<span class="quest-progress-text">${ch.progress}/${ch.target} ${ch.unit}</span>`;
+        html += `</div>`;
+        html += `<div class="quest-item-input">`;
+        html += `<input type="number" id="ch-input-${i}" min="0" step="any" placeholder="0" />`;
+        html += `<span class="unit">${ch.unit}</span>`;
+        html += `<button onclick="logChallengeProgress(${i})">Valider</button>`;
+        html += `</div>`;
+        html += `<div style="font-size:.55rem;color:#e57373;margin-top:2px">⚠️ Penalite si non complete : -${ch.xpReward * 2} XP</div>`;
+      } else {
+        html += `<div style="font-size:.7rem;color:var(--gold);font-weight:700;margin-top:4px">✅ Defi accompli ! Les dieux sont fiers.</div>`;
+      }
+
+      html += `</div>`;
+    });
+  });
+
+  container.innerHTML = html;
 }
 
 function toggleQuestPanel() {
@@ -3025,12 +3282,13 @@ function toggleMapPanel() {
 
 function switchQuestTab(tab) {
   document.querySelectorAll('.quest-tab').forEach(t => t.classList.toggle('active', t.dataset.qtab === tab));
-  ['daily','weekly','stakr','stats','arbre','boss','evolve'].forEach(t => {
+  ['daily','weekly','defis','stakr','stats','arbre','boss','evolve'].forEach(t => {
     const el = $(`#quest-list-${t}`) || $(`#quest-${t}-tab`);
     if (el) el.style.display = 'none';
   });
   $('#quest-runes-tab').style.display = 'none';
   if (tab === 'daily' || tab === 'weekly') $(`#quest-list-${tab}`).style.display = 'block';
+  else if (tab === 'defis') { $('#quest-defis-tab').style.display = 'block'; renderDailyChallenges(); }
   else if (tab === 'boss') { $('#quest-boss-tab').style.display = 'block'; $('#quest-boss-tab').innerHTML = renderBossSection(); }
   else if (tab === 'stakr') { $('#quest-list-stakr').style.display = 'block'; renderStakrQuests(); }
   else if (tab === 'runes') { $('#quest-runes-tab').style.display = 'block'; renderRuneCollection(); }
@@ -3220,6 +3478,17 @@ function renderQuests() {
 
   renderQuestList('daily');
   renderQuestList('weekly');
+
+  // Update Defis tab badge
+  const dc = q.dailyChallenges;
+  const defisTab = document.querySelector('.quest-tab[data-qtab="defis"]');
+  if (defisTab && dc && dc.challenges) {
+    const pending = dc.challenges.filter(c => !c.accepted && !c.declined).length;
+    defisTab.textContent = pending > 0 ? `Defis (${pending})` : 'Defis';
+  }
+
+  // Refresh defis tab if visible
+  if ($('#quest-defis-tab') && $('#quest-defis-tab').style.display !== 'none') renderDailyChallenges();
 }
 
 function renderQuestList(period) {
