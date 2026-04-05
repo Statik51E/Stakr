@@ -137,6 +137,26 @@ header button{flex-shrink:0}
 .btn-secondary:hover{background:var(--border-glow)}
 
 /* ===== NOTIFICATION TOAST ===== */
+#onboarding-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px)}
+#onboarding-modal{background:linear-gradient(180deg,#1a1208,#0e0a06);border:2px solid var(--gold-dim);border-radius:16px;max-width:440px;width:100%;max-height:85vh;overflow-y:auto;padding:28px 24px 20px;box-shadow:0 8px 40px rgba(196,154,60,.2);position:relative}
+#onboarding-modal h2{color:var(--gold);font-size:1.1rem;margin:0 0 10px;font-variant:small-caps;letter-spacing:1px;text-align:center}
+#onboarding-modal p{color:var(--text);font-size:.8rem;line-height:1.5;margin:6px 0}
+#onboarding-modal ul{color:var(--text);font-size:.78rem;line-height:1.6;margin:6px 0;padding-left:18px}
+#onboarding-modal li{margin-bottom:4px}
+#onboarding-modal code{background:var(--wood-mid);padding:1px 5px;border-radius:3px;font-size:.72rem;color:var(--gold)}
+.ob-icon{text-align:center;font-size:2.5rem;margin-bottom:8px}
+.ob-steps{display:flex;flex-direction:column;gap:6px;margin:10px 0;padding:10px;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid var(--border)}
+.ob-step{display:flex;align-items:center;gap:8px;font-size:.75rem;color:var(--text)}
+.ob-step span{display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--gold-dim);color:#0e0a06;font-size:.7rem;font-weight:700;flex-shrink:0}
+.ob-dots{display:flex;justify-content:center;gap:6px;margin:16px 0 12px}
+.ob-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s}
+.ob-dot.active{background:var(--gold);transform:scale(1.3)}
+.ob-nav{display:flex;justify-content:space-between;gap:10px}
+.ob-nav button{padding:10px 20px;border-radius:8px;font-size:.78rem;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s}
+#ob-prev{background:none;border:1px solid var(--border);color:var(--text-dim)}
+#ob-prev:hover{border-color:var(--text);color:var(--text)}
+.ob-next-btn{flex:1;background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;color:#0e0a06;font-size:.85rem !important}
+.ob-next-btn:hover{filter:brightness(1.1);transform:scale(1.02)}
 #toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:var(--surface);border:1px solid var(--gold-dim);border-radius:4px;padding:12px 20px;z-index:200;transition:transform .4s;box-shadow:0 4px 20px rgba(196,154,60,.15);max-width:90vw}
 #toast.show{transform:translateX(-50%) translateY(0)}
 #toast .toast-title{font-weight:600;color:var(--gold);font-size:.85rem}
@@ -891,6 +911,89 @@ header button{flex-shrink:0}
   </div>
   <div id="leaderboard-content" style="padding:0 16px 16px;overflow-y:auto;flex:1"></div>
   <div id="leaderboard-my-rank" style="padding:8px 16px;border-top:1px solid var(--border);background:var(--surface);font-size:.7rem;color:var(--text-dim);text-align:center"></div>
+</div>
+
+<!-- ONBOARDING MODAL -->
+<div id="onboarding-overlay" style="display:none">
+  <div id="onboarding-modal">
+    <div id="onboarding-slides">
+      <!-- Slide 1: Welcome -->
+      <div class="ob-slide" data-slide="0">
+        <div class="ob-icon">🪶</div>
+        <h2>Bienvenue sur Stakr</h2>
+        <p>Stakr est ton <strong>compagnon viking IA</strong> qui t'accompagne au quotidien pour devenir la meilleure version de toi-meme.</p>
+        <p>Parle-lui, demande-lui des conseils, confie-lui tes objectifs — il te guidera avec la sagesse des anciens.</p>
+      </div>
+      <!-- Slide 2: Connexion -->
+      <div class="ob-slide" data-slide="1" style="display:none">
+        <div class="ob-icon">🔑</div>
+        <h2>Connexion Google</h2>
+        <p>Connecte-toi avec ton <strong>compte Google</strong> pour :</p>
+        <ul>
+          <li>Sauvegarder ta progression dans le cloud</li>
+          <li>Apparaitre dans le <strong>classement viking</strong></li>
+          <li>Synchroniser entre tes appareils</li>
+        </ul>
+        <p style="font-size:.7rem;color:var(--text-dim)">Clique sur l'icone <strong>👤</strong> en haut a droite pour te connecter.</p>
+      </div>
+      <!-- Slide 3: API Groq -->
+      <div class="ob-slide" data-slide="2" style="display:none">
+        <div class="ob-icon">🤖</div>
+        <h2>Cle API Groq</h2>
+        <p>Pour que Stakr puisse te parler, il a besoin d'une <strong>cle API Groq</strong>. C'est ce qui connecte l'app a un cerveau IA — <strong>100% gratuit</strong>.</p>
+        <div class="ob-steps">
+          <div class="ob-step"><span>1</span> Va sur <a href="https://console.groq.com/keys" target="_blank" style="color:var(--gold)">console.groq.com/keys</a></div>
+          <div class="ob-step"><span>2</span> Cree un compte gratuit (Google ou email)</div>
+          <div class="ob-step"><span>3</span> Clique <strong>"Create API Key"</strong></div>
+          <div class="ob-step"><span>4</span> Copie la cle (commence par <code>gsk_</code>)</div>
+          <div class="ob-step"><span>5</span> Colle-la dans <strong>Parametres > Backend IA > Groq</strong></div>
+        </div>
+        <p style="font-size:.7rem;color:var(--text-dim);margin-top:8px">Astuce : cree plusieurs cles pour eviter les limites de debit gratuit !</p>
+      </div>
+      <!-- Slide 4: Quetes & Defis -->
+      <div class="ob-slide" data-slide="3" style="display:none">
+        <div class="ob-icon">⚔️</div>
+        <h2>Quetes & Defis</h2>
+        <p>Chaque jour, tu as des <strong>quetes</strong> a accomplir : sport, lecture, meditation, hydratation...</p>
+        <p>En plus, les dieux te proposent <strong>10 defis quotidiens</strong> :</p>
+        <ul>
+          <li><strong>🏋️ Prise de masse</strong> — exercices au poids du corps</li>
+          <li><strong>📜 Philosophie</strong> — reflexions stoiques et sagesse</li>
+          <li><strong>🧠 Forge mentale</strong> — endurance, inconfort, discipline</li>
+        </ul>
+        <p>Accepte un defi et tu <strong>dois</strong> le finir — sinon tu perds de l'XP !</p>
+      </div>
+      <!-- Slide 5: Aventure -->
+      <div class="ob-slide" data-slide="4" style="display:none">
+        <div class="ob-icon">🗺️</div>
+        <h2>Mode Aventure</h2>
+        <p>Cree ton <strong>personnage viking</strong> et explore un monde RPG guide par l'IA :</p>
+        <ul>
+          <li>Explore des zones, combats des monstres</li>
+          <li>Gagne du loot et de l'experience</li>
+          <li>L'IA raconte TON histoire unique</li>
+        </ul>
+        <p style="font-size:.7rem;color:var(--text-dim)">Active le mode Aventure via la barre de modes en haut.</p>
+      </div>
+      <!-- Slide 6: Classement -->
+      <div class="ob-slide" data-slide="5" style="display:none">
+        <div class="ob-icon">🏆</div>
+        <h2>Classement Viking</h2>
+        <p>Connecte-toi et complete des quetes pour grimper dans le <strong>classement</strong> !</p>
+        <ul>
+          <li><strong>Classement du jour</strong> — qui gagne le plus d'XP aujourd'hui ?</li>
+          <li><strong>Classement total</strong> — les legendes du Valhalla</li>
+          <li>Choisis un <strong>pseudo</strong> dans ton profil</li>
+        </ul>
+        <p>Gagne des niveaux, debloque des <strong>runes</strong>, evolue tes quetes et deviens <strong>Einherjar</strong> !</p>
+      </div>
+    </div>
+    <div class="ob-dots" id="onboarding-dots"></div>
+    <div class="ob-nav">
+      <button id="ob-prev" onclick="onboardingNav(-1)" style="visibility:hidden">Precedent</button>
+      <button id="ob-next" onclick="onboardingNav(1)" class="ob-next-btn">Suivant</button>
+    </div>
+  </div>
 </div>
 
 <!-- TOAST -->
@@ -1732,6 +1835,53 @@ function setupAudioListeners() {
 }
 
 // ===== INIT =====
+// ===== ONBOARDING =====
+let _obSlide = 0;
+const _obTotal = 6;
+
+function showOnboarding() {
+  if (localStorage.getItem('stakr_onboarding_done')) return;
+  const overlay = document.getElementById('onboarding-overlay');
+  if (!overlay) return;
+  overlay.style.display = 'flex';
+  _obSlide = 0;
+  // Build dots
+  const dots = document.getElementById('onboarding-dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < _obTotal; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'ob-dot' + (i === 0 ? ' active' : '');
+    dots.appendChild(dot);
+  }
+  updateOnboardingSlide();
+}
+
+function updateOnboardingSlide() {
+  document.querySelectorAll('.ob-slide').forEach(s => s.style.display = 'none');
+  const active = document.querySelector(`.ob-slide[data-slide="${_obSlide}"]`);
+  if (active) active.style.display = 'block';
+  document.querySelectorAll('.ob-dot').forEach((d, i) => d.classList.toggle('active', i === _obSlide));
+  document.getElementById('ob-prev').style.visibility = _obSlide === 0 ? 'hidden' : 'visible';
+  const nextBtn = document.getElementById('ob-next');
+  if (_obSlide === _obTotal - 1) {
+    nextBtn.textContent = 'Commencer !';
+  } else {
+    nextBtn.textContent = 'Suivant';
+  }
+}
+
+function onboardingNav(dir) {
+  _obSlide += dir;
+  if (_obSlide >= _obTotal) {
+    // Done
+    localStorage.setItem('stakr_onboarding_done', '1');
+    document.getElementById('onboarding-overlay').style.display = 'none';
+    return;
+  }
+  if (_obSlide < 0) _obSlide = 0;
+  updateOnboardingSlide();
+}
+
 function init() {
   loadState();
   applyCompanionTheme(state.companion || 'raven');
@@ -1766,6 +1916,9 @@ function init() {
 
   // Spontaneous thoughts
   setInterval(spontaneousThought, 15 * 60 * 1000);
+
+  // Show onboarding for first-time users
+  showOnboarding();
 }
 
 // ===== PERSISTENCE =====
