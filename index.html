@@ -137,6 +137,9 @@ header button{flex-shrink:0}
 .btn-secondary:hover{background:var(--border-glow)}
 
 /* ===== NOTIFICATION TOAST ===== */
+.disc-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:250;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);animation:fadeIn .3s}
+.disc-modal{background:linear-gradient(180deg,#1a0a0a,#0e0a06);border:2px solid #e57373;border-radius:16px;max-width:400px;width:100%;padding:24px 20px;box-shadow:0 8px 40px rgba(229,115,115,.2)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 #onboarding-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px)}
 #onboarding-modal{background:linear-gradient(180deg,#1a1208,#0e0a06);border:2px solid var(--gold-dim);border-radius:16px;max-width:440px;width:100%;max-height:85vh;overflow-y:auto;padding:28px 24px 20px;box-shadow:0 8px 40px rgba(196,154,60,.2);position:relative}
 #onboarding-modal h2{color:var(--gold);font-size:1.1rem;margin:0 0 10px;font-variant:small-caps;letter-spacing:1px;text-align:center}
@@ -3288,6 +3291,9 @@ function initQuests() {
     }
   }
 
+  // ===== DISCIPLINE VIKING — XP decay for inactivity =====
+  checkVikingDiscipline(today);
+
   // Keep history manageable (last 90 days)
   if (q.history.length > 500) q.history = q.history.slice(-300);
 
@@ -3297,6 +3303,175 @@ function initQuests() {
   checkDailyChallenges();
 
   scheduleQuestReminders();
+}
+
+// ===== DISCIPLINE VIKING =====
+const DECAY_MSGS = [
+  "Kraa... Tu n'as rien fait hier. **-{xp} XP**. Un Viking qui ne s'entraine pas est un Viking mort. [MOOD:triste]",
+  "Les dieux detournent le regard... **-{xp} XP** pour ton inactivite. Bouge-toi, guerrier ! [MOOD:triste]",
+  "Par Odin ! {days} jours sans rien faire ! **-{xp} XP**. Tes ancetres ont honte. [MOOD:colere]",
+  "Le Fimbulvetr gagne du terrain... **-{xp} XP**. Chaque jour d'inaction est une victoire pour le neant. [MOOD:triste]",
+  "Kraa ! Tu rouilles, Viking ! **-{xp} XP** perdus dans l'oubli. Leve-toi ou meurs dans l'anonymat ! [MOOD:colere]"
+];
+
+const DEMOTION_MSGS = [
+  "KRAA ! Tu as perdu ton rang ! Retour au **niveau {level} — {rank}**. Les sagas ne parlent pas des laches ! [MOOD:colere]",
+  "Honte sur toi ! Tu retombes au **niveau {level} — {rank}**. Les Nornes retissent ton destin vers le bas... [MOOD:triste]"
+];
+
+const COMEBACK_MSGS = [
+  "Kraa ! Tu reviens enfin, Viking ! Les dieux t'attendaient. Prouve que tu es digne de ton rang ! [MOOD:excite]",
+  "Le guerrier se releve ! Apres {days} jours d'absence, c'est l'heure de reconquerir ta gloire ! [MOOD:protecteur]"
+];
+
+function checkVikingDiscipline(today) {
+  const q = state.quests;
+  if (!q.lastActiveDate) return; // First time — no penalty
+
+  const lastDate = new Date(q.lastActiveDate);
+  const todayDate = new Date(today);
+  const inactiveDays = Math.floor((todayDate - lastDate) / 86400000);
+
+  // Already checked today
+  if (q.disciplineCheckedDate === today) return;
+
+  if (inactiveDays <= 0) return; // Same day, no check needed
+
+  // Check if yesterday had any completed quests
+  const yesterdayKey = new Date(todayDate - 86400000).toISOString().slice(0, 10);
+  const hadActivityYesterday = q.objectives.some(o => {
+    if (o.period !== 'daily') return false;
+    return o.lastReset === yesterdayKey && o.progress > 0;
+  }) || (q.dailyXpDate === yesterdayKey && q.dailyXpToday > 0);
+
+  if (hadActivityYesterday && inactiveDays <= 1) {
+    q.disciplineCheckedDate = today;
+    return; // Active yesterday, no penalty
+  }
+
+  // Calculate penalty — escalates with inactivity
+  const basePenalty = 15;
+  const inactiveStreak = Math.max(1, inactiveDays);
+  const penalty = Math.min(basePenalty * inactiveStreak, q.totalXp * 0.1, 200); // Cap at 10% totalXp or 200
+  const roundedPenalty = Math.round(penalty);
+
+  if (roundedPenalty > 0) {
+    q.xp = Math.max(0, q.xp - roundedPenalty);
+    q.totalXp = Math.max(0, q.totalXp - roundedPenalty);
+
+    // Check level demotion
+    let demoted = false;
+    while (q.level > 1 && q.xp < 0) {
+      q.level--;
+      q.xp += getXpForLevel(q.level);
+    }
+    q.xp = Math.max(0, q.xp);
+
+    if (q.level < (q._lastKnownLevel || q.level)) {
+      demoted = true;
+      const rank = getRank(q.level);
+      const msg = DEMOTION_MSGS[Math.floor(Math.random() * DEMOTION_MSGS.length)]
+        .replace('{level}', q.level).replace('{rank}', rank.name);
+      addMessage('stakr', msg);
+    }
+    q._lastKnownLevel = q.level;
+
+    // Decay message
+    const msgTemplate = inactiveDays >= 3
+      ? DECAY_MSGS[Math.floor(Math.random() * 2) + 2] // angry msgs for 3+ days
+      : DECAY_MSGS[Math.floor(Math.random() * 2)]; // sad msgs for 1-2 days
+    const msg = msgTemplate.replace('{xp}', roundedPenalty).replace('{days}', inactiveDays);
+    addMessage('stakr', msg);
+
+    // Set companion mood to sad/angry
+    setMood(inactiveDays >= 3 ? 'colere' : 'triste');
+  }
+
+  // Comeback message if returning after 2+ days
+  if (inactiveDays >= 2) {
+    const comeback = COMEBACK_MSGS[Math.floor(Math.random() * COMEBACK_MSGS.length)]
+      .replace('{days}', inactiveDays);
+    setTimeout(() => addMessage('stakr', comeback), 1500);
+  }
+
+  q.disciplineCheckedDate = today;
+
+  // Show discipline popup for 2+ days of inactivity
+  if (inactiveDays >= 2 && roundedPenalty > 0) {
+    showDisciplinePopup(inactiveDays, roundedPenalty);
+  }
+}
+
+function showDisciplinePopup(days, xpLost) {
+  // Remove existing popup if any
+  const existing = document.getElementById('discipline-popup');
+  if (existing) existing.remove();
+
+  const q = state.quests;
+  const rank = getRank(q.level);
+  const completedToday = q.objectives.filter(o => o.period === 'daily' && o.progress >= o.target).length;
+  const totalDaily = q.objectives.filter(o => o.period === 'daily').length;
+
+  const popup = document.createElement('div');
+  popup.id = 'discipline-popup';
+  popup.innerHTML = `
+    <div class="disc-overlay">
+      <div class="disc-modal">
+        <div style="font-size:2.5rem;text-align:center;margin-bottom:8px">⚠️</div>
+        <h2 style="color:#e57373;text-align:center;font-size:1rem;margin:0 0 12px;font-variant:small-caps">Discipline Viking</h2>
+        <div style="background:rgba(229,115,115,.1);border:1px solid rgba(229,115,115,.3);border-radius:8px;padding:12px;margin-bottom:12px">
+          <div style="font-size:.85rem;color:#e57373;font-weight:700;text-align:center">${days} jour${days > 1 ? 's' : ''} d'inactivite</div>
+          <div style="font-size:1.2rem;color:#e57373;font-weight:700;text-align:center;margin:6px 0">-${xpLost} XP</div>
+          <div style="font-size:.7rem;color:var(--text-dim);text-align:center">Niveau ${q.level} — ${rank.name} (${q.xp}/${getXpForLevel(q.level)} XP)</div>
+        </div>
+        <div style="font-size:.75rem;color:var(--text);line-height:1.5;margin-bottom:12px">
+          <p style="margin:0 0 8px">Chaque jour sans quete completee te <strong>coute de l'XP</strong>. Plus tu es inactif, plus la penalite augmente.</p>
+          <p style="margin:0">Tu peux meme <strong>perdre des niveaux</strong>. Les dieux ne respectent que ceux qui se battent chaque jour.</p>
+        </div>
+        <div style="font-size:.7rem;color:var(--gold-dim);text-align:center;margin-bottom:12px;padding:8px;background:rgba(196,154,60,.08);border-radius:6px">
+          Complete au moins <strong>1 quete</strong> par jour pour eviter la penalite.
+        </div>
+        <button onclick="closeDisciplinePopup();takeDailyOath()" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:8px;color:#0e0a06;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:6px">⚔️ Je m'engage a me battre aujourd'hui</button>
+        <button onclick="closeDisciplinePopup()" style="width:100%;padding:8px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:.7rem;cursor:pointer;font-family:inherit">Fermer</button>
+      </div>
+    </div>`;
+  document.body.appendChild(popup);
+}
+
+function closeDisciplinePopup() {
+  const popup = document.getElementById('discipline-popup');
+  if (popup) popup.remove();
+}
+
+function takeDailyOath() {
+  const q = state.quests;
+  q.oathDate = getTodayStr();
+  saveState();
+  addMessage('stakr', "KRAA ! Le serment est pris ! Tu t'es engage devant les dieux a te battre aujourd'hui. Complete tes quetes — ou subis leur colere ce soir ! [MOOD:protecteur]");
+  setMood('protecteur');
+  showToast('Serment du Viking', 'Les dieux observent — ne les decois pas !');
+
+  // Schedule evening check reminder (8 PM)
+  scheduleOathReminder();
+}
+
+function scheduleOathReminder() {
+  const now = new Date();
+  const evening = new Date(now);
+  evening.setHours(20, 0, 0, 0);
+  const delay = evening - now;
+  if (delay > 0 && delay < 16 * 60 * 60 * 1000) {
+    setTimeout(() => {
+      const q = state.quests;
+      if (q.oathDate !== getTodayStr()) return;
+      const done = q.objectives.filter(o => o.period === 'daily' && o.progress >= o.target).length;
+      const total = q.objectives.filter(o => o.period === 'daily').length;
+      if (done < Math.ceil(total * 0.5)) {
+        addMessage('stakr', `Kraa ! Il est 20h et tu n'as fait que **${done}/${total}** quetes aujourd'hui. Tu as prete serment ce matin — les dieux n'oublient pas ! Bouge-toi avant minuit ! [MOOD:colere]`);
+        setMood('colere');
+      }
+    }, delay);
+  }
 }
 
 // ===== DAILY CHALLENGES SYSTEM =====
