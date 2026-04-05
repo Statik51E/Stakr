@@ -2560,6 +2560,14 @@ async function switchCompanion(id) {
   }
 
   // 4. Load 3D model (always reload — user may re-select after a failed load)
+  // If raven3D isn't ready yet, wait up to 5s for it
+  let raven3DReady = window.raven3D?.loadCompanion;
+  if (!raven3DReady) {
+    for (let i = 0; i < 10; i++) {
+      await new Promise(r => setTimeout(r, 500));
+      if (window.raven3D?.loadCompanion) { raven3DReady = true; break; }
+    }
+  }
   if (window.raven3D?.loadCompanion) {
     try {
       await window.raven3D.loadCompanion(id);
@@ -2567,7 +2575,7 @@ async function switchCompanion(id) {
       console.error('Failed to load companion 3D:', e);
     }
   } else {
-    console.warn('raven3D not available yet');
+    console.warn('raven3D not available after waiting');
   }
 
   // 5. Reload chat for this companion
@@ -6216,11 +6224,7 @@ async function loadFromCloud() {
     if (profileSnap.exists) {
       const profile = profileSnap.data();
       if (profile.companion && COMPANIONS[profile.companion] && profile.companion !== state.companion) {
-        state.companion = profile.companion;
-        applyCompanionTheme(state.companion);
-        state.config.personality = getCompanion().personality;
-        if (window.raven3D?.loadCompanion) window.raven3D.loadCompanion(state.companion);
-        renderCompanionSelect();
+        switchCompanion(profile.companion);
       }
       if (profile.name && !state.pseudo) state.pseudo = profile.name;
     }
@@ -9249,10 +9253,12 @@ if (canvas) {
   let currentModel = null;
   const loader = new GLTFLoader();
 
-  // Load a companion model dynamically (callback-based for reliability)
-  function loadCompanionModel(companionId) {
+  // Load a companion model dynamically with retry
+  let _loadAttempt = 0;
+  function loadCompanionModel(companionId, retryCount) {
     const comp = window.COMPANIONS?.[companionId] || window.COMPANIONS?.raven;
     if (!comp) { console.warn('[3D] No companion data for:', companionId); return Promise.resolve(); }
+    const attempt = retryCount || 0;
 
     // Dispose old model
     if (currentModel) {
@@ -9275,10 +9281,13 @@ if (canvas) {
     // Update mood params
     activeMoodParams = comp.moodParams;
 
-    console.log('[3D] Loading companion:', companionId, comp.modelFile);
+    const loadId = ++_loadAttempt;
+    console.log('[3D] Loading companion:', companionId, comp.modelFile, attempt > 0 ? `(retry ${attempt})` : '');
 
     return new Promise((resolve) => {
       loader.load(comp.modelFile, (gltf) => {
+        // Abort if a newer load was started
+        if (loadId !== _loadAttempt) { resolve(); return; }
         console.log('[3D] Model loaded:', companionId);
         const model = gltf.scene;
 
@@ -9338,12 +9347,21 @@ if (canvas) {
         scene.add(model);
         currentModel = model;
         resize();
+        // Delayed resize to catch stages that weren't fully laid out yet
+        setTimeout(resize, 100);
+        setTimeout(resize, 500);
         resolve();
       },
       (progress) => {
         if (progress.total) console.log('[3D] Loading progress:', Math.round(progress.loaded / progress.total * 100) + '%');
       },
-      (err) => { console.error('[3D] Load error:', comp.modelFile, err); resolve(); }
+      (err) => {
+        console.error('[3D] Load error:', comp.modelFile, err);
+        if (attempt < 2) {
+          console.log('[3D] Retrying in 2s... (attempt', attempt + 1, ')');
+          setTimeout(() => loadCompanionModel(companionId, attempt + 1).then(resolve), 2000);
+        } else { resolve(); }
+      }
       );
     });
   }
@@ -9391,12 +9409,16 @@ if (canvas) {
   window.raven3D = {
     setMood(mood) { currentMood = mood; },
     getMood() { return currentMood; },
-    loadCompanion(id) { return loadCompanionModel(id); }
+    loadCompanion(id) { return loadCompanionModel(id); },
+    resize() { resize(); }
   };
 
-  // Load initial companion
+  // Load initial companion (delay slightly to ensure layout is ready)
   const initId = window._stakrState?.companion || 'raven';
-  loadCompanionModel(initId);
+  setTimeout(() => {
+    resize();
+    loadCompanionModel(initId);
+  }, 100);
 }
 </script>
 </body>
