@@ -864,6 +864,13 @@ header button{flex-shrink:0}
         </div>
       </div>
       <div id="account-stats" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"></div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:.7rem;color:var(--text-dim);display:block;margin-bottom:4px">Pseudo pour le classement</label>
+        <div style="display:flex;gap:6px">
+          <input type="text" id="account-pseudo" placeholder="Ton pseudo viking..." maxlength="20" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--wood-mid);color:var(--text);font-size:.8rem;font-family:inherit"/>
+          <button onclick="savePseudo()" style="padding:8px 14px;border:1px solid var(--gold-dim);border-radius:6px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;font-size:.7rem;cursor:pointer;font-family:inherit;font-weight:700">OK</button>
+        </div>
+      </div>
       <div style="display:flex;gap:8px">
         <button onclick="syncToCloud()" style="flex:1;padding:10px;border:1px solid var(--gold-dim);border-radius:8px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:600">☁️ Sync maintenant</button>
         <button onclick="logoutUser()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--wood-mid);color:var(--text);font-size:.75rem;cursor:pointer;font-family:'Cinzel',serif">Deconnexion</button>
@@ -6108,6 +6115,16 @@ async function logoutUser() {
   } catch(e) { console.error('Logout error:', e); }
 }
 
+function savePseudo() {
+  const input = document.getElementById('account-pseudo');
+  const pseudo = (input.value || '').trim().slice(0, 20);
+  if (!pseudo) { showToast('Erreur', 'Ecris un pseudo !'); return; }
+  state.pseudo = pseudo;
+  saveState();
+  showToast('Pseudo sauvegarde', `Tu apparais comme "${pseudo}" dans le classement.`);
+  if (currentUser) syncToCloud();
+}
+
 function updateAccountUI() {
   const loggedOut = document.getElementById('account-logged-out');
   const loggedIn = document.getElementById('account-logged-in');
@@ -6117,8 +6134,9 @@ function updateAccountUI() {
     loggedOut.style.display = 'none';
     loggedIn.style.display = 'block';
     document.getElementById('account-avatar').src = currentUser.photoURL || '';
-    document.getElementById('account-name').textContent = currentUser.displayName || 'Viking';
+    document.getElementById('account-name').textContent = state.pseudo || currentUser.displayName || 'Viking';
     document.getElementById('account-email').textContent = currentUser.email || '';
+    document.getElementById('account-pseudo').value = state.pseudo || '';
     if (accountBtn) accountBtn.style.color = 'var(--gold)';
 
     // Stats
@@ -6158,7 +6176,7 @@ async function syncToCloud() {
     // Leaderboard data (public profile)
     const profileData = {
       companion: state.companion || 'raven',
-      name: currentUser.displayName || 'Viking',
+      name: state.pseudo || currentUser.displayName || 'Viking',
       avatar: currentUser.photoURL || '',
       level: q.level || 1,
       totalXp: q.totalXp || 0,
@@ -6204,6 +6222,7 @@ async function loadFromCloud() {
         if (window.raven3D?.loadCompanion) window.raven3D.loadCompanion(state.companion);
         renderCompanionSelect();
       }
+      if (profile.name && !state.pseudo) state.pseudo = profile.name;
     }
 
     // Load quests
