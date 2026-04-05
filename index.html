@@ -6360,6 +6360,20 @@ async function syncToCloud() {
       await db.collection('users').doc(currentUser.uid).collection('data').doc('adventure').set(advData);
     }
 
+    // Config (API keys, backend, model — private)
+    const configData = {
+      backend: state.config.backend || 'ollama',
+      apiUrl: state.config.apiUrl || '',
+      apiKeys: state.config.apiKeys || [],
+      apiKey: state.config.apiKey || '',
+      customApiKey: state.config.customApiKey || '',
+      customApiUrl: state.config.customApiUrl || '',
+      pollinationsKey: state.config.pollinationsKey || '',
+      model: state.config.model || 'llama3',
+      pseudo: state.pseudo || ''
+    };
+    await db.collection('users').doc(currentUser.uid).collection('data').doc('config').set(configData);
+
     console.log('Synced to Firestore OK');
   } catch(e) {
     console.error('Sync error:', e.code, e.message);
@@ -6412,11 +6426,43 @@ async function loadFromCloud() {
       }
     }
 
+    // Load config (API keys, backend, model)
+    const configSnap = await db.collection('users').doc(currentUser.uid).collection('data').doc('config').get();
+    if (configSnap.exists) {
+      const cloudConfig = configSnap.data();
+      // Restore API keys if local has none
+      const localHasKeys = (state.config.apiKeys || []).length > 0 || state.config.apiKey;
+      const cloudHasKeys = (cloudConfig.apiKeys || []).length > 0 || cloudConfig.apiKey;
+      if (cloudHasKeys && !localHasKeys) {
+        state.config.backend = cloudConfig.backend || state.config.backend;
+        state.config.apiUrl = cloudConfig.apiUrl || state.config.apiUrl;
+        state.config.apiKeys = cloudConfig.apiKeys || [];
+        state.config.apiKey = cloudConfig.apiKey || '';
+        state.config.customApiKey = cloudConfig.customApiKey || '';
+        state.config.customApiUrl = cloudConfig.customApiUrl || '';
+        state.config.pollinationsKey = cloudConfig.pollinationsKey || '';
+        state.config.model = cloudConfig.model || state.config.model;
+        console.log('Config loaded from cloud (API keys restored)');
+      } else if (cloudHasKeys) {
+        // Always sync API keys from cloud (cloud is source of truth for keys)
+        state.config.apiKeys = cloudConfig.apiKeys || state.config.apiKeys;
+        state.config.apiKey = cloudConfig.apiKey || state.config.apiKey;
+        state.config.backend = cloudConfig.backend || state.config.backend;
+        state.config.model = cloudConfig.model || state.config.model;
+        state.config.customApiKey = cloudConfig.customApiKey || state.config.customApiKey;
+        state.config.pollinationsKey = cloudConfig.pollinationsKey || state.config.pollinationsKey;
+        console.log('Config synced from cloud');
+      }
+      if (cloudConfig.pseudo && !state.pseudo) state.pseudo = cloudConfig.pseudo;
+      // Apply config to UI
+      applyConfig();
+    }
+
     saveState();
     initQuests();
     renderQuests();
     updateAccountUI();
-    showToast('Donnees restaurees', 'Quetes et aventure synchronisees !');
+    showToast('Donnees restaurees', 'Progression et configuration synchronisees !');
   } catch(e) {
     console.error('Load from cloud error:', e);
   }
