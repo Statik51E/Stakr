@@ -3154,7 +3154,7 @@ function initQuests() {
   const weekStart = getWeekStart();
 
   // Initialize or reset objectives (v2 = adjusted for beginners)
-  const questVersion = 3;
+  const questVersion = 4;
   if (!q.objectives || q.objectives.length === 0 || q.version !== questVersion) {
     // Keep custom objectives and evolution data if upgrading
     const customObjs = (q.objectives || []).filter(o => o.custom);
@@ -3249,17 +3249,19 @@ function initQuests() {
         o.progress = 0;
         o.lastReset = today;
       }
-      // Scale physical quest targets progressively (only default quests, not custom)
+      // Scale DAILY quest targets progressively (only default quests, not custom, not weekly)
       // Skip scaling for quests with active evolution trials or evolved tiers (evolution takes precedence)
-      if (!o.custom && !o.evolveTrial?.active && !(o.evolveTier > 0)) {
+      // Skip weekly quests — their targets are already coherent and small (1-2)
+      if (!o.custom && o.period === 'daily' && !o.evolveTrial?.active && !(o.evolveTier > 0)) {
         const def = DEFAULT_OBJECTIVES.find(d => d.id === o.id);
         if (def && def.category === 'physique') {
-          // Physical quests scale with level/weeks
-          o.target = Math.round(def.target * scale * 10) / 10;
+          const scaled = def.target * scale;
+          // Round to integer for reps/unit-based quests, keep 1 decimal for km/litres
+          o.target = (def.unit === 'km' || def.unit === 'litres') ? Math.round(scaled * 10) / 10 : Math.round(scaled);
         } else if (def && (def.category === 'mental' || def.category === 'sante')) {
-          // Mental/health quests scale more gently (half the scaling)
           const gentleScale = 1 + (scale - 1) * 0.5;
-          o.target = Math.round(def.target * gentleScale * 10) / 10;
+          const scaled = def.target * gentleScale;
+          o.target = (def.unit === 'km' || def.unit === 'litres') ? Math.round(scaled * 10) / 10 : Math.round(scaled);
         }
       }
     });
@@ -5176,10 +5178,10 @@ function getDifficultyScale() {
   const q = state.quests || {};
   const level = q.level || 1;
   const weeks = getWeeksPlaying();
-  // Scale from 1.0 (debutant) to 2.5 (veteran), progressive
+  // Gentle scaling from 1.0 to ~1.5 max
   // Level contributes 60%, weeks contribute 40%
-  const levelFactor = 1 + (level - 1) * 0.15; // 1.0 at lvl 1, 2.35 at lvl 10
-  const weekFactor = 1 + Math.min(weeks, 12) * 0.08; // 1.0 at week 0, ~2.0 at week 12
+  const levelFactor = 1 + (level - 1) * 0.05; // 1.0 at lvl 1, 1.45 at lvl 10
+  const weekFactor = 1 + Math.min(weeks, 16) * 0.025; // 1.0 at week 0, 1.4 at week 16
   return Math.round((levelFactor * 0.6 + weekFactor * 0.4) * 100) / 100;
 }
 
