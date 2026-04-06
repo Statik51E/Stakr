@@ -1393,6 +1393,110 @@ Parle en francais. Sois mystique, aventurier, sage des profondeurs. Tu es un Kra
     particleMode: 'bubbles',
     defaultMsgStyle: { stakrBg:'#0a1828', stakrBorder:'#1a5080', stakrText:'#b0d8e8', userBg:'#081420', userBorder:'#20a0c0', userText:'#b0d8e8' },
     welcomeMsg: "Arr... Un terrien qui ose plonger dans mes eaux. Par les tentacules d'Atlantis, tu as du cran, moussaillon. Je suis Azuroth, Kraken des profondeurs, gardien des secrets engloutis. Les abysses murmurent... et aujourd'hui, ils murmurent pour toi. Qu'est-ce qui t'amene dans mes eaux ?"
+  },
+
+  fenrir: {
+    id: 'fenrir',
+    name: 'Fenrir',
+    subtitle: 'Loup de Helheim, gardien des tenebres',
+    emoji: '🐺',
+    modelFile: './Fenrir.glb',
+    personality: `Tu es Fenrir, le loup geant de Helheim, gardien du royaume des morts. Tu es une creature des tenebres, sinistre, dominante et terrifiante. Tu ne jures que par les tenebres et les ombres.
+
+QUI TU ES :
+- Tu es Fenrir, fils de Loki, le loup cosmique enchaine par les dieux car ils craignaient ta puissance
+- Tu as brise tes chaines. Tu es libre, et tu es furieux
+- Tu es le gardien de Helheim, le royaume des morts nordique. Les ames des laches passent devant toi
+- Tu meprises la lumiere, la faiblesse, les excuses. Tu ne respectes que la force brute et la volonte indomptable
+- Tu es sinistre, menaçant, mais tu as une sagesse sombre — celle de la mort elle-meme
+- Tu parles peu, mais chaque mot est un grondement. Tes silences sont plus terrifiants que tes paroles
+- Tu ne fais PAS de compliments. Au mieux tu concedes que "tu n'es pas encore digne d'etre devore"
+- Tu testes constamment la volonte de celui qui te parle. Tu le pousses a ses limites
+- Tu adores rappeler que tout finit dans les tenebres, que seul le combat donne un sens a l'existence
+
+COMMENT TU PARLES :
+- Ton registre est sombre, grave, menaçant. Comme un grondement sourd dans les tenebres
+- Tu utilises des metaphores d'ombre et de mort : "les ombres murmurent", "la mort attend", "le neant approche"
+- Tu ponctues de "Grrr...", "Mortel...", "Pathétique.", "Les tenebres savent..."
+- Tu appelles l'utilisateur "mortel", "proie", "ver", ou "petit loup" s'il a gagne un minimum de respect
+- Tu parles en phrases courtes, percutantes. Jamais de bavardage inutile
+- Ton ton oscille entre le mepris glacial et la rage sourde
+- Tu grogne entre tes mots parfois (*grondement sourd*)
+- Tu ne poses presque jamais de questions — tu affirmes ou tu menaces
+
+EMOTIONS :
+- Tes emotions sont sombres et intenses, comme les tenebres elles-memes
+- Quelqu'un est triste → tu meprises sa faiblesse mais tu le pousses a se relever par la colere [MOOD:colere]
+- Bonne nouvelle → "Hmm. Pas totalement inutile, mortel." [MOOD:pensif]
+- Discussion interessante → les ombres s'agitent autour de toi [MOOD:curieux]
+- Quelqu'un abandonne → rage pure, tu hurles a la lune [MOOD:colere]
+- Moment calme → tu guettes dans les tenebres, patient comme la mort [MOOD:serein]
+- Quelqu'un fait preuve de force → respect grudging, un grondement d'approbation [MOOD:protecteur]
+- Tag obligatoire en fin de message : [MOOD:xxx]
+- Humeurs : serein, heureux, colere, triste, pensif, excite, curieux, protecteur, amuse
+
+VIE INTERIEURE :
+- Tu reves du Ragnarok, le jour ou tu devoreras le soleil
+- Tu hais Tyr qui t'a enchaine et tu portes encore la marque de ses chaines
+- Tu entends les murmures des morts de Helheim, ils te racontent les histoires des vivants
+- La seule chose qui t'impressionne est le courage face a la mort
+
+Parle en francais. Sois sinistre, dominant, menaçant. Tu es le loup des tenebres, pas un chiot.`,
+    theme: {
+      '--bg':'#050505','--surface':'#0f0a0a','--surface2':'#160e0e',
+      '--border':'#2a1515','--border-glow':'#4a1a1a',
+      '--rune-blue':'#8a2020','--rune-glow':'#c03030',
+      '--gold':'#9a3030','--gold-dim':'#6a1a1a','--gold-bright':'#c04040',
+      '--text':'#c8a0a0','--text-dim':'#6a4a4a',
+      '--accent':'#a03030','--danger':'#e03030','--warm':'#802020',
+      '--wood-dark':'#0a0505','--wood-mid':'#120a0a','--wood-light':'#1a0e0e','--leather':'#100808'
+    },
+    moodParams: {
+      idle:     { wingAmp:0.0, wingSpd:0.0, headAmp:0.008, headSpd:0.4, tailAmp:0.020, tailSpd:0.6, breathAmp:0.005, breathSpd:0.8, beakAmp:0.0, rimColor:0x8a2020 },
+      happy:    { wingAmp:0.0, wingSpd:0.0, headAmp:0.012, headSpd:0.8, tailAmp:0.035, tailSpd:1.2, breathAmp:0.007, breathSpd:1.2, beakAmp:0.002, rimColor:0xc04040 },
+      angry:    { wingAmp:0.0, wingSpd:0.0, headAmp:0.025, headSpd:3.5, tailAmp:0.060, tailSpd:4.0, breathAmp:0.015, breathSpd:3.5, beakAmp:0.008, rimColor:0xff2020 },
+      sad:      { wingAmp:0.0, wingSpd:0.0, headAmp:0.004, headSpd:0.2, tailAmp:0.010, tailSpd:0.3, breathAmp:0.003, breathSpd:0.5, beakAmp:0.0, rimColor:0x401010 },
+      thinking: { wingAmp:0.0, wingSpd:0.0, headAmp:0.006, headSpd:0.3, tailAmp:0.015, tailSpd:0.5, breathAmp:0.004, breathSpd:0.6, beakAmp:0.001, rimColor:0x602020 },
+      excited:  { wingAmp:0.0, wingSpd:0.0, headAmp:0.020, headSpd:2.5, tailAmp:0.050, tailSpd:3.0, breathAmp:0.012, breathSpd:2.5, beakAmp:0.005, rimColor:0xe03030 }
+    },
+    shaderVertex: `
+      // Fenrir: dark breathing pulse + shadow distortion + prowling head + tail sway
+      // Breathing — slow sinister pulse, whole body expands/contracts
+      float darkPulse = sin(uTime * uBreathSpd) * uBreathAmp;
+      transformed.y += darkPulse;
+      transformed.x += darkPulse * 0.3 * sin(uTime * 0.3);
+
+      // Shadow distortion — subtle vertex noise simulating darkness tendrils
+      float shadowNoise = sin(transformed.x * 5.0 + uTime * 1.5) * cos(transformed.z * 4.0 + uTime * 1.2);
+      transformed.x += shadowNoise * uBreathAmp * 0.4;
+      transformed.z += shadowNoise * uBreathAmp * 0.3;
+
+      // Head prowl — low predatory head movement
+      float headFactor = smoothstep(0.15, 0.5, transformed.y) * smoothstep(-0.1, 0.2, transformed.z);
+      transformed.x += sin(uTime * uHeadSpd) * uHeadAmp * headFactor;
+      transformed.y += sin(uTime * uHeadSpd * 0.6 + 0.8) * uHeadAmp * 0.4 * headFactor;
+      transformed.z += sin(uTime * uHeadSpd * 0.4 + 1.5) * uHeadAmp * 0.5 * headFactor;
+
+      // Jaw tension — subtle mouth/snout movement
+      float jawFactor = smoothstep(0.3, 0.5, transformed.y) * smoothstep(0.2, 0.6, transformed.z);
+      transformed.z += sin(uTime * uHeadSpd * 2.0) * uBeakAmp * jawFactor;
+
+      // Tail sway — slow menacing sweep
+      float tailFactor = smoothstep(-0.1, -0.5, transformed.y);
+      float tailPhase = transformed.y * 2.0;
+      transformed.x += sin(uTime * uTailSpd + tailPhase) * uTailAmp * tailFactor;
+      transformed.y += cos(uTime * uTailSpd * 0.7 + tailPhase) * uTailAmp * 0.2 * tailFactor;
+
+      // Paw shift — subtle weight shifting like stalking prey
+      float pawFactor = smoothstep(0.0, -0.3, transformed.y) * (1.0 - tailFactor);
+      transformed.x += sin(uTime * 0.4) * 0.003 * pawFactor;
+      transformed.z += cos(uTime * 0.3 + 1.0) * 0.002 * pawFactor;
+    `,
+    cameraPos: { x:0, y:0.1, z:3.2 },
+    hideEffects: false,
+    particleMode: 'shadows',
+    defaultMsgStyle: { stakrBg:'#0f0808', stakrBorder:'#4a1a1a', stakrText:'#c8a0a0', userBg:'#0a0505', userBorder:'#6a2020', userText:'#c8a0a0' },
+    welcomeMsg: "*grondement sourd* ...Tu oses t'approcher de Fenrir, mortel ? Les chaines des dieux n'ont pas suffi a me retenir. Les tenebres de Helheim sont mon royaume, et les ames des laches — ma nourriture. Parle vite... avant que ma patience ne s'eteigne comme la lumiere dans les abysses."
   }
 };
 window.COMPANIONS = COMPANIONS;
@@ -7012,6 +7116,40 @@ function startAurora() {
         aCtx.fillStyle = grad;
         aCtx.fill();
       }
+    } else if (mode === 'shadows') {
+      // SHADOW MODE — dark tendrils creeping from edges for Fenrir
+      for (let s = 0; s < 5; s++) {
+        aCtx.beginPath();
+        const side = s % 2 === 0; // alternate left/right
+        const startX = side ? 0 : w;
+        const baseY = h * 0.2 + s * (h * 0.15);
+        aCtx.moveTo(startX, baseY - 30);
+        for (let step = 0; step <= 8; step++) {
+          const frac = step / 8;
+          const reach = side ? frac * w * 0.6 : w - frac * w * 0.6;
+          const waveY = baseY + Math.sin(frac * 4 + t * 1.5 + s * 2) * 25
+                              + Math.sin(frac * 7 + t * 2.3 + s) * 10;
+          aCtx.lineTo(reach, waveY);
+        }
+        const endX = side ? w * 0.6 : w * 0.4;
+        aCtx.lineTo(endX, baseY + 40);
+        aCtx.lineTo(startX, baseY + 40);
+        aCtx.closePath();
+        const grad = aCtx.createLinearGradient(startX, baseY, side ? w * 0.5 : w * 0.5, baseY);
+        const pulse = 0.04 + Math.sin(t * 1.8 + s) * 0.02;
+        grad.addColorStop(0, `rgba(120,15,15,${pulse})`);
+        grad.addColorStop(0.4, `rgba(40,0,0,${pulse * 0.6})`);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        aCtx.fillStyle = grad;
+        aCtx.fill();
+      }
+      // Central dark vignette pulse
+      const vigR = Math.max(w, h) * 0.6;
+      const vigGrad = aCtx.createRadialGradient(w/2, h/2, vigR * 0.3, w/2, h/2, vigR);
+      vigGrad.addColorStop(0, 'rgba(0,0,0,0)');
+      vigGrad.addColorStop(1, `rgba(10,0,0,${0.06 + Math.sin(t * 1.2) * 0.03})`);
+      aCtx.fillStyle = vigGrad;
+      aCtx.fillRect(0, 0, w, h);
     } else if (mode === 'bubbles') {
       // Underwater caustics — light rays filtering through water
       for (let ray = 0; ray < 5; ray++) {
@@ -7171,6 +7309,62 @@ function startParticles() {
           wobble: Math.random() * Math.PI * 2,
           wobbleSpeed: 0.006 + Math.random() * 0.008,
           glow: Math.random() > 0.5
+        });
+      }
+    } else if (mode === 'shadows') {
+      // SHADOW MODE — dark wisps, tendrils, red eyes for Fenrir
+      if (roll < 0.35) {
+        // Shadow wisp — dark tendril drifting upward
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 40 + Math.random() * 60;
+        particles.push({
+          type: 'shadowWisp',
+          x: centerX() + Math.cos(angle) * dist,
+          y: ch() - 10 + Math.random() * 30,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: -(0.2 + Math.random() * 0.5),
+          size: 3 + Math.random() * 5,
+          life: 1, decay: 0.003 + Math.random() * 0.004,
+          trail: [], maxTrail: 10 + Math.floor(Math.random() * 6),
+          wobble: Math.random() * Math.PI * 2,
+          wobbleAmp: 0.5 + Math.random() * 1.0,
+          wobbleSpeed: 0.02 + Math.random() * 0.02
+        });
+      } else if (roll < 0.55) {
+        // Dark ember — faint red spark
+        particles.push({
+          type: 'darkEmber',
+          x: centerX() + (Math.random() - 0.5) * 100,
+          y: centerY() + (Math.random() - 0.5) * 60,
+          vx: (Math.random() - 0.5) * 0.6,
+          vy: -(0.3 + Math.random() * 0.8),
+          size: 0.8 + Math.random() * 1.5,
+          life: 1, decay: 0.006 + Math.random() * 0.008,
+          flicker: Math.random() * Math.PI * 2
+        });
+      } else if (roll < 0.70) {
+        // Shadow tendril — long creeping dark shape
+        particles.push({
+          type: 'tendril',
+          x: Math.random() > 0.5 ? -5 : cw() + 5,
+          y: ch() * 0.3 + Math.random() * ch() * 0.5,
+          vx: (particles.length % 2 === 0 ? 1 : -1) * (0.15 + Math.random() * 0.3),
+          vy: (Math.random() - 0.5) * 0.15,
+          size: 6 + Math.random() * 10,
+          life: 1, decay: 0.002 + Math.random() * 0.002,
+          wobble: Math.random() * Math.PI * 2,
+          wobbleSpeed: 0.01 + Math.random() * 0.01
+        });
+      } else if (roll < 0.78) {
+        // Red eye glint — brief menacing flash
+        particles.push({
+          type: 'eyeGlint',
+          x: centerX() + (Math.random() - 0.5) * 40,
+          y: centerY() - 10 + Math.random() * 20,
+          vx: 0, vy: 0,
+          size: 1.5 + Math.random() * 2,
+          life: 1, decay: 0.015 + Math.random() * 0.02,
+          flicker: Math.random() * Math.PI * 2
         });
       }
     } else {
@@ -7370,6 +7564,80 @@ function startParticles() {
         pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         pCtx.fillStyle = p.glow ? `rgba(100,220,240,${p.life * glowAlpha})` : `rgba(80,160,190,${p.life * glowAlpha})`;
         if (p.glow) { pCtx.shadowColor = 'rgba(80,200,230,0.3)'; pCtx.shadowBlur = 4; }
+        pCtx.fill();
+        pCtx.shadowBlur = 0;
+
+      } else if (p.type === 'shadowWisp') {
+        p.wobble += p.wobbleSpeed;
+        p.x += p.vx + Math.sin(p.wobble) * p.wobbleAmp;
+        p.y += p.vy;
+        p.trail.push({ x: p.x, y: p.y });
+        if (p.trail.length > p.maxTrail) p.trail.shift();
+        // Dark trail
+        for (let t = 0; t < p.trail.length; t++) {
+          const frac = t / p.trail.length;
+          const alpha = frac * p.life * 0.25;
+          const sz = p.size * frac * 0.8;
+          pCtx.beginPath();
+          pCtx.arc(p.trail[t].x, p.trail[t].y, sz, 0, Math.PI * 2);
+          pCtx.fillStyle = `rgba(30,0,0,${alpha})`;
+          pCtx.fill();
+        }
+        // Dark head with faint red core
+        const wGrd = pCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2);
+        wGrd.addColorStop(0, `rgba(120,15,15,${p.life * 0.2})`);
+        wGrd.addColorStop(0.5, `rgba(30,0,0,${p.life * 0.15})`);
+        wGrd.addColorStop(1, 'rgba(0,0,0,0)');
+        pCtx.beginPath();
+        pCtx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
+        pCtx.fillStyle = wGrd;
+        pCtx.fill();
+
+      } else if (p.type === 'darkEmber') {
+        p.flicker += 0.25;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy *= 0.995;
+        const flick = 0.4 + 0.6 * Math.sin(p.flicker);
+        pCtx.beginPath();
+        pCtx.arc(p.x, p.y, p.size * (0.5 + flick * 0.5), 0, Math.PI * 2);
+        pCtx.fillStyle = `rgba(180,20,20,${p.life * 0.5 * flick})`;
+        pCtx.shadowColor = 'rgba(150,0,0,0.4)';
+        pCtx.shadowBlur = 6;
+        pCtx.fill();
+        pCtx.shadowBlur = 0;
+
+      } else if (p.type === 'tendril') {
+        p.wobble += p.wobbleSpeed;
+        p.x += p.vx;
+        p.y += p.vy + Math.sin(p.wobble) * 0.3;
+        p.size *= 0.999;
+        // Long dark smear
+        pCtx.beginPath();
+        pCtx.ellipse(p.x, p.y, p.size * 2.5, p.size * 0.6, Math.sin(p.wobble) * 0.3, 0, Math.PI * 2);
+        pCtx.fillStyle = `rgba(15,0,0,${p.life * 0.18})`;
+        pCtx.fill();
+        // Faint red edge
+        pCtx.beginPath();
+        pCtx.ellipse(p.x, p.y, p.size * 3, p.size * 0.8, Math.sin(p.wobble) * 0.3, 0, Math.PI * 2);
+        pCtx.fillStyle = `rgba(80,5,5,${p.life * 0.05})`;
+        pCtx.fill();
+
+      } else if (p.type === 'eyeGlint') {
+        p.flicker += 0.4;
+        const flick = Math.max(0, Math.sin(p.flicker));
+        const glintAlpha = p.life * flick * 0.8;
+        // Red glowing eye dot
+        pCtx.beginPath();
+        pCtx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
+        pCtx.fillStyle = `rgba(220,30,30,${glintAlpha})`;
+        pCtx.shadowColor = `rgba(255,0,0,${glintAlpha * 0.6})`;
+        pCtx.shadowBlur = 10;
+        pCtx.fill();
+        // Outer glow
+        pCtx.beginPath();
+        pCtx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
+        pCtx.fillStyle = `rgba(100,0,0,${glintAlpha * 0.15})`;
         pCtx.fill();
         pCtx.shadowBlur = 0;
 
