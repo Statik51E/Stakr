@@ -2045,7 +2045,8 @@ function loadState() {
       if (!state.currentMode) state.currentMode = 'conversation';
       if (!state.appearances) state.appearances = {};
       if (!state.memories) state.memories = {};
-      if (!state.quests) state.quests = { level:1, xp:0, totalXp:0, streak:0, lastActiveDate:null, weekStartDate:null, objectives:[], history:[] };
+      if (!state.quests) state.quests = { level:1, xp:0, totalXp:0, streak:0, lastActiveDate:null, weekStartDate:null, objectives:[], history:[], prestige:0 };
+      if (typeof state.quests.prestige !== 'number') state.quests.prestige = 0;
       // Migrate old global memory to per-companion
       if (state.memory && Array.isArray(state.memory) && state.memory.length > 0) {
         const cid = state.companion || 'raven';
@@ -2256,7 +2257,8 @@ function importFullBackup(event) {
 
       // Merge into state
       state = { ...state, ...newState };
-      if (!state.quests) state.quests = { level:1, xp:0, totalXp:0, streak:0, lastActiveDate:null, weekStartDate:null, objectives:[], history:[], lifetimeTotals:{}, startDate:null };
+      if (!state.quests) state.quests = { level:1, xp:0, totalXp:0, streak:0, lastActiveDate:null, weekStartDate:null, objectives:[], history:[], lifetimeTotals:{}, startDate:null, prestige:0 };
+      if (typeof state.quests.prestige !== 'number') state.quests.prestige = 0;
       if (!state.projects) state.projects = [];
 
       // Save (this handles image separation automatically)
@@ -3079,18 +3081,41 @@ function hideTyping() {
 
 
 // ===== QUEST SYSTEM — Viking Wellness =====
-const VIKING_RANKS = [
-  { level: 1, name: 'Thrall', subtitle: 'Esclave affranchi', xp: 100 },
-  { level: 2, name: 'Karl', subtitle: 'Homme libre', xp: 200 },
-  { level: 3, name: 'Drengr', subtitle: 'Jeune guerrier', xp: 350 },
-  { level: 4, name: 'Huskarl', subtitle: 'Garde du foyer', xp: 500 },
-  { level: 5, name: 'Berserkr', subtitle: 'Guerrier furieux', xp: 700 },
-  { level: 6, name: 'Hirdman', subtitle: 'Homme du Jarl', xp: 900 },
-  { level: 7, name: 'Jarl', subtitle: 'Seigneur viking', xp: 1200 },
-  { level: 8, name: 'Hersir', subtitle: 'Chef de clan', xp: 1500 },
-  { level: 9, name: 'Konungr', subtitle: 'Roi du Nord', xp: 2000 },
-  { level: 10, name: 'Einherjar', subtitle: 'Elu du Valhalla', xp: 2500 }
+// 50 levels organized in 10 thematic tiers of 5 levels each.
+// Combined with 10 prestiges = 500 effective levels of progression.
+const MAX_LEVEL = 50;
+const MAX_PRESTIGE = 10;
+
+const RANK_TIERS = [
+  { name: 'Thrall',     subs: ['Chaines brisees', 'Affranchi', 'Bras valide', 'Servant du foyer', 'Pauvre libre'] },
+  { name: 'Karl',       subs: ['Homme libre', 'Paysan arme', 'Forgeron du fjord', 'Marin du Nord', 'Chasseur des bois'] },
+  { name: 'Drengr',     subs: ['Jeune guerrier', 'Compagnon de raid', 'Frere d\'armes', 'Lame fidele', 'Ours du Nord'] },
+  { name: 'Huskarl',    subs: ['Garde du foyer', 'Bouclier du Jarl', 'Champion', 'Sentinelle', 'Lance d\'elite'] },
+  { name: 'Berserkr',   subs: ['Furie d\'Odin', 'Peau-d\'ours', 'Loup-garou', 'Sans-armure', 'Hurleur'] },
+  { name: 'Hirdman',    subs: ['Compagnon du roi', 'Conseiller', 'Maitre d\'armes', 'Capitaine', 'Bras droit'] },
+  { name: 'Hersir',     subs: ['Chef de clan', 'Seigneur des terres', 'Gardien du droit', 'Maitre du thing', 'Voix du peuple'] },
+  { name: 'Jarl',       subs: ['Comte du Nord', 'Maitre des fjords', 'Seigneur des vagues', 'Couronne de fer', 'Gardien des sagas'] },
+  { name: 'Konungr',    subs: ['Roi-guerrier', 'Souverain des mers', 'Couronne d\'or', 'Maitre du Nord', 'Pere des hommes libres'] },
+  { name: 'Einherjar',  subs: ['Choisi des Valkyries', 'Convive du Valhalla', 'Legende immortelle', 'Bras d\'Odin', 'Compagnon des dieux'] }
 ];
+
+const PRESTIGE_TITLES = [
+  'Saga', 'Volva', 'Skald', 'Ulfhednar', 'Galdr',
+  'Lokasenna', 'Ragnarok', 'Bifrost', 'Yggdrasil', 'Allfather'
+];
+
+const VIKING_RANKS = (() => {
+  const arr = [];
+  for (let lvl = 1; lvl <= MAX_LEVEL; lvl++) {
+    const tierIdx = Math.floor((lvl - 1) / 5);
+    const subIdx = (lvl - 1) % 5;
+    const tier = RANK_TIERS[tierIdx];
+    // XP curve: smooth growth, ~120 at lvl 1 → ~30000 at lvl 50
+    const xp = Math.round((50 + lvl * 50 + Math.pow(lvl, 1.85) * 18) / 10) * 10;
+    arr.push({ level: lvl, name: tier.name, subtitle: tier.subs[subIdx], xp });
+  }
+  return arr;
+})();
 
 const DEFAULT_OBJECTIVES = [
   // Daily — facile par defaut, l'utilisateur peut augmenter via le systeme d'evolution
@@ -3246,13 +3271,26 @@ function getWeekStart() {
   return new Date(d.setDate(diff)).toISOString().slice(0, 10);
 }
 
-function getXpForLevel(level) {
+function getXpForLevel(level, prestige) {
   const rank = VIKING_RANKS.find(r => r.level === level);
-  return rank ? rank.xp : level * 300;
+  const base = rank ? rank.xp : level * 600;
+  const p = prestige || (state.quests && state.quests.prestige) || 0;
+  // Each prestige adds 25% XP requirement on top
+  return Math.round(base * (1 + p * 0.25));
 }
 
 function getRank(level) {
   return VIKING_RANKS.find(r => r.level === level) || VIKING_RANKS[VIKING_RANKS.length - 1];
+}
+
+function getPrestigeTitle(prestige) {
+  if (!prestige || prestige < 1) return null;
+  return PRESTIGE_TITLES[Math.min(prestige, MAX_PRESTIGE) - 1];
+}
+
+function getPrestigeStars(prestige) {
+  if (!prestige || prestige < 1) return '';
+  return '★'.repeat(Math.min(prestige, MAX_PRESTIGE));
 }
 
 function initQuests() {
@@ -3808,8 +3846,11 @@ function switchQuestTab(tab) {
   else if (tab === 'stats') { $('#quest-stats-tab').style.display = 'block'; renderQuestStats(); }
 }
 
-function getVikingAvatarSVG(level) {
-  // Colors & gear per level
+function getVikingAvatarSVG(level, prestige) {
+  // 50 levels mapped to 10 visual tiers (5 levels per tier).
+  // tierIndex = floor((level-1)/5), clamped to 0..9
+  const tierIndex = Math.max(0, Math.min(9, Math.floor((level - 1) / 5)));
+  // Colors & gear per tier
   const tiers = [
     // Lv1 Thrall: rags, no gear
     { skin:'#c8a07a', hair:'#5c3a1e', tunic:'#6b5b4f', tunicDark:'#4a3d33', belt:'#4a3d33',
@@ -3852,7 +3893,9 @@ function getVikingAvatarSVG(level) {
       helmet:'#ffd700', horns:'#fff8dc', cape:'#daa520', shield:'#ffd700', weapon:'dual', aura:'#ffd700',
       eyes:'#ffffff', beard:'#daa520', armBand:'#fff8dc' }
   ];
-  const t = tiers[Math.min(level, 10) - 1];
+  const t = tiers[tierIndex];
+  // Visual level threshold (1..10) used by the rest of the function so existing checks still trigger
+  const vLevel = tierIndex + 1;
 
   let svg = `<svg viewBox="0 0 72 90" xmlns="http://www.w3.org/2000/svg">`;
 
@@ -3875,7 +3918,7 @@ function getVikingAvatarSVG(level) {
 
   // Belt
   svg += `<rect x="23" y="52" width="26" height="4" rx="1" fill="${t.belt}"/>`;
-  if (level >= 7) svg += `<circle cx="36" cy="54" r="2.5" fill="${t.belt}" stroke="#fff8dc" stroke-width=".5"/>`;
+  if (vLevel >= 7) svg += `<circle cx="36" cy="54" r="2.5" fill="${t.belt}" stroke="#fff8dc" stroke-width=".5"/>`;
 
   // Arms
   svg += `<rect x="16" y="40" width="8" height="20" rx="3" fill="${t.tunic}"/>`;
@@ -3932,9 +3975,9 @@ function getVikingAvatarSVG(level) {
 
   // Beard
   if (t.beard) {
-    if (level >= 7) {
+    if (vLevel >= 7) {
       svg += `<path d="M29 28 Q30 40 36 42 Q42 40 43 28" fill="${t.beard}" opacity=".85"/>`;
-    } else if (level >= 4) {
+    } else if (vLevel >= 4) {
       svg += `<path d="M30 28 Q32 36 36 37 Q40 36 42 28" fill="${t.beard}" opacity=".8"/>`;
     } else {
       svg += `<path d="M31 28 Q34 33 36 33 Q38 33 41 28" fill="${t.beard}" opacity=".7"/>`;
@@ -3955,10 +3998,25 @@ function getVikingAvatarSVG(level) {
     svg += `<path d="M46 18 Q52 8 56 4" stroke="${t.horns}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
   }
 
-  // Lv10 wings
-  if (level >= 10) {
+  // Top tier wings (Einherjar)
+  if (vLevel >= 10) {
     svg += `<path d="M18 38 Q8 28 2 18 Q6 30 12 36Z" fill="#ffd700" opacity=".6"><animate attributeName="opacity" values=".4;.7;.4" dur="2s" repeatCount="indefinite"/></path>`;
     svg += `<path d="M54 38 Q64 28 70 18 Q66 30 60 36Z" fill="#ffd700" opacity=".6"><animate attributeName="opacity" values=".4;.7;.4" dur="2s" repeatCount="indefinite"/></path>`;
+  }
+
+  // Prestige stars — floating above the head, one per prestige rank
+  const p = prestige || (state.quests && state.quests.prestige) || 0;
+  if (p > 0) {
+    const starColors = ['#ffd700', '#ffb84d', '#ff8c00', '#ff5722', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#00bcd4', '#fff8dc'];
+    const color = starColors[Math.min(p, 10) - 1];
+    // Render mini stars in an arc above the head
+    const starCount = Math.min(p, 10);
+    for (let i = 0; i < starCount; i++) {
+      const angle = -Math.PI / 2 + (i - (starCount - 1) / 2) * 0.3;
+      const cx = 36 + Math.cos(angle) * 18;
+      const cy = 6 + Math.sin(angle) * 6 + 4;
+      svg += `<text x="${cx}" y="${cy}" font-size="5" fill="${color}" text-anchor="middle" font-weight="bold" style="filter:drop-shadow(0 0 2px ${color})">★</text>`;
+    }
   }
 
   svg += `</svg>`;
@@ -3967,18 +4025,43 @@ function getVikingAvatarSVG(level) {
 
 function renderQuests() {
   const q = state.quests;
+  if (typeof q.prestige !== 'number') q.prestige = 0;
   const rank = getRank(q.level);
   const xpNeeded = getXpForLevel(q.level);
   const xpPct = Math.min(100, Math.round((q.xp / xpNeeded) * 100));
+  const prestigeStars = getPrestigeStars(q.prestige);
+  const prestigeTitle = getPrestigeTitle(q.prestige);
 
   // Viking avatar
-  $('#viking-avatar').innerHTML = getVikingAvatarSVG(q.level);
+  $('#viking-avatar').innerHTML = getVikingAvatarSVG(q.level, q.prestige);
 
   // Level bar
-  $('#quest-level-title').textContent = `Niveau ${q.level} — ${rank.name}`;
+  const titleEl = $('#quest-level-title');
+  if (q.prestige > 0) {
+    titleEl.innerHTML = `<span style="color:#ffd700">${prestigeStars}</span> Niveau ${q.level} — ${rank.name} <span style="font-size:.7em;color:#ffb84d">[${prestigeTitle}]</span>`;
+  } else {
+    titleEl.textContent = `Niveau ${q.level} — ${rank.name}`;
+  }
   $('#quest-rank-subtitle').textContent = rank.subtitle;
   $('#quest-xp-fill').style.width = xpPct + '%';
   $('#quest-xp-text').textContent = `${q.xp} / ${xpNeeded} XP`;
+
+  // Prestige button (only at max level)
+  let prestigeBtn = $('#prestige-btn');
+  if (q.level >= MAX_LEVEL && q.prestige < MAX_PRESTIGE) {
+    if (!prestigeBtn) {
+      prestigeBtn = document.createElement('button');
+      prestigeBtn.id = 'prestige-btn';
+      prestigeBtn.className = 'btn-primary';
+      prestigeBtn.style.cssText = 'margin-top:8px;background:linear-gradient(135deg,#8a2020,#daa520);color:#fff;font-weight:700;letter-spacing:.5px;border:1px solid #ffd700;box-shadow:0 0 12px rgba(218,165,32,.4);width:100%';
+      prestigeBtn.onclick = prestigeUp;
+      $('.quest-level-bar').appendChild(prestigeBtn);
+    }
+    prestigeBtn.textContent = `🔥 RITUEL DE PRESTIGE ${q.prestige + 1}/${MAX_PRESTIGE}`;
+    prestigeBtn.style.display = 'block';
+  } else if (prestigeBtn) {
+    prestigeBtn.style.display = 'none';
+  }
   $('#quest-streak-val').textContent = q.streak;
   $('#quest-total-xp').textContent = q.totalXp;
 
@@ -4493,8 +4576,9 @@ function addQuestXp(amount, category) {
   q.dailyXpToday += totalAmount;
 
   // Level up check
+  if (typeof q.prestige !== 'number') q.prestige = 0;
   let xpNeeded = getXpForLevel(q.level);
-  while (q.xp >= xpNeeded && q.level < 10) {
+  while (q.xp >= xpNeeded && q.level < MAX_LEVEL) {
     q.xp -= xpNeeded;
     q.level++;
     const rank = getRank(q.level);
@@ -4506,8 +4590,46 @@ function addQuestXp(amount, category) {
     showToast('NIVEAU SUPERIEUR !', `Niveau ${q.level} — ${rank.name}`);
     xpNeeded = getXpForLevel(q.level);
   }
+  // At max level: notify player they can prestige (XP keeps capping)
+  if (q.level >= MAX_LEVEL && q.xp >= xpNeeded && q.prestige < MAX_PRESTIGE && !q._prestigeNotified) {
+    q._prestigeNotified = true;
+    showToast('PRESTIGE DISPONIBLE !', `Niveau ${MAX_LEVEL} atteint — accomplis le rituel de Prestige dans l\'onglet Quetes.`);
+    addMessage('stakr', `KRAA ! Tu as atteint le sommet — niveau ${MAX_LEVEL} ! Mais ce n'est qu'un debut. Le rituel de **Prestige** t'attend, mortel : recommence l'ascension avec un titre de legende et des epreuves plus rudes. [MOOD:excite]`);
+    if (q.xp > xpNeeded) q.xp = xpNeeded; // cap XP at max
+  }
   // Sync to leaderboard
   if (currentUser) syncToCloud();
+}
+
+// ===== PRESTIGE =====
+function prestigeUp() {
+  const q = state.quests;
+  if (typeof q.prestige !== 'number') q.prestige = 0;
+  if (q.level < MAX_LEVEL) {
+    showToast('Prestige refuse', `Tu dois atteindre le niveau ${MAX_LEVEL} pour accomplir le rituel.`);
+    return;
+  }
+  if (q.prestige >= MAX_PRESTIGE) {
+    showToast('Prestige maximal', 'Tu es au sommet — Allfather. Aucun mortel ne va plus loin.');
+    return;
+  }
+  const confirmMsg = `Rituel de Prestige ${q.prestige + 1}/${MAX_PRESTIGE}\n\nTon niveau retombe a 1, mais tu gagnes le titre de "${PRESTIGE_TITLES[q.prestige]}" et une etoile permanente. Les quetes te demanderont +25% d'XP a chaque palier.\n\nTon XP total, ton streak et tes runes restent intacts.\n\nAccomplir le rituel ?`;
+  if (!confirm(confirmMsg)) return;
+
+  q.prestige++;
+  q.level = 1;
+  q.xp = 0;
+  q._prestigeNotified = false;
+  q._lastKnownLevel = 1;
+
+  const title = PRESTIGE_TITLES[q.prestige - 1];
+  const stars = '★'.repeat(q.prestige);
+  showToast(`PRESTIGE ${q.prestige} !`, `${stars} ${title} — l'ascension recommence.`);
+  addMessage('stakr', `*hurlement guerrier* PAR ODIN ! Tu as accompli le rituel — tu es desormais **${title}** ${stars}. Les sagas te connaissent par ce nom. Mais ne te repose pas, mortel : l'ascension recommence, et les epreuves seront plus rudes. [MOOD:excite]`);
+
+  if (currentUser) syncToCloud();
+  saveState();
+  renderQuests();
 }
 
 // ===== BOSS HEBDOMADAIRE =====
@@ -5456,12 +5578,15 @@ function getWeeksPlaying() {
 function getDifficultyScale() {
   const q = state.quests || {};
   const level = q.level || 1;
+  const prestige = q.prestige || 0;
   const weeks = getWeeksPlaying();
-  // Gentle scaling from 1.0 to ~1.5 max
-  // Level contributes 60%, weeks contribute 40%
-  const levelFactor = 1 + (level - 1) * 0.05; // 1.0 at lvl 1, 1.45 at lvl 10
+  // Gentle scaling: spread evenly across 50 levels, capped reasonably
+  // Level: 1.0 at lvl 1 → 1.5 at lvl 50 (~+0.01 per level)
+  const levelFactor = 1 + Math.min(level - 1, 49) * 0.01;
   const weekFactor = 1 + Math.min(weeks, 16) * 0.025; // 1.0 at week 0, 1.4 at week 16
-  return Math.round((levelFactor * 0.6 + weekFactor * 0.4) * 100) / 100;
+  // Each prestige adds a flat 15% on top of everything
+  const prestigeMult = 1 + prestige * 0.15;
+  return Math.round((levelFactor * 0.6 + weekFactor * 0.4) * prestigeMult * 100) / 100;
 }
 
 async function generateAIQuests() {
@@ -6129,6 +6254,8 @@ async function callAI(userText, imageData = null) {
   // Quest context for Stakr
   const q = state.quests || {};
   const qRank = getRank(q.level || 1);
+  const qPrestige = q.prestige || 0;
+  const qPrestigeStr = qPrestige > 0 ? ` Prestige ${qPrestige} (${getPrestigeTitle(qPrestige)} ${getPrestigeStars(qPrestige)})` : '';
   const qRunes = (q.runes || []).length;
   const qSecrets = (q.secretsUnlocked || []).length;
   const qDailyDone = (q.objectives || []).filter(o => o.period === 'daily' && o.progress >= o.target).length;
@@ -6136,7 +6263,7 @@ async function callAI(userText, imageData = null) {
   const treeSummary = getSkillTreeSummary();
   const bossInfo = q.boss ? ` | Boss: ${q.boss.name} (${q.boss.type})${q.boss.resolved ? ' — ' + (q.boss.result === 'victory' ? 'VAINCU' : 'perdu') : ` — progression ${getWeeklyBossProgress()}/${q.boss.threshold}`}` : '';
   const worldInfo = q.worldMap ? `, Monde: ${q.worldMap.unlockedRegions.length}/9 royaumes (${q.worldMap.unlockedRegions.join(', ')})` : '';
-  const questInfo = `\n- Quetes Viking : Niveau ${q.level || 1} — ${qRank.name} (${qRank.subtitle}), ${q.totalXp || 0} XP total, streak ${q.streak || 0} jours, ${qRunes}/24 runes, ${qSecrets}/13 quetes secretes, ${qDailyDone}/${qDailyTotal} objectifs du jour faits, Arbre de Vie: ${treeSummary.unlocked}/${treeSummary.total} competences${bossInfo}${worldInfo}`;
+  const questInfo = `\n- Quetes Viking : Niveau ${q.level || 1}/${MAX_LEVEL} — ${qRank.name} (${qRank.subtitle})${qPrestigeStr}, ${q.totalXp || 0} XP total, streak ${q.streak || 0} jours, ${qRunes}/24 runes, ${qSecrets}/13 quetes secretes, ${qDailyDone}/${qDailyTotal} objectifs du jour faits, Arbre de Vie: ${treeSummary.unlocked}/${treeSummary.total} competences${bossInfo}${worldInfo}`;
 
   const timeInfo = `\n\nContexte actuel :
 - Heure : ${String(now.getHours()).padStart(2,'0')}h${String(now.getMinutes()).padStart(2,'0')}
@@ -6621,6 +6748,7 @@ async function syncToCloud() {
       name: state.pseudo || currentUser.displayName || 'Viking',
       avatar: currentUser.photoURL || '',
       level: q.level || 1,
+      prestige: q.prestige || 0,
       totalXp: q.totalXp || 0,
       dailyXp: dailyXp,
       dailyDate: today,
@@ -6797,6 +6925,13 @@ async function loadLeaderboard(tab) {
       entries = entries.filter(e => e.dailyDate === today && (e.dailyXp || 0) > 0);
       entries.sort((a, b) => (b.dailyXp || 0) - (a.dailyXp || 0));
       entries = entries.slice(0, 50);
+    } else {
+      // All-time: prestige first, then totalXp
+      entries.sort((a, b) => {
+        const dp = (b.prestige || 0) - (a.prestige || 0);
+        if (dp !== 0) return dp;
+        return (b.totalXp || 0) - (a.totalXp || 0);
+      });
     }
 
     if (entries.length === 0) {
@@ -6814,10 +6949,11 @@ async function loadLeaderboard(tab) {
       const xpVal = tab === 'daily' ? (d.dailyXp || 0) : (d.totalXp || 0);
       const rankClass = pos === 1 ? 'lb-rank-1' : pos === 2 ? 'lb-rank-2' : pos === 3 ? 'lb-rank-3' : 'lb-rank-default';
 
+      const pStars = (d.prestige || 0) > 0 ? `<span style="color:#ffd700;font-size:.55rem;margin-left:3px" title="Prestige ${d.prestige}">${'★'.repeat(Math.min(d.prestige, 10))}</span>` : '';
       html += `<div class="lb-row ${isMe ? 'lb-me' : ''}">
         <div class="lb-rank ${rankClass}">${pos <= 3 ? ['🥇','🥈','🥉'][pos-1] : pos}</div>
         ${d.avatar ? `<img class="lb-avatar" src="${d.avatar}" alt=""/>` : `<div class="lb-avatar" style="background:var(--wood-mid);display:flex;align-items:center;justify-content:center;font-size:.8rem">👤</div>`}
-        <div class="lb-name">${d.name || 'Viking'}${d.rank ? ` <span style="font-size:.55rem;color:var(--text-dim)">${d.rank}</span>` : ''}</div>
+        <div class="lb-name">${d.name || 'Viking'}${pStars}${d.rank ? ` <span style="font-size:.55rem;color:var(--text-dim)">Niv.${d.level || 1} ${d.rank}</span>` : ''}</div>
         <div class="lb-xp">${xpVal} XP</div>
       </div>`;
     });
