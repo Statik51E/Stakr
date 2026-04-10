@@ -31,13 +31,21 @@ html,body{height:100%;font-family:'Cinzel','Segoe UI',system-ui,sans-serif;backg
 
 /* ===== LAYOUT ===== */
 #app{display:flex;flex-direction:column;height:100%;max-width:600px;margin:0 auto;position:relative;background:var(--wood-dark);border-left:1px solid var(--border);border-right:1px solid var(--border)}
-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:linear-gradient(180deg,#1e150a,#150f08);border-bottom:2px solid var(--border);z-index:10;position:relative}
+header{display:flex;align-items:center;gap:6px;padding:8px 12px;background:linear-gradient(180deg,#1e150a,#150f08);border-bottom:2px solid var(--border);z-index:10;position:relative}
 header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)}
 header h1{font-size:1.1rem;color:var(--gold);text-shadow:0 0 10px rgba(196,154,60,.4);font-variant:small-caps;letter-spacing:2px}
-#mood-indicator{font-size:.75rem;color:var(--text-dim);margin-left:auto}
+#mood-indicator{--mood-color:var(--gold);font-size:.7rem;color:var(--text-dim);margin-left:auto;padding:4px 10px;background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:14px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:all .3s;font-variant:small-caps;letter-spacing:.5px;box-shadow:inset 0 0 6px rgba(0,0,0,.4)}
+#mood-indicator::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--mood-color);box-shadow:0 0 8px var(--mood-color);animation:moodPulse 2s ease-in-out infinite;flex-shrink:0}
+@keyframes moodPulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
 header button{flex-shrink:0}
 #settings-btn,#project-btn{background:none;border:none;color:var(--gold-dim);font-size:1.3rem;cursor:pointer;padding:4px 8px;transition:color .2s}
 #settings-btn:hover,#project-btn:hover{color:var(--gold)}
+/* Header icon buttons — unified pill style */
+.header-icon-btn{background:linear-gradient(180deg,rgba(196,154,60,.08),rgba(0,0,0,.25));border:1px solid var(--border);color:var(--gold-dim);width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:1rem;display:inline-flex;align-items:center;justify-content:center;transition:all .25s;padding:0;position:relative;overflow:hidden}
+.header-icon-btn:hover{color:var(--gold);border-color:var(--gold-dim);background:linear-gradient(180deg,rgba(196,154,60,.18),rgba(196,154,60,.05));box-shadow:0 0 10px rgba(196,154,60,.25);transform:translateY(-1px)}
+.header-icon-btn:active{transform:translateY(0)}
+.header-icon-btn.has-notif::after{content:'';position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:#e74c3c;box-shadow:0 0 6px #e74c3c}
+#account-btn.connected{color:var(--gold);border-color:var(--gold-dim);background:linear-gradient(180deg,rgba(196,154,60,.2),rgba(196,154,60,.05));box-shadow:0 0 8px rgba(196,154,60,.3)}
 
 /* ===== MODE BAR ===== */
 #mode-bar{display:flex;gap:0;background:var(--wood-dark);border-bottom:1px solid var(--border);align-items:stretch}
@@ -237,16 +245,48 @@ header button{flex-shrink:0}
 .quest-progress-text{font-size:.65rem;color:var(--text-dim);min-width:55px;text-align:right}
 .quest-add-btn{width:100%;background:var(--surface);border:1px dashed var(--border);border-radius:6px;padding:10px;color:var(--text-dim);font-size:.75rem;cursor:pointer;text-align:center;margin-top:6px;font-family:inherit;transition:all .2s}
 .quest-add-btn:hover{border-color:var(--gold-dim);color:var(--gold-dim)}
-.challenge-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;transition:all .3s}
-.challenge-card.accepted{border-color:var(--gold-dim);background:linear-gradient(135deg,rgba(196,154,60,.08),var(--surface))}
-.challenge-card.completed{border-color:#4caf50;background:linear-gradient(135deg,rgba(76,175,80,.1),var(--surface))}
-.challenge-card.declined{display:flex;align-items:center;gap:6px;padding:6px 10px;opacity:.5}
-.challenge-header{display:flex;align-items:center;gap:6px}
-.challenge-actions{display:flex;gap:6px;margin-top:8px}
-.challenge-accept{flex:1;background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;border:none;border-radius:6px;padding:8px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
-.challenge-accept:hover{filter:brightness(1.1);transform:scale(1.02)}
-.challenge-decline{background:none;border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text-dim);font-size:.7rem;cursor:pointer;font-family:inherit;transition:all .2s}
-.challenge-decline:hover{border-color:var(--text-dim)}
+/* ===== DEFIS PAGE ===== */
+.defis-intro{padding:12px 14px;margin-bottom:12px;background:linear-gradient(135deg,rgba(196,154,60,.08),rgba(0,0,0,.3));border:1px solid var(--gold-dim);border-radius:10px;text-align:center;position:relative;overflow:hidden}
+.defis-intro::before{content:'';position:absolute;top:0;left:-100%;width:200%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:defisShimmer 4s linear infinite}
+@keyframes defisShimmer{0%{transform:translateX(0)}100%{transform:translateX(50%)}}
+.defis-intro-title{font-size:.85rem;color:var(--gold);font-weight:700;letter-spacing:1.5px;font-variant:small-caps;margin-bottom:4px;text-shadow:0 0 8px rgba(196,154,60,.4)}
+.defis-intro-text{font-size:.65rem;color:var(--text-dim);line-height:1.4}
+.defis-stats{display:flex;justify-content:space-around;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(196,154,60,.2)}
+.defis-stat{text-align:center;flex:1}
+.defis-stat-val{font-size:1rem;color:var(--gold);font-weight:700;font-family:'Cinzel',serif}
+.defis-stat-lbl{font-size:.55rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px}
+
+.defis-pool-section{margin-bottom:14px}
+.defis-pool-header{display:flex;align-items:center;gap:8px;padding:8px 12px;background:linear-gradient(90deg,rgba(196,154,60,.12),transparent);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;margin-bottom:8px}
+.defis-pool-icon{font-size:1.2rem;filter:drop-shadow(0 0 4px rgba(196,154,60,.4))}
+.defis-pool-title{font-size:.8rem;color:var(--gold);font-weight:700;letter-spacing:.5px;font-variant:small-caps}
+.defis-pool-desc{font-size:.55rem;color:var(--text-dim);font-style:italic;margin-left:auto;text-align:right;max-width:55%}
+
+.challenge-card{background:linear-gradient(160deg,var(--surface),var(--wood-dark));border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;transition:all .25s;position:relative;overflow:hidden}
+.challenge-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--text-dim);transition:all .3s}
+.challenge-card:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.challenge-card.accepted{border-color:var(--gold-dim);background:linear-gradient(160deg,rgba(196,154,60,.1),var(--surface))}
+.challenge-card.accepted::before{background:linear-gradient(180deg,var(--gold),var(--gold-dim));box-shadow:0 0 10px rgba(196,154,60,.6)}
+.challenge-card.completed{border-color:#4caf50;background:linear-gradient(160deg,rgba(76,175,80,.12),var(--surface))}
+.challenge-card.completed::before{background:linear-gradient(180deg,#69f0ae,#4caf50);box-shadow:0 0 10px rgba(76,175,80,.6)}
+.challenge-card.declined{display:flex;align-items:center;gap:8px;padding:8px 12px;opacity:.4}
+.challenge-card.declined::before{display:none}
+.challenge-header{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.challenge-icon-wrap{width:36px;height:36px;border-radius:8px;background:rgba(196,154,60,.1);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.challenge-card.completed .challenge-icon-wrap{background:rgba(76,175,80,.15);border-color:#4caf50}
+.challenge-card.accepted .challenge-icon-wrap{background:rgba(196,154,60,.15);border-color:var(--gold-dim)}
+.challenge-name{font-size:.85rem;color:var(--text);font-weight:600;flex:1;line-height:1.2}
+.challenge-target{font-size:.6rem;color:var(--text-dim);margin-top:2px}
+.challenge-xp{background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:#0e0a06;font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:10px;white-space:nowrap;box-shadow:0 0 6px rgba(196,154,60,.3)}
+.challenge-desc{font-size:.65rem;color:var(--text-dim);line-height:1.45;font-style:italic;padding:7px 9px;background:rgba(0,0,0,.25);border-radius:6px;border-left:2px solid var(--gold-dim);margin-bottom:8px}
+.challenge-warning{font-size:.55rem;color:#e57373;margin-top:6px;display:flex;align-items:center;gap:4px;padding:4px 6px;background:rgba(231,76,60,.08);border-radius:4px}
+.challenge-actions{display:flex;gap:8px;margin-top:8px}
+.challenge-accept{flex:1;background:linear-gradient(135deg,#daa520,#c49a3c);color:#0e0a06;border:none;border-radius:8px;padding:10px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;letter-spacing:.5px;box-shadow:0 2px 8px rgba(196,154,60,.3),inset 0 1px 0 rgba(255,255,255,.2)}
+.challenge-accept:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 4px 12px rgba(196,154,60,.5),inset 0 1px 0 rgba(255,255,255,.3)}
+.challenge-accept:active{transform:translateY(0)}
+.challenge-decline{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text-dim);font-size:.7rem;cursor:pointer;font-family:inherit;transition:all .2s}
+.challenge-decline:hover{border-color:#e57373;color:#e57373;background:rgba(231,76,60,.05)}
+.challenge-done-banner{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;margin-top:6px;background:linear-gradient(135deg,rgba(76,175,80,.15),rgba(76,175,80,.05));border:1px solid #4caf50;border-radius:6px;color:#69f0ae;font-size:.7rem;font-weight:700;letter-spacing:.5px}
 .quest-add-form{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-top:6px;display:none}
 .quest-add-form.visible{display:block}
 .quest-add-form input,.quest-add-form select{width:100%;background:var(--wood-mid);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-size:.75rem;margin-bottom:6px;font-family:inherit}
@@ -491,15 +531,20 @@ header button{flex-shrink:0}
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:480px){
-  header{gap:4px;padding:8px 8px}
-  header h1{font-size:.9rem;letter-spacing:1px}
-  #mood-indicator{display:none}
-  #settings-btn,#project-btn{font-size:1.1rem;padding:4px 4px}
-  #quest-btn,#map-btn,#leaderboard-btn,#account-btn,#customize-btn,#mute-btn{font-size:1rem;padding:2px 3px}
+  header{gap:3px;padding:6px 6px}
+  header h1{font-size:.85rem;letter-spacing:1px}
+  #mood-indicator{font-size:.55rem;padding:3px 7px;border-radius:11px;letter-spacing:.3px;flex-shrink:1;min-width:0;overflow:hidden;text-overflow:ellipsis;max-width:90px}
+  #mood-indicator::before{width:5px;height:5px}
+  #settings-btn,#project-btn{font-size:1rem;padding:4px 4px}
+  .header-icon-btn{width:28px;height:28px;font-size:.85rem;border-radius:7px}
   #raven-stage{height:230px}
   .msg{max-width:92%;font-size:.83rem}
   .mode-quick-btn{font-size:.65rem;padding:6px 10px}
   #mode-select{font-size:.7rem;padding:5px 8px}
+}
+/* Very narrow screens — hide a couple of less critical buttons */
+@media(max-width:360px){
+  #mute-btn,#customize-btn{display:none}
 }
 
 /* ===== DESKTOP ===== */
@@ -591,12 +636,12 @@ header button{flex-shrink:0}
     <button id="project-btn" title="Projets">&#9776;</button>
     <h1>STAKR</h1>
     <span id="mood-indicator">&#9679; Serein</span>
-    <button id="quest-btn" title="Quetes Viking">&#9876;</button>
-    <button id="map-btn" title="Carte du Monde">&#128506;</button>
-    <button id="leaderboard-btn" title="Classement">🏆</button>
-    <button id="account-btn" title="Compte">👤</button>
-    <button id="customize-btn" title="Personnaliser Stakr" style="background:none;border:none;color:var(--gold-dim);font-size:1.2rem;cursor:pointer;padding:4px 6px">&#9998;</button>
-    <button id="mute-btn" title="Son on/off" onclick="toggleAudioMute()" style="background:none;border:none;color:var(--gold-dim);font-size:1.1rem;cursor:pointer;padding:4px 6px">🔊</button>
+    <button id="quest-btn" class="header-icon-btn" title="Quetes Viking">&#9876;</button>
+    <button id="map-btn" class="header-icon-btn" title="Carte du Monde">&#128506;</button>
+    <button id="leaderboard-btn" class="header-icon-btn" title="Classement">🏆</button>
+    <button id="account-btn" class="header-icon-btn" title="Compte">👤</button>
+    <button id="customize-btn" class="header-icon-btn" title="Personnaliser Stakr">&#9998;</button>
+    <button id="mute-btn" class="header-icon-btn" title="Son on/off" onclick="toggleAudioMute()">🔊</button>
     <button id="settings-btn" title="Paramètres">&#9881;</button>
   </header>
 
@@ -3775,13 +3820,34 @@ function renderDailyChallenges() {
   const dc = state.quests.dailyChallenges;
   if (!dc || !dc.challenges) { container.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:20px">Aucun defi disponible.</p>'; return; }
 
-  let html = '<div style="padding:4px 0 8px;color:var(--text-dim);font-size:.7rem;text-align:center">Chaque jour, les dieux te proposent des defis. Accepte-les... mais gare a toi si tu echoues !</div>';
+  // Compute stats
+  const total = dc.challenges.length;
+  const accepted = dc.challenges.filter(c => c.accepted).length;
+  const completed = dc.challenges.filter(c => c.accepted && c.progress >= c.target).length;
+  const totalXp = dc.challenges.filter(c => c.accepted && c.progress >= c.target).reduce((s, c) => s + c.xpReward, 0);
+
+  let html = `<div class="defis-intro">
+    <div class="defis-intro-title">⚔ Defis du Jour</div>
+    <div class="defis-intro-text">Les dieux te lancent des epreuves. Accepte-les pour gagner de l'XP — mais gare au prix de l'echec.</div>
+    <div class="defis-stats">
+      <div class="defis-stat"><div class="defis-stat-val">${accepted}/${total}</div><div class="defis-stat-lbl">Acceptes</div></div>
+      <div class="defis-stat"><div class="defis-stat-val">${completed}</div><div class="defis-stat-lbl">Reussis</div></div>
+      <div class="defis-stat"><div class="defis-stat-val">+${totalXp}</div><div class="defis-stat-lbl">XP gagne</div></div>
+    </div>
+  </div>`;
 
   // Group by pool
   Object.keys(DAILY_CHALLENGE_POOLS).forEach(poolKey => {
     const pool = DAILY_CHALLENGE_POOLS[poolKey];
-    html += `<div class="quest-category">${pool.icon} ${pool.name}</div>`;
-    html += `<div style="font-size:.6rem;color:var(--text-dim);margin:-6px 0 8px;padding:0 2px">${pool.desc}</div>`;
+    const poolChallenges = dc.challenges.filter(c => c.pool === poolKey);
+    if (poolChallenges.length === 0) return;
+
+    html += `<div class="defis-pool-section">`;
+    html += `<div class="defis-pool-header">
+      <span class="defis-pool-icon">${pool.icon}</span>
+      <span class="defis-pool-title">${pool.name}</span>
+      <span class="defis-pool-desc">${pool.desc}</span>
+    </div>`;
 
     dc.challenges.forEach((ch, i) => {
       if (ch.pool !== poolKey) return;
@@ -3790,43 +3856,47 @@ function renderDailyChallenges() {
       const fillClass = pct >= 100 ? 'full' : pct >= 60 ? 'high' : pct >= 30 ? 'mid' : 'low';
 
       if (ch.declined && !ch.accepted) {
-        html += `<div class="challenge-card declined"><span class="quest-item-icon">${ch.icon}</span> <span style="color:var(--text-dim);text-decoration:line-through">${ch.name}</span> <span style="font-size:.6rem;color:var(--text-dim);margin-left:auto">Decline</span></div>`;
+        html += `<div class="challenge-card declined"><span style="font-size:1rem">${ch.icon}</span> <span style="text-decoration:line-through;flex:1">${ch.name}</span> <span style="font-size:.55rem">Passe</span></div>`;
         return;
       }
 
       html += `<div class="challenge-card ${ch.accepted ? 'accepted' : ''} ${isDone ? 'completed' : ''}">`;
-      html += `<div class="challenge-header">`;
-      html += `<span class="quest-item-icon">${ch.icon}</span>`;
-      html += `<span class="quest-item-name">${ch.name}</span>`;
-      html += `<span class="quest-item-xp">+${ch.xpReward} XP</span>`;
-      html += `</div>`;
-      html += `<div style="font-size:.6rem;color:var(--text-dim);margin:2px 0">${ch.target} ${ch.unit}</div>`;
+      html += `<div class="challenge-header">
+        <div class="challenge-icon-wrap">${ch.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="challenge-name">${ch.name}</div>
+          <div class="challenge-target">Objectif : ${ch.target} ${ch.unit}</div>
+        </div>
+        <div class="challenge-xp">+${ch.xpReward} XP</div>
+      </div>`;
+
       const chDesc = ch.desc || (DAILY_CHALLENGE_POOLS[ch.pool]?.quests.find(q => q.id === ch.id)?.desc);
-      if (chDesc) html += `<div style="font-size:.6rem;color:var(--text-dim);margin:4px 0 6px;line-height:1.4;font-style:italic;padding:4px 6px;background:rgba(255,255,255,.03);border-radius:4px;border-left:2px solid var(--gold-dim)">${chDesc}</div>`;
+      if (chDesc) html += `<div class="challenge-desc">${chDesc}</div>`;
 
       if (!ch.accepted) {
-        html += `<div class="challenge-actions">`;
-        html += `<button class="challenge-accept" onclick="acceptChallenge(${i})">⚔️ Accepter le defi</button>`;
-        html += `<button class="challenge-decline" onclick="declineChallenge(${i})">Passer</button>`;
-        html += `</div>`;
-        html += `<div style="font-size:.55rem;color:#e57373;margin-top:4px">⚠️ Si accepte et non complete : -${ch.xpReward * 2} XP</div>`;
+        html += `<div class="challenge-actions">
+          <button class="challenge-accept" onclick="acceptChallenge(${i})">⚔ Accepter le defi</button>
+          <button class="challenge-decline" onclick="declineChallenge(${i})">Passer</button>
+        </div>`;
+        html += `<div class="challenge-warning">⚠ Penalite en cas d'echec : <strong>-${ch.xpReward * 2} XP</strong></div>`;
       } else if (!isDone) {
-        html += `<div class="quest-item-progress">`;
-        html += `<div class="quest-progress-bar"><div class="quest-progress-fill ${fillClass}" style="width:${pct}%"></div></div>`;
-        html += `<span class="quest-progress-text">${ch.progress}/${ch.target} ${ch.unit}</span>`;
-        html += `</div>`;
-        html += `<div class="quest-item-input">`;
-        html += `<input type="number" id="ch-input-${i}" min="0" step="any" placeholder="0" />`;
-        html += `<span class="unit">${ch.unit}</span>`;
-        html += `<button onclick="logChallengeProgress(${i})">Valider</button>`;
-        html += `</div>`;
-        html += `<div style="font-size:.55rem;color:#e57373;margin-top:2px">⚠️ Penalite si non complete : -${ch.xpReward * 2} XP</div>`;
+        html += `<div class="quest-item-progress" style="margin-top:8px">
+          <div class="quest-progress-bar"><div class="quest-progress-fill ${fillClass}" style="width:${pct}%"></div></div>
+          <span class="quest-progress-text">${ch.progress}/${ch.target} ${ch.unit}</span>
+        </div>`;
+        html += `<div class="quest-item-input">
+          <input type="number" id="ch-input-${i}" min="0" step="any" placeholder="0" />
+          <span class="unit">${ch.unit}</span>
+          <button onclick="logChallengeProgress(${i})">Valider</button>
+        </div>`;
+        html += `<div class="challenge-warning">⚠ Si non complete avant minuit : <strong>-${ch.xpReward * 2} XP</strong></div>`;
       } else {
-        html += `<div style="font-size:.7rem;color:var(--gold);font-weight:700;margin-top:4px">✅ Defi accompli ! Les dieux sont fiers.</div>`;
+        html += `<div class="challenge-done-banner">✓ Defi accompli — Les dieux sont fiers</div>`;
       }
 
       html += `</div>`;
     });
+    html += `</div>`;
   });
 
   container.innerHTML = html;
@@ -6725,7 +6795,7 @@ function updateAccountUI() {
     document.getElementById('account-name').textContent = state.pseudo || currentUser.displayName || 'Viking';
     document.getElementById('account-email').textContent = currentUser.email || '';
     document.getElementById('account-pseudo').value = state.pseudo || '';
-    if (accountBtn) accountBtn.style.color = 'var(--gold)';
+    if (accountBtn) { accountBtn.style.color = ''; accountBtn.classList.add('connected'); }
 
     // Stats
     const q = state.quests || {};
@@ -6737,7 +6807,7 @@ function updateAccountUI() {
   } else {
     loggedOut.style.display = 'block';
     loggedIn.style.display = 'none';
-    if (accountBtn) accountBtn.style.color = '';
+    if (accountBtn) { accountBtn.style.color = ''; accountBtn.classList.remove('connected'); }
   }
 }
 
@@ -7138,6 +7208,8 @@ function setMood(mood) {
 
   moodIndicator.textContent = m.label;
   moodIndicator.style.color = m.color;
+  moodIndicator.style.setProperty('--mood-color', m.color);
+  moodIndicator.style.borderColor = m.color + '55';
 
   // Update 3D raven mood
   if (window.raven3D) window.raven3D.setMood(m.anim);
