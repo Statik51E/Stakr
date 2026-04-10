@@ -3330,6 +3330,25 @@ function initQuests() {
   if (!q.skillTree) q.skillTree = { unlockedNodes: [], activeBoosts: {}, unlockedQuests: [] };
   if (!q.worldMap) q.worldMap = { unlockedRegions: ['midgard'], bossVictories: 0, feathers: ['midgard'], stakrPowered: false };
   if (!q.worldMap.feathers) q.worldMap.feathers = [...q.worldMap.unlockedRegions];
+  if (typeof q.prestige !== 'number') q.prestige = 0;
+
+  // ===== MIGRATION: catch-up level-ups for players who had banked XP from the old level cap =====
+  // Old cap was 10. If a player accumulated XP beyond level 10, level them up silently now.
+  let bankedXp = q.xp || 0;
+  let consumedLevels = 0;
+  let xpNeeded = getXpForLevel(q.level);
+  while (bankedXp >= xpNeeded && q.level < MAX_LEVEL) {
+    bankedXp -= xpNeeded;
+    q.level++;
+    consumedLevels++;
+    xpNeeded = getXpForLevel(q.level);
+  }
+  if (consumedLevels > 0) {
+    q.xp = bankedXp;
+    const newRank = getRank(q.level);
+    showToast(`+${consumedLevels} niveaux !`, `Tes XP en banque ont ete consommes — tu es maintenant niveau ${q.level} (${newRank.name}).`);
+    saveState();
+  }
 
   // Boss hebdomadaire
   initWeeklyBoss();
