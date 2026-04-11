@@ -306,6 +306,59 @@ header button{flex-shrink:0}
 .challenge-decline{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text-dim);font-size:.7rem;cursor:pointer;font-family:inherit;transition:all .2s}
 .challenge-decline:hover{border-color:#e57373;color:#e57373;background:rgba(231,76,60,.05)}
 .challenge-done-banner{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;margin-top:6px;background:linear-gradient(135deg,rgba(76,175,80,.15),rgba(76,175,80,.05));border:1px solid #4caf50;border-radius:6px;color:#69f0ae;font-size:.7rem;font-weight:700;letter-spacing:.5px}
+/* ===== DEFIS SUB-TAB NAVIGATION ===== */
+.defis-subtab-nav{display:flex;gap:6px;margin-bottom:12px;padding:4px;background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:10px}
+.defis-subtab{flex:1;background:transparent;border:none;color:var(--text-dim);padding:9px 8px;border-radius:7px;font-size:.7rem;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.5px;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:5px}
+.defis-subtab:hover{color:var(--gold-dim)}
+.defis-subtab.active{background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:#0e0a06;box-shadow:0 2px 8px rgba(196,154,60,.35),inset 0 1px 0 rgba(255,255,255,.25)}
+/* ===== WORKOUT SESSIONS ===== */
+.workout-intro{padding:14px 16px;margin-bottom:14px;background:linear-gradient(135deg,rgba(196,154,60,.1),rgba(0,0,0,.35));border:1px solid var(--gold-dim);border-radius:12px;position:relative;overflow:hidden}
+.workout-intro::before{content:'';position:absolute;top:0;left:-100%;width:200%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:defisShimmer 4s linear infinite}
+.workout-header-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.workout-tier-badge{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;border:1px solid var(--gold-dim);background:linear-gradient(135deg,rgba(196,154,60,.2),rgba(0,0,0,.3));box-shadow:0 0 12px rgba(196,154,60,.3)}
+.workout-tier-info{flex:1;min-width:0}
+.workout-tier-name{font-size:1rem;color:var(--gold);font-weight:700;font-family:'Cinzel',serif;letter-spacing:1px;text-shadow:0 0 8px rgba(196,154,60,.4)}
+.workout-tier-sub{font-size:.65rem;color:var(--text-dim);font-style:italic;margin-top:1px}
+.workout-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.workout-meta-chip{font-size:.6rem;padding:4px 9px;background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:12px;color:var(--text);display:inline-flex;align-items:center;gap:4px}
+.workout-meta-chip.xp{border-color:var(--gold-dim);color:var(--gold);background:rgba(196,154,60,.1)}
+.workout-intro-text{font-size:.68rem;color:var(--text-dim);line-height:1.5;margin-top:8px;padding:8px 10px;background:rgba(0,0,0,.25);border-left:2px solid var(--gold-dim);border-radius:4px}
+.workout-progress-row{display:flex;align-items:center;gap:10px;margin-top:10px}
+.workout-progress-bar{flex:1;height:8px;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:4px;overflow:hidden;position:relative}
+.workout-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));transition:width .4s ease;box-shadow:0 0 8px rgba(196,154,60,.5)}
+.workout-progress-text{font-size:.65rem;color:var(--gold);font-weight:700;min-width:55px;text-align:right}
+.workout-exercise{background:linear-gradient(160deg,var(--surface),var(--wood-dark));border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;transition:all .3s;position:relative;overflow:hidden}
+.workout-exercise::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--text-dim);transition:all .3s}
+.workout-exercise.done{border-color:#4caf50;background:linear-gradient(160deg,rgba(76,175,80,.1),var(--surface))}
+.workout-exercise.done::before{background:linear-gradient(180deg,#69f0ae,#4caf50);box-shadow:0 0 10px rgba(76,175,80,.6)}
+.workout-ex-header{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.workout-ex-icon{width:36px;height:36px;border-radius:8px;background:rgba(196,154,60,.1);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;transition:all .3s}
+.workout-exercise.done .workout-ex-icon{background:rgba(76,175,80,.15);border-color:#4caf50}
+.workout-ex-name{font-size:.85rem;color:var(--text);font-weight:600;flex:1;line-height:1.2}
+.workout-ex-target{font-size:.58rem;color:var(--text-dim);margin-top:2px;font-style:italic}
+.workout-ex-sets{background:linear-gradient(135deg,rgba(196,154,60,.2),rgba(196,154,60,.05));color:var(--gold);font-size:.65rem;font-weight:700;padding:4px 10px;border-radius:10px;white-space:nowrap;border:1px solid var(--gold-dim)}
+.workout-exercise.done .workout-ex-sets{background:linear-gradient(135deg,rgba(76,175,80,.2),rgba(76,175,80,.05));color:#69f0ae;border-color:#4caf50}
+.workout-ex-desc{font-size:.65rem;color:var(--text-dim);line-height:1.5;padding:8px 10px;background:rgba(0,0,0,.25);border-radius:6px;border-left:2px solid var(--gold-dim);margin-bottom:8px}
+.workout-ex-validate{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:#0e0a06;border:none;border-radius:8px;padding:10px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;letter-spacing:.5px;box-shadow:0 2px 8px rgba(196,154,60,.3),inset 0 1px 0 rgba(255,255,255,.2)}
+.workout-ex-validate:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 4px 12px rgba(196,154,60,.5)}
+.workout-ex-validate:active{transform:translateY(0) scale(.97)}
+.workout-ex-done-mark{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:linear-gradient(135deg,rgba(76,175,80,.15),rgba(76,175,80,.05));border:1px solid #4caf50;border-radius:6px;color:#69f0ae;font-size:.7rem;font-weight:700;letter-spacing:.5px}
+.workout-finish-btn{width:100%;background:linear-gradient(135deg,#daa520,#ff9800);color:#0e0a06;border:none;border-radius:10px;padding:14px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .3s;letter-spacing:1px;box-shadow:0 4px 16px rgba(255,152,0,.4),inset 0 1px 0 rgba(255,255,255,.25);text-transform:uppercase;margin-top:12px;position:relative;overflow:hidden;animation:workoutFinishPulse 2s ease-in-out infinite}
+@keyframes workoutFinishPulse{0%,100%{box-shadow:0 4px 16px rgba(255,152,0,.4),inset 0 1px 0 rgba(255,255,255,.25)}50%{box-shadow:0 6px 24px rgba(255,152,0,.7),0 0 20px rgba(218,165,32,.5),inset 0 1px 0 rgba(255,255,255,.3)}}
+.workout-finish-btn:hover{filter:brightness(1.1);transform:translateY(-2px)}
+.workout-finish-btn:disabled{opacity:.4;cursor:not-allowed;animation:none;background:var(--surface);color:var(--text-dim);box-shadow:none}
+.workout-complete-banner{text-align:center;padding:20px;background:linear-gradient(160deg,rgba(76,175,80,.15),rgba(76,175,80,.05));border:1px solid #4caf50;border-radius:12px;margin-top:12px}
+.workout-complete-title{font-size:1rem;color:#69f0ae;font-weight:700;font-family:'Cinzel',serif;letter-spacing:1px;margin-bottom:6px}
+.workout-complete-text{font-size:.7rem;color:var(--text-dim);line-height:1.5}
+.workout-evolve-section{margin-top:12px;padding:12px;background:linear-gradient(135deg,rgba(196,154,60,.08),rgba(0,0,0,.3));border:1px dashed var(--gold-dim);border-radius:10px}
+.workout-evolve-title{font-size:.75rem;color:var(--gold);font-weight:700;margin-bottom:6px;letter-spacing:.5px;text-align:center}
+.workout-evolve-text{font-size:.62rem;color:var(--text-dim);line-height:1.5;text-align:center;margin-bottom:10px}
+.workout-evolve-btn{width:100%;background:linear-gradient(135deg,#ff9800,#e65100);color:#fff;border:none;border-radius:8px;padding:10px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.5px;box-shadow:0 2px 8px rgba(230,81,0,.4)}
+.workout-evolve-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.workout-tier-select{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.workout-tier-pill{flex:1;min-width:70px;padding:7px 6px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:.62rem;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;font-family:inherit}
+.workout-tier-pill.active{background:linear-gradient(135deg,rgba(196,154,60,.25),rgba(196,154,60,.05));border-color:var(--gold);color:var(--gold);box-shadow:0 0 10px rgba(196,154,60,.25)}
+.workout-tier-pill:hover:not(.active){color:var(--text);border-color:var(--gold-dim)}
 .quest-add-form{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-top:6px;display:none}
 .quest-add-form.visible{display:block}
 .quest-add-form input,.quest-add-form select{width:100%;background:var(--wood-mid);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-size:.75rem;margin-bottom:6px;font-family:inherit}
@@ -3295,6 +3348,79 @@ const DAILY_CHALLENGE_POOLS = {
   }
 };
 
+// ===== SEANCES VIKING (BODYWEIGHT WORKOUTS) =====
+const WORKOUT_SESSIONS = {
+  beginner: {
+    id: 'beginner', tier: 1, name: 'Initie', subtitle: 'Premiers pas vers Midgard',
+    icon: '🛡️', duration: '~30 min', xpReward: 300, rest: '60s entre series',
+    color: '#4caf50',
+    intro: "Pose les fondations du guerrier. Apprends la forme correcte et construis une base solide — c'est ici que naissent les legendes.",
+    exercises: [
+      { id:'b_warmup', name:'Echauffement', icon:'🔥', sets:'1', reps:'5 min', target:'corps entier', desc:"Jumping jacks, cercles d'epaules, rotations du tronc. Prepare les muscles et les articulations — ne saute jamais cette etape." },
+      { id:'b_pushups', name:'Pompes classiques', icon:'💪', sets:'3', reps:'8 reps', target:'pectoraux, epaules, triceps', desc:"Corps droit comme une planche, mains sous les epaules. Descends jusqu'a ce que ta poitrine touche presque le sol, remonte en poussant fort. Serre les fessiers pour ne pas casser." },
+      { id:'b_incline', name:'Pompes inclinees', icon:'📐', sets:'3', reps:'10 reps', target:'haut des pectoraux', desc:"Mains sur une chaise ou un muret, corps droit. Version plus facile qui cible le haut des pecs. Controle la descente sur 2 secondes." },
+      { id:'b_rows', name:'Rowing inverse (table)', icon:'🚣', sets:'3', reps:'8 reps', target:'dos, biceps', desc:"Sous une table solide, agrippe le bord, corps droit, talons au sol. Tire ta poitrine vers le bord de la table. Le squat du dos — indispensable pour un dos large." },
+      { id:'b_dips', name:'Dips sur chaise', icon:'🪑', sets:'3', reps:'8 reps', target:'triceps, pectoraux bas', desc:"Assis sur une chaise, mains au bord, avance tes pieds. Descends en pliant les coudes a 90 degres, remonte. Garde les coudes proches du corps." },
+      { id:'b_curl_iso', name:'Curl isometrique', icon:'🧱', sets:'3', reps:'20 sec', target:'biceps', desc:"Accroche-toi sous une table ou a une barre, bras plies a 90 degres. Tiens sans bouger. La contraction pure gonfle le biceps rapidement." },
+      { id:'b_plank', name:'Gainage planche', icon:'🛡️', sets:'3', reps:'20 sec', target:'gainage', desc:"Coudes sous les epaules, corps droit de la tete aux talons. Serre les abdos et les fessiers. Respire calmement — c'est un exercice de volonte autant que de force." },
+      { id:'b_stretch', name:'Etirements', icon:'🧘', sets:'1', reps:'3 min', target:'recuperation', desc:"Etire pectoraux, epaules, dos et bras. La recuperation commence des la fin de la seance — c'est pendant le repos que le muscle grandit." }
+    ]
+  },
+  intermediate: {
+    id: 'intermediate', tier: 2, name: 'Karl', subtitle: 'Le guerrier libre',
+    icon: '⚔️', duration: '~40 min', xpReward: 400, rest: '75s entre series',
+    color: '#2196f3',
+    intro: "Ton corps commence a obeir. Augmente le volume, introduis les tractions et forge les premiers signes d'un physique de guerrier.",
+    exercises: [
+      { id:'i_warmup', name:'Echauffement actif', icon:'🔥', sets:'1', reps:'5 min', target:'corps entier', desc:"Jumping jacks, rotations des bras, cercles d'epaules, squats legers. Monte le rythme cardiaque et prepare les epaules aux tractions." },
+      { id:'i_tractions_ass', name:'Tractions assistees', icon:'🪨', sets:'4', reps:'6 reps', target:'dos, biceps', desc:"A une barre, aide-toi d'un leger saut pour monter, puis descends le plus lentement possible (3-4 sec). La descente controlee construit la force." },
+      { id:'i_rows', name:'Rowing inverse', icon:'🚣', sets:'4', reps:'10 reps', target:'dos, biceps', desc:"Sous une table, corps droit, tire la poitrine au bord. Serre les omoplates en haut. Pour un dos large, la cle est ici." },
+      { id:'i_diamond', name:'Pompes diamant', icon:'💎', sets:'4', reps:'10 reps', target:'triceps, pecs interieurs', desc:"Mains rapprochees en forme de diamant sous la poitrine. Descends lentement, les coudes le long du corps. Cible les triceps et le centre des pecs." },
+      { id:'i_wide', name:'Pompes larges', icon:'🦅', sets:'4', reps:'10 reps', target:'pectoraux larges', desc:"Mains bien plus larges que les epaules. Etire les pectoraux a fond en bas. C'est cet exercice qui donne la largeur de la poitrine." },
+      { id:'i_pike', name:'Pompes pike', icon:'🔱', sets:'3', reps:'8 reps', target:'epaules', desc:"En V inverse (fesses hautes), descends la tete vers le sol entre les mains. Simule un developpe epaules — essentiel pour des epaules larges." },
+      { id:'i_chin_neg', name:'Chin-ups negatifs', icon:'⬇️', sets:'3', reps:'5 reps', target:'biceps, dos', desc:"Paumes vers toi. Saute en position haute et descends en 5 secondes minimum. Detruit les fibres des biceps comme rien d'autre." },
+      { id:'i_plank', name:'Gainage planche', icon:'🛡️', sets:'3', reps:'40 sec', target:'gainage', desc:"Planche classique, corps parfaitement droit. Si c'est trop facile, leve un bras ou une jambe pour augmenter la difficulte." }
+    ]
+  },
+  advanced: {
+    id: 'advanced', tier: 3, name: 'Drengr', subtitle: 'Le brave des sagas',
+    icon: '⚡', duration: '~50 min', xpReward: 500, rest: '90s entre series',
+    color: '#ff9800',
+    intro: "Les dieux commencent a te remarquer. Volume extreme, temps sous tension, intensite maximale — ton corps devient une forge.",
+    exercises: [
+      { id:'a_warmup', name:'Echauffement dynamique', icon:'🔥', sets:'1', reps:'5 min', target:'corps entier', desc:"Jumping jacks, burpees legers, cercles d'epaules avec amplitude maximale. Monte a 70% de la FC max avant de commencer." },
+      { id:'a_tractions_large', name:'Tractions prise large', icon:'🦅', sets:'5', reps:'8 reps', target:'dos TRES large', desc:"Prise large, paumes vers l'avant. Tire en pensant a rapprocher les omoplates. C'est l'exercice ROI pour un dos de Viking." },
+      { id:'a_dips_deep', name:'Dips profonds', icon:'🔻', sets:'5', reps:'10 reps', target:'pectoraux, triceps', desc:"Sur deux surfaces, descends le plus bas possible, coudes a 90 degres minimum. Etire les pecs en bas, explose en montant. Volume garanti." },
+      { id:'a_hindu', name:'Pompes hindoues', icon:'🐍', sets:'4', reps:'8 reps', target:'epaules, dos, pectoraux', desc:"De la position pike, plonge vers le sol en arc puis remonte bras tendus. Exercice complet du haut du corps — tout travaille ensemble." },
+      { id:'a_rows_str', name:'Rowing inverse jambes tendues', icon:'🚣', sets:'4', reps:'12 reps', target:'dos complet', desc:"Comme le rowing inverse mais jambes tendues horizontalement. Beaucoup plus dur — le dos travaille intensement pour soulever tout le corps." },
+      { id:'a_chin', name:'Chin-ups supination', icon:'💪', sets:'4', reps:'6 reps', target:'biceps tres gonfles', desc:"Tractions paumes vers toi. L'exercice qui gonfle les biceps le plus rapidement. Controle la descente 3-4 sec pour maximiser l'hypertrophie." },
+      { id:'a_archer', name:'Pompes archer', icon:'🏹', sets:'3', reps:'6 / cote', target:'pectoraux unilateraux', desc:"Un bras plie fait la pompe, l'autre reste tendu sur le cote comme un arc. Charge maximale sur un seul pec — developpement spectaculaire." },
+      { id:'a_curl_iso', name:'Curl isometrique barre', icon:'🧱', sets:'3', reps:'30 sec', target:'biceps', desc:"A une barre, bras plies a 90 degres exactement. Tiens. Le biceps explose de sang — sensation de brulure pure." },
+      { id:'a_plank', name:'Gainage planche', icon:'🛡️', sets:'3', reps:'60 sec', target:'gainage', desc:"1 minute complete. Si facile, ajoute une main tendue devant ou une jambe levee. La planche de guerrier." }
+    ]
+  },
+  elite: {
+    id: 'elite', tier: 4, name: 'Berserkr', subtitle: 'Le fou de guerre',
+    icon: '🔥', duration: '~60 min', xpReward: 600, rest: '2 min entre series',
+    color: '#f44336',
+    intro: "Tu es devenu un Berserkr. Cette seance est concue pour forger un physique de legende — dos massif, pecs gonfles, epaules explosives, biceps comme des rochers. Aucune faiblesse autorisee.",
+    exercises: [
+      { id:'e_warmup', name:'Echauffement complet', icon:'🔥', sets:'1', reps:'5 min', target:'corps entier', desc:"Mobilite complete + 2 min d'intensite progressive. Arrive a 80% de la FC max pour preparer le corps a l'effort maximal." },
+      { id:'e_tractions_lest', name:'Tractions prise large (lestees)', icon:'🦅', sets:'6', reps:'8 reps', target:'dos massif', desc:"Ajoute du lest (sac a dos charge) si possible. Prise tres large. Chaque traction doit te demander un effort maximal — c'est ainsi que le dos devient massif." },
+      { id:'e_muscle_up', name:'Muscle-up progression', icon:'💥', sets:'5', reps:'5 reps', target:'dos, pectoraux, triceps', desc:"Tractions explosives avec intention de passer au-dessus de la barre. Si tu ne peux pas encore, fais des tractions hautes (mains vers la poitrine)." },
+      { id:'e_pseudo', name:'Pompes pseudo-planche', icon:'🤸', sets:'5', reps:'8 reps', target:'epaules explosives', desc:"Mains au niveau de la taille, doigts vers l'arriere, epaules vers l'avant. Tension extreme sur les deltoides — l'exercice des calisthenics elite pour des epaules en boulets de canon." },
+      { id:'e_dips_lest', name:'Dips profonds lestes', icon:'🔻', sets:'5', reps:'12 reps', target:'pectoraux gonfles', desc:"Sac a dos charge. Descends profond, pause 1 sec en bas, explose en haut. 60 reps totales avec charge — les pectoraux vont gonfler comme jamais." },
+      { id:'e_chin_slow', name:'Chin-ups lentes', icon:'🐌', sets:'5', reps:'8 reps', target:'biceps monstres', desc:"Montee en 2 sec, pause 1 sec en haut, descente en 4 sec. Temps sous tension extreme — le biceps gonfle sous la pression et la douleur." },
+      { id:'e_archer_slow', name:'Pompes archer lentes', icon:'🏹', sets:'4', reps:'6 / cote', target:'pectoraux unilateraux', desc:"Descente 3 sec, remontee 2 sec. Chaque pec doit porter 80% de ton poids. L'asymetrie force la pure hypertrophie." },
+      { id:'e_slow_pushup', name:'Pompes lentes 5-5', icon:'⏳', sets:'4', reps:'6 reps', target:'pectoraux hypertrophie', desc:"5 secondes pour descendre, 5 secondes pour remonter. 10 secondes par rep. Le temps sous tension maximal construit les fibres les plus fortes." },
+      { id:'e_curl_iso', name:'Curl isometrique 45s', icon:'🧱', sets:'4', reps:'45 sec', target:'biceps extremes', desc:"45 secondes de tenue pure a 90 degres. Les derniers 10 secondes sont un combat mental — gagne-le et les biceps grossiront." },
+      { id:'e_lsit', name:'L-sit progression', icon:'🪑', sets:'3', reps:'20 sec', target:'gainage avance', desc:"Assis, mains au sol, souleve le corps entier jambes tendues devant. Si trop dur, plie les genoux. Abdos et epaules de fer." },
+      { id:'e_plank', name:'Gainage planche', icon:'🛡️', sets:'3', reps:'90 sec', target:'gainage total', desc:"90 secondes. Aucune triche — hanches bien alignees. Ajoute 10 sec a chaque seance pour progresser." }
+    ]
+  }
+};
+const WORKOUT_TIER_ORDER = ['beginner', 'intermediate', 'advanced', 'elite'];
+
 const CHALLENGE_PENALTY_MSGS = [
   "Kraa ! Tu avais accepte le defi {name} mais tu ne l'as pas accompli... Les dieux sont decus. **-{xp} XP** ! [MOOD:triste]",
   "Viking ! Le defi {name} n'a pas ete releve... Un serment brise coute cher : **-{xp} XP** ! [MOOD:triste]",
@@ -3395,6 +3521,10 @@ function initQuests() {
   if (!q.worldMap) q.worldMap = { unlockedRegions: ['midgard'], bossVictories: 0, feathers: ['midgard'], stakrPowered: false };
   if (!q.worldMap.feathers) q.worldMap.feathers = [...q.worldMap.unlockedRegions];
   if (typeof q.prestige !== 'number') q.prestige = 0;
+
+  // Workout sessions state
+  if (!q.workout) q.workout = { currentTier: 'beginner', sessionDate: null, progress: [], completedToday: false, totalSessions: 0, history: [] };
+  if (!q.defisSubTab) q.defisSubTab = 'challenges';
 
   // ===== MIGRATION: catch-up level-ups for players who had banked XP from the old level cap =====
   // Old cap was 10. If a player accumulated XP beyond level 10, level them up silently now.
@@ -3836,8 +3966,19 @@ function logChallengeProgress(index) {
 function renderDailyChallenges() {
   const container = $('#quest-defis-tab');
   if (!container) return;
+  const subTab = state.quests.defisSubTab || 'challenges';
+  const navHtml = `<div class="defis-subtab-nav">
+    <button class="defis-subtab ${subTab === 'challenges' ? 'active' : ''}" onclick="switchDefisSubTab('challenges')">⚔ Defis</button>
+    <button class="defis-subtab ${subTab === 'workout' ? 'active' : ''}" onclick="switchDefisSubTab('workout')">💪 Seances</button>
+  </div>`;
+
+  if (subTab === 'workout') {
+    container.innerHTML = navHtml + renderWorkoutSessions();
+    return;
+  }
+
   const dc = state.quests.dailyChallenges;
-  if (!dc || !dc.challenges) { container.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:20px">Aucun defi disponible.</p>'; return; }
+  if (!dc || !dc.challenges) { container.innerHTML = navHtml + '<p style="color:var(--text-dim);text-align:center;padding:20px">Aucun defi disponible.</p>'; return; }
 
   // Compute stats
   const total = dc.challenges.length;
@@ -3845,7 +3986,7 @@ function renderDailyChallenges() {
   const completed = dc.challenges.filter(c => c.accepted && c.progress >= c.target).length;
   const totalXp = dc.challenges.filter(c => c.accepted && c.progress >= c.target).reduce((s, c) => s + c.xpReward, 0);
 
-  let html = `<div class="defis-intro">
+  let html = navHtml + `<div class="defis-intro">
     <div class="defis-intro-title">⚔ Defis du Jour</div>
     <div class="defis-intro-text">Les dieux te lancent des epreuves. Accepte-les pour gagner de l'XP — mais gare au prix de l'echec.</div>
     <div class="defis-stats">
@@ -3919,6 +4060,194 @@ function renderDailyChallenges() {
   });
 
   container.innerHTML = html;
+}
+
+function switchDefisSubTab(sub) {
+  if (!state.quests) return;
+  state.quests.defisSubTab = sub;
+  saveState();
+  renderDailyChallenges();
+}
+
+function getCurrentWorkoutSession() {
+  const w = state.quests.workout;
+  return WORKOUT_SESSIONS[w.currentTier] || WORKOUT_SESSIONS.beginner;
+}
+
+function ensureWorkoutSessionState() {
+  const w = state.quests.workout;
+  const today = getTodayStr();
+  const session = getCurrentWorkoutSession();
+  // Reset progress if a new day started, or progress array is the wrong size for current tier
+  if (w.sessionDate !== today) {
+    w.sessionDate = today;
+    w.progress = new Array(session.exercises.length).fill(false);
+    w.completedToday = false;
+  } else if (!Array.isArray(w.progress) || w.progress.length !== session.exercises.length) {
+    w.progress = new Array(session.exercises.length).fill(false);
+  }
+}
+
+function renderWorkoutSessions() {
+  ensureWorkoutSessionState();
+  const w = state.quests.workout;
+  const session = getCurrentWorkoutSession();
+  const doneCount = w.progress.filter(Boolean).length;
+  const total = session.exercises.length;
+  const pct = Math.round((doneCount / total) * 100);
+  const allDone = doneCount === total;
+
+  let html = '';
+
+  // Tier selector — unlocked tiers only
+  const currentTierIdx = WORKOUT_TIER_ORDER.indexOf(w.currentTier);
+  html += `<div class="workout-tier-select">`;
+  WORKOUT_TIER_ORDER.forEach((tierKey, idx) => {
+    const s = WORKOUT_SESSIONS[tierKey];
+    const unlocked = idx <= currentTierIdx;
+    const active = tierKey === w.currentTier;
+    const locked = !unlocked;
+    html += `<button class="workout-tier-pill ${active ? 'active' : ''}" ${locked ? 'disabled style="opacity:.35;cursor:not-allowed"' : `onclick="selectWorkoutTier('${tierKey}')"`}>
+      ${locked ? '🔒 ' : s.icon + ' '}${s.name}<br><span style="font-size:.55rem;opacity:.75">+${s.xpReward} XP</span>
+    </button>`;
+  });
+  html += `</div>`;
+
+  // Intro card with session header
+  html += `<div class="workout-intro" style="margin-top:12px">
+    <div class="workout-header-row">
+      <div class="workout-tier-badge">${session.icon}</div>
+      <div class="workout-tier-info">
+        <div class="workout-tier-name">${session.name}</div>
+        <div class="workout-tier-sub">${session.subtitle}</div>
+      </div>
+    </div>
+    <div class="workout-meta">
+      <span class="workout-meta-chip">⏱ ${session.duration}</span>
+      <span class="workout-meta-chip">⏸ ${session.rest}</span>
+      <span class="workout-meta-chip xp">+${session.xpReward} XP</span>
+      <span class="workout-meta-chip">🏅 ${w.totalSessions} seances</span>
+    </div>
+    <div class="workout-intro-text">${session.intro}</div>
+    <div class="workout-progress-row">
+      <div class="workout-progress-bar"><div class="workout-progress-fill" style="width:${pct}%"></div></div>
+      <span class="workout-progress-text">${doneCount}/${total}</span>
+    </div>
+  </div>`;
+
+  if (w.completedToday) {
+    html += `<div class="workout-complete-banner">
+      <div class="workout-complete-title">✓ Seance accomplie aujourd'hui</div>
+      <div class="workout-complete-text">Les dieux sont fiers, Viking. Reviens demain pour forger encore davantage ton corps. Les muscles grandissent pendant le repos — dors bien et mange proteine.</div>
+    </div>`;
+    // Offer evolution if not at elite
+    if (currentTierIdx < WORKOUT_TIER_ORDER.length - 1) {
+      const nextTier = WORKOUT_SESSIONS[WORKOUT_TIER_ORDER[currentTierIdx + 1]];
+      html += `<div class="workout-evolve-section">
+        <div class="workout-evolve-title">⚡ Prêt a evoluer ?</div>
+        <div class="workout-evolve-text">Passe au rang suivant : <strong>${nextTier.icon} ${nextTier.name}</strong> — <em>${nextTier.subtitle}</em>. Seance plus longue et plus intense, mais <strong>+${nextTier.xpReward} XP</strong> par seance au lieu de +${session.xpReward}.</div>
+        <button class="workout-evolve-btn" onclick="evolveWorkoutTier()">Evoluer vers ${nextTier.name} ${nextTier.icon}</button>
+      </div>`;
+    } else {
+      html += `<div class="workout-evolve-section">
+        <div class="workout-evolve-title">👑 Rang Maximum</div>
+        <div class="workout-evolve-text">Tu es au sommet — Berserkr, le fou de guerre. Continue ces seances pour maintenir ton physique de legende.</div>
+      </div>`;
+    }
+    return html;
+  }
+
+  // Exercise list
+  session.exercises.forEach((ex, i) => {
+    const done = w.progress[i];
+    html += `<div class="workout-exercise ${done ? 'done' : ''}">
+      <div class="workout-ex-header">
+        <div class="workout-ex-icon">${ex.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="workout-ex-name">${ex.name}</div>
+          <div class="workout-ex-target">${ex.target}</div>
+        </div>
+        <div class="workout-ex-sets">${ex.sets} × ${ex.reps}</div>
+      </div>
+      <div class="workout-ex-desc">${ex.desc}</div>`;
+    if (done) {
+      html += `<div class="workout-ex-done-mark">✓ Valide</div>`;
+    } else {
+      html += `<button class="workout-ex-validate" onclick="validateWorkoutExercise(${i})">Valider l'exercice</button>`;
+    }
+    html += `</div>`;
+  });
+
+  // Finish button
+  html += `<button class="workout-finish-btn" ${allDone ? '' : 'disabled'} onclick="completeWorkoutSession()">
+    ${allDone ? `⚔ Terminer la seance (+${session.xpReward} XP)` : `Complete tous les exercices (${doneCount}/${total})`}
+  </button>`;
+
+  return html;
+}
+
+function validateWorkoutExercise(idx) {
+  ensureWorkoutSessionState();
+  const w = state.quests.workout;
+  w.progress[idx] = true;
+  saveState();
+  renderDailyChallenges();
+}
+
+function selectWorkoutTier(tierKey) {
+  const w = state.quests.workout;
+  const currentIdx = WORKOUT_TIER_ORDER.indexOf(w.currentTier);
+  const targetIdx = WORKOUT_TIER_ORDER.indexOf(tierKey);
+  // Allow selecting any unlocked tier (<= current)
+  if (targetIdx > currentIdx) return;
+  if (tierKey === w.currentTier) return;
+  // Changing tier mid-day resets today's progress to avoid cheating
+  w.currentTier = tierKey;
+  const session = WORKOUT_SESSIONS[tierKey];
+  w.progress = new Array(session.exercises.length).fill(false);
+  w.completedToday = false;
+  w.sessionDate = getTodayStr();
+  saveState();
+  renderDailyChallenges();
+}
+
+function completeWorkoutSession() {
+  ensureWorkoutSessionState();
+  const w = state.quests.workout;
+  const session = getCurrentWorkoutSession();
+  if (w.progress.filter(Boolean).length !== session.exercises.length) return;
+  if (w.completedToday) return;
+
+  w.completedToday = true;
+  w.totalSessions = (w.totalSessions || 0) + 1;
+  if (!w.history) w.history = [];
+  w.history.push({ date: getTodayStr(), tier: w.currentTier, xp: session.xpReward });
+  if (w.history.length > 100) w.history = w.history.slice(-100);
+
+  addQuestXp(session.xpReward, 'physique');
+  showToast(`Seance ${session.name} accomplie !`, `+${session.xpReward} XP — ton corps forge une legende, Viking !`);
+  addMessage('stakr', `KRAA ! Tu as termine la seance **${session.icon} ${session.name}** ! +${session.xpReward} XP ! Ton corps se transforme en physique de guerrier — les dieux observent avec fierte. [MOOD:excite]`);
+
+  saveState();
+  renderDailyChallenges();
+  renderQuests();
+}
+
+function evolveWorkoutTier() {
+  const w = state.quests.workout;
+  const currentIdx = WORKOUT_TIER_ORDER.indexOf(w.currentTier);
+  if (currentIdx >= WORKOUT_TIER_ORDER.length - 1) return;
+  const nextTierKey = WORKOUT_TIER_ORDER[currentIdx + 1];
+  const nextSession = WORKOUT_SESSIONS[nextTierKey];
+  if (!confirm(`Evoluer vers ${nextSession.name} (${nextSession.subtitle}) ?\n\nLes seances seront plus longues et plus intenses, mais tu gagneras +${nextSession.xpReward} XP au lieu de +${getCurrentWorkoutSession().xpReward}.\n\nTu peux toujours revenir en arriere via le selecteur de rang.`)) return;
+
+  w.currentTier = nextTierKey;
+  w.progress = new Array(nextSession.exercises.length).fill(false);
+  w.completedToday = true; // Keep locked until tomorrow (already did today's session)
+  saveState();
+  showToast('Evolution !', `Tu passes au rang ${nextSession.name} ${nextSession.icon} — les dieux approuvent !`);
+  addMessage('stakr', `Par Odin ! Tu choisis la voie du **${nextSession.name}** — ${nextSession.subtitle}. Les seances deviendront plus rudes, mais ton corps deviendra une forge de guerre. A demain pour la premiere seance du nouveau rang ! [MOOD:excite]`);
+  renderDailyChallenges();
 }
 
 function toggleQuestPanel() {
