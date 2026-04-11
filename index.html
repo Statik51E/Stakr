@@ -4239,9 +4239,12 @@ function checkDailyChallenges() {
   const q = state.quests;
   const today = getTodayStr();
 
-  if (!q.dailyChallenges) q.dailyChallenges = { date: null, challenges: [], penaltyChecked: null };
+  if (!q.dailyChallenges) q.dailyChallenges = { date: null, challenges: [], penaltyChecked: null, totalCompleted: 0, totalAccepted: 0, totalFailed: 0 };
 
   const dc = q.dailyChallenges;
+  if (typeof dc.totalCompleted !== 'number') dc.totalCompleted = 0;
+  if (typeof dc.totalAccepted !== 'number') dc.totalAccepted = 0;
+  if (typeof dc.totalFailed !== 'number') dc.totalFailed = 0;
 
   // Check penalties for yesterday's accepted-but-incomplete challenges
   if (dc.date && dc.date !== today && dc.penaltyChecked !== today) {
@@ -4250,6 +4253,7 @@ function checkDailyChallenges() {
         const penalty = ch.xpReward * 2;
         q.xp = Math.max(0, q.xp - penalty);
         q.totalXp = Math.max(0, q.totalXp - penalty);
+        dc.totalFailed = (dc.totalFailed || 0) + 1;
         const msg = CHALLENGE_PENALTY_MSGS[Math.floor(Math.random() * CHALLENGE_PENALTY_MSGS.length)]
           .replace('{name}', `${ch.icon} ${ch.name}`)
           .replace('{xp}', penalty);
@@ -4283,6 +4287,7 @@ function acceptChallenge(index) {
   const ch = dc.challenges[index];
   if (ch.accepted) return;
   ch.accepted = true;
+  dc.totalAccepted = (dc.totalAccepted || 0) + 1;
   saveState();
 
   const msg = CHALLENGE_ACCEPT_MSGS[Math.floor(Math.random() * CHALLENGE_ACCEPT_MSGS.length)]
@@ -4323,6 +4328,7 @@ function logChallengeProgress(index) {
   }
 
   if (!wasDone && isNowDone) {
+    dc.totalCompleted = (dc.totalCompleted || 0) + 1;
     const bonusMsg = QUEST_CONGRATS[Math.floor(Math.random() * QUEST_CONGRATS.length)]
       .replace('{obj}', `${ch.icon} ${ch.name}`)
       .replace('{xp}', ch.xpReward);
@@ -7576,6 +7582,113 @@ Regles:
   return 0;
 }
 
+// ===== COMBINED STATS AGGREGATION =====
+// Pulls numbers from every system (daily/weekly quests, defis, seances, solo leveling)
+// and normalizes them to the 6 radar-chart axes. Reused by renderQuestStats and
+// downloadStatsCard so both views stay in sync.
+function computeCombinedStats() {
+  const q = state.quests || {};
+  const w = q.workout || {};
+  const sl = q.soloLeveling || {};
+  const dc = q.dailyChallenges || {};
+  const history = q.history || [];
+
+  // Raw totals across all systems
+  const dailyDone = history.filter(h => h.period === 'daily' && h.progress >= h.target).length;
+  const weeklyDone = history.filter(h => h.period === 'weekly' && h.progress >= h.target).length;
+  const defisCompleted = dc.totalCompleted || 0;
+  const defisAccepted = dc.totalAccepted || 0;
+  const defisFailed = dc.totalFailed || 0;
+  const physicalSessions = w.totalSessions || 0;
+  const medSessions = w.totalMedSessions || 0;
+  const phiSessions = w.totalPhiSessions || 0;
+  const mindSessions = medSessions + phiSessions;
+  const soloDays = sl.completedDays || 0;
+  const soloMissed = sl.missedDays || 0;
+  const soloWeek = sl.currentWeek || 0;
+  const soloTotals = sl.totals || { pushups: 0, squats: 0, abs: 0, km: 0 };
+  const soloReps = Math.floor((soloTotals.pushups || 0) + (soloTotals.squats || 0) + (soloTotals.abs || 0));
+  const soloKm = +(soloTotals.km || 0);
+  const streak = q.streak || 0;
+  const daysActive = q.startDate ? Math.max(1, Math.ceil((Date.now() - new Date(q.startDate).getTime()) / 86400000)) : 1;
+  const totalXp = q.totalXp || 0;
+
+  // XP by category (daily/weekly objectives)
+  const catXp = {};
+  history.forEach(h => {
+    const obj = (typeof DEFAULT_OBJECTIVES !== 'undefined' && DEFAULT_OBJECTIVES.find(o => o.id === h.id)) || (q.objectives || []).find(o => o.id === h.id);
+    if (obj) {
+      const cat = obj.category || 'custom';
+      catXp[cat] = (catXp[cat] || 0) + Math.round((obj.xpReward || 0) * Math.min(1, h.progress / (h.target || 1)));
+    }
+  });
+
+  // Spider-chart axes — each normalized 0..100 against a "target of mastery" value.
+  // Thresholds are tuned so a committed user hits ~80-100 after a few months.
+  const norm = (v, max) => Math.max(0, Math.min(100, Math.round((v / max) * 100)));
+  const axes = [
+    {
+      key: 'corps',
+      label: 'Corps',
+      icon: '💪',
+      raw: physicalSessions + Math.floor(soloReps / 60) + Math.floor(soloKm / 2),
+      value: norm(physicalSessions * 3 + soloReps / 40 + soloKm, 300),
+      detail: `${physicalSessions} seances • ${soloReps} reps • ${soloKm.toFixed(1)} km`
+    },
+    {
+      key: 'esprit',
+      label: 'Esprit',
+      icon: '🧘',
+      raw: mindSessions,
+      value: norm(mindSessions * 4 + (catXp.mental || 0) / 50, 200),
+      detail: `${medSessions} meditations • ${phiSessions} sagesses`
+    },
+    {
+      key: 'defis',
+      label: 'Defis',
+      icon: '⚔',
+      raw: defisCompleted,
+      value: norm(defisCompleted * 2, 200),
+      detail: `${defisCompleted} accomplis • ${defisFailed} echoues`
+    },
+    {
+      key: 'quetes',
+      label: 'Quetes',
+      icon: '📜',
+      raw: dailyDone + weeklyDone,
+      value: norm(dailyDone + weeklyDone * 3, 300),
+      detail: `${dailyDone} quotidiennes • ${weeklyDone} hebdo`
+    },
+    {
+      key: 'constance',
+      label: 'Constance',
+      icon: '🔥',
+      raw: streak,
+      value: norm(streak * 2 + daysActive / 2, 200),
+      detail: `streak ${streak} j • ${daysActive} j actifs`
+    },
+    {
+      key: 'volonte',
+      label: 'Volonte',
+      icon: '💥',
+      raw: soloDays,
+      value: norm(soloDays * 2 + soloWeek * 5, 150),
+      detail: `${soloDays} jours solo • S${soloWeek}/10`
+    }
+  ];
+
+  return {
+    axes,
+    catXp,
+    raw: {
+      dailyDone, weeklyDone, defisCompleted, defisAccepted, defisFailed,
+      physicalSessions, medSessions, phiSessions, mindSessions,
+      soloDays, soloMissed, soloWeek, soloReps, soloKm, soloTotals,
+      streak, daysActive, totalXp
+    }
+  };
+}
+
 function renderQuestStats() {
   const q = state.quests;
   const container = $('#quest-stats-tab');
@@ -7594,19 +7707,120 @@ function renderQuestStats() {
     last7.push({ dayName, dateStr, completed, total, pct: total > 0 ? Math.round((completed / total) * 100) : 0 });
   }
 
-  // Best categories
-  const catXp = {};
-  q.history.forEach(h => {
-    const obj = DEFAULT_OBJECTIVES.find(o => o.id === h.id) || q.objectives.find(o => o.id === h.id);
-    if (obj) {
-      const cat = obj.category || 'custom';
-      catXp[cat] = (catXp[cat] || 0) + Math.round(obj.xpReward * Math.min(1, h.progress / h.target));
-    }
-  });
+  const combined = computeCombinedStats();
+  const { axes, raw } = combined;
+  const catXp = combined.catXp;
 
   const CATEGORY_NAMES = { physique: 'Physique', mental: 'Mental', sante: 'Sante', social: 'Social', custom: 'Personnel' };
 
+  // ===== SPIDER/RADAR CHART (inline SVG) =====
+  const SVG_SIZE = 280;
+  const CX = SVG_SIZE / 2;
+  const CY = SVG_SIZE / 2;
+  const RADIUS = 95;
+  const axisCount = axes.length;
+  const angleFor = (i) => -Math.PI / 2 + (i * 2 * Math.PI) / axisCount;
+  const pointAt = (i, pct) => {
+    const a = angleFor(i);
+    const r = RADIUS * (pct / 100);
+    return [CX + Math.cos(a) * r, CY + Math.sin(a) * r];
+  };
+  // Grid rings (20/40/60/80/100)
+  let gridSvg = '';
+  for (let ring = 1; ring <= 5; ring++) {
+    const pct = ring * 20;
+    const pts = axes.map((_, i) => pointAt(i, pct).join(',')).join(' ');
+    gridSvg += `<polygon points="${pts}" fill="none" stroke="rgba(196,154,60,0.22)" stroke-width="1" />`;
+  }
+  // Radial spokes
+  let spokesSvg = '';
+  axes.forEach((_, i) => {
+    const [x, y] = pointAt(i, 100);
+    spokesSvg += `<line x1="${CX}" y1="${CY}" x2="${x}" y2="${y}" stroke="rgba(196,154,60,0.18)" stroke-width="1" />`;
+  });
+  // Data polygon
+  const dataPts = axes.map((a, i) => pointAt(i, a.value).join(',')).join(' ');
+  // Axis labels (outside ring)
+  let labelsSvg = '';
+  axes.forEach((a, i) => {
+    const [lx, ly] = pointAt(i, 128);
+    labelsSvg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-family="Cinzel, serif" font-size="11" font-weight="700" fill="#c49a3c">${a.icon} ${a.label}</text>`;
+    const [vx, vy] = pointAt(i, a.value);
+    labelsSvg += `<circle cx="${vx}" cy="${vy}" r="3" fill="#ffd76a" stroke="#c49a3c" stroke-width="1" />`;
+  });
+
+  const radarSvg = `<svg width="${SVG_SIZE}" height="${SVG_SIZE}" viewBox="0 0 ${SVG_SIZE} ${SVG_SIZE}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">
+    ${gridSvg}
+    ${spokesSvg}
+    <polygon points="${dataPts}" fill="rgba(218,165,32,0.28)" stroke="#daa520" stroke-width="2" stroke-linejoin="round" />
+    ${labelsSvg}
+  </svg>`;
+
+  const axisDetailHtml = axes.map(a => `
+    <div style="display:flex;align-items:center;gap:8px;margin:5px 0">
+      <span style="font-size:.9rem;min-width:22px">${a.icon}</span>
+      <span style="font-size:.7rem;min-width:70px;color:var(--gold)">${a.label}</span>
+      <div style="flex:1;height:6px;background:var(--wood-mid);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${a.value}%;background:linear-gradient(90deg,var(--gold-dim),var(--gold-bright));border-radius:3px"></div>
+      </div>
+      <span style="font-size:.65rem;color:var(--gold);min-width:32px;text-align:right">${a.value}</span>
+    </div>
+    <div style="font-size:.55rem;color:var(--text-dim);margin:-2px 0 6px 30px">${a.detail}</div>
+  `).join('');
+
   let html = `
+    <button onclick="downloadStatsCard()" style="width:100%;padding:12px;margin-bottom:12px;border:1px solid var(--gold-dim);border-radius:8px;background:linear-gradient(135deg,#3a2e14,#5a4520);color:var(--gold);font-size:.8rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:700;letter-spacing:.5px">⬇ Telecharger ma fiche de stats</button>
+
+    <div class="quest-weekly-summary">
+      <div class="summary-title">⚡ Profil de Guerrier</div>
+      <div style="font-size:.6rem;color:var(--text-dim);text-align:center;margin-bottom:4px">Tout combine : quetes • defis • seances • solo leveling</div>
+      ${radarSvg}
+      <div style="margin-top:8px">${axisDetailHtml}</div>
+    </div>
+
+    <div class="quest-weekly-summary">
+      <div class="summary-title">🏛 Totaux consolides</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.7rem">
+        <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Quetes quotidiennes</div>
+          <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.dailyDone}</div>
+        </div>
+        <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Quetes hebdo</div>
+          <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.weeklyDone}</div>
+        </div>
+        <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Defis accomplis</div>
+          <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.defisCompleted}</div>
+          <div style="color:var(--text-dim);font-size:.5rem">${raw.defisFailed} echoues</div>
+        </div>
+        <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Seances physiques</div>
+          <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.physicalSessions}</div>
+        </div>
+        <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Meditations</div>
+          <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.medSessions}</div>
+        </div>
+        <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Sagesses</div>
+          <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.phiSessions}</div>
+        </div>
+        <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Solo — jours reussis</div>
+          <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.soloDays}</div>
+          <div style="color:var(--text-dim);font-size:.5rem">S${raw.soloWeek}/10</div>
+        </div>
+        <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Solo — reps totales</div>
+          <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.soloReps}</div>
+          <div style="color:var(--text-dim);font-size:.5rem">${raw.soloKm.toFixed(1)} km course</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  html += `
     <div class="quest-weekly-summary">
       <div class="summary-title">7 derniers jours</div>
       <div style="display:flex;gap:4px;align-items:flex-end;height:60px;margin:8px 0">
@@ -9032,6 +9246,300 @@ async function downloadHunterCard() {
   }
 }
 window.downloadHunterCard = downloadHunterCard;
+
+// ===== COMBINED STATS CARD DOWNLOAD =====
+async function downloadStatsCard() {
+  try {
+    const q = state.quests || {};
+    const combined = computeCombinedStats();
+    const { axes, raw } = combined;
+    const pseudo = (state.pseudo || (currentUser && currentUser.displayName) || 'Viking').slice(0, 24);
+    const photoURL = currentUser && currentUser.photoURL ? currentUser.photoURL : '';
+    const level = q.level || 1;
+    const totalXp = q.totalXp || 0;
+    const rank = getRank(level);
+    const prestige = q.prestige || 0;
+
+    const W = 1000, H = 1600;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // Background — parchment gradient (same Viking aesthetic as profile card)
+    const bg = ctx.createRadialGradient(W/2, H/2, 60, W/2, H/2, 1100);
+    bg.addColorStop(0, '#1a1108');
+    bg.addColorStop(0.5, '#0e0a06');
+    bg.addColorStop(1, '#050302');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Scattered rune dots
+    ctx.fillStyle = 'rgba(196,154,60,0.05)';
+    for (let i = 0; i < 120; i++) {
+      const x = Math.random() * W, y = Math.random() * H, r = Math.random() * 3 + 1;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // Double gold frame
+    ctx.strokeStyle = '#c49a3c';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(24, 24, W - 48, H - 48);
+    ctx.strokeStyle = '#8a6a22';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(40, 40, W - 80, H - 80);
+
+    // Corner brackets
+    ctx.strokeStyle = '#c49a3c';
+    ctx.lineWidth = 3;
+    const corner = (cx, cy, dx, dy) => {
+      ctx.beginPath();
+      ctx.moveTo(cx, cy + dy * 35);
+      ctx.lineTo(cx, cy);
+      ctx.lineTo(cx + dx * 35, cy);
+      ctx.stroke();
+    };
+    corner(60, 60, 1, 1); corner(W - 60, 60, -1, 1);
+    corner(60, H - 60, 1, -1); corner(W - 60, H - 60, -1, -1);
+
+    // ===== HEADER =====
+    ctx.fillStyle = '#c49a3c';
+    ctx.textAlign = 'center';
+    ctx.font = "bold 58px 'Cinzel', serif";
+    ctx.fillText('\u2694  STAKR  \u2694', W / 2, 120);
+    ctx.fillStyle = '#8a6a22';
+    ctx.font = "italic 22px 'Cinzel', serif";
+    ctx.fillText('FICHE DE STATS — PROFIL DE GUERRIER', W / 2, 155);
+
+    // Divider
+    ctx.strokeStyle = '#c49a3c';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(220, 180); ctx.lineTo(W - 220, 180);
+    ctx.stroke();
+    ctx.fillStyle = '#c49a3c';
+    ctx.beginPath();
+    ctx.moveTo(W/2, 170); ctx.lineTo(W/2 + 10, 180);
+    ctx.lineTo(W/2, 190); ctx.lineTo(W/2 - 10, 180);
+    ctx.closePath(); ctx.fill();
+
+    // ===== PSEUDO + PHOTO + LEVEL (compact top block) =====
+    // Small circular photo (left)
+    const photoCX = 180, photoCY = 280, photoR = 70;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(photoCX, photoCY, photoR, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+    ctx.fillStyle = '#2a1f10';
+    ctx.fillRect(photoCX - photoR, photoCY - photoR, photoR * 2, photoR * 2);
+    const img = await loadImageSafe(photoURL);
+    if (img) {
+      ctx.drawImage(img, photoCX - photoR, photoCY - photoR, photoR * 2, photoR * 2);
+    } else {
+      ctx.fillStyle = '#3a2e14';
+      ctx.fillRect(photoCX - photoR, photoCY - photoR, photoR * 2, photoR * 2);
+      ctx.fillStyle = '#c49a3c';
+      ctx.font = 'bold 60px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('\u2694', photoCX, photoCY);
+      ctx.textBaseline = 'alphabetic';
+    }
+    ctx.restore();
+    ctx.strokeStyle = '#c49a3c';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(photoCX, photoCY, photoR, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Text block (center-right)
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#f3e3b8';
+    ctx.font = "bold 42px 'Cinzel', serif";
+    ctx.fillText(pseudo, 280, 260);
+    ctx.fillStyle = '#c49a3c';
+    ctx.font = "bold 24px 'Cinzel', serif";
+    ctx.fillText(`${rank.name}  •  Niveau ${level}`, 280, 295);
+    ctx.fillStyle = '#8a6a22';
+    ctx.font = "18px 'Cinzel', serif";
+    ctx.fillText(`${totalXp.toLocaleString('fr-FR')} XP total  •  ${raw.daysActive} jours actifs`, 280, 325);
+
+    // ===== RADAR CHART =====
+    const radarCX = W / 2;
+    const radarCY = 570;
+    const radarR = 200;
+    const axisCount = axes.length;
+    const angleFor = (i) => -Math.PI / 2 + (i * 2 * Math.PI) / axisCount;
+    const pointAt = (i, pct) => {
+      const a = angleFor(i);
+      const r = radarR * (pct / 100);
+      return [radarCX + Math.cos(a) * r, radarCY + Math.sin(a) * r];
+    };
+
+    // Grid rings
+    for (let ring = 1; ring <= 5; ring++) {
+      const pct = ring * 20;
+      ctx.beginPath();
+      axes.forEach((_, i) => {
+        const [x, y] = pointAt(i, pct);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.closePath();
+      ctx.strokeStyle = ring === 5 ? 'rgba(196,154,60,0.5)' : 'rgba(196,154,60,0.22)';
+      ctx.lineWidth = ring === 5 ? 2 : 1;
+      ctx.stroke();
+    }
+    // Spokes
+    ctx.strokeStyle = 'rgba(196,154,60,0.2)';
+    ctx.lineWidth = 1;
+    axes.forEach((_, i) => {
+      const [x, y] = pointAt(i, 100);
+      ctx.beginPath();
+      ctx.moveTo(radarCX, radarCY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    });
+    // Data polygon — gold fill with glow
+    ctx.beginPath();
+    axes.forEach((a, i) => {
+      const [x, y] = pointAt(i, a.value);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(218,165,32,0.32)';
+    ctx.fill();
+    ctx.shadowColor = 'rgba(218,165,32,0.6)';
+    ctx.shadowBlur = 18;
+    ctx.strokeStyle = '#daa520';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    // Data points
+    axes.forEach((a, i) => {
+      const [x, y] = pointAt(i, a.value);
+      ctx.beginPath();
+      ctx.arc(x, y, 6, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffd76a';
+      ctx.fill();
+      ctx.strokeStyle = '#c49a3c';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+    // Axis labels
+    ctx.fillStyle = '#c49a3c';
+    ctx.font = "bold 22px 'Cinzel', serif";
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    axes.forEach((a, i) => {
+      const [x, y] = pointAt(i, 122);
+      ctx.fillText(a.label, x, y);
+      // value pill
+      ctx.fillStyle = '#8a6a22';
+      ctx.font = "bold 16px 'Cinzel', serif";
+      ctx.fillText(String(a.value), x, y + 22);
+      ctx.fillStyle = '#c49a3c';
+      ctx.font = "bold 22px 'Cinzel', serif";
+    });
+    ctx.textBaseline = 'alphabetic';
+
+    // ===== DIVIDER =====
+    const divY = 830;
+    ctx.strokeStyle = '#8a6a22';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(180, divY); ctx.lineTo(W - 180, divY);
+    ctx.stroke();
+    ctx.fillStyle = '#c49a3c';
+    ctx.textAlign = 'center';
+    ctx.font = "italic 18px 'Cinzel', serif";
+    ctx.fillText('— Totaux consolides —', W / 2, divY - 6);
+
+    // ===== STATS GRID 2x4 =====
+    const cells = [
+      { label: 'QUETES QUOTIDIENNES', value: String(raw.dailyDone) },
+      { label: 'QUETES HEBDO',        value: String(raw.weeklyDone) },
+      { label: 'DEFIS ACCOMPLIS',     value: String(raw.defisCompleted), sub: `${raw.defisFailed} echoues` },
+      { label: 'DEFIS ACCEPTES',      value: String(raw.defisAccepted) },
+      { label: 'SEANCES PHYSIQUES',   value: String(raw.physicalSessions) },
+      { label: 'MEDITATIONS',         value: String(raw.medSessions) },
+      { label: 'SAGESSES',            value: String(raw.phiSessions) },
+      { label: 'SOLO — JOURS',        value: String(raw.soloDays), sub: raw.soloWeek ? `S${raw.soloWeek}/10` : '' }
+    ];
+    const cellW = 200, cellH = 100, gap = 14;
+    const gridW = cellW * 4 + gap * 3;
+    const gridX0 = (W - gridW) / 2;
+    const gridY0 = divY + 30;
+
+    cells.forEach((c, i) => {
+      const col = i % 4, row = Math.floor(i / 4);
+      const x = gridX0 + col * (cellW + gap);
+      const y = gridY0 + row * (cellH + gap);
+      ctx.fillStyle = 'rgba(196,154,60,0.08)';
+      ctx.fillRect(x, y, cellW, cellH);
+      ctx.strokeStyle = '#8a6a22';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x, y, cellW, cellH);
+      ctx.fillStyle = '#ffd76a';
+      ctx.font = "bold 42px 'Cinzel', serif";
+      ctx.textAlign = 'center';
+      ctx.fillText(c.value, x + cellW / 2, y + 54);
+      ctx.fillStyle = '#8a6a22';
+      ctx.font = "bold 12px 'Cinzel', serif";
+      ctx.fillText(c.label, x + cellW / 2, y + 78);
+      if (c.sub) {
+        ctx.fillStyle = '#a58532';
+        ctx.font = "10px 'Cinzel', serif";
+        ctx.fillText(c.sub, x + cellW / 2, y + 92);
+      }
+    });
+
+    // ===== SOLO TOTALS LINE =====
+    const lineY = gridY0 + cellH * 2 + gap * 2 + 20;
+    ctx.fillStyle = '#8a6a22';
+    ctx.font = "italic 17px 'Cinzel', serif";
+    ctx.textAlign = 'center';
+    ctx.fillText(
+      `💪 ${Math.floor(raw.soloTotals.pushups || 0)} pompes  •  🦵 ${Math.floor(raw.soloTotals.squats || 0)} squats  •  🔥 ${Math.floor(raw.soloTotals.abs || 0)} abdos  •  🏃 ${raw.soloKm.toFixed(1)} km`,
+      W / 2, lineY
+    );
+    ctx.fillText(
+      `🔥 Streak ${raw.streak} jours  •  📜 ${(q.history || []).length} entrees historiques`,
+      W / 2, lineY + 26
+    );
+
+    // ===== FOOTER =====
+    const now = new Date();
+    const dateStr = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+    ctx.fillStyle = '#8a6a22';
+    ctx.textAlign = 'center';
+    ctx.font = "italic 18px 'Cinzel', serif";
+    ctx.fillText(`Forge dans les sagas le ${dateStr}`, W / 2, H - 70);
+    ctx.fillStyle = '#c49a3c';
+    ctx.font = "bold 16px 'Cinzel', serif";
+    ctx.fillText('\u16B1  stakr — profil complet  \u16D2', W / 2, H - 45);
+
+    // Export
+    canvas.toBlob((blob) => {
+      if (!blob) { showToast('Erreur', 'Impossible de generer la fiche.'); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const safePseudo = pseudo.replace(/[^a-zA-Z0-9_-]/g, '_');
+      a.href = url;
+      a.download = `stakr-stats-${safePseudo}-${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('Fiche de stats generee !', 'Ton profil de guerrier est telecharge.');
+    }, 'image/png');
+  } catch (e) {
+    console.error('Stats card error:', e);
+    showToast('Erreur', 'Impossible de generer la fiche de stats.');
+  }
+}
+window.downloadStatsCard = downloadStatsCard;
 
 function getTodayKey() {
   const d = new Date();
