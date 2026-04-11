@@ -359,6 +359,63 @@ header button{flex-shrink:0}
 .workout-tier-pill{flex:1;min-width:70px;padding:7px 6px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:.62rem;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;font-family:inherit}
 .workout-tier-pill.active{background:linear-gradient(135deg,rgba(196,154,60,.25),rgba(196,154,60,.05));border-color:var(--gold);color:var(--gold);box-shadow:0 0 10px rgba(196,154,60,.25)}
 .workout-tier-pill:hover:not(.active){color:var(--text);border-color:var(--gold-dim)}
+/* ===== SOLO LEVELING ===== */
+.solo-intro{padding:20px 18px;background:linear-gradient(160deg,rgba(138,43,226,.1),rgba(0,0,0,.5));border:1px solid rgba(138,43,226,.5);border-radius:14px;text-align:center;position:relative;overflow:hidden;box-shadow:0 0 24px rgba(138,43,226,.2) inset}
+.solo-intro::before{content:'';position:absolute;top:0;left:-100%;width:200%;height:2px;background:linear-gradient(90deg,transparent,#8a2be2,#c04efb,transparent);animation:defisShimmer 3s linear infinite}
+.solo-title{font-size:1.2rem;color:#c04efb;font-weight:700;font-family:'Cinzel',serif;letter-spacing:2px;text-shadow:0 0 12px rgba(192,78,251,.6);margin-bottom:4px}
+.solo-sub{font-size:.7rem;color:var(--text-dim);font-style:italic;letter-spacing:.5px;margin-bottom:10px}
+.solo-intro-text{font-size:.72rem;color:var(--text);line-height:1.6;padding:12px 14px;background:rgba(0,0,0,.4);border-radius:8px;border:1px solid rgba(138,43,226,.3);margin:10px 0 14px;text-align:left}
+.solo-start-btn{width:100%;background:linear-gradient(135deg,#8a2be2,#4a0e8e);color:#fff;border:1px solid #c04efb;border-radius:10px;padding:14px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Cinzel',serif;letter-spacing:2px;text-transform:uppercase;box-shadow:0 4px 20px rgba(138,43,226,.5),inset 0 1px 0 rgba(255,255,255,.25);transition:all .3s;animation:soloPulse 2.5s ease-in-out infinite}
+@keyframes soloPulse{0%,100%{box-shadow:0 4px 20px rgba(138,43,226,.5),inset 0 1px 0 rgba(255,255,255,.25)}50%{box-shadow:0 6px 28px rgba(192,78,251,.8),0 0 24px rgba(138,43,226,.6),inset 0 1px 0 rgba(255,255,255,.35)}}
+.solo-start-btn:hover{filter:brightness(1.15);transform:translateY(-2px)}
+.solo-header{padding:14px 16px;background:linear-gradient(160deg,rgba(138,43,226,.12),rgba(0,0,0,.4));border:1px solid rgba(138,43,226,.5);border-radius:12px;margin-bottom:12px;position:relative;overflow:hidden}
+.solo-header::before{content:'';position:absolute;top:0;left:-100%;width:200%;height:1px;background:linear-gradient(90deg,transparent,#c04efb,transparent);animation:defisShimmer 4s linear infinite}
+.solo-header.done{border-color:#4caf50;background:linear-gradient(160deg,rgba(76,175,80,.12),rgba(0,0,0,.4))}
+.solo-header.done::before{background:linear-gradient(90deg,transparent,#69f0ae,transparent)}
+.solo-header-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.solo-badge{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;border:1px solid rgba(138,43,226,.6);background:linear-gradient(135deg,rgba(138,43,226,.25),rgba(0,0,0,.4));box-shadow:0 0 14px rgba(192,78,251,.4)}
+.solo-header.done .solo-badge{border-color:#4caf50;background:linear-gradient(135deg,rgba(76,175,80,.25),rgba(0,0,0,.4));box-shadow:0 0 14px rgba(76,175,80,.4)}
+.solo-week-pill{background:linear-gradient(135deg,#8a2be2,#4a0e8e);color:#fff;font-size:.7rem;font-weight:700;padding:5px 12px;border-radius:12px;white-space:nowrap;box-shadow:0 0 10px rgba(138,43,226,.4);font-family:'Cinzel',serif;letter-spacing:1px}
+.solo-header.done .solo-week-pill{background:linear-gradient(135deg,#4caf50,#2e7d32);box-shadow:0 0 10px rgba(76,175,80,.4)}
+.solo-stats-row{display:flex;gap:8px;padding:8px 0;border-top:1px solid rgba(138,43,226,.2);border-bottom:1px solid rgba(138,43,226,.2);margin-bottom:8px}
+.solo-stat{flex:1;text-align:center}
+.solo-stat-val{font-size:1rem;color:#c04efb;font-weight:700;font-family:'Cinzel',serif}
+.solo-header.done .solo-stat-val{color:#69f0ae}
+.solo-stat-lbl{font-size:.55rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px}
+.solo-overall-bar{height:6px;background:rgba(0,0,0,.5);border:1px solid rgba(138,43,226,.3);border-radius:4px;overflow:hidden}
+.solo-overall-fill{height:100%;background:linear-gradient(90deg,#8a2be2,#c04efb);transition:width .4s ease;box-shadow:0 0 8px rgba(192,78,251,.6)}
+.solo-header.done .solo-overall-fill{background:linear-gradient(90deg,#4caf50,#69f0ae);box-shadow:0 0 8px rgba(76,175,80,.6)}
+.solo-warning{font-size:.65rem;color:#ff6b6b;padding:8px 12px;background:rgba(231,76,60,.1);border:1px dashed #e74c3c;border-radius:8px;margin-bottom:12px;text-align:center}
+.solo-ex{background:linear-gradient(160deg,var(--surface),var(--wood-dark));border:1px solid rgba(138,43,226,.3);border-radius:10px;padding:12px 14px;margin-bottom:10px;transition:all .3s;position:relative;overflow:hidden}
+.solo-ex::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:rgba(138,43,226,.5);transition:all .3s}
+.solo-ex.done{border-color:#4caf50;background:linear-gradient(160deg,rgba(76,175,80,.08),var(--surface))}
+.solo-ex.done::before{background:linear-gradient(180deg,#69f0ae,#4caf50);box-shadow:0 0 10px rgba(76,175,80,.6)}
+.solo-ex-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.solo-ex-icon{width:36px;height:36px;border-radius:8px;background:rgba(138,43,226,.12);border:1px solid rgba(138,43,226,.4);display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
+.solo-ex.done .solo-ex-icon{background:rgba(76,175,80,.15);border-color:#4caf50}
+.solo-ex-name{font-size:.9rem;color:var(--text);font-weight:600;line-height:1.2}
+.solo-ex-target{font-size:.6rem;color:var(--text-dim);margin-top:2px;font-style:italic}
+.solo-ex-count{font-size:.75rem;color:#c04efb;font-weight:700;background:rgba(138,43,226,.12);border:1px solid rgba(138,43,226,.4);padding:4px 10px;border-radius:10px;white-space:nowrap;font-family:'Cinzel',serif}
+.solo-ex-count.done{color:#69f0ae;background:rgba(76,175,80,.12);border-color:#4caf50}
+.solo-ex-bar{height:8px;background:rgba(0,0,0,.4);border:1px solid rgba(138,43,226,.25);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.solo-ex-fill{height:100%;background:linear-gradient(90deg,#8a2be2,#c04efb);transition:width .4s ease;box-shadow:0 0 6px rgba(192,78,251,.5)}
+.solo-ex-fill.done{background:linear-gradient(90deg,#4caf50,#69f0ae);box-shadow:0 0 6px rgba(76,175,80,.5)}
+.solo-ex-input{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--wood-dark);border:1px solid var(--border);border-radius:6px}
+.solo-ex-input input{flex:1;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-size:.8rem;font-family:inherit}
+.solo-ex-input input:focus{border-color:#c04efb;outline:none}
+.solo-ex-unit{font-size:.6rem;color:var(--text-dim);font-style:italic}
+.solo-ex-input button{background:linear-gradient(135deg,#8a2be2,#4a0e8e);border:none;border-radius:6px;padding:6px 14px;color:#fff;font-size:.72rem;cursor:pointer;font-weight:700;font-family:inherit;letter-spacing:.5px;box-shadow:0 2px 6px rgba(138,43,226,.35)}
+.solo-ex-input button:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.solo-ex-done-mark{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:linear-gradient(135deg,rgba(76,175,80,.15),rgba(76,175,80,.05));border:1px solid #4caf50;border-radius:6px;color:#69f0ae;font-size:.7rem;font-weight:700;letter-spacing:.5px}
+.solo-roadmap{margin-top:14px;padding:12px;background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:10px}
+.solo-roadmap-title{font-size:.75rem;color:#c04efb;font-weight:700;letter-spacing:.5px;margin-bottom:8px;text-align:center;font-variant:small-caps}
+.solo-roadmap-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.solo-roadmap-cell{padding:5px 2px;background:rgba(138,43,226,.05);border:1px solid rgba(138,43,226,.2);border-radius:5px;text-align:center;opacity:.5;transition:all .3s}
+.solo-roadmap-cell.past{opacity:.9;background:rgba(76,175,80,.08);border-color:rgba(76,175,80,.3)}
+.solo-roadmap-cell.current{opacity:1;background:linear-gradient(135deg,rgba(138,43,226,.2),rgba(138,43,226,.05));border-color:#c04efb;box-shadow:0 0 10px rgba(192,78,251,.35)}
+.solo-rm-week{font-size:.6rem;color:#c04efb;font-weight:700;font-family:'Cinzel',serif}
+.solo-roadmap-cell.past .solo-rm-week{color:#69f0ae}
+.solo-rm-vals{font-size:.52rem;color:var(--text-dim);margin-top:1px}
 .quest-add-form{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-top:6px;display:none}
 .quest-add-form.visible{display:block}
 .quest-add-form input,.quest-add-form select{width:100%;background:var(--wood-mid);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-size:.75rem;margin-bottom:6px;font-family:inherit}
@@ -953,6 +1010,7 @@ header button{flex-shrink:0}
       <button class="quest-tab active" data-qtab="daily" onclick="switchQuestTab('daily')"><span class="tab-icon">&#9876;</span>Jour</button>
       <button class="quest-tab" data-qtab="weekly" onclick="switchQuestTab('weekly')"><span class="tab-icon">&#128197;</span>Semaine</button>
       <button class="quest-tab" data-qtab="defis" onclick="switchQuestTab('defis')"><span class="tab-icon">&#9888;</span>Defis</button>
+      <button class="quest-tab" data-qtab="solo" onclick="switchQuestTab('solo')"><span class="tab-icon">&#128165;</span>Solo</button>
       <button class="quest-tab" data-qtab="boss" onclick="switchQuestTab('boss')"><span class="tab-icon">&#128009;</span>Boss</button>
       <button class="quest-tab" data-qtab="stakr" onclick="switchQuestTab('stakr')"><span class="tab-icon">&#129718;</span>Stakr</button>
       <button class="quest-tab" data-qtab="runes" onclick="switchQuestTab('runes')"><span class="tab-icon">&#9883;</span>Runes</button>
@@ -963,6 +1021,7 @@ header button{flex-shrink:0}
     <div id="quest-list-daily"></div>
     <div id="quest-list-weekly" style="display:none"></div>
     <div id="quest-defis-tab" style="display:none"></div>
+    <div id="quest-solo-tab" style="display:none"></div>
     <div id="quest-boss-tab" style="display:none"></div>
     <div id="quest-list-stakr" style="display:none"></div>
     <div id="quest-runes-tab" style="display:none"></div>
@@ -3525,6 +3584,10 @@ function initQuests() {
   if (!q.workout) q.workout = { currentTier: 'beginner', sessionDate: null, progress: [], completedToday: false, totalSessions: 0, history: [] };
   if (!q.defisSubTab) q.defisSubTab = 'challenges';
 
+  // Solo Leveling state
+  if (!q.soloLeveling) q.soloLeveling = { startDate: null, currentWeek: 1, dayDate: null, pushups: 0, squats: 0, abs: 0, km: 0, completedDays: 0, missedDays: 0, lastPenaltyCheck: null };
+  checkSoloLeveling();
+
   // ===== MIGRATION: catch-up level-ups for players who had banked XP from the old level cap =====
   // Old cap was 10. If a player accumulated XP beyond level 10, level them up silently now.
   let bankedXp = q.xp || 0;
@@ -4249,6 +4312,201 @@ function evolveWorkoutTier() {
   renderDailyChallenges();
 }
 
+// ===== SOLO LEVELING SYSTEM =====
+// Inspired by Solo Leveling anime. Progressive weekly quota (10 -> 100 reps, 1 -> 10 km).
+// Must complete daily or lose 300 XP.
+const SOLO_PENALTY_XP = 300;
+
+function getSoloTargets(week) {
+  const w = Math.max(1, Math.min(10, week));
+  return { pushups: w * 10, squats: w * 10, abs: w * 10, km: w * 1 };
+}
+
+function daysBetween(a, b) {
+  const da = new Date(a + 'T00:00:00');
+  const db = new Date(b + 'T00:00:00');
+  return Math.round((db - da) / 86400000);
+}
+
+function checkSoloLeveling() {
+  const q = state.quests;
+  if (!q.soloLeveling) return;
+  const sl = q.soloLeveling;
+  const today = getTodayStr();
+
+  // Not started yet — wait for first interaction
+  if (!sl.startDate) return;
+
+  // Compute current week based on days since start (auto-progression)
+  const daysSince = daysBetween(sl.startDate, today);
+  const autoWeek = Math.min(10, Math.floor(daysSince / 7) + 1);
+  if (autoWeek > sl.currentWeek) {
+    sl.currentWeek = autoWeek;
+    if (autoWeek <= 10) {
+      const t = getSoloTargets(autoWeek);
+      addMessage('stakr', `KRAA ! Semaine ${autoWeek} du Solo Leveling — les quotas montent : **${t.pushups} pompes, ${t.squats} squats, ${t.abs} abdos, ${t.km} km**. Leve-toi, guerrier ! [MOOD:excite]`);
+      showToast(`Solo Leveling — Semaine ${autoWeek}`, `${t.pushups}p / ${t.squats}s / ${t.abs}a / ${t.km}km`);
+    }
+  }
+
+  // Check penalty for previous day
+  if (sl.dayDate && sl.dayDate !== today && sl.lastPenaltyCheck !== today) {
+    const prevTargets = getSoloTargets(sl.currentWeek);
+    const done = sl.pushups >= prevTargets.pushups && sl.squats >= prevTargets.squats && sl.abs >= prevTargets.abs && sl.km >= prevTargets.km;
+    if (done) {
+      sl.completedDays = (sl.completedDays || 0) + 1;
+    } else {
+      sl.missedDays = (sl.missedDays || 0) + 1;
+      q.xp = Math.max(0, q.xp - SOLO_PENALTY_XP);
+      q.totalXp = Math.max(0, q.totalXp - SOLO_PENALTY_XP);
+      addMessage('stakr', `Par Odin ! Tu n'as pas accompli ton Solo Leveling d'hier... **-${SOLO_PENALTY_XP} XP** ! Le Systeme ne pardonne pas la faiblesse. [MOOD:triste]`);
+      showToast('Penalite Solo Leveling', `-${SOLO_PENALTY_XP} XP — tu n'as pas complete hier.`);
+    }
+    sl.lastPenaltyCheck = today;
+  }
+
+  // Reset daily counters if new day
+  if (sl.dayDate !== today) {
+    sl.dayDate = today;
+    sl.pushups = 0;
+    sl.squats = 0;
+    sl.abs = 0;
+    sl.km = 0;
+  }
+  saveState();
+}
+
+function startSoloLeveling() {
+  const q = state.quests;
+  const sl = q.soloLeveling;
+  if (sl.startDate) return;
+  sl.startDate = getTodayStr();
+  sl.dayDate = getTodayStr();
+  sl.currentWeek = 1;
+  sl.lastPenaltyCheck = getTodayStr();
+  saveState();
+  addMessage('stakr', `Le pacte est scelle, guerrier. Tu entres dans le **Solo Leveling**. Chaque jour : pompes, squats, abdos, course. Echoue une seule fois et le Systeme te punit de **300 XP**. Cette semaine : **10/10/10/1km**. Leve-toi. [MOOD:protecteur]`);
+  showToast('Solo Leveling active !', 'Le Systeme t\'observe desormais.');
+  renderSoloLeveling();
+}
+
+function logSoloProgress(key) {
+  const q = state.quests;
+  const sl = q.soloLeveling;
+  if (!sl.startDate) return;
+  const input = document.getElementById('solo-input-' + key);
+  const value = parseFloat(input.value);
+  if (!value || value <= 0) return;
+  sl[key] = Math.max(0, (sl[key] || 0) + value);
+  input.value = '';
+
+  const targets = getSoloTargets(sl.currentWeek);
+  const allDone = sl.pushups >= targets.pushups && sl.squats >= targets.squats && sl.abs >= targets.abs && sl.km >= targets.km;
+  if (allDone && !sl._completedToast) {
+    sl._completedToast = true;
+    showToast('Solo Leveling accompli !', `Semaine ${sl.currentWeek} — objectif du jour atteint.`);
+    addMessage('stakr', `KRAA ! Tu as accompli ton quota Solo Leveling du jour ! Semaine ${sl.currentWeek} domptée. Le Systeme est satisfait... pour aujourd'hui. [MOOD:excite]`);
+  }
+  saveState();
+  renderSoloLeveling();
+}
+
+function renderSoloLeveling() {
+  const container = $('#quest-solo-tab');
+  if (!container) return;
+  const q = state.quests;
+  const sl = q.soloLeveling;
+
+  if (!sl.startDate) {
+    container.innerHTML = `<div class="solo-intro">
+      <div class="solo-title">💥 Solo Leveling</div>
+      <div class="solo-sub">Le Systeme t'observe</div>
+      <div class="solo-intro-text">Inspire de Solo Leveling. Chaque jour : pompes, squats, abdos, et course. Les quotas augmentent chaque semaine — de <strong>10 reps / 1 km</strong> la premiere semaine a <strong>100 reps / 10 km</strong> a la dixieme.<br><br>Si tu ne completes pas en 24h : <strong style="color:#e74c3c">-${SOLO_PENALTY_XP} XP</strong>. Le Systeme ne tolere pas la faiblesse.</div>
+      <button class="solo-start-btn" onclick="startSoloLeveling()">⚡ Accepter le Pacte</button>
+    </div>`;
+    return;
+  }
+
+  const targets = getSoloTargets(sl.currentWeek);
+  const exercises = [
+    { key: 'pushups', name: 'Pompes', icon: '💪', unit: 'reps' },
+    { key: 'squats', name: 'Squats', icon: '🦵', unit: 'reps' },
+    { key: 'abs', name: 'Abdos', icon: '🔥', unit: 'reps' },
+    { key: 'km', name: 'Course', icon: '🏃', unit: 'km' }
+  ];
+  const doneCount = exercises.filter(e => sl[e.key] >= targets[e.key]).length;
+  const allDone = doneCount === 4;
+  const overallPct = Math.round((doneCount / 4) * 100);
+
+  // Reset the internal toast flag if not completed
+  if (!allDone) sl._completedToast = false;
+
+  let html = `<div class="solo-header ${allDone ? 'done' : ''}">
+    <div class="solo-header-top">
+      <div class="solo-badge">💥</div>
+      <div style="flex:1;min-width:0">
+        <div class="solo-title">Solo Leveling</div>
+        <div class="solo-sub">Semaine ${sl.currentWeek} / 10 — ${allDone ? '✓ Objectif atteint' : 'Le Systeme t\'observe'}</div>
+      </div>
+      <div class="solo-week-pill">S${sl.currentWeek}</div>
+    </div>
+    <div class="solo-stats-row">
+      <div class="solo-stat"><div class="solo-stat-val">${sl.completedDays || 0}</div><div class="solo-stat-lbl">Jours reussis</div></div>
+      <div class="solo-stat"><div class="solo-stat-val" style="color:#e74c3c">${sl.missedDays || 0}</div><div class="solo-stat-lbl">Penalites</div></div>
+      <div class="solo-stat"><div class="solo-stat-val">${doneCount}/4</div><div class="solo-stat-lbl">Aujourd'hui</div></div>
+    </div>
+    <div class="solo-overall-bar"><div class="solo-overall-fill" style="width:${overallPct}%"></div></div>
+  </div>`;
+
+  // Warning card
+  html += `<div class="solo-warning">⚠ Non accompli avant minuit : <strong>-${SOLO_PENALTY_XP} XP</strong> — le Systeme ne pardonne pas.</div>`;
+
+  // Exercise cards
+  exercises.forEach(ex => {
+    const current = sl[ex.key] || 0;
+    const target = targets[ex.key];
+    const pct = Math.min(100, Math.round((current / target) * 100));
+    const done = current >= target;
+    html += `<div class="solo-ex ${done ? 'done' : ''}">
+      <div class="solo-ex-header">
+        <div class="solo-ex-icon">${ex.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="solo-ex-name">${ex.name}</div>
+          <div class="solo-ex-target">Objectif : ${target} ${ex.unit}</div>
+        </div>
+        <div class="solo-ex-count ${done ? 'done' : ''}">${current} / ${target}</div>
+      </div>
+      <div class="solo-ex-bar"><div class="solo-ex-fill ${done ? 'done' : ''}" style="width:${pct}%"></div></div>`;
+    if (!done) {
+      html += `<div class="solo-ex-input">
+        <input type="number" id="solo-input-${ex.key}" min="0" step="${ex.unit === 'km' ? '0.1' : '1'}" placeholder="0" />
+        <span class="solo-ex-unit">${ex.unit}</span>
+        <button onclick="logSoloProgress('${ex.key}')">+ Ajouter</button>
+      </div>`;
+    } else {
+      html += `<div class="solo-ex-done-mark">✓ Objectif atteint</div>`;
+    }
+    html += `</div>`;
+  });
+
+  // Weekly progression table
+  html += `<div class="solo-roadmap">
+    <div class="solo-roadmap-title">📊 Progression hebdomadaire</div>
+    <div class="solo-roadmap-grid">`;
+  for (let w = 1; w <= 10; w++) {
+    const t = getSoloTargets(w);
+    const isCurrent = w === sl.currentWeek;
+    const isPast = w < sl.currentWeek;
+    html += `<div class="solo-roadmap-cell ${isCurrent ? 'current' : ''} ${isPast ? 'past' : ''}">
+      <div class="solo-rm-week">S${w}</div>
+      <div class="solo-rm-vals">${t.pushups} / ${t.km}km</div>
+    </div>`;
+  }
+  html += `</div></div>`;
+
+  container.innerHTML = html;
+}
+
 function toggleQuestPanel() {
   const panel = $('#quest-panel');
   const overlay = $('#settings-overlay');
@@ -4267,13 +4525,14 @@ function toggleMapPanel() {
 
 function switchQuestTab(tab) {
   document.querySelectorAll('.quest-tab').forEach(t => t.classList.toggle('active', t.dataset.qtab === tab));
-  ['daily','weekly','defis','stakr','stats','arbre','boss','evolve'].forEach(t => {
+  ['daily','weekly','defis','solo','stakr','stats','arbre','boss','evolve'].forEach(t => {
     const el = $(`#quest-list-${t}`) || $(`#quest-${t}-tab`);
     if (el) el.style.display = 'none';
   });
   $('#quest-runes-tab').style.display = 'none';
   if (tab === 'daily' || tab === 'weekly') $(`#quest-list-${tab}`).style.display = 'block';
   else if (tab === 'defis') { $('#quest-defis-tab').style.display = 'block'; renderDailyChallenges(); }
+  else if (tab === 'solo') { $('#quest-solo-tab').style.display = 'block'; renderSoloLeveling(); }
   else if (tab === 'boss') { $('#quest-boss-tab').style.display = 'block'; $('#quest-boss-tab').innerHTML = renderBossSection(); }
   else if (tab === 'stakr') { $('#quest-list-stakr').style.display = 'block'; renderStakrQuests(); }
   else if (tab === 'runes') { $('#quest-runes-tab').style.display = 'block'; renderRuneCollection(); }
