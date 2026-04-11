@@ -3896,7 +3896,35 @@ function initQuests() {
   if (!q.soloLeveling.stats) q.soloLeveling.stats = { str: 0, agi: 0, vit: 0, end: 0, per: 0 };
   if (!q.soloLeveling.activityLog) q.soloLeveling.activityLog = [];
   if (!q.soloLeveling.totals) q.soloLeveling.totals = { pushups: 0, squats: 0, abs: 0, km: 0 };
+  // Backfill: if totals are all zero but activityLog has entries, reconstruct from log
+  (function backfillSoloTotals() {
+    const t = q.soloLeveling.totals;
+    const log = q.soloLeveling.activityLog || [];
+    const isEmpty = !t.pushups && !t.squats && !t.abs && !t.km;
+    if (isEmpty && log.length > 0) {
+      log.forEach(entry => {
+        if (entry && entry.key && ['pushups','squats','abs','km'].includes(entry.key) && typeof entry.value === 'number') {
+          t[entry.key] = +((t[entry.key] || 0) + entry.value).toFixed(2);
+        }
+      });
+    }
+  })();
   checkSoloLeveling();
+
+  // Backfill: recompute workout session counters from history if they look empty
+  (function backfillWorkoutCounters() {
+    const w = q.workout;
+    if (!w || !Array.isArray(w.history) || w.history.length === 0) return;
+    const counts = { physical: 0, meditation: 0, philosophy: 0 };
+    w.history.forEach(h => {
+      if (h && h.type && counts[h.type] !== undefined) counts[h.type]++;
+    });
+    // Only overwrite if the existing counter is smaller than what history shows
+    // (avoids clobbering real counts when history is truncated to last 100)
+    if (counts.physical > (w.totalSessions || 0)) w.totalSessions = counts.physical;
+    if (counts.meditation > (w.totalMedSessions || 0)) w.totalMedSessions = counts.meditation;
+    if (counts.philosophy > (w.totalPhiSessions || 0)) w.totalPhiSessions = counts.philosophy;
+  })();
 
   // ===== MIGRATION: catch-up level-ups for players who had banked XP from the old level cap =====
   // Old cap was 10. If a player accumulated XP beyond level 10, level them up silently now.
@@ -7812,9 +7840,36 @@ function renderQuestStats() {
           <div style="color:var(--text-dim);font-size:.5rem">S${raw.soloWeek}/10</div>
         </div>
         <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
-          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Solo — reps totales</div>
-          <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.soloReps}</div>
-          <div style="color:var(--text-dim);font-size:.5rem">${raw.soloKm.toFixed(1)} km course</div>
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Streak actuel</div>
+          <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.streak} j</div>
+          <div style="color:var(--text-dim);font-size:.5rem">${raw.daysActive} jours actifs</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quest-weekly-summary">
+      <div class="summary-title">💪 Solo Leveling — Detail</div>
+      <div style="font-size:.55rem;color:var(--text-dim);text-align:center;margin-bottom:6px">Cumul depuis le debut du pacte</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.7rem">
+        <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">💪 Pompes</div>
+          <div style="color:var(--gold);font-weight:700;font-size:1rem">${Math.floor(raw.soloTotals.pushups || 0)}</div>
+          ${(() => { const today = (q.soloLeveling && q.soloLeveling.pushups) || 0; return today ? `<div style="color:var(--text-dim);font-size:.5rem">+${Math.floor(today)} aujourd'hui</div>` : ''; })()}
+        </div>
+        <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">🦵 Squats</div>
+          <div style="color:var(--gold);font-weight:700;font-size:1rem">${Math.floor(raw.soloTotals.squats || 0)}</div>
+          ${(() => { const today = (q.soloLeveling && q.soloLeveling.squats) || 0; return today ? `<div style="color:var(--text-dim);font-size:.5rem">+${Math.floor(today)} aujourd'hui</div>` : ''; })()}
+        </div>
+        <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">🔥 Abdos</div>
+          <div style="color:var(--gold);font-weight:700;font-size:1rem">${Math.floor(raw.soloTotals.abs || 0)}</div>
+          ${(() => { const today = (q.soloLeveling && q.soloLeveling.abs) || 0; return today ? `<div style="color:var(--text-dim);font-size:.5rem">+${Math.floor(today)} aujourd'hui</div>` : ''; })()}
+        </div>
+        <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">🏃 Course</div>
+          <div style="color:var(--gold);font-weight:700;font-size:1rem">${(raw.soloTotals.km || 0).toFixed(1)} km</div>
+          ${(() => { const today = (q.soloLeveling && q.soloLeveling.km) || 0; return today ? `<div style="color:var(--text-dim);font-size:.5rem">+${today.toFixed(1)} km aujourd'hui</div>` : ''; })()}
         </div>
       </div>
     </div>
@@ -9495,18 +9550,48 @@ async function downloadStatsCard() {
       }
     });
 
-    // ===== SOLO TOTALS LINE =====
-    const lineY = gridY0 + cellH * 2 + gap * 2 + 20;
+    // ===== SOLO LEVELING DETAIL ROW =====
+    const soloRowY = gridY0 + cellH * 2 + gap * 2 + 30;
+    ctx.fillStyle = '#c49a3c';
+    ctx.textAlign = 'center';
+    ctx.font = "italic 18px 'Cinzel', serif";
+    ctx.fillText('— Solo Leveling : detail —', W / 2, soloRowY);
+
+    const soloCells = [
+      { label: 'POMPES',  value: String(Math.floor(raw.soloTotals.pushups || 0)) },
+      { label: 'SQUATS',  value: String(Math.floor(raw.soloTotals.squats  || 0)) },
+      { label: 'ABDOS',   value: String(Math.floor(raw.soloTotals.abs     || 0)) },
+      { label: 'COURSE',  value: `${(raw.soloTotals.km || 0).toFixed(1)} km` }
+    ];
+    const soloCellW = 200, soloCellH = 90, soloGap = 14;
+    const soloGridW = soloCellW * 4 + soloGap * 3;
+    const soloGridX0 = (W - soloGridW) / 2;
+    const soloGridY0 = soloRowY + 18;
+    soloCells.forEach((c, i) => {
+      const x = soloGridX0 + i * (soloCellW + soloGap);
+      const y = soloGridY0;
+      ctx.fillStyle = 'rgba(196,154,60,0.10)';
+      ctx.fillRect(x, y, soloCellW, soloCellH);
+      ctx.strokeStyle = '#c49a3c';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x, y, soloCellW, soloCellH);
+      ctx.fillStyle = '#ffd76a';
+      ctx.font = "bold 36px 'Cinzel', serif";
+      ctx.textAlign = 'center';
+      ctx.fillText(c.value, x + soloCellW / 2, y + 50);
+      ctx.fillStyle = '#8a6a22';
+      ctx.font = "bold 12px 'Cinzel', serif";
+      ctx.fillText(c.label, x + soloCellW / 2, y + 74);
+    });
+
+    // ===== STREAK/HISTORY LINE =====
+    const lineY = soloGridY0 + soloCellH + 28;
     ctx.fillStyle = '#8a6a22';
     ctx.font = "italic 17px 'Cinzel', serif";
     ctx.textAlign = 'center';
     ctx.fillText(
-      `💪 ${Math.floor(raw.soloTotals.pushups || 0)} pompes  •  🦵 ${Math.floor(raw.soloTotals.squats || 0)} squats  •  🔥 ${Math.floor(raw.soloTotals.abs || 0)} abdos  •  🏃 ${raw.soloKm.toFixed(1)} km`,
-      W / 2, lineY
-    );
-    ctx.fillText(
       `🔥 Streak ${raw.streak} jours  •  📜 ${(q.history || []).length} entrees historiques`,
-      W / 2, lineY + 26
+      W / 2, lineY
     );
 
     // ===== FOOTER =====
