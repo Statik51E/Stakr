@@ -342,6 +342,26 @@ header button{flex-shrink:0}
 .workout-ex-validate{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:#0e0a06;border:none;border-radius:8px;padding:10px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;letter-spacing:.5px;box-shadow:0 2px 8px rgba(196,154,60,.3),inset 0 1px 0 rgba(255,255,255,.2)}
 .workout-ex-validate:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 4px 12px rgba(196,154,60,.5)}
 .workout-ex-validate:active{transform:translateY(0) scale(.97)}
+.session-type-switcher{display:flex;gap:6px;margin:8px 0 4px}
+.session-type-btn{flex:1;position:relative;padding:10px 6px;background:linear-gradient(160deg,var(--surface),var(--wood-dark));border:1px solid var(--border);border-radius:10px;color:var(--text-dim);cursor:pointer;font-family:inherit;transition:all .25s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.session-type-btn:hover{border-color:var(--gold-dim);color:var(--text);transform:translateY(-1px)}
+.session-type-btn.active{border-color:var(--gold);background:linear-gradient(160deg,rgba(196,154,60,.15),rgba(0,0,0,.3));color:var(--gold);box-shadow:0 0 12px rgba(196,154,60,.3),inset 0 0 10px rgba(196,154,60,.08)}
+.session-type-btn .stb-icon{font-size:1.3rem;line-height:1}
+.session-type-btn .stb-label{font-size:.62rem;letter-spacing:.8px;font-weight:700;text-transform:uppercase;font-family:'Cinzel',serif}
+.session-type-btn .stb-check{position:absolute;top:4px;right:6px;font-size:.7rem;color:#69f0ae;font-weight:900;text-shadow:0 0 6px rgba(105,240,174,.6)}
+.mind-meditation .workout-tier-badge{background:linear-gradient(135deg,rgba(138,43,226,.25),rgba(0,0,0,.4));border-color:rgba(138,43,226,.55);box-shadow:0 0 12px rgba(138,43,226,.35)}
+.mind-philosophy .workout-tier-badge{background:linear-gradient(135deg,rgba(218,165,32,.2),rgba(0,0,0,.4));border-color:rgba(218,165,32,.6);box-shadow:0 0 12px rgba(218,165,32,.35)}
+.mind-exercise{background:linear-gradient(160deg,rgba(138,43,226,.05),var(--wood-dark))}
+.mind-philosophy .mind-exercise{background:linear-gradient(160deg,rgba(218,165,32,.05),var(--wood-dark))}
+.philosophy-teaching{margin:10px 0 14px;padding:16px 18px;background:linear-gradient(160deg,rgba(218,165,32,.12),rgba(0,0,0,.45));border:1px solid rgba(218,165,32,.5);border-left:4px solid #daa520;border-radius:10px;position:relative;overflow:hidden}
+.philosophy-teaching::before{content:'';position:absolute;top:0;left:-100%;width:200%;height:1px;background:linear-gradient(90deg,transparent,#daa520,transparent);animation:defisShimmer 6s linear infinite}
+.philo-teaching-title{font-size:.95rem;color:#ffd76a;font-weight:700;font-family:'Cinzel',serif;letter-spacing:.5px;margin-bottom:3px}
+.philo-teaching-source{font-size:.6rem;color:var(--text-dim);font-style:italic;margin-bottom:10px;letter-spacing:.3px}
+.philo-teaching-text{font-size:.72rem;color:var(--text);line-height:1.65;margin-bottom:10px}
+.philo-teaching-text p{margin:0 0 8px}
+.philo-teaching-text p:last-child{margin-bottom:0}
+.philo-teaching-text strong{color:#ffd76a;font-weight:700}
+.philo-teaching-principle{font-size:.7rem;color:#daa520;font-weight:700;font-style:italic;padding:8px 12px;background:rgba(0,0,0,.4);border-left:2px solid #daa520;border-radius:4px;letter-spacing:.3px}
 .workout-ex-start{width:100%;background:linear-gradient(135deg,#3a2e14,#5a4520);color:var(--gold);border:1px solid var(--gold-dim);border-radius:8px;padding:10px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;letter-spacing:.5px;margin-bottom:6px}
 .workout-ex-start:hover{background:linear-gradient(135deg,#5a4520,#7a5a28);filter:brightness(1.15);transform:translateY(-1px)}
 .workout-timer-panel{margin:8px 0;padding:14px;background:linear-gradient(160deg,rgba(0,0,0,.5),rgba(196,154,60,.06));border:2px solid var(--gold);border-radius:10px;text-align:center;box-shadow:0 0 18px rgba(196,154,60,.25),inset 0 0 12px rgba(0,0,0,.4)}
@@ -3577,6 +3597,136 @@ const WORKOUT_SESSIONS = {
 };
 const WORKOUT_TIER_ORDER = ['beginner', 'intermediate', 'advanced', 'elite'];
 
+// ===== MEDITATION SESSIONS =====
+const MEDITATION_SESSIONS = {
+  calm: {
+    id:'calm', tier:1, name:'Calme', subtitle:"Apaiser l'esprit avant la bataille",
+    icon:'🌿', duration:'~5 min', xpReward:100, color:'#7cb342',
+    intro:"Les Vikings meditaient avant la bataille pour calmer le cerf dans leur poitrine et affuter leur volonte. Pose les fondations de ton esprit — assis, droit, present.",
+    exercises: [
+      { id:'c_posture', name:'Installation', icon:'🪑', duration:'30 sec', target:'corps', desc:"Assieds-toi droit, dos libre, epaules relâchees. Ferme les yeux ou baisse le regard. Prends 3 grandes respirations pour marquer le debut." },
+      { id:'c_breath', name:'Respiration 4-4-4', icon:'🌬', duration:'2 min', target:'respiration', desc:"Inspire 4 secondes, retiens 4 secondes, expire 4 secondes. Compte en silence. Quand ton esprit vagabonde, ramène-le doucement au souffle — sans te juger." },
+      { id:'c_body', name:'Detente du corps', icon:'🌊', duration:'90 sec', target:'corps', desc:"Passe en revue ton corps : front, mâchoire, epaules, mains, ventre, jambes. A chaque zone, relâche consciemment la tension. Laisse couler ce qui peut couler." },
+      { id:'c_intent', name:'Intention du jour', icon:'🎯', duration:'60 sec', target:'esprit', desc:"Choisis un mot qui guidera ta journee : patience, courage, honneur, clarte. Repete-le 3 fois en silence et imprime-le dans ton esprit." }
+    ]
+  },
+  focus: {
+    id:'focus', tier:2, name:'Concentration', subtitle:"Forger la lame de l'esprit",
+    icon:'🧘', duration:'~10 min', xpReward:150, color:'#29b6f6',
+    intro:"L'esprit disperse est une lame ebrechee — inutile au combat. Apprends a diriger ta concentration comme un archer vise sa cible.",
+    exercises: [
+      { id:'f_breath', name:'Respiration profonde', icon:'🌬', duration:'2 min', target:'calme', desc:"Respiration nasale lente. Remplis ton ventre d'abord, puis ta poitrine. Expire completement. Installe le calme avant de commencer." },
+      { id:'f_count', name:'Comptage des respirations', icon:'🔢', duration:'3 min', target:'concentration', desc:"Compte chaque expiration de 1 a 10, puis recommence. Si tu perds le compte, reviens a 1 sans te juger. C'est ici que l'esprit se muscle." },
+      { id:'f_anchor', name:'Ancrage sensoriel', icon:'🎯', duration:'3 min', target:'presence', desc:"Porte ton attention sur les sensations physiques : pieds au sol, poids des mains, air sur ton visage. Reste ancre dans le present, sans histoire mentale." },
+      { id:'f_expand', name:'Ouverture du champ', icon:'🌌', duration:'90 sec', target:'conscience', desc:"Elargis ta conscience : sons autour de toi, lumiere derriere les paupieres, espace dans la piece. Conscience panoramique, sans focus particulier." },
+      { id:'f_return', name:'Retour progressif', icon:'🚪', duration:'30 sec', target:'transition', desc:"Trois respirations profondes. Etire doucement tes doigts, ta nuque. Ouvre les yeux en gardant le calme que tu viens de cultiver." }
+    ]
+  },
+  aware: {
+    id:'aware', tier:3, name:'Conscience', subtitle:'Voir au-dela du voile',
+    icon:'👁️', duration:'~15 min', xpReward:200, color:'#ab47bc',
+    intro:"Les grands guerriers voyaient ce que les autres ne voyaient pas — pas grâce a leurs yeux, mais a leur presence. Cultive cette vision interieure qui separe le sage du dormeur.",
+    exercises: [
+      { id:'a_breath', name:'Respiration carree', icon:'🌬', duration:'2 min', target:'base', desc:"Inspire 5s, retiens 5s, expire 5s, pause 5s. Carre parfait. Le rythme stabilise le systeme nerveux profond." },
+      { id:'a_scan', name:'Body scan complet', icon:'🌊', duration:'5 min', target:'conscience corporelle', desc:"Parcours ton corps de la tete aux pieds tres lentement. A chaque partie, remarque les sensations sans les juger : tensions, chaleur, picotements, immobilite." },
+      { id:'a_thoughts', name:'Observer les pensees', icon:'☁️', duration:'4 min', target:'metacognition', desc:"Imagine tes pensees comme des nuages qui passent. Ne les suis pas, ne les combats pas. Contente-toi de les voir apparaitre et disparaitre." },
+      { id:'a_emotion', name:'Accueillir les emotions', icon:'💓', duration:'3 min', target:'emotions', desc:"Remarque les emotions presentes meme subtiles. Nomme-les en silence : 'c'est de la fatigue', 'c'est de l'impatience'. Nommer, c'est liberer." },
+      { id:'a_return', name:'Retour au monde', icon:'🚪', duration:'60 sec', target:'transition', desc:"Trois grandes respirations. Etire doucement. Rapporte ce calme avec toi dans ta journee — c'est un cadeau pour toi et ceux qui t'entoureront." }
+    ]
+  },
+  seidr: {
+    id:'seidr', tier:4, name:'Seidr', subtitle:"La magie de l'esprit des anciens",
+    icon:'🔥', duration:'~20 min', xpReward:300, color:'#f44336',
+    intro:"Le Seidr — la meditation chamanique viking. Plonge profondement dans ton esprit pour en ressortir transforme. Reserve aux guerriers qui ont maitrise le calme et cherchent la sagesse.",
+    exercises: [
+      { id:'s_prepare', name:'Preparation sacree', icon:'🕯', duration:'2 min', target:'rituel', desc:"Assieds-toi en posture stable. Trois respirations profondes : inspire la paix, expire la tension. Pose une intention profonde pour cette seance." },
+      { id:'s_deep', name:'Respiration 6-2-8', icon:'🌬', duration:'3 min', target:'systeme nerveux', desc:"Inspire 6s, pause 2s, expire 8s. L'expiration longue active le calme profond. Continue jusqu'a ce que ton corps entier s'installe." },
+      { id:'s_visual', name:'Visualisation du loup', icon:'🐺', duration:'5 min', target:'inconscient', desc:"Imagine-toi dans une foret ancestrale. Un loup t'attend — il est ton esprit profond. Observe-le en silence. Que veut-il te dire aujourd'hui ?" },
+      { id:'s_mantra', name:'Mantra viking', icon:'🔊', duration:'4 min', target:'intention', desc:"Repete en silence : 'Je suis forge. Je suis libre. Je suis pret.' Laisse les mots resonner dans ton corps entier. Sens la verite qu'ils contiennent." },
+      { id:'s_silence', name:'Silence total', icon:'🌌', duration:'4 min', target:'vide', desc:"Abandonne tout — respiration consciente, visualisation, mantra. Reste simplement. Laisse etre ce qui est. C'est ici que vit la sagesse profonde." },
+      { id:'s_gratitude', name:'Gratitude et retour', icon:'🙏', duration:'2 min', target:'cloture', desc:"Trois choses pour lesquelles tu es reconnaissant aujourd'hui. Remercie ton esprit. Ouvre doucement les yeux. Garde cette paix avec toi." }
+    ]
+  }
+};
+const MEDITATION_TIER_ORDER = ['calm', 'focus', 'aware', 'seidr'];
+
+// ===== PHILOSOPHY SESSIONS =====
+const PHILOSOPHY_SESSIONS = {
+  novice: {
+    id:'novice', tier:1, name:'Novice', subtitle:'Les premiers sagas',
+    icon:'📖', duration:'~10 min', xpReward:150, color:'#7cb342',
+    intro:"La sagesse est une arme plus ancienne que l'epee. Commence par les principes simples — ils forgeront ton jugement.",
+    teaching: {
+      title:"Amor Fati — Aimer son destin",
+      source:"Marc Aurele + Sagas islandaises",
+      text:"«N'accepte pas seulement ce qui t'arrive — aime-le. Ne demande pas que les choses aillent comme tu le souhaites, mais souhaite qu'elles aillent comme elles vont, et tu seras libre.»\n\nLes Vikings croyaient au wyrd — le destin tisse. Un guerrier n'implore pas les Nornes de changer leur ouvrage. Il marche dignement sur le fil qui lui est file, et transforme chaque obstacle en lame pour aiguiser son ame.",
+      principle:"Ne lutte pas contre ce qui arrive — transforme-le en force."
+    },
+    exercises: [
+      { id:'n_read', name:"Lire l'enseignement", icon:'📖', duration:'3 min', target:'attention', desc:"Lis le texte ci-dessus lentement. Arrete-toi sur les mots qui resonnent. Relis une phrase si elle te touche." },
+      { id:'n_reflect1', name:'Situation a accepter', icon:'💭', duration:'3 min', target:'introspection', desc:"Quelle situation recente aurais-tu pu mieux accepter ? Qu'aurais-tu fait differemment si tu avais applique l'Amor Fati ?" },
+      { id:'n_reflect2', name:'Application demain', icon:'🎯', duration:'2 min', target:'action', desc:"Comment vas-tu appliquer ce principe demain concretement ? Visualise un moment precis de ta journee." },
+      { id:'n_commit', name:'Engagement', icon:'✊', duration:'60 sec', target:'volonte', desc:"Prononce silencieusement : 'Aujourd'hui, j'accepte ce qui est. Demain, je choisis ce qui sera.'" }
+    ]
+  },
+  thinker: {
+    id:'thinker', tier:2, name:'Penseur', subtitle:"L'eveil de la raison",
+    icon:'🧠', duration:'~15 min', xpReward:200, color:'#29b6f6',
+    intro:"Le penseur n'accepte pas — il examine. Il questionne. Il cherche ce qui est vrai au-dela des apparences et des emotions du moment.",
+    teaching: {
+      title:"Memento Mori — Souviens-toi que tu mourras",
+      source:"Stoiciens + Havamal",
+      text:"«Tu pourrais quitter la vie a l'instant meme. Que cela guide tes actions, tes paroles, tes pensees.» — Marc Aurele\n\nLe Havamal dit : 'Le betail meurt, les parents meurent, toi-meme tu mourras. Mais la reputation du juste ne meurt jamais.' La conscience de la mort n'est pas morbide — elle est liberatrice. Elle oblige a vivre maintenant, a dire ce qui doit etre dit, a aimer ceux qui doivent etre aimes.",
+      principle:"La mort rend chaque instant sacre. Vis comme si demain n'existait pas."
+    },
+    exercises: [
+      { id:'t_read', name:'Meditation sur la mort', icon:'📖', duration:'4 min', target:'confrontation', desc:"Lis le texte. Imagine serieusement : si ta vie se terminait ce soir, qu'est-ce que tu regretterais ? Qu'est-ce qui n'aurait soudainement plus d'importance ?" },
+      { id:'t_reflect1', name:'Priorites reelles', icon:'⚖', duration:'4 min', target:'clarte', desc:"Liste 3 choses sur lesquelles tu perds du temps et qui n'auraient aucune importance face a la mort. Liste 3 choses qui comptent vraiment." },
+      { id:'t_reflect2', name:'Ce qui doit etre dit', icon:'💬', duration:'3 min', target:'courage', desc:"A qui dois-tu dire quelque chose d'important que tu remets ? Pourquoi attends-tu ? Qu'est-ce qui serait le pire : le dire et etre mal compris, ou ne jamais le dire ?" },
+      { id:'t_reflect3', name:"La reputation du juste", icon:'🏛', duration:'3 min', target:'heritage', desc:"Quelle reputation veux-tu laisser ? Pas ce qu'on retiendra de ton succes — ce qu'on retiendra de ton caractere et de tes choix." },
+      { id:'t_commit', name:'Serment', icon:'✊', duration:'60 sec', target:'engagement', desc:"'Je ne remets pas a demain ce qui compte aujourd'hui. Ma vie est mon unique œuvre.'" }
+    ]
+  },
+  sage: {
+    id:'sage', tier:3, name:'Sage', subtitle:'Au-dela de la raison',
+    icon:'🦉', duration:'~20 min', xpReward:250, color:'#ab47bc',
+    intro:"Le sage ne pense plus — il voit. Il a traverse le doute et en est ressorti avec une clarte que seul le temps donne. Tu t'approches de la maitrise de toi-meme.",
+    teaching: {
+      title:"La dichotomie du controle",
+      source:"Epictete + sagesse scandinave",
+      text:"«Certaines choses dependent de nous, d'autres non. De nous dependent nos opinions, nos desirs, nos actions. Ne dependent pas de nous notre corps, nos biens, notre reputation, les evenements. Travaille seulement sur ce qui depend de toi.» — Epictete\n\nLes anciens Vikings reconnaissaient trois domaines : ce que les dieux tissent (le destin), ce que les autres font (leur liberte), et ce que tu choisis (ton royaume). Seul le troisieme est veritablement le tien. Y regner avec honneur, c'est deja etre libre.",
+      principle:"Concentre tes forces uniquement sur ce qui depend de toi. Le reste est vent."
+    },
+    exercises: [
+      { id:'sg_read', name:"La carte du controle", icon:'📖', duration:'4 min', target:'comprehension', desc:"Lis le texte. Puis, mentalement, separe tes preoccupations actuelles en trois colonnes : 'Je controle', 'Je peux influencer', 'Ne depend pas de moi'." },
+      { id:'sg_release', name:'Lacher prise', icon:'🍃', duration:'5 min', target:'acceptation', desc:"Identifie 3 choses dont tu t'inquietes et qui ne dependent pas de toi. Visualise-toi les deposer au sol. Elles ne sont plus ton fardeau." },
+      { id:'sg_focus', name:"Focaliser l'action", icon:'🎯', duration:'4 min', target:'volonte', desc:"Sur une preoccupation qui depend de toi : quelle est la prochaine action concrete et petite que tu peux faire aujourd'hui ? Engage-toi mentalement." },
+      { id:'sg_character', name:'Forger le caractere', icon:'⚒', duration:'4 min', target:'identite', desc:"Quelle qualite de caractere (courage, patience, honnetete) veux-tu developper ? Choisis une occasion precise demain pour la pratiquer." },
+      { id:'sg_silence', name:'Silence du sage', icon:'🌌', duration:'3 min', target:'integration', desc:"Reste en silence. Ne cherche rien. Laisse la sagesse s'installer d'elle-meme. Les reponses viendront quand elles devront venir." }
+    ]
+  },
+  skald: {
+    id:'skald', tier:4, name:'Skald', subtitle:'Le poete-philosophe des rois',
+    icon:'🔥', duration:'~25 min', xpReward:350, color:'#f44336',
+    intro:"Le Skald etait plus qu'un poete — il etait la memoire et la conscience du peuple. A ce niveau, tu ne te contentes plus de lire la sagesse : tu la crees, tu la vis, tu la transmets.",
+    teaching: {
+      title:"L'unite des trois fils",
+      source:"Synthese — Stoicisme, Bouddhisme, Nordisme",
+      text:"Trois voies menent a la meme verite :\n\n• **Stoicisme** : ce qui te derange n'est pas l'evenement, mais ton jugement. Change le jugement, change la vie.\n\n• **Bouddhisme** : la souffrance nait de l'attachement. Aime sans posseder. Agis sans exiger.\n\n• **Nordisme** : marche avec honneur quel que soit le destin. Que ta parole soit vraie, ta lame ferme, ton cœur ouvert aux tiens.\n\nLes trois disent : tu es libre non pas de ce qui arrive, mais de ce que tu deviens face a cela. Le Skald connait les trois voies et choisit celle qui convient au moment.",
+      principle:"La sagesse n'est pas une doctrine — c'est la capacite de choisir la bonne reponse a chaque instant."
+    },
+    exercises: [
+      { id:'sk_read', name:'Lecture meditee', icon:'📖', duration:'5 min', target:'synthese', desc:"Lis le texte lentement. Lequel des trois principes te touche le plus aujourd'hui ? Pourquoi ?" },
+      { id:'sk_stoic', name:'Exercice stoicien', icon:'⚖', duration:'4 min', target:'jugement', desc:"Une situation qui te derange : quel est l'evenement brut, et quel est TON jugement sur cet evenement ? Que se passe-t-il si tu changes le jugement ?" },
+      { id:'sk_buddha', name:'Exercice bouddhiste', icon:'🍃', duration:'4 min', target:'lacher prise', desc:"A quoi es-tu attache ? Une personne, un resultat, une reputation ? Imagine un instant la liberte de ne plus y etre attache. Tu pourrais toujours aimer — mais sans peur." },
+      { id:'sk_nordic', name:'Exercice nordique', icon:'⚔', duration:'4 min', target:'honneur', desc:"Quelle action demain exigera ton honneur ? Ou dois-tu etre droit meme si c'est difficile ? Prends-en l'engagement silencieusement." },
+      { id:'sk_create', name:'Ta propre sentence', icon:'✒', duration:'5 min', target:'creation', desc:"Compose UNE phrase qui resume ta sagesse pour aujourd'hui. Une phrase que tu pourrais transmettre. C'est ta saga personnelle." },
+      { id:'sk_close', name:'Transmission', icon:'🌌', duration:'3 min', target:'heritage', desc:"Imagine dire cette phrase a quelqu'un que tu aimes, dans 20 ans. Qu'est-ce que cela change dans ta journee d'aujourd'hui ?" }
+    ]
+  }
+};
+const PHILOSOPHY_TIER_ORDER = ['novice', 'thinker', 'sage', 'skald'];
+
 const CHALLENGE_PENALTY_MSGS = [
   "Kraa ! Tu avais accepte le defi {name} mais tu ne l'as pas accompli... Les dieux sont decus. **-{xp} XP** ! [MOOD:triste]",
   "Viking ! Le defi {name} n'a pas ete releve... Un serment brise coute cher : **-{xp} XP** ! [MOOD:triste]",
@@ -3679,7 +3829,20 @@ function initQuests() {
   if (typeof q.prestige !== 'number') q.prestige = 0;
 
   // Workout sessions state
-  if (!q.workout) q.workout = { currentTier: 'beginner', sessionDate: null, progress: [], completedToday: false, totalSessions: 0, history: [] };
+  if (!q.workout) q.workout = { currentTier: 'beginner', sessionDate: null, progress: [], completedToday: { physical:false, meditation:false, philosophy:false }, totalSessions: 0, history: [] };
+  // Migration: completedToday boolean → per-type object
+  if (typeof q.workout.completedToday !== 'object' || q.workout.completedToday === null) {
+    const wasDone = !!q.workout.completedToday;
+    q.workout.completedToday = { physical: wasDone, meditation: false, philosophy: false };
+  }
+  // Migration: add mind-session fields
+  if (!q.workout.sessionType) q.workout.sessionType = 'physical';
+  if (!q.workout.medTier) q.workout.medTier = 'calm';
+  if (!Array.isArray(q.workout.medProgress)) q.workout.medProgress = [];
+  if (q.workout.totalMedSessions == null) q.workout.totalMedSessions = 0;
+  if (!q.workout.phiTier) q.workout.phiTier = 'novice';
+  if (!Array.isArray(q.workout.phiProgress)) q.workout.phiProgress = [];
+  if (q.workout.totalPhiSessions == null) q.workout.totalPhiSessions = 0;
   if (!q.defisSubTab) q.defisSubTab = 'challenges';
 
   // Solo Leveling state
@@ -4242,26 +4405,66 @@ function ensureWorkoutSessionState() {
   const w = state.quests.workout;
   const today = getTodayStr();
   const session = getCurrentWorkoutSession();
-  // Reset progress if a new day started, or progress array is the wrong size for current tier
+  const medSession = MEDITATION_SESSIONS[w.medTier] || MEDITATION_SESSIONS.calm;
+  const phiSession = PHILOSOPHY_SESSIONS[w.phiTier] || PHILOSOPHY_SESSIONS.novice;
+  // Reset progress for ALL three types on new day
   if (w.sessionDate !== today) {
     w.sessionDate = today;
     w.progress = new Array(session.exercises.length).fill(false);
-    w.completedToday = false;
-  } else if (!Array.isArray(w.progress) || w.progress.length !== session.exercises.length) {
-    w.progress = new Array(session.exercises.length).fill(false);
+    w.medProgress = new Array(medSession.exercises.length).fill(false);
+    w.phiProgress = new Array(phiSession.exercises.length).fill(false);
+    w.completedToday = { physical:false, meditation:false, philosophy:false };
+  } else {
+    if (!Array.isArray(w.progress) || w.progress.length !== session.exercises.length) {
+      w.progress = new Array(session.exercises.length).fill(false);
+    }
+    if (!Array.isArray(w.medProgress) || w.medProgress.length !== medSession.exercises.length) {
+      w.medProgress = new Array(medSession.exercises.length).fill(false);
+    }
+    if (!Array.isArray(w.phiProgress) || w.phiProgress.length !== phiSession.exercises.length) {
+      w.phiProgress = new Array(phiSession.exercises.length).fill(false);
+    }
+    if (typeof w.completedToday !== 'object' || w.completedToday === null) {
+      w.completedToday = { physical:false, meditation:false, philosophy:false };
+    }
   }
 }
 
 function renderWorkoutSessions() {
   ensureWorkoutSessionState();
   const w = state.quests.workout;
+  const activeType = w.sessionType || 'physical';
+
+  // Top-level session type switcher (Corps / Esprit / Sagesse)
+  const ct = w.completedToday || {};
+  const typeSwitcher = `<div class="session-type-switcher">
+    <button class="session-type-btn ${activeType === 'physical' ? 'active' : ''}" onclick="switchSessionType('physical')">
+      <div class="stb-icon">💪</div>
+      <div class="stb-label">Corps</div>
+      ${ct.physical ? '<div class="stb-check">✓</div>' : ''}
+    </button>
+    <button class="session-type-btn ${activeType === 'meditation' ? 'active' : ''}" onclick="switchSessionType('meditation')">
+      <div class="stb-icon">🧘</div>
+      <div class="stb-label">Esprit</div>
+      ${ct.meditation ? '<div class="stb-check">✓</div>' : ''}
+    </button>
+    <button class="session-type-btn ${activeType === 'philosophy' ? 'active' : ''}" onclick="switchSessionType('philosophy')">
+      <div class="stb-icon">📜</div>
+      <div class="stb-label">Sagesse</div>
+      ${ct.philosophy ? '<div class="stb-check">✓</div>' : ''}
+    </button>
+  </div>`;
+
+  if (activeType === 'meditation') return typeSwitcher + renderMindSession('meditation');
+  if (activeType === 'philosophy') return typeSwitcher + renderMindSession('philosophy');
+
   const session = getCurrentWorkoutSession();
   const doneCount = w.progress.filter(Boolean).length;
   const total = session.exercises.length;
   const pct = Math.round((doneCount / total) * 100);
   const allDone = doneCount === total;
 
-  let html = '';
+  let html = typeSwitcher;
 
   // Tier selector — unlocked tiers only
   const currentTierIdx = WORKOUT_TIER_ORDER.indexOf(w.currentTier);
@@ -4299,7 +4502,7 @@ function renderWorkoutSessions() {
     </div>
   </div>`;
 
-  if (w.completedToday) {
+  if (w.completedToday && w.completedToday.physical) {
     html += `<div class="workout-complete-banner">
       <div class="workout-complete-title">✓ Seance accomplie aujourd'hui</div>
       <div class="workout-complete-text">Les dieux sont fiers, Viking. Reviens demain pour forger encore davantage ton corps. Les muscles grandissent pendant le repos — dors bien et mange proteine.</div>
@@ -4410,6 +4613,279 @@ function toggleWorkoutAlt(exId) {
   if (!w.altOpen) w.altOpen = {};
   w.altOpen[exId] = !w.altOpen[exId];
   renderDailyChallenges();
+}
+
+// ===== MIND SESSIONS (meditation + philosophy) =====
+function switchSessionType(type) {
+  if (!['physical','meditation','philosophy'].includes(type)) return;
+  const w = state.quests.workout;
+  w.sessionType = type;
+  saveState();
+  renderDailyChallenges();
+}
+
+function getMindConfig(type) {
+  if (type === 'meditation') return { sessions: MEDITATION_SESSIONS, order: MEDITATION_TIER_ORDER, tierField: 'medTier', progressField: 'medProgress', totalField: 'totalMedSessions', category: 'mental', completedKey: 'meditation' };
+  return { sessions: PHILOSOPHY_SESSIONS, order: PHILOSOPHY_TIER_ORDER, tierField: 'phiTier', progressField: 'phiProgress', totalField: 'totalPhiSessions', category: 'mental', completedKey: 'philosophy' };
+}
+
+function getCurrentMindSession(type) {
+  const cfg = getMindConfig(type);
+  const w = state.quests.workout;
+  return cfg.sessions[w[cfg.tierField]] || cfg.sessions[cfg.order[0]];
+}
+
+function validateMindExercise(type, idx) {
+  ensureWorkoutSessionState();
+  const w = state.quests.workout;
+  const cfg = getMindConfig(type);
+  if (!Array.isArray(w[cfg.progressField])) w[cfg.progressField] = [];
+  w[cfg.progressField][idx] = true;
+  saveState();
+  renderDailyChallenges();
+}
+
+function selectMindTier(type, tierKey) {
+  const w = state.quests.workout;
+  const cfg = getMindConfig(type);
+  const currentIdx = cfg.order.indexOf(w[cfg.tierField]);
+  const targetIdx = cfg.order.indexOf(tierKey);
+  if (targetIdx > currentIdx) return;
+  if (tierKey === w[cfg.tierField]) return;
+  w[cfg.tierField] = tierKey;
+  const session = cfg.sessions[tierKey];
+  w[cfg.progressField] = new Array(session.exercises.length).fill(false);
+  if (!w.completedToday || typeof w.completedToday !== 'object') w.completedToday = { physical:false, meditation:false, philosophy:false };
+  w.completedToday[cfg.completedKey] = false;
+  w.sessionDate = getTodayStr();
+  saveState();
+  renderDailyChallenges();
+}
+
+function completeMindSession(type) {
+  ensureWorkoutSessionState();
+  const w = state.quests.workout;
+  const cfg = getMindConfig(type);
+  const session = getCurrentMindSession(type);
+  const progress = w[cfg.progressField] || [];
+  if (progress.filter(Boolean).length !== session.exercises.length) return;
+  if (w.completedToday[cfg.completedKey]) return;
+
+  w.completedToday[cfg.completedKey] = true;
+  w[cfg.totalField] = (w[cfg.totalField] || 0) + 1;
+  if (!w.history) w.history = [];
+  w.history.push({ date: getTodayStr(), type, tier: w[cfg.tierField], xp: session.xpReward });
+  if (w.history.length > 100) w.history = w.history.slice(-100);
+
+  addQuestXp(session.xpReward, cfg.category);
+  const typeLabel = type === 'meditation' ? 'Meditation' : 'Sagesse';
+  showToast(`${typeLabel} ${session.name} accomplie !`, `+${session.xpReward} XP — ton esprit s'affute, guerrier !`);
+  const flavor = type === 'meditation'
+    ? `KRAA ! Tu as termine la meditation **${session.icon} ${session.name}** ! +${session.xpReward} XP ! Ton esprit devient plus clair — un guerrier au mental solide vaut dix brutes. [MOOD:protecteur]`
+    : `Par Odin ! Tu as medite **${session.icon} ${session.name}** — la sagesse a son prix : +${session.xpReward} XP ! Tes choix futurs seront plus justes grâce a cette reflexion. [MOOD:excite]`;
+  addMessage('stakr', flavor);
+
+  saveState();
+  renderDailyChallenges();
+  renderQuests();
+}
+
+function evolveMindTier(type) {
+  const w = state.quests.workout;
+  const cfg = getMindConfig(type);
+  const currentIdx = cfg.order.indexOf(w[cfg.tierField]);
+  if (currentIdx >= cfg.order.length - 1) return;
+  const nextTierKey = cfg.order[currentIdx + 1];
+  const nextSession = cfg.sessions[nextTierKey];
+  const currentSession = getCurrentMindSession(type);
+  const label = type === 'meditation' ? 'la meditation' : 'la sagesse';
+  if (!confirm(`Evoluer vers ${nextSession.name} (${nextSession.subtitle}) ?\n\nLes seances de ${label} seront plus longues et plus profondes, mais tu gagneras +${nextSession.xpReward} XP au lieu de +${currentSession.xpReward}.\n\nTu peux toujours revenir via le selecteur de rang.`)) return;
+
+  w[cfg.tierField] = nextTierKey;
+  w[cfg.progressField] = new Array(nextSession.exercises.length).fill(false);
+  w.completedToday[cfg.completedKey] = true;
+  saveState();
+  showToast('Evolution !', `Tu passes au rang ${nextSession.name} ${nextSession.icon}.`);
+  addMessage('stakr', `Par les Nornes ! Tu choisis la voie du **${nextSession.name}** — ${nextSession.subtitle}. La prochaine seance sera plus profonde. [MOOD:excite]`);
+  renderDailyChallenges();
+}
+
+function renderMindSession(type) {
+  const w = state.quests.workout;
+  const cfg = getMindConfig(type);
+  const session = getCurrentMindSession(type);
+  const progress = w[cfg.progressField] || [];
+  const doneCount = progress.filter(Boolean).length;
+  const total = session.exercises.length;
+  const pct = Math.round((doneCount / total) * 100);
+  const allDone = doneCount === total;
+  const completed = w.completedToday && w.completedToday[cfg.completedKey];
+  const currentTierIdx = cfg.order.indexOf(w[cfg.tierField]);
+  const totalDone = w[cfg.totalField] || 0;
+  const themeClass = type === 'meditation' ? 'mind-meditation' : 'mind-philosophy';
+
+  let html = `<div class="${themeClass}">`;
+
+  // Tier pills
+  html += `<div class="workout-tier-select">`;
+  cfg.order.forEach((tierKey, idx) => {
+    const s = cfg.sessions[tierKey];
+    const unlocked = idx <= currentTierIdx;
+    const active = tierKey === w[cfg.tierField];
+    html += `<button class="workout-tier-pill ${active ? 'active' : ''}" ${!unlocked ? 'disabled style="opacity:.35;cursor:not-allowed"' : `onclick="selectMindTier('${type}','${tierKey}')"`}>
+      ${!unlocked ? '🔒 ' : s.icon + ' '}${s.name}<br><span style="font-size:.55rem;opacity:.75">+${s.xpReward} XP</span>
+    </button>`;
+  });
+  html += `</div>`;
+
+  // Header card
+  html += `<div class="workout-intro" style="margin-top:12px">
+    <div class="workout-header-row">
+      <div class="workout-tier-badge">${session.icon}</div>
+      <div class="workout-tier-info">
+        <div class="workout-tier-name">${session.name}</div>
+        <div class="workout-tier-sub">${session.subtitle}</div>
+      </div>
+    </div>
+    <div class="workout-meta">
+      <span class="workout-meta-chip">⏱ ${session.duration}</span>
+      <span class="workout-meta-chip xp">+${session.xpReward} XP</span>
+      <span class="workout-meta-chip">🏅 ${totalDone} seances</span>
+    </div>
+    <div class="workout-intro-text">${session.intro}</div>
+    <div class="workout-progress-row">
+      <div class="workout-progress-bar"><div class="workout-progress-fill" style="width:${pct}%"></div></div>
+      <span class="workout-progress-text">${doneCount}/${total}</span>
+    </div>
+  </div>`;
+
+  // Teaching card (philosophy only)
+  if (type === 'philosophy' && session.teaching) {
+    const t = session.teaching;
+    const textHtml = t.text.split('\n').map(p => p.trim()).filter(Boolean).map(p => `<p>${p.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</p>`).join('');
+    html += `<div class="philosophy-teaching">
+      <div class="philo-teaching-title">📜 ${t.title}</div>
+      <div class="philo-teaching-source">${t.source}</div>
+      <div class="philo-teaching-text">${textHtml}</div>
+      <div class="philo-teaching-principle">⚔ ${t.principle}</div>
+    </div>`;
+  }
+
+  if (completed) {
+    const banner = type === 'meditation'
+      ? "L'esprit est affute. Reviens demain pour creuser plus profond — le calme se cultive chaque jour."
+      : "La sagesse a ete semée. Laisse-la germer aujourd'hui — demain, une nouvelle reflexion t'attend.";
+    html += `<div class="workout-complete-banner">
+      <div class="workout-complete-title">✓ Seance accomplie aujourd'hui</div>
+      <div class="workout-complete-text">${banner}</div>
+    </div>`;
+    if (currentTierIdx < cfg.order.length - 1) {
+      const nextTier = cfg.sessions[cfg.order[currentTierIdx + 1]];
+      html += `<div class="workout-evolve-section">
+        <div class="workout-evolve-title">⚡ Prêt a evoluer ?</div>
+        <div class="workout-evolve-text">Passe au rang suivant : <strong>${nextTier.icon} ${nextTier.name}</strong> — <em>${nextTier.subtitle}</em>. Plus long et plus profond, mais <strong>+${nextTier.xpReward} XP</strong> au lieu de +${session.xpReward}.</div>
+        <button class="workout-evolve-btn" onclick="evolveMindTier('${type}')">Evoluer vers ${nextTier.name} ${nextTier.icon}</button>
+      </div>`;
+    } else {
+      html += `<div class="workout-evolve-section">
+        <div class="workout-evolve-title">👑 Rang Maximum</div>
+        <div class="workout-evolve-text">Tu es au sommet — ${session.name}. Continue ces seances pour maintenir ta maitrise interieure.</div>
+      </div>`;
+    }
+    html += `</div>`;
+    return html;
+  }
+
+  // Exercise list
+  session.exercises.forEach((ex, i) => {
+    const done = progress[i];
+    html += `<div class="workout-exercise ${done ? 'done' : ''} mind-exercise">
+      <div class="workout-ex-header">
+        <div class="workout-ex-icon">${ex.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="workout-ex-name">${ex.name}</div>
+          <div class="workout-ex-target">${ex.target}</div>
+        </div>
+        <div class="workout-ex-sets">⏱ ${ex.duration}</div>
+      </div>
+      <div class="workout-ex-desc">${ex.desc}</div>`;
+    if (done) {
+      html += `<div class="workout-ex-done-mark">✓ Accompli</div>`;
+    } else if (_mindTimer.active && _mindTimer.type === type && _mindTimer.exIdx === i) {
+      html += `<div class="workout-timer-panel">
+        <div class="workout-timer-phase">⌛ En cours</div>
+        <div class="workout-timer-set">Reste concentre — laisse le temps faire son œuvre</div>
+        <div class="workout-timer-display" id="mindtimer-seconds">${formatTimerDisplay(_mindTimer.seconds)}</div>
+        <div class="workout-timer-controls">
+          <button class="workout-timer-btn primary" onclick="finishMindTimer()">✓ Terminer maintenant</button>
+          <button class="workout-timer-btn stop" onclick="stopMindTimer()">✕ Annuler</button>
+        </div>
+      </div>`;
+    } else {
+      const durSec = parseMindDurationSeconds(ex.duration);
+      if (durSec) {
+        html += `<button class="workout-ex-start" onclick="startMindTimer('${type}',${i},${durSec})">▶ Demarrer chrono (${ex.duration})</button>`;
+      }
+      html += `<button class="workout-ex-validate" onclick="validateMindExercise('${type}',${i})">Valider l'exercice</button>`;
+    }
+    html += `</div>`;
+  });
+
+  // Finish button
+  html += `<button class="workout-finish-btn" ${allDone ? '' : 'disabled'} onclick="completeMindSession('${type}')">
+    ${allDone ? `⚔ Terminer la seance (+${session.xpReward} XP)` : `Complete tous les exercices (${doneCount}/${total})`}
+  </button>`;
+
+  html += `</div>`;
+  return html;
+}
+
+// ===== MIND TIMER (meditation + philosophy) =====
+let _mindTimer = { active:false, type:null, exIdx:-1, seconds:0, intervalId:null };
+
+function parseMindDurationSeconds(dur) {
+  if (!dur) return null;
+  const sec = dur.match(/(\d+)\s*sec/i);
+  if (sec) return parseInt(sec[1]);
+  const min = dur.match(/(\d+)\s*min/i);
+  if (min) return parseInt(min[1]) * 60;
+  return null;
+}
+
+function startMindTimer(type, exIdx, seconds) {
+  if (_mindTimer.active) stopMindTimer(true);
+  if (_workoutTimer && _workoutTimer.active) stopWorkoutTimer(true);
+  _mindTimer = { active:true, type, exIdx, seconds, intervalId:null };
+  getAudioCtx();
+  playWorkoutBeep('work');
+  renderDailyChallenges();
+  _mindTimer.intervalId = setInterval(() => {
+    _mindTimer.seconds--;
+    if (_mindTimer.seconds > 0 && _mindTimer.seconds <= 3) playWorkoutBeep('tick');
+    if (_mindTimer.seconds <= 0) {
+      clearInterval(_mindTimer.intervalId);
+      _mindTimer.intervalId = null;
+      finishMindTimer();
+    } else {
+      const el = document.getElementById('mindtimer-seconds');
+      if (el) el.textContent = formatTimerDisplay(_mindTimer.seconds);
+    }
+  }, 1000);
+}
+
+function finishMindTimer() {
+  if (!_mindTimer.active) return;
+  if (_mindTimer.intervalId) clearInterval(_mindTimer.intervalId);
+  playWorkoutBeep('done');
+  const { type, exIdx } = _mindTimer;
+  _mindTimer = { active:false, type:null, exIdx:-1, seconds:0, intervalId:null };
+  validateMindExercise(type, exIdx);
+}
+
+function stopMindTimer(silent) {
+  if (_mindTimer.intervalId) clearInterval(_mindTimer.intervalId);
+  _mindTimer = { active:false, type:null, exIdx:-1, seconds:0, intervalId:null };
+  if (!silent) renderDailyChallenges();
 }
 
 // ===== WORKOUT TIMER =====
@@ -4555,7 +5031,8 @@ function selectWorkoutTier(tierKey) {
   w.currentTier = tierKey;
   const session = WORKOUT_SESSIONS[tierKey];
   w.progress = new Array(session.exercises.length).fill(false);
-  w.completedToday = false;
+  if (!w.completedToday || typeof w.completedToday !== 'object') w.completedToday = { physical:false, meditation:false, philosophy:false };
+  w.completedToday.physical = false;
   w.sessionDate = getTodayStr();
   saveState();
   renderDailyChallenges();
@@ -4566,12 +5043,12 @@ function completeWorkoutSession() {
   const w = state.quests.workout;
   const session = getCurrentWorkoutSession();
   if (w.progress.filter(Boolean).length !== session.exercises.length) return;
-  if (w.completedToday) return;
+  if (w.completedToday && w.completedToday.physical) return;
 
-  w.completedToday = true;
+  w.completedToday.physical = true;
   w.totalSessions = (w.totalSessions || 0) + 1;
   if (!w.history) w.history = [];
-  w.history.push({ date: getTodayStr(), tier: w.currentTier, xp: session.xpReward });
+  w.history.push({ date: getTodayStr(), type: 'physical', tier: w.currentTier, xp: session.xpReward });
   if (w.history.length > 100) w.history = w.history.slice(-100);
 
   addQuestXp(session.xpReward, 'physique');
@@ -4593,7 +5070,8 @@ function evolveWorkoutTier() {
 
   w.currentTier = nextTierKey;
   w.progress = new Array(nextSession.exercises.length).fill(false);
-  w.completedToday = true; // Keep locked until tomorrow (already did today's session)
+  if (!w.completedToday || typeof w.completedToday !== 'object') w.completedToday = { physical:false, meditation:false, philosophy:false };
+  w.completedToday.physical = true; // Keep locked until tomorrow (already did today's session)
   saveState();
   showToast('Evolution !', `Tu passes au rang ${nextSession.name} ${nextSession.icon} — les dieux approuvent !`);
   addMessage('stakr', `Par Odin ! Tu choisis la voie du **${nextSession.name}** — ${nextSession.subtitle}. Les seances deviendront plus rudes, mais ton corps deviendra une forge de guerre. A demain pour la premiere seance du nouveau rang ! [MOOD:excite]`);
