@@ -440,6 +440,41 @@ header button{flex-shrink:0}
 .solo-rm-week{font-size:.6rem;color:#c04efb;font-weight:700;font-family:'Cinzel',serif}
 .solo-roadmap-cell.past .solo-rm-week{color:#69f0ae}
 .solo-rm-vals{font-size:.52rem;color:var(--text-dim);margin-top:1px}
+.solo-skills{margin-top:12px;padding:14px;background:linear-gradient(160deg,rgba(0,0,0,.5),rgba(138,43,226,.08));border:1px solid rgba(138,43,226,.5);border-radius:12px;position:relative;overflow:hidden}
+.solo-skills::before{content:'';position:absolute;top:0;left:-100%;width:200%;height:1px;background:linear-gradient(90deg,transparent,#c04efb,transparent);animation:defisShimmer 5s linear infinite}
+.solo-skills-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(138,43,226,.25)}
+.solo-skills-title{font-size:.78rem;color:#c04efb;font-weight:700;letter-spacing:1px;font-family:'Cinzel',serif;text-transform:uppercase}
+.solo-rank-badge{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:10px;border:1px solid currentColor;background:rgba(0,0,0,.5);font-family:'Cinzel',serif;font-weight:800;box-shadow:0 0 14px var(--rank-glow,rgba(192,78,251,.5))}
+.solo-rank-letter{font-size:1.3rem;line-height:1}
+.solo-rank-name{font-size:.55rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.9}
+.solo-skills-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}
+.solo-skill-cell{text-align:center;padding:8px 4px;background:rgba(0,0,0,.35);border:1px solid rgba(138,43,226,.25);border-radius:8px;transition:all .3s}
+.solo-skill-cell:hover{border-color:rgba(192,78,251,.6);transform:translateY(-1px)}
+.solo-skill-icon{font-size:1.1rem;margin-bottom:2px}
+.solo-skill-value{font-size:1.2rem;font-weight:800;color:#e0d0ff;font-family:'Cinzel',serif;line-height:1}
+.solo-skill-label{font-size:.5rem;color:#c04efb;letter-spacing:1px;margin-top:3px;font-weight:700}
+.solo-skill-full{font-size:.45rem;color:var(--text-dim);margin-top:1px;font-style:italic}
+.solo-total-bar{margin-top:6px;padding:8px 10px;background:rgba(0,0,0,.4);border-radius:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid rgba(138,43,226,.2)}
+.solo-total-label{font-size:.6rem;color:var(--text-dim);letter-spacing:.5px;text-transform:uppercase}
+.solo-total-value{font-size:.9rem;color:#c04efb;font-weight:700;font-family:'Cinzel',serif}
+.solo-total-next{font-size:.55rem;color:var(--text-dim);font-style:italic}
+.solo-activity{margin-top:12px;padding:14px;background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:12px}
+.solo-activity-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;cursor:pointer}
+.solo-activity-title{font-size:.72rem;color:#c04efb;font-weight:700;letter-spacing:.5px;font-variant:small-caps}
+.solo-activity-toggle{font-size:.6rem;color:var(--text-dim);padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:rgba(0,0,0,.3)}
+.solo-activity-list{max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-right:4px}
+.solo-activity-list::-webkit-scrollbar{width:6px}
+.solo-activity-list::-webkit-scrollbar-thumb{background:rgba(138,43,226,.4);border-radius:3px}
+.solo-activity-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:linear-gradient(90deg,rgba(138,43,226,.08),rgba(0,0,0,.3));border:1px solid rgba(138,43,226,.2);border-radius:7px;font-size:.68rem}
+.solo-activity-item.day-bonus{border-color:#ffd700;background:linear-gradient(90deg,rgba(255,215,0,.1),rgba(0,0,0,.3))}
+.solo-activity-icon{font-size:1rem;flex-shrink:0}
+.solo-activity-main{flex:1;min-width:0}
+.solo-activity-name{color:var(--text);font-weight:600;font-size:.7rem}
+.solo-activity-date{color:var(--text-dim);font-size:.55rem;font-style:italic}
+.solo-activity-gains{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.solo-gain-chip{font-size:.55rem;padding:2px 6px;background:rgba(192,78,251,.15);border:1px solid rgba(192,78,251,.35);border-radius:10px;color:#e0d0ff;font-weight:700;letter-spacing:.3px}
+.solo-activity-empty{text-align:center;padding:18px;color:var(--text-dim);font-size:.65rem;font-style:italic}
+.solo-gain-popup{font-size:.55rem;color:#c04efb;margin-top:4px;font-style:italic;font-weight:600}
 .quest-add-form{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-top:6px;display:none}
 .quest-add-form.visible{display:block}
 .quest-add-form input,.quest-add-form select{width:100%;background:var(--wood-mid);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-size:.75rem;margin-bottom:6px;font-family:inherit}
@@ -3649,6 +3684,10 @@ function initQuests() {
 
   // Solo Leveling state
   if (!q.soloLeveling) q.soloLeveling = { startDate: null, currentWeek: 1, dayDate: null, pushups: 0, squats: 0, abs: 0, km: 0, completedDays: 0, missedDays: 0, lastPenaltyCheck: null };
+  // Migration: add stats & activity log for existing saves
+  if (!q.soloLeveling.stats) q.soloLeveling.stats = { str: 0, agi: 0, vit: 0, end: 0, per: 0 };
+  if (!q.soloLeveling.activityLog) q.soloLeveling.activityLog = [];
+  if (!q.soloLeveling.totals) q.soloLeveling.totals = { pushups: 0, squats: 0, abs: 0, km: 0 };
   checkSoloLeveling();
 
   // ===== MIGRATION: catch-up level-ups for players who had banked XP from the old level cap =====
@@ -4566,6 +4605,38 @@ function evolveWorkoutTier() {
 // Must complete daily or lose 300 XP.
 const SOLO_PENALTY_XP = 300;
 
+// Skill stat gains per unit logged (tuned so daily quotas yield meaningful growth)
+const SOLO_GAINS = {
+  pushups: { str: 0.10, vit: 0.05 },                // 10 reps = +1 STR, +0.5 VIT
+  squats:  { str: 0.08, agi: 0.07 },                // 10 reps = +0.8 STR, +0.7 AGI
+  abs:     { vit: 0.10, end: 0.06 },                // 10 reps = +1 VIT, +0.6 END
+  km:      { agi: 2.0,  end: 3.0  }                 // 1 km    = +2 AGI, +3 END
+};
+const SOLO_DAY_COMPLETE_BONUS = { per: 3, str: 1, agi: 1, vit: 1, end: 1 };
+
+// Hunter rank thresholds (total stats → E/D/C/B/A/S/National)
+const HUNTER_RANKS = [
+  { min: 0,    name: 'E',        full: 'Chasseur E',        color: '#8a8a8a', glow: 'rgba(138,138,138,.45)' },
+  { min: 50,   name: 'D',        full: 'Chasseur D',        color: '#7cb342', glow: 'rgba(124,179,66,.5)'  },
+  { min: 150,  name: 'C',        full: 'Chasseur C',        color: '#29b6f6', glow: 'rgba(41,182,246,.55)' },
+  { min: 300,  name: 'B',        full: 'Chasseur B',        color: '#ab47bc', glow: 'rgba(171,71,188,.55)' },
+  { min: 550,  name: 'A',        full: 'Chasseur A',        color: '#ff9800', glow: 'rgba(255,152,0,.6)'   },
+  { min: 900,  name: 'S',        full: 'Chasseur S',        color: '#f44336', glow: 'rgba(244,67,54,.65)'  },
+  { min: 1500, name: 'National', full: 'Niveau National',   color: '#ffd700', glow: 'rgba(255,215,0,.75)'  },
+  { min: 2500, name: 'Monarque', full: 'Monarque',          color: '#c04efb', glow: 'rgba(192,78,251,.85)' }
+];
+
+function getHunterRank(totalStats) {
+  let rank = HUNTER_RANKS[0];
+  for (const r of HUNTER_RANKS) if (totalStats >= r.min) rank = r;
+  return rank;
+}
+
+function getSoloStatTotal(stats) {
+  if (!stats) return 0;
+  return Math.floor((stats.str || 0) + (stats.agi || 0) + (stats.vit || 0) + (stats.end || 0) + (stats.per || 0));
+}
+
 function getSoloTargets(week) {
   const w = Math.max(1, Math.min(10, week));
   return { pushups: w * 10, squats: w * 10, abs: w * 10, km: w * 1 };
@@ -4649,13 +4720,54 @@ function logSoloProgress(key) {
   sl[key] = Math.max(0, (sl[key] || 0) + value);
   input.value = '';
 
+  // Ensure stat containers exist
+  if (!sl.stats) sl.stats = { str: 0, agi: 0, vit: 0, end: 0, per: 0 };
+  if (!sl.totals) sl.totals = { pushups: 0, squats: 0, abs: 0, km: 0 };
+  if (!sl.activityLog) sl.activityLog = [];
+
+  // Compute stat gains
+  const prevRank = getHunterRank(getSoloStatTotal(sl.stats));
+  const ratios = SOLO_GAINS[key] || {};
+  const gains = { str: 0, agi: 0, vit: 0, end: 0, per: 0 };
+  Object.keys(ratios).forEach(k => { gains[k] = +(value * ratios[k]).toFixed(2); });
+  ['str','agi','vit','end','per'].forEach(k => {
+    sl.stats[k] = +((sl.stats[k] || 0) + gains[k]).toFixed(2);
+  });
+  sl.totals[key] = +((sl.totals[key] || 0) + value).toFixed(2);
+
+  // Log activity (keep last 200)
+  sl.activityLog.unshift({
+    ts: Date.now(),
+    date: getTodayStr(),
+    key, value,
+    gains: Object.fromEntries(Object.entries(gains).filter(([_, v]) => v > 0))
+  });
+  if (sl.activityLog.length > 200) sl.activityLog = sl.activityLog.slice(0, 200);
+
+  // Check full-day completion bonus (PER)
   const targets = getSoloTargets(sl.currentWeek);
   const allDone = sl.pushups >= targets.pushups && sl.squats >= targets.squats && sl.abs >= targets.abs && sl.km >= targets.km;
   if (allDone && !sl._completedToast) {
     sl._completedToast = true;
-    showToast('Solo Leveling accompli !', `Semaine ${sl.currentWeek} — objectif du jour atteint.`);
-    addMessage('stakr', `KRAA ! Tu as accompli ton quota Solo Leveling du jour ! Semaine ${sl.currentWeek} domptée. Le Systeme est satisfait... pour aujourd'hui. [MOOD:excite]`);
+    // Bonus stats for full completion
+    Object.keys(SOLO_DAY_COMPLETE_BONUS).forEach(k => {
+      sl.stats[k] = +((sl.stats[k] || 0) + SOLO_DAY_COMPLETE_BONUS[k]).toFixed(2);
+    });
+    sl.activityLog.unshift({
+      ts: Date.now(), date: getTodayStr(), key: '_dayBonus', value: 1,
+      gains: { ...SOLO_DAY_COMPLETE_BONUS }
+    });
+    showToast('Solo Leveling accompli !', `Semaine ${sl.currentWeek} — +${SOLO_DAY_COMPLETE_BONUS.per} PER, +4 autres stats.`);
+    addMessage('stakr', `KRAA ! Tu as accompli ton quota Solo Leveling du jour ! Semaine ${sl.currentWeek} domptée. Le Systeme t'octroie **+${SOLO_DAY_COMPLETE_BONUS.per} Perception** et un bonus sur toutes les stats. [MOOD:excite]`);
   }
+
+  // Rank-up detection
+  const newRank = getHunterRank(getSoloStatTotal(sl.stats));
+  if (newRank.min > prevRank.min) {
+    showToast(`RANG UP — ${newRank.full}`, `Le Systeme reclasse ton ame : ${prevRank.name} → ${newRank.name}.`);
+    addMessage('stakr', `PAR LES DIEUX ! Tu viens d'atteindre le rang **${newRank.full}** ! Le Systeme reconnait ta puissance grandissante... [MOOD:excite]`);
+  }
+
   saveState();
   renderSoloLeveling();
 }
@@ -4677,6 +4789,10 @@ function renderSoloLeveling() {
   }
 
   const targets = getSoloTargets(sl.currentWeek);
+  const gainLabel = (key) => {
+    const g = SOLO_GAINS[key] || {};
+    return Object.entries(g).map(([k, v]) => `+${v} ${k.toUpperCase()}`).join(' • ');
+  };
   const exercises = [
     { key: 'pushups', name: 'Pompes', icon: '💪', unit: 'reps' },
     { key: 'squats', name: 'Squats', icon: '🦵', unit: 'reps' },
@@ -4722,6 +4838,7 @@ function renderSoloLeveling() {
         <div style="flex:1;min-width:0">
           <div class="solo-ex-name">${ex.name}</div>
           <div class="solo-ex-target">Objectif : ${target} ${ex.unit}</div>
+          <div class="solo-gain-popup">par ${ex.unit === 'km' ? 'km' : 'rep'} : ${gainLabel(ex.key)}</div>
         </div>
         <div class="solo-ex-count ${done ? 'done' : ''}">${current} / ${target}</div>
       </div>
@@ -4738,6 +4855,50 @@ function renderSoloLeveling() {
     html += `</div>`;
   });
 
+  // ===== SKILL STATS PANEL =====
+  const stats = sl.stats || { str:0, agi:0, vit:0, end:0, per:0 };
+  const totalStats = getSoloStatTotal(stats);
+  const rank = getHunterRank(totalStats);
+  // Next rank progress
+  const rankIdx = HUNTER_RANKS.indexOf(rank);
+  const nextRank = HUNTER_RANKS[rankIdx + 1];
+  const nextText = nextRank ? `Prochain rang : ${nextRank.name} (${nextRank.min - totalStats} pts)` : 'Rang maximum atteint';
+
+  const skillDefs = [
+    { key:'str', label:'STR', full:'Force',      icon:'💪' },
+    { key:'agi', label:'AGI', full:'Agilite',    icon:'🏃' },
+    { key:'vit', label:'VIT', full:'Vitalite',   icon:'❤️' },
+    { key:'end', label:'END', full:'Endurance',  icon:'🫁' },
+    { key:'per', label:'PER', full:'Perception', icon:'👁️' }
+  ];
+
+  html += `<div class="solo-skills" style="--rank-glow:${rank.glow}">
+    <div class="solo-skills-header">
+      <div class="solo-skills-title">⚡ Statut du Chasseur</div>
+      <div class="solo-rank-badge" style="color:${rank.color};--rank-glow:${rank.glow}">
+        <div class="solo-rank-letter">${rank.name}</div>
+        <div class="solo-rank-name">${rank.full}</div>
+      </div>
+    </div>
+    <div class="solo-skills-grid">`;
+  skillDefs.forEach(s => {
+    html += `<div class="solo-skill-cell" title="${s.full}">
+      <div class="solo-skill-icon">${s.icon}</div>
+      <div class="solo-skill-value">${Math.floor(stats[s.key] || 0)}</div>
+      <div class="solo-skill-label">${s.label}</div>
+      <div class="solo-skill-full">${s.full}</div>
+    </div>`;
+  });
+  html += `</div>
+    <div class="solo-total-bar">
+      <div>
+        <div class="solo-total-label">Points Totaux</div>
+        <div class="solo-total-value">${totalStats}</div>
+      </div>
+      <div class="solo-total-next">${nextText}</div>
+    </div>
+  </div>`;
+
   // Weekly progression table
   html += `<div class="solo-roadmap">
     <div class="solo-roadmap-title">📊 Progression hebdomadaire</div>
@@ -4752,6 +4913,52 @@ function renderSoloLeveling() {
     </div>`;
   }
   html += `</div></div>`;
+
+  // ===== ACTIVITY LOG =====
+  const log = sl.activityLog || [];
+  const totals = sl.totals || { pushups:0, squats:0, abs:0, km:0 };
+  const totalReps = Math.floor((totals.pushups || 0) + (totals.squats || 0) + (totals.abs || 0));
+  const totalKm = +(totals.km || 0).toFixed(1);
+
+  html += `<div class="solo-activity">
+    <div class="solo-activity-header">
+      <div class="solo-activity-title">📜 Journal d'activite</div>
+      <div class="solo-activity-toggle">${totalReps} reps • ${totalKm} km total</div>
+    </div>`;
+
+  if (log.length === 0) {
+    html += `<div class="solo-activity-empty">Aucune activite enregistree. Commence par logger une serie !</div>`;
+  } else {
+    html += `<div class="solo-activity-list">`;
+    const nameMap = {
+      pushups: { icon:'💪', name:'Pompes', unit:'reps' },
+      squats:  { icon:'🦵', name:'Squats', unit:'reps' },
+      abs:     { icon:'🔥', name:'Abdos',  unit:'reps' },
+      km:      { icon:'🏃', name:'Course', unit:'km'   },
+      _dayBonus: { icon:'✨', name:'Bonus jour complet', unit:'' }
+    };
+    log.slice(0, 50).forEach(entry => {
+      const meta = nameMap[entry.key] || { icon:'•', name:entry.key, unit:'' };
+      const isBonus = entry.key === '_dayBonus';
+      const dateObj = new Date(entry.ts);
+      const timeStr = `${String(dateObj.getHours()).padStart(2,'0')}:${String(dateObj.getMinutes()).padStart(2,'0')}`;
+      const valueText = isBonus ? '(quota atteint)' : `+${entry.value} ${meta.unit}`;
+      let chips = '';
+      Object.entries(entry.gains || {}).forEach(([k, v]) => {
+        if (v > 0) chips += `<span class="solo-gain-chip">+${(+v).toFixed(v < 1 ? 2 : 1)} ${k.toUpperCase()}</span>`;
+      });
+      html += `<div class="solo-activity-item ${isBonus ? 'day-bonus' : ''}">
+        <div class="solo-activity-icon">${meta.icon}</div>
+        <div class="solo-activity-main">
+          <div class="solo-activity-name">${meta.name} ${valueText}</div>
+          <div class="solo-activity-date">${entry.date} • ${timeStr}</div>
+        </div>
+        <div class="solo-activity-gains">${chips}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  html += `</div>`;
 
   container.innerHTML = html;
 }
