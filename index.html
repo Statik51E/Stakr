@@ -343,6 +343,12 @@ header button{flex-shrink:0}
 .workout-ex-validate:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 4px 12px rgba(196,154,60,.5)}
 .workout-ex-validate:active{transform:translateY(0) scale(.97)}
 .workout-ex-done-mark{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:linear-gradient(135deg,rgba(76,175,80,.15),rgba(76,175,80,.05));border:1px solid #4caf50;border-radius:6px;color:#69f0ae;font-size:.7rem;font-weight:700;letter-spacing:.5px}
+.workout-alt-toggle{width:100%;background:rgba(0,0,0,.3);border:1px dashed var(--gold-dim);border-radius:6px;padding:7px 10px;color:var(--gold-dim);font-size:.65rem;cursor:pointer;font-family:inherit;margin-bottom:8px;transition:all .2s;text-align:center;letter-spacing:.3px}
+.workout-alt-toggle:hover{background:rgba(196,154,60,.08);color:var(--gold);border-color:var(--gold)}
+.workout-alt-toggle.open{background:linear-gradient(135deg,rgba(196,154,60,.12),rgba(196,154,60,.03));color:var(--gold);border-color:var(--gold);border-style:solid}
+.workout-alt-panel{padding:10px 12px;background:linear-gradient(160deg,rgba(196,154,60,.08),rgba(0,0,0,.35));border:1px solid var(--gold-dim);border-radius:8px;margin-bottom:8px;border-left:3px solid var(--gold)}
+.workout-alt-name{font-size:.72rem;color:var(--gold);font-weight:700;letter-spacing:.4px;margin-bottom:4px}
+.workout-alt-desc{font-size:.63rem;color:var(--text-dim);line-height:1.5;font-style:italic}
 .workout-finish-btn{width:100%;background:linear-gradient(135deg,#daa520,#ff9800);color:#0e0a06;border:none;border-radius:10px;padding:14px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .3s;letter-spacing:1px;box-shadow:0 4px 16px rgba(255,152,0,.4),inset 0 1px 0 rgba(255,255,255,.25);text-transform:uppercase;margin-top:12px;position:relative;overflow:hidden;animation:workoutFinishPulse 2s ease-in-out infinite}
 @keyframes workoutFinishPulse{0%,100%{box-shadow:0 4px 16px rgba(255,152,0,.4),inset 0 1px 0 rgba(255,255,255,.25)}50%{box-shadow:0 6px 24px rgba(255,152,0,.7),0 0 20px rgba(218,165,32,.5),inset 0 1px 0 rgba(255,255,255,.3)}}
 .workout-finish-btn:hover{filter:brightness(1.1);transform:translateY(-2px)}
@@ -3416,10 +3422,10 @@ const WORKOUT_SESSIONS = {
     exercises: [
       { id:'b_warmup', name:'Echauffement', icon:'🔥', sets:'1', reps:'5 min', target:'corps entier', desc:"Jumping jacks, cercles d'epaules, rotations du tronc. Prepare les muscles et les articulations — ne saute jamais cette etape." },
       { id:'b_pushups', name:'Pompes classiques', icon:'💪', sets:'3', reps:'8 reps', target:'pectoraux, epaules, triceps', desc:"Corps droit comme une planche, mains sous les epaules. Descends jusqu'a ce que ta poitrine touche presque le sol, remonte en poussant fort. Serre les fessiers pour ne pas casser." },
-      { id:'b_incline', name:'Pompes inclinees', icon:'📐', sets:'3', reps:'10 reps', target:'haut des pectoraux', desc:"Mains sur une chaise ou un muret, corps droit. Version plus facile qui cible le haut des pecs. Controle la descente sur 2 secondes." },
-      { id:'b_rows', name:'Rowing inverse (table)', icon:'🚣', sets:'3', reps:'8 reps', target:'dos, biceps', desc:"Sous une table solide, agrippe le bord, corps droit, talons au sol. Tire ta poitrine vers le bord de la table. Le squat du dos — indispensable pour un dos large." },
-      { id:'b_dips', name:'Dips sur chaise', icon:'🪑', sets:'3', reps:'8 reps', target:'triceps, pectoraux bas', desc:"Assis sur une chaise, mains au bord, avance tes pieds. Descends en pliant les coudes a 90 degres, remonte. Garde les coudes proches du corps." },
-      { id:'b_curl_iso', name:'Curl isometrique', icon:'🧱', sets:'3', reps:'20 sec', target:'biceps', desc:"Accroche-toi sous une table ou a une barre, bras plies a 90 degres. Tiens sans bouger. La contraction pure gonfle le biceps rapidement." },
+      { id:'b_incline', name:'Pompes inclinees', icon:'📐', sets:'3', reps:'10 reps', target:'haut des pectoraux', desc:"Mains sur une chaise ou un muret, corps droit. Version plus facile qui cible le haut des pecs. Controle la descente sur 2 secondes.", alt:{ name:'Pompes sur genoux', desc:"Sans chaise ni muret, fais des pompes classiques mais avec les genoux au sol. Meme angle d'inclinaison pour le haut du corps — descends lentement, remonte avec force." } },
+      { id:'b_rows', name:'Rowing inverse (table)', icon:'🚣', sets:'3', reps:'8 reps', target:'dos, biceps', desc:"Sous une table solide, agrippe le bord, corps droit, talons au sol. Tire ta poitrine vers le bord de la table. Le squat du dos — indispensable pour un dos large.", alt:{ name:'Superman tire', desc:"Allonge sur le ventre, bras tendus devant en forme de Y. Leve bras et jambes, puis tire les coudes vers les flancs en serrant les omoplates (comme si tu ramais en l'air). 12 reps au lieu de 8." } },
+      { id:'b_dips', name:'Dips sur chaise', icon:'🪑', sets:'3', reps:'8 reps', target:'triceps, pectoraux bas', desc:"Assis sur une chaise, mains au bord, avance tes pieds. Descends en pliant les coudes a 90 degres, remonte. Garde les coudes proches du corps.", alt:{ name:'Pompes coudes serres', desc:"Pompes classiques mais coudes TRES proches du corps (frolent les flancs). Cible exactement les memes muscles que les dips — triceps et pecs bas. 10 reps au lieu de 8." } },
+      { id:'b_curl_iso', name:'Curl isometrique', icon:'🧱', sets:'3', reps:'20 sec', target:'biceps', desc:"Accroche-toi sous une table ou a une barre, bras plies a 90 degres. Tiens sans bouger. La contraction pure gonfle le biceps rapidement.", alt:{ name:'Main contre main', desc:"Debout, croche une main sous l'autre (paume contre paume inverse) devant toi, bras a 90 degres. Pousse la main du bas vers le haut, resiste avec celle du haut. Contraction pure — 20 sec par bras." } },
       { id:'b_plank', name:'Gainage planche', icon:'🛡️', sets:'3', reps:'20 sec', target:'gainage', desc:"Coudes sous les epaules, corps droit de la tete aux talons. Serre les abdos et les fessiers. Respire calmement — c'est un exercice de volonte autant que de force." },
       { id:'b_stretch', name:'Etirements', icon:'🧘', sets:'1', reps:'3 min', target:'recuperation', desc:"Etire pectoraux, epaules, dos et bras. La recuperation commence des la fin de la seance — c'est pendant le repos que le muscle grandit." }
     ]
@@ -3431,12 +3437,12 @@ const WORKOUT_SESSIONS = {
     intro: "Ton corps commence a obeir. Augmente le volume, introduis les tractions et forge les premiers signes d'un physique de guerrier.",
     exercises: [
       { id:'i_warmup', name:'Echauffement actif', icon:'🔥', sets:'1', reps:'5 min', target:'corps entier', desc:"Jumping jacks, rotations des bras, cercles d'epaules, squats legers. Monte le rythme cardiaque et prepare les epaules aux tractions." },
-      { id:'i_tractions_ass', name:'Tractions assistees', icon:'🪨', sets:'4', reps:'6 reps', target:'dos, biceps', desc:"A une barre, aide-toi d'un leger saut pour monter, puis descends le plus lentement possible (3-4 sec). La descente controlee construit la force." },
-      { id:'i_rows', name:'Rowing inverse', icon:'🚣', sets:'4', reps:'10 reps', target:'dos, biceps', desc:"Sous une table, corps droit, tire la poitrine au bord. Serre les omoplates en haut. Pour un dos large, la cle est ici." },
+      { id:'i_tractions_ass', name:'Tractions assistees', icon:'🪨', sets:'4', reps:'6 reps', target:'dos, biceps', desc:"A une barre, aide-toi d'un leger saut pour monter, puis descends le plus lentement possible (3-4 sec). La descente controlee construit la force.", alt:{ name:'Superman pulse', desc:"Allonge sur le ventre, bras en Y devant toi. Leve bras et jambes ensemble et pulse en tirant les coudes vers les flancs 15 fois. Serre le dos a chaque rep. Fait 4 series de 15." } },
+      { id:'i_rows', name:'Rowing inverse', icon:'🚣', sets:'4', reps:'10 reps', target:'dos, biceps', desc:"Sous une table, corps droit, tire la poitrine au bord. Serre les omoplates en haut. Pour un dos large, la cle est ici.", alt:{ name:'T raises au sol', desc:"Allonge sur le ventre, bras tendus en T (a 90 degres du corps). Leve les bras du sol en serrant les omoplates, tiens 2 sec en haut, redescends lentement. 12 reps par serie — le dos travaille intensement." } },
       { id:'i_diamond', name:'Pompes diamant', icon:'💎', sets:'4', reps:'10 reps', target:'triceps, pecs interieurs', desc:"Mains rapprochees en forme de diamant sous la poitrine. Descends lentement, les coudes le long du corps. Cible les triceps et le centre des pecs." },
       { id:'i_wide', name:'Pompes larges', icon:'🦅', sets:'4', reps:'10 reps', target:'pectoraux larges', desc:"Mains bien plus larges que les epaules. Etire les pectoraux a fond en bas. C'est cet exercice qui donne la largeur de la poitrine." },
       { id:'i_pike', name:'Pompes pike', icon:'🔱', sets:'3', reps:'8 reps', target:'epaules', desc:"En V inverse (fesses hautes), descends la tete vers le sol entre les mains. Simule un developpe epaules — essentiel pour des epaules larges." },
-      { id:'i_chin_neg', name:'Chin-ups negatifs', icon:'⬇️', sets:'3', reps:'5 reps', target:'biceps, dos', desc:"Paumes vers toi. Saute en position haute et descends en 5 secondes minimum. Detruit les fibres des biceps comme rien d'autre." },
+      { id:'i_chin_neg', name:'Chin-ups negatifs', icon:'⬇️', sets:'3', reps:'5 reps', target:'biceps, dos', desc:"Paumes vers toi. Saute en position haute et descends en 5 secondes minimum. Detruit les fibres des biceps comme rien d'autre.", alt:{ name:'Pompes diamant lentes', desc:"Pompes diamant (mains jointes en triangle) avec descente en 4 sec et remontee en 2 sec. Les triceps et pecs interieurs compensent l'absence de traction. 8 reps par serie." } },
       { id:'i_plank', name:'Gainage planche', icon:'🛡️', sets:'3', reps:'40 sec', target:'gainage', desc:"Planche classique, corps parfaitement droit. Si c'est trop facile, leve un bras ou une jambe pour augmenter la difficulte." }
     ]
   },
@@ -3447,13 +3453,13 @@ const WORKOUT_SESSIONS = {
     intro: "Les dieux commencent a te remarquer. Volume extreme, temps sous tension, intensite maximale — ton corps devient une forge.",
     exercises: [
       { id:'a_warmup', name:'Echauffement dynamique', icon:'🔥', sets:'1', reps:'5 min', target:'corps entier', desc:"Jumping jacks, burpees legers, cercles d'epaules avec amplitude maximale. Monte a 70% de la FC max avant de commencer." },
-      { id:'a_tractions_large', name:'Tractions prise large', icon:'🦅', sets:'5', reps:'8 reps', target:'dos TRES large', desc:"Prise large, paumes vers l'avant. Tire en pensant a rapprocher les omoplates. C'est l'exercice ROI pour un dos de Viking." },
-      { id:'a_dips_deep', name:'Dips profonds', icon:'🔻', sets:'5', reps:'10 reps', target:'pectoraux, triceps', desc:"Sur deux surfaces, descends le plus bas possible, coudes a 90 degres minimum. Etire les pecs en bas, explose en montant. Volume garanti." },
+      { id:'a_tractions_large', name:'Tractions prise large', icon:'🦅', sets:'5', reps:'8 reps', target:'dos TRES large', desc:"Prise large, paumes vers l'avant. Tire en pensant a rapprocher les omoplates. C'est l'exercice ROI pour un dos de Viking.", alt:{ name:'Y-T-W au sol', desc:"Allonge sur le ventre, leve les bras en Y (tendus vers l'avant), puis en T (ecartes), puis en W (coudes plies). 8 cycles complets par serie. Brule intense sur tout le dos, les trapezes et les deltoides arriere." } },
+      { id:'a_dips_deep', name:'Dips profonds', icon:'🔻', sets:'5', reps:'10 reps', target:'pectoraux, triceps', desc:"Sur deux surfaces, descends le plus bas possible, coudes a 90 degres minimum. Etire les pecs en bas, explose en montant. Volume garanti.", alt:{ name:'Pompes diamant profondes', desc:"Pompes diamant en decalant les mains vers le ventre (pas sous les pectoraux). Descends tres lentement jusqu'a toucher le diamant avec le sternum. Remonte avec force. 12 reps — cible pecs bas et triceps." } },
       { id:'a_hindu', name:'Pompes hindoues', icon:'🐍', sets:'4', reps:'8 reps', target:'epaules, dos, pectoraux', desc:"De la position pike, plonge vers le sol en arc puis remonte bras tendus. Exercice complet du haut du corps — tout travaille ensemble." },
-      { id:'a_rows_str', name:'Rowing inverse jambes tendues', icon:'🚣', sets:'4', reps:'12 reps', target:'dos complet', desc:"Comme le rowing inverse mais jambes tendues horizontalement. Beaucoup plus dur — le dos travaille intensement pour soulever tout le corps." },
-      { id:'a_chin', name:'Chin-ups supination', icon:'💪', sets:'4', reps:'6 reps', target:'biceps tres gonfles', desc:"Tractions paumes vers toi. L'exercice qui gonfle les biceps le plus rapidement. Controle la descente 3-4 sec pour maximiser l'hypertrophie." },
+      { id:'a_rows_str', name:'Rowing inverse jambes tendues', icon:'🚣', sets:'4', reps:'12 reps', target:'dos complet', desc:"Comme le rowing inverse mais jambes tendues horizontalement. Beaucoup plus dur — le dos travaille intensement pour soulever tout le corps.", alt:{ name:'Reverse snow angels', desc:"Allonge sur le ventre, bras le long du corps paumes au sol. Leve les bras au-dessus de la tete en ecartant (comme un ange de neige inverse), puis ramene. 15 reps lentes et controlees — serre le dos a chaque mouvement." } },
+      { id:'a_chin', name:'Chin-ups supination', icon:'💪', sets:'4', reps:'6 reps', target:'biceps tres gonfles', desc:"Tractions paumes vers toi. L'exercice qui gonfle les biceps le plus rapidement. Controle la descente 3-4 sec pour maximiser l'hypertrophie.", alt:{ name:'Pompes diamant lentes', desc:"Pompes diamant avec 4 sec de descente et pause de 1 sec en bas. Le temps sous tension extreme compense les tractions. 8 reps par serie — les triceps et les pecs brulent comme apres des chin-ups." } },
       { id:'a_archer', name:'Pompes archer', icon:'🏹', sets:'3', reps:'6 / cote', target:'pectoraux unilateraux', desc:"Un bras plie fait la pompe, l'autre reste tendu sur le cote comme un arc. Charge maximale sur un seul pec — developpement spectaculaire." },
-      { id:'a_curl_iso', name:'Curl isometrique barre', icon:'🧱', sets:'3', reps:'30 sec', target:'biceps', desc:"A une barre, bras plies a 90 degres exactement. Tiens. Le biceps explose de sang — sensation de brulure pure." },
+      { id:'a_curl_iso', name:'Curl isometrique barre', icon:'🧱', sets:'3', reps:'30 sec', target:'biceps', desc:"A une barre, bras plies a 90 degres exactement. Tiens. Le biceps explose de sang — sensation de brulure pure.", alt:{ name:'Main contre main 30s', desc:"Debout, croche une main sous l'autre (paumes inversees) devant toi a 90 degres. Pousse la main du bas vers le haut, resiste avec celle du haut. Tension maximale 30 sec par bras — contraction pure." } },
       { id:'a_plank', name:'Gainage planche', icon:'🛡️', sets:'3', reps:'60 sec', target:'gainage', desc:"1 minute complete. Si facile, ajoute une main tendue devant ou une jambe levee. La planche de guerrier." }
     ]
   },
@@ -3464,14 +3470,14 @@ const WORKOUT_SESSIONS = {
     intro: "Tu es devenu un Berserkr. Cette seance est concue pour forger un physique de legende — dos massif, pecs gonfles, epaules explosives, biceps comme des rochers. Aucune faiblesse autorisee.",
     exercises: [
       { id:'e_warmup', name:'Echauffement complet', icon:'🔥', sets:'1', reps:'5 min', target:'corps entier', desc:"Mobilite complete + 2 min d'intensite progressive. Arrive a 80% de la FC max pour preparer le corps a l'effort maximal." },
-      { id:'e_tractions_lest', name:'Tractions prise large (lestees)', icon:'🦅', sets:'6', reps:'8 reps', target:'dos massif', desc:"Ajoute du lest (sac a dos charge) si possible. Prise tres large. Chaque traction doit te demander un effort maximal — c'est ainsi que le dos devient massif." },
-      { id:'e_muscle_up', name:'Muscle-up progression', icon:'💥', sets:'5', reps:'5 reps', target:'dos, pectoraux, triceps', desc:"Tractions explosives avec intention de passer au-dessus de la barre. Si tu ne peux pas encore, fais des tractions hautes (mains vers la poitrine)." },
+      { id:'e_tractions_lest', name:'Tractions prise large (lestees)', icon:'🦅', sets:'6', reps:'8 reps', target:'dos massif', desc:"Ajoute du lest (sac a dos charge) si possible. Prise tres large. Chaque traction doit te demander un effort maximal — c'est ainsi que le dos devient massif.", alt:{ name:'Y-T-W charge', desc:"Allonge sur le ventre avec un sac a dos charge sur les epaules (ou bouteilles d'eau dans les mains). Y-T-W complets lents : 10 cycles par serie. Sans charge, fais 15 cycles. Brule maximale sur tout le haut du dos et les trapezes." } },
+      { id:'e_muscle_up', name:'Muscle-up progression', icon:'💥', sets:'5', reps:'5 reps', target:'dos, pectoraux, triceps', desc:"Tractions explosives avec intention de passer au-dessus de la barre. Si tu ne peux pas encore, fais des tractions hautes (mains vers la poitrine).", alt:{ name:'Pompes explosives claquees', desc:"Pompes explosives avec assez de puissance pour decoller les mains du sol ET les claquer ensemble avant de retomber. 5 reps par serie — puissance explosive pure du haut du corps." } },
       { id:'e_pseudo', name:'Pompes pseudo-planche', icon:'🤸', sets:'5', reps:'8 reps', target:'epaules explosives', desc:"Mains au niveau de la taille, doigts vers l'arriere, epaules vers l'avant. Tension extreme sur les deltoides — l'exercice des calisthenics elite pour des epaules en boulets de canon." },
-      { id:'e_dips_lest', name:'Dips profonds lestes', icon:'🔻', sets:'5', reps:'12 reps', target:'pectoraux gonfles', desc:"Sac a dos charge. Descends profond, pause 1 sec en bas, explose en haut. 60 reps totales avec charge — les pectoraux vont gonfler comme jamais." },
-      { id:'e_chin_slow', name:'Chin-ups lentes', icon:'🐌', sets:'5', reps:'8 reps', target:'biceps monstres', desc:"Montee en 2 sec, pause 1 sec en haut, descente en 4 sec. Temps sous tension extreme — le biceps gonfle sous la pression et la douleur." },
+      { id:'e_dips_lest', name:'Dips profonds lestes', icon:'🔻', sets:'5', reps:'12 reps', target:'pectoraux gonfles', desc:"Sac a dos charge. Descends profond, pause 1 sec en bas, explose en haut. 60 reps totales avec charge — les pectoraux vont gonfler comme jamais.", alt:{ name:'Pompes diamant avec sac', desc:"Pompes diamant avec un sac a dos charge sur le dos (si disponible), sinon 15 pompes diamant lentes (3 sec descente, pause 1 sec, 1 sec remontee). Pecs bas et triceps bruleront comme des dips lestes." } },
+      { id:'e_chin_slow', name:'Chin-ups lentes', icon:'🐌', sets:'5', reps:'8 reps', target:'biceps monstres', desc:"Montee en 2 sec, pause 1 sec en haut, descente en 4 sec. Temps sous tension extreme — le biceps gonfle sous la pression et la douleur.", alt:{ name:'Pompes archer lentes', desc:"Pompes archer avec 3 sec de descente et 2 sec de remontee par cote. 6 reps par cote — chaque bras porte la charge maximale en mode lent. Les biceps stabilisent et gonflent sous la tension." } },
       { id:'e_archer_slow', name:'Pompes archer lentes', icon:'🏹', sets:'4', reps:'6 / cote', target:'pectoraux unilateraux', desc:"Descente 3 sec, remontee 2 sec. Chaque pec doit porter 80% de ton poids. L'asymetrie force la pure hypertrophie." },
       { id:'e_slow_pushup', name:'Pompes lentes 5-5', icon:'⏳', sets:'4', reps:'6 reps', target:'pectoraux hypertrophie', desc:"5 secondes pour descendre, 5 secondes pour remonter. 10 secondes par rep. Le temps sous tension maximal construit les fibres les plus fortes." },
-      { id:'e_curl_iso', name:'Curl isometrique 45s', icon:'🧱', sets:'4', reps:'45 sec', target:'biceps extremes', desc:"45 secondes de tenue pure a 90 degres. Les derniers 10 secondes sont un combat mental — gagne-le et les biceps grossiront." },
+      { id:'e_curl_iso', name:'Curl isometrique 45s', icon:'🧱', sets:'4', reps:'45 sec', target:'biceps extremes', desc:"45 secondes de tenue pure a 90 degres. Les derniers 10 secondes sont un combat mental — gagne-le et les biceps grossiront.", alt:{ name:'Main contre main 45s', desc:"Main contre main paumes inversees a 90 degres. Pousse la main du bas vers le haut avec toute ta force, resiste avec celle du haut. 45 sec par bras — brulure pure des biceps sans rien d'autre." } },
       { id:'e_lsit', name:'L-sit progression', icon:'🪑', sets:'3', reps:'20 sec', target:'gainage avance', desc:"Assis, mains au sol, souleve le corps entier jambes tendues devant. Si trop dur, plie les genoux. Abdos et epaules de fer." },
       { id:'e_plank', name:'Gainage planche', icon:'🛡️', sets:'3', reps:'90 sec', target:'gainage total', desc:"90 secondes. Aucune triche — hanches bien alignees. Ajoute 10 sec a chaque seance pour progresser." }
     ]
@@ -4222,6 +4228,7 @@ function renderWorkoutSessions() {
   // Exercise list
   session.exercises.forEach((ex, i) => {
     const done = w.progress[i];
+    const altOpen = (w.altOpen || {})[ex.id];
     html += `<div class="workout-exercise ${done ? 'done' : ''}">
       <div class="workout-ex-header">
         <div class="workout-ex-icon">${ex.icon}</div>
@@ -4232,6 +4239,17 @@ function renderWorkoutSessions() {
         <div class="workout-ex-sets">${ex.sets} × ${ex.reps}</div>
       </div>
       <div class="workout-ex-desc">${ex.desc}</div>`;
+    if (ex.alt) {
+      html += `<button class="workout-alt-toggle ${altOpen ? 'open' : ''}" onclick="toggleWorkoutAlt('${ex.id}')">
+        💡 ${altOpen ? 'Masquer l\'alternative' : 'Alternative sans materiel'}
+      </button>`;
+      if (altOpen) {
+        html += `<div class="workout-alt-panel">
+          <div class="workout-alt-name">🔄 ${ex.alt.name}</div>
+          <div class="workout-alt-desc">${ex.alt.desc}</div>
+        </div>`;
+      }
+    }
     if (done) {
       html += `<div class="workout-ex-done-mark">✓ Valide</div>`;
     } else {
@@ -4253,6 +4271,13 @@ function validateWorkoutExercise(idx) {
   const w = state.quests.workout;
   w.progress[idx] = true;
   saveState();
+  renderDailyChallenges();
+}
+
+function toggleWorkoutAlt(exId) {
+  const w = state.quests.workout;
+  if (!w.altOpen) w.altOpen = {};
+  w.altOpen[exId] = !w.altOpen[exId];
   renderDailyChallenges();
 }
 
