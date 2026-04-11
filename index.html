@@ -3597,6 +3597,21 @@ const WORKOUT_SESSIONS = {
 };
 const WORKOUT_TIER_ORDER = ['beginner', 'intermediate', 'advanced', 'elite'];
 
+// Build a fresh per-tier completedToday object (every tier defaults to false).
+// Called at call-time (after all tier-order consts are defined), so direct refs are safe.
+function makeEmptyCompletedToday() {
+  const fromOrder = (order) => {
+    const o = {};
+    (order || []).forEach(k => { o[k] = false; });
+    return o;
+  };
+  return {
+    physical: fromOrder(WORKOUT_TIER_ORDER),
+    meditation: fromOrder(MEDITATION_TIER_ORDER),
+    philosophy: fromOrder(PHILOSOPHY_TIER_ORDER)
+  };
+}
+
 // ===== MEDITATION SESSIONS =====
 const MEDITATION_SESSIONS = {
   calm: {
@@ -3829,18 +3844,48 @@ function initQuests() {
   if (typeof q.prestige !== 'number') q.prestige = 0;
 
   // Workout sessions state
-  if (!q.workout) q.workout = { currentTier: 'beginner', sessionDate: null, progress: [], completedToday: { physical:false, meditation:false, philosophy:false }, totalSessions: 0, history: [] };
-  // Migration: completedToday boolean → per-type object
-  if (typeof q.workout.completedToday !== 'object' || q.workout.completedToday === null) {
-    const wasDone = !!q.workout.completedToday;
-    q.workout.completedToday = { physical: wasDone, meditation: false, philosophy: false };
-  }
+  if (!q.workout) q.workout = { currentTier: 'beginner', maxTier: 'beginner', sessionDate: null, progress: [], completedToday: makeEmptyCompletedToday(), totalSessions: 0, history: [] };
+  // Migration: maxTier (highest unlocked) separate from currentTier (currently viewed). Fill from currentTier.
+  if (!q.workout.maxTier) q.workout.maxTier = q.workout.currentTier || 'beginner';
+  // Migration: completedToday can be legacy boolean OR legacy per-type booleans → upgrade to per-tier nested object
+  (() => {
+    const w = q.workout;
+    // Legacy format 1: single boolean
+    if (typeof w.completedToday === 'boolean' || w.completedToday == null) {
+      const wasDone = !!w.completedToday;
+      w.completedToday = makeEmptyCompletedToday();
+      if (wasDone && w.currentTier) w.completedToday.physical[w.currentTier] = true;
+      return;
+    }
+    // Legacy format 2: per-type booleans → promote each to per-tier using current tier
+    const ct = w.completedToday;
+    const needsUpgrade =
+      typeof ct.physical === 'boolean' ||
+      typeof ct.meditation === 'boolean' ||
+      typeof ct.philosophy === 'boolean';
+    if (needsUpgrade) {
+      const next = makeEmptyCompletedToday();
+      if (ct.physical === true && w.currentTier) next.physical[w.currentTier] = true;
+      if (ct.meditation === true && w.medTier) next.meditation[w.medTier] = true;
+      if (ct.philosophy === true && w.phiTier) next.philosophy[w.phiTier] = true;
+      w.completedToday = next;
+      return;
+    }
+    // Already nested — make sure every tier key exists
+    const fresh = makeEmptyCompletedToday();
+    ['physical','meditation','philosophy'].forEach(type => {
+      if (!ct[type] || typeof ct[type] !== 'object') ct[type] = {};
+      Object.keys(fresh[type]).forEach(k => { if (typeof ct[type][k] !== 'boolean') ct[type][k] = false; });
+    });
+  })();
   // Migration: add mind-session fields
   if (!q.workout.sessionType) q.workout.sessionType = 'physical';
   if (!q.workout.medTier) q.workout.medTier = 'calm';
+  if (!q.workout.maxMedTier) q.workout.maxMedTier = q.workout.medTier || 'calm';
   if (!Array.isArray(q.workout.medProgress)) q.workout.medProgress = [];
   if (q.workout.totalMedSessions == null) q.workout.totalMedSessions = 0;
   if (!q.workout.phiTier) q.workout.phiTier = 'novice';
+  if (!q.workout.maxPhiTier) q.workout.maxPhiTier = q.workout.phiTier || 'novice';
   if (!Array.isArray(q.workout.phiProgress)) q.workout.phiProgress = [];
   if (q.workout.totalPhiSessions == null) q.workout.totalPhiSessions = 0;
   if (!q.defisSubTab) q.defisSubTab = 'challenges';
@@ -4413,7 +4458,7 @@ function ensureWorkoutSessionState() {
     w.progress = new Array(session.exercises.length).fill(false);
     w.medProgress = new Array(medSession.exercises.length).fill(false);
     w.phiProgress = new Array(phiSession.exercises.length).fill(false);
-    w.completedToday = { physical:false, meditation:false, philosophy:false };
+    w.completedToday = makeEmptyCompletedToday();
   } else {
     if (!Array.isArray(w.progress) || w.progress.length !== session.exercises.length) {
       w.progress = new Array(session.exercises.length).fill(false);
@@ -4425,7 +4470,7 @@ function ensureWorkoutSessionState() {
       w.phiProgress = new Array(phiSession.exercises.length).fill(false);
     }
     if (typeof w.completedToday !== 'object' || w.completedToday === null) {
-      w.completedToday = { physical:false, meditation:false, philosophy:false };
+      w.completedToday = makeEmptyCompletedToday();
     }
   }
 }
@@ -4436,22 +4481,27 @@ function renderWorkoutSessions() {
   const activeType = w.sessionType || 'physical';
 
   // Top-level session type switcher (Corps / Esprit / Sagesse)
+  // Checkmark appears if ANY tier of that type was completed today
   const ct = w.completedToday || {};
+  const anyDone = (type) => {
+    const sub = ct[type];
+    return sub && typeof sub === 'object' && Object.values(sub).some(Boolean);
+  };
   const typeSwitcher = `<div class="session-type-switcher">
     <button class="session-type-btn ${activeType === 'physical' ? 'active' : ''}" onclick="switchSessionType('physical')">
       <div class="stb-icon">💪</div>
       <div class="stb-label">Corps</div>
-      ${ct.physical ? '<div class="stb-check">✓</div>' : ''}
+      ${anyDone('physical') ? '<div class="stb-check">✓</div>' : ''}
     </button>
     <button class="session-type-btn ${activeType === 'meditation' ? 'active' : ''}" onclick="switchSessionType('meditation')">
       <div class="stb-icon">🧘</div>
       <div class="stb-label">Esprit</div>
-      ${ct.meditation ? '<div class="stb-check">✓</div>' : ''}
+      ${anyDone('meditation') ? '<div class="stb-check">✓</div>' : ''}
     </button>
     <button class="session-type-btn ${activeType === 'philosophy' ? 'active' : ''}" onclick="switchSessionType('philosophy')">
       <div class="stb-icon">📜</div>
       <div class="stb-label">Sagesse</div>
-      ${ct.philosophy ? '<div class="stb-check">✓</div>' : ''}
+      ${anyDone('philosophy') ? '<div class="stb-check">✓</div>' : ''}
     </button>
   </div>`;
 
@@ -4466,12 +4516,13 @@ function renderWorkoutSessions() {
 
   let html = typeSwitcher;
 
-  // Tier selector — unlocked tiers only
+  // Tier selector — lock based on highest-ever unlocked tier, not the currently-viewed one
+  const maxTierIdx = WORKOUT_TIER_ORDER.indexOf(w.maxTier || w.currentTier);
   const currentTierIdx = WORKOUT_TIER_ORDER.indexOf(w.currentTier);
   html += `<div class="workout-tier-select">`;
   WORKOUT_TIER_ORDER.forEach((tierKey, idx) => {
     const s = WORKOUT_SESSIONS[tierKey];
-    const unlocked = idx <= currentTierIdx;
+    const unlocked = idx <= maxTierIdx;
     const active = tierKey === w.currentTier;
     const locked = !unlocked;
     html += `<button class="workout-tier-pill ${active ? 'active' : ''}" ${locked ? 'disabled style="opacity:.35;cursor:not-allowed"' : `onclick="selectWorkoutTier('${tierKey}')"`}>
@@ -4502,24 +4553,26 @@ function renderWorkoutSessions() {
     </div>
   </div>`;
 
-  if (w.completedToday && w.completedToday.physical) {
+  if (w.completedToday && w.completedToday.physical && w.completedToday.physical[w.currentTier]) {
     html += `<div class="workout-complete-banner">
       <div class="workout-complete-title">✓ Seance accomplie aujourd'hui</div>
       <div class="workout-complete-text">Les dieux sont fiers, Viking. Reviens demain pour forger encore davantage ton corps. Les muscles grandissent pendant le repos — dors bien et mange proteine.</div>
     </div>`;
-    // Offer evolution if not at elite
-    if (currentTierIdx < WORKOUT_TIER_ORDER.length - 1) {
-      const nextTier = WORKOUT_SESSIONS[WORKOUT_TIER_ORDER[currentTierIdx + 1]];
-      html += `<div class="workout-evolve-section">
-        <div class="workout-evolve-title">⚡ Prêt a evoluer ?</div>
-        <div class="workout-evolve-text">Passe au rang suivant : <strong>${nextTier.icon} ${nextTier.name}</strong> — <em>${nextTier.subtitle}</em>. Seance plus longue et plus intense, mais <strong>+${nextTier.xpReward} XP</strong> par seance au lieu de +${session.xpReward}.</div>
-        <button class="workout-evolve-btn" onclick="evolveWorkoutTier()">Evoluer vers ${nextTier.name} ${nextTier.icon}</button>
-      </div>`;
-    } else {
-      html += `<div class="workout-evolve-section">
-        <div class="workout-evolve-title">👑 Rang Maximum</div>
-        <div class="workout-evolve-text">Tu es au sommet — Berserkr, le fou de guerre. Continue ces seances pour maintenir ton physique de legende.</div>
-      </div>`;
+    // Offer evolution only when viewing the currently max tier
+    if (currentTierIdx === maxTierIdx) {
+      if (currentTierIdx < WORKOUT_TIER_ORDER.length - 1) {
+        const nextTier = WORKOUT_SESSIONS[WORKOUT_TIER_ORDER[currentTierIdx + 1]];
+        html += `<div class="workout-evolve-section">
+          <div class="workout-evolve-title">⚡ Prêt a evoluer ?</div>
+          <div class="workout-evolve-text">Passe au rang suivant : <strong>${nextTier.icon} ${nextTier.name}</strong> — <em>${nextTier.subtitle}</em>. Seance plus longue et plus intense, mais <strong>+${nextTier.xpReward} XP</strong> par seance au lieu de +${session.xpReward}.</div>
+          <button class="workout-evolve-btn" onclick="evolveWorkoutTier()">Evoluer vers ${nextTier.name} ${nextTier.icon}</button>
+        </div>`;
+      } else {
+        html += `<div class="workout-evolve-section">
+          <div class="workout-evolve-title">👑 Rang Maximum</div>
+          <div class="workout-evolve-text">Tu es au sommet — Berserkr, le fou de guerre. Continue ces seances pour maintenir ton physique de legende.</div>
+        </div>`;
+      }
     }
     return html;
   }
@@ -4625,8 +4678,8 @@ function switchSessionType(type) {
 }
 
 function getMindConfig(type) {
-  if (type === 'meditation') return { sessions: MEDITATION_SESSIONS, order: MEDITATION_TIER_ORDER, tierField: 'medTier', progressField: 'medProgress', totalField: 'totalMedSessions', category: 'mental', completedKey: 'meditation' };
-  return { sessions: PHILOSOPHY_SESSIONS, order: PHILOSOPHY_TIER_ORDER, tierField: 'phiTier', progressField: 'phiProgress', totalField: 'totalPhiSessions', category: 'mental', completedKey: 'philosophy' };
+  if (type === 'meditation') return { sessions: MEDITATION_SESSIONS, order: MEDITATION_TIER_ORDER, tierField: 'medTier', maxField: 'maxMedTier', progressField: 'medProgress', totalField: 'totalMedSessions', category: 'mental', completedKey: 'meditation' };
+  return { sessions: PHILOSOPHY_SESSIONS, order: PHILOSOPHY_TIER_ORDER, tierField: 'phiTier', maxField: 'maxPhiTier', progressField: 'phiProgress', totalField: 'totalPhiSessions', category: 'mental', completedKey: 'philosophy' };
 }
 
 function getCurrentMindSession(type) {
@@ -4648,15 +4701,17 @@ function validateMindExercise(type, idx) {
 function selectMindTier(type, tierKey) {
   const w = state.quests.workout;
   const cfg = getMindConfig(type);
-  const currentIdx = cfg.order.indexOf(w[cfg.tierField]);
+  const maxIdx = cfg.order.indexOf(w[cfg.maxField] || w[cfg.tierField]);
   const targetIdx = cfg.order.indexOf(tierKey);
-  if (targetIdx > currentIdx) return;
+  if (targetIdx < 0 || targetIdx > maxIdx) return;
   if (tierKey === w[cfg.tierField]) return;
   w[cfg.tierField] = tierKey;
   const session = cfg.sessions[tierKey];
-  w[cfg.progressField] = new Array(session.exercises.length).fill(false);
-  if (!w.completedToday || typeof w.completedToday !== 'object') w.completedToday = { physical:false, meditation:false, philosophy:false };
-  w.completedToday[cfg.completedKey] = false;
+  // Restore the progress array for this tier. If this tier was already completed today
+  // (per-tier tracking), show it as fully done; otherwise start fresh.
+  if (!w.completedToday || typeof w.completedToday !== 'object') w.completedToday = makeEmptyCompletedToday();
+  const tierDone = w.completedToday[cfg.completedKey] && w.completedToday[cfg.completedKey][tierKey];
+  w[cfg.progressField] = new Array(session.exercises.length).fill(!!tierDone);
   w.sessionDate = getTodayStr();
   saveState();
   renderDailyChallenges();
@@ -4669,9 +4724,12 @@ function completeMindSession(type) {
   const session = getCurrentMindSession(type);
   const progress = w[cfg.progressField] || [];
   if (progress.filter(Boolean).length !== session.exercises.length) return;
-  if (w.completedToday[cfg.completedKey]) return;
+  if (!w.completedToday || typeof w.completedToday !== 'object') w.completedToday = makeEmptyCompletedToday();
+  if (!w.completedToday[cfg.completedKey] || typeof w.completedToday[cfg.completedKey] !== 'object') w.completedToday[cfg.completedKey] = {};
+  const currentMindTier = w[cfg.tierField];
+  if (w.completedToday[cfg.completedKey][currentMindTier]) return;
 
-  w.completedToday[cfg.completedKey] = true;
+  w.completedToday[cfg.completedKey][currentMindTier] = true;
   w[cfg.totalField] = (w[cfg.totalField] || 0) + 1;
   if (!w.history) w.history = [];
   w.history.push({ date: getTodayStr(), type, tier: w[cfg.tierField], xp: session.xpReward });
@@ -4693,17 +4751,20 @@ function completeMindSession(type) {
 function evolveMindTier(type) {
   const w = state.quests.workout;
   const cfg = getMindConfig(type);
-  const currentIdx = cfg.order.indexOf(w[cfg.tierField]);
-  if (currentIdx >= cfg.order.length - 1) return;
-  const nextTierKey = cfg.order[currentIdx + 1];
+  const maxIdx = cfg.order.indexOf(w[cfg.maxField] || w[cfg.tierField]);
+  if (maxIdx >= cfg.order.length - 1) return;
+  const nextTierKey = cfg.order[maxIdx + 1];
   const nextSession = cfg.sessions[nextTierKey];
   const currentSession = getCurrentMindSession(type);
   const label = type === 'meditation' ? 'la meditation' : 'la sagesse';
   if (!confirm(`Evoluer vers ${nextSession.name} (${nextSession.subtitle}) ?\n\nLes seances de ${label} seront plus longues et plus profondes, mais tu gagneras +${nextSession.xpReward} XP au lieu de +${currentSession.xpReward}.\n\nTu peux toujours revenir via le selecteur de rang.`)) return;
 
+  w[cfg.maxField] = nextTierKey;
   w[cfg.tierField] = nextTierKey;
   w[cfg.progressField] = new Array(nextSession.exercises.length).fill(false);
-  w.completedToday[cfg.completedKey] = true;
+  if (!w.completedToday || typeof w.completedToday !== 'object') w.completedToday = makeEmptyCompletedToday();
+  if (!w.completedToday[cfg.completedKey] || typeof w.completedToday[cfg.completedKey] !== 'object') w.completedToday[cfg.completedKey] = {};
+  if (typeof w.completedToday[cfg.completedKey][nextTierKey] !== 'boolean') w.completedToday[cfg.completedKey][nextTierKey] = false;
   saveState();
   showToast('Evolution !', `Tu passes au rang ${nextSession.name} ${nextSession.icon}.`);
   addMessage('stakr', `Par les Nornes ! Tu choisis la voie du **${nextSession.name}** — ${nextSession.subtitle}. La prochaine seance sera plus profonde. [MOOD:excite]`);
@@ -4719,18 +4780,19 @@ function renderMindSession(type) {
   const total = session.exercises.length;
   const pct = Math.round((doneCount / total) * 100);
   const allDone = doneCount === total;
-  const completed = w.completedToday && w.completedToday[cfg.completedKey];
+  const completed = w.completedToday && w.completedToday[cfg.completedKey] && w.completedToday[cfg.completedKey][w[cfg.tierField]];
   const currentTierIdx = cfg.order.indexOf(w[cfg.tierField]);
+  const maxTierIdx = cfg.order.indexOf(w[cfg.maxField] || w[cfg.tierField]);
   const totalDone = w[cfg.totalField] || 0;
   const themeClass = type === 'meditation' ? 'mind-meditation' : 'mind-philosophy';
 
   let html = `<div class="${themeClass}">`;
 
-  // Tier pills
+  // Tier pills — lock based on highest-ever unlocked tier
   html += `<div class="workout-tier-select">`;
   cfg.order.forEach((tierKey, idx) => {
     const s = cfg.sessions[tierKey];
-    const unlocked = idx <= currentTierIdx;
+    const unlocked = idx <= maxTierIdx;
     const active = tierKey === w[cfg.tierField];
     html += `<button class="workout-tier-pill ${active ? 'active' : ''}" ${!unlocked ? 'disabled style="opacity:.35;cursor:not-allowed"' : `onclick="selectMindTier('${type}','${tierKey}')"`}>
       ${!unlocked ? '🔒 ' : s.icon + ' '}${s.name}<br><span style="font-size:.55rem;opacity:.75">+${s.xpReward} XP</span>
@@ -4779,18 +4841,20 @@ function renderMindSession(type) {
       <div class="workout-complete-title">✓ Seance accomplie aujourd'hui</div>
       <div class="workout-complete-text">${banner}</div>
     </div>`;
-    if (currentTierIdx < cfg.order.length - 1) {
-      const nextTier = cfg.sessions[cfg.order[currentTierIdx + 1]];
-      html += `<div class="workout-evolve-section">
-        <div class="workout-evolve-title">⚡ Prêt a evoluer ?</div>
-        <div class="workout-evolve-text">Passe au rang suivant : <strong>${nextTier.icon} ${nextTier.name}</strong> — <em>${nextTier.subtitle}</em>. Plus long et plus profond, mais <strong>+${nextTier.xpReward} XP</strong> au lieu de +${session.xpReward}.</div>
-        <button class="workout-evolve-btn" onclick="evolveMindTier('${type}')">Evoluer vers ${nextTier.name} ${nextTier.icon}</button>
-      </div>`;
-    } else {
-      html += `<div class="workout-evolve-section">
-        <div class="workout-evolve-title">👑 Rang Maximum</div>
-        <div class="workout-evolve-text">Tu es au sommet — ${session.name}. Continue ces seances pour maintenir ta maitrise interieure.</div>
-      </div>`;
+    if (currentTierIdx === maxTierIdx) {
+      if (currentTierIdx < cfg.order.length - 1) {
+        const nextTier = cfg.sessions[cfg.order[currentTierIdx + 1]];
+        html += `<div class="workout-evolve-section">
+          <div class="workout-evolve-title">⚡ Prêt a evoluer ?</div>
+          <div class="workout-evolve-text">Passe au rang suivant : <strong>${nextTier.icon} ${nextTier.name}</strong> — <em>${nextTier.subtitle}</em>. Plus long et plus profond, mais <strong>+${nextTier.xpReward} XP</strong> au lieu de +${session.xpReward}.</div>
+          <button class="workout-evolve-btn" onclick="evolveMindTier('${type}')">Evoluer vers ${nextTier.name} ${nextTier.icon}</button>
+        </div>`;
+      } else {
+        html += `<div class="workout-evolve-section">
+          <div class="workout-evolve-title">👑 Rang Maximum</div>
+          <div class="workout-evolve-text">Tu es au sommet — ${session.name}. Continue ces seances pour maintenir ta maitrise interieure.</div>
+        </div>`;
+      }
     }
     html += `</div>`;
     return html;
@@ -5022,17 +5086,17 @@ window.stopWorkoutTimer = stopWorkoutTimer;
 
 function selectWorkoutTier(tierKey) {
   const w = state.quests.workout;
-  const currentIdx = WORKOUT_TIER_ORDER.indexOf(w.currentTier);
+  const maxIdx = WORKOUT_TIER_ORDER.indexOf(w.maxTier || w.currentTier);
   const targetIdx = WORKOUT_TIER_ORDER.indexOf(tierKey);
-  // Allow selecting any unlocked tier (<= current)
-  if (targetIdx > currentIdx) return;
+  // Allow selecting any unlocked tier (<= max ever unlocked)
+  if (targetIdx < 0 || targetIdx > maxIdx) return;
   if (tierKey === w.currentTier) return;
-  // Changing tier mid-day resets today's progress to avoid cheating
   w.currentTier = tierKey;
   const session = WORKOUT_SESSIONS[tierKey];
-  w.progress = new Array(session.exercises.length).fill(false);
-  if (!w.completedToday || typeof w.completedToday !== 'object') w.completedToday = { physical:false, meditation:false, philosophy:false };
-  w.completedToday.physical = false;
+  // Restore progress for the tier: if already done today, show as complete; else start fresh.
+  if (!w.completedToday || typeof w.completedToday !== 'object') w.completedToday = makeEmptyCompletedToday();
+  const tierDone = w.completedToday.physical && w.completedToday.physical[tierKey];
+  w.progress = new Array(session.exercises.length).fill(!!tierDone);
   w.sessionDate = getTodayStr();
   saveState();
   renderDailyChallenges();
@@ -5043,9 +5107,11 @@ function completeWorkoutSession() {
   const w = state.quests.workout;
   const session = getCurrentWorkoutSession();
   if (w.progress.filter(Boolean).length !== session.exercises.length) return;
-  if (w.completedToday && w.completedToday.physical) return;
+  if (!w.completedToday || typeof w.completedToday !== 'object') w.completedToday = makeEmptyCompletedToday();
+  if (!w.completedToday.physical || typeof w.completedToday.physical !== 'object') w.completedToday.physical = {};
+  if (w.completedToday.physical[w.currentTier]) return;
 
-  w.completedToday.physical = true;
+  w.completedToday.physical[w.currentTier] = true;
   w.totalSessions = (w.totalSessions || 0) + 1;
   if (!w.history) w.history = [];
   w.history.push({ date: getTodayStr(), type: 'physical', tier: w.currentTier, xp: session.xpReward });
@@ -5062,16 +5128,20 @@ function completeWorkoutSession() {
 
 function evolveWorkoutTier() {
   const w = state.quests.workout;
-  const currentIdx = WORKOUT_TIER_ORDER.indexOf(w.currentTier);
-  if (currentIdx >= WORKOUT_TIER_ORDER.length - 1) return;
-  const nextTierKey = WORKOUT_TIER_ORDER[currentIdx + 1];
+  const maxIdx = WORKOUT_TIER_ORDER.indexOf(w.maxTier || w.currentTier);
+  if (maxIdx >= WORKOUT_TIER_ORDER.length - 1) return;
+  const nextTierKey = WORKOUT_TIER_ORDER[maxIdx + 1];
   const nextSession = WORKOUT_SESSIONS[nextTierKey];
   if (!confirm(`Evoluer vers ${nextSession.name} (${nextSession.subtitle}) ?\n\nLes seances seront plus longues et plus intenses, mais tu gagneras +${nextSession.xpReward} XP au lieu de +${getCurrentWorkoutSession().xpReward}.\n\nTu peux toujours revenir en arriere via le selecteur de rang.`)) return;
 
+  w.maxTier = nextTierKey;
   w.currentTier = nextTierKey;
+  // Fresh progress for the newly unlocked tier (previous tier remains marked complete per-tier).
   w.progress = new Array(nextSession.exercises.length).fill(false);
-  if (!w.completedToday || typeof w.completedToday !== 'object') w.completedToday = { physical:false, meditation:false, philosophy:false };
-  w.completedToday.physical = true; // Keep locked until tomorrow (already did today's session)
+  if (!w.completedToday || typeof w.completedToday !== 'object') w.completedToday = makeEmptyCompletedToday();
+  if (!w.completedToday.physical || typeof w.completedToday.physical !== 'object') w.completedToday.physical = {};
+  // New tier key needs to exist so the render check can read it
+  if (typeof w.completedToday.physical[nextTierKey] !== 'boolean') w.completedToday.physical[nextTierKey] = false;
   saveState();
   showToast('Evolution !', `Tu passes au rang ${nextSession.name} ${nextSession.icon} — les dieux approuvent !`);
   addMessage('stakr', `Par Odin ! Tu choisis la voie du **${nextSession.name}** — ${nextSession.subtitle}. Les seances deviendront plus rudes, mais ton corps deviendra une forge de guerre. A demain pour la premiere seance du nouveau rang ! [MOOD:excite]`);
@@ -5358,6 +5428,7 @@ function renderSoloLeveling() {
         <div class="solo-rank-name">${rank.full}</div>
       </div>
     </div>
+    <button class="solo-download-btn" onclick="downloadHunterCard()" style="width:100%;margin:8px 0 12px;padding:12px;border:1px solid ${rank.color};border-radius:8px;background:linear-gradient(135deg,rgba(10,18,35,.9),rgba(18,28,55,.9));color:${rank.color};font-size:.8rem;cursor:pointer;font-weight:700;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 18px ${rank.glow} inset">⬇ Telecharger ma fiche de chasseur</button>
     <div class="solo-skills-grid">`;
   skillDefs.forEach(s => {
     html += `<div class="solo-skill-cell" title="${s.full}">
@@ -8379,7 +8450,7 @@ async function downloadProfileCard() {
     const photoURL = currentUser && currentUser.photoURL ? currentUser.photoURL : '';
     const bossVictories = (q.worldMap && q.worldMap.bossVictories) || 0;
     const workoutSessions = (q.workout && q.workout.totalSessions) || 0;
-    const workoutTier = (q.workout && q.workout.currentTier) || 'beginner';
+    const workoutTier = (q.workout && (q.workout.maxTier || q.workout.currentTier)) || 'beginner';
     const soloWeek = (q.soloLeveling && q.soloLeveling.currentWeek) || 0;
     const questsDone = (q.history || []).length;
     const startDate = q.startDate ? new Date(q.startDate) : null;
@@ -8621,6 +8692,346 @@ async function downloadProfileCard() {
   }
 }
 window.downloadProfileCard = downloadProfileCard;
+
+// ===== SOLO LEVELING — HUNTER CARD DOWNLOAD =====
+async function downloadHunterCard() {
+  try {
+    const q = state.quests || {};
+    const sl = q.soloLeveling;
+    if (!sl || !sl.startDate) {
+      showToast('Pas encore de chasseur', 'Accepte le Pacte pour generer ta fiche.');
+      return;
+    }
+
+    const stats = sl.stats || { str:0, agi:0, vit:0, end:0, per:0 };
+    const totalStats = getSoloStatTotal(stats);
+    const rank = getHunterRank(totalStats);
+    const totals = sl.totals || { pushups:0, squats:0, abs:0, km:0 };
+    const pseudo = (state.pseudo || (currentUser && currentUser.displayName) || 'Chasseur').slice(0, 24);
+    const photoURL = currentUser && currentUser.photoURL ? currentUser.photoURL : '';
+    const currentWeek = sl.currentWeek || 1;
+    const completedDays = sl.completedDays || 0;
+    const missedDays = sl.missedDays || 0;
+    const activityCount = (sl.activityLog || []).length;
+
+    const W = 900, H = 1400;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // Background — Solo Leveling "system" dark blue
+    const bg = ctx.createRadialGradient(W/2, H/2 - 100, 80, W/2, H/2, 1000);
+    bg.addColorStop(0, '#0c1a3a');
+    bg.addColorStop(0.45, '#060e22');
+    bg.addColorStop(1, '#02040a');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Subtle tech grid background
+    ctx.strokeStyle = 'rgba(120, 180, 255, 0.045)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += 40) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y < H; y += 40) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+
+    // Scattered "particles" in rank color
+    ctx.fillStyle = rank.color;
+    ctx.globalAlpha = 0.12;
+    for (let i = 0; i < 60; i++) {
+      const x = Math.random() * W, y = Math.random() * H, r = Math.random() * 2.5 + 0.5;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Outer frame — rank-colored glow + double line
+    ctx.shadowColor = rank.glow;
+    ctx.shadowBlur = 30;
+    ctx.strokeStyle = rank.color;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(24, 24, W - 48, H - 48);
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = 'rgba(120, 180, 255, 0.35)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(40, 40, W - 80, H - 80);
+
+    // Corner brackets (tech style)
+    ctx.strokeStyle = rank.color;
+    ctx.lineWidth = 3;
+    const bracket = (cx, cy, dx, dy) => {
+      const len = 40;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy + dy * len);
+      ctx.lineTo(cx, cy);
+      ctx.lineTo(cx + dx * len, cy);
+      ctx.stroke();
+    };
+    bracket(60, 60, 1, 1); bracket(W - 60, 60, -1, 1);
+    bracket(60, H - 60, 1, -1); bracket(W - 60, H - 60, -1, -1);
+
+    // ===== HEADER =====
+    ctx.fillStyle = '#7ab8ff';
+    ctx.textAlign = 'center';
+    ctx.font = "bold 22px 'Cinzel', serif";
+    ctx.fillText('[ SYSTEM ]', W / 2, 105);
+
+    ctx.fillStyle = rank.color;
+    ctx.shadowColor = rank.glow;
+    ctx.shadowBlur = 20;
+    ctx.font = "bold 58px 'Cinzel', serif";
+    ctx.fillText('FICHE DE CHASSEUR', W / 2, 160);
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = 'rgba(120, 180, 255, 0.6)';
+    ctx.font = "italic 18px 'Cinzel', serif";
+    ctx.fillText('— Le Systeme t\'observe —', W / 2, 190);
+
+    // Divider
+    ctx.strokeStyle = rank.color;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(180, 210); ctx.lineTo(W - 180, 210);
+    ctx.stroke();
+    ctx.fillStyle = rank.color;
+    ctx.beginPath();
+    ctx.moveTo(W/2, 200); ctx.lineTo(W/2 + 10, 210);
+    ctx.lineTo(W/2, 220); ctx.lineTo(W/2 - 10, 210);
+    ctx.closePath(); ctx.fill();
+
+    // ===== PROFILE PHOTO — circular with rank-colored ring =====
+    const photoCX = W / 2, photoCY = 340, photoR = 95;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(photoCX, photoCY, photoR, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+    ctx.fillStyle = '#0c1a3a';
+    ctx.fillRect(photoCX - photoR, photoCY - photoR, photoR * 2, photoR * 2);
+    const img = await loadImageSafe(photoURL);
+    if (img) {
+      ctx.drawImage(img, photoCX - photoR, photoCY - photoR, photoR * 2, photoR * 2);
+    } else {
+      ctx.fillStyle = '#12254a';
+      ctx.fillRect(photoCX - photoR, photoCY - photoR, photoR * 2, photoR * 2);
+      ctx.fillStyle = rank.color;
+      ctx.font = 'bold 90px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('⚔', photoCX, photoCY);
+      ctx.textBaseline = 'alphabetic';
+    }
+    ctx.restore();
+    // Ring
+    ctx.shadowColor = rank.glow;
+    ctx.shadowBlur = 25;
+    ctx.strokeStyle = rank.color;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(photoCX, photoCY, photoR, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = 'rgba(120, 180, 255, 0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(photoCX, photoCY, photoR + 9, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // ===== PSEUDO + RANK =====
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#e9f2ff';
+    ctx.font = "bold 46px 'Cinzel', serif";
+    ctx.fillText(pseudo, W / 2, 490);
+
+    // Big rank letter
+    ctx.fillStyle = rank.color;
+    ctx.shadowColor = rank.glow;
+    ctx.shadowBlur = 30;
+    ctx.font = "bold 140px 'Cinzel', serif";
+    ctx.fillText(rank.name, W / 2, 625);
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = 'rgba(200, 220, 255, 0.75)';
+    ctx.font = "italic 24px 'Cinzel', serif";
+    ctx.fillText(rank.full, W / 2, 660);
+
+    // ===== STATS GRID — 5 cells in one row =====
+    const statsY = 720;
+    const skillDefs = [
+      { key:'str', label:'STR', full:'FORCE' },
+      { key:'agi', label:'AGI', full:'AGILITE' },
+      { key:'vit', label:'VIT', full:'VITALITE' },
+      { key:'end', label:'END', full:'ENDURANCE' },
+      { key:'per', label:'PER', full:'PERCEPTION' }
+    ];
+    const cellW = 145, cellH = 130, gap = 12;
+    const gridW = cellW * 5 + gap * 4;
+    const gridX = (W - gridW) / 2;
+
+    skillDefs.forEach((s, i) => {
+      const x = gridX + i * (cellW + gap);
+      const y = statsY;
+      // Cell background
+      const cellGrad = ctx.createLinearGradient(x, y, x, y + cellH);
+      cellGrad.addColorStop(0, 'rgba(18, 34, 65, 0.9)');
+      cellGrad.addColorStop(1, 'rgba(8, 16, 36, 0.9)');
+      ctx.fillStyle = cellGrad;
+      ctx.fillRect(x, y, cellW, cellH);
+      // Border
+      ctx.strokeStyle = rank.color;
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x, y, cellW, cellH);
+      // Top strip
+      ctx.fillStyle = rank.color;
+      ctx.globalAlpha = 0.2;
+      ctx.fillRect(x, y, cellW, 4);
+      ctx.globalAlpha = 1;
+      // Label
+      ctx.fillStyle = 'rgba(120, 180, 255, 0.8)';
+      ctx.font = "bold 16px 'Cinzel', serif";
+      ctx.textAlign = 'center';
+      ctx.fillText(s.label, x + cellW / 2, y + 30);
+      // Value
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = rank.glow;
+      ctx.shadowBlur = 12;
+      ctx.font = "bold 54px 'Cinzel', serif";
+      ctx.fillText(String(Math.floor(stats[s.key] || 0)), x + cellW / 2, y + 88);
+      ctx.shadowBlur = 0;
+      // Full name
+      ctx.fillStyle = 'rgba(200, 220, 255, 0.55)';
+      ctx.font = "11px 'Cinzel', serif";
+      ctx.fillText(s.full, x + cellW / 2, y + 112);
+    });
+
+    // Total points bar
+    const totalY = statsY + cellH + 30;
+    ctx.fillStyle = 'rgba(18, 34, 65, 0.9)';
+    ctx.fillRect(gridX, totalY, gridW, 58);
+    ctx.strokeStyle = rank.color;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(gridX, totalY, gridW, 58);
+    ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(120, 180, 255, 0.8)';
+    ctx.font = "bold 16px 'Cinzel', serif";
+    ctx.fillText('POINTS TOTAUX', gridX + 24, totalY + 35);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = rank.color;
+    ctx.shadowColor = rank.glow;
+    ctx.shadowBlur = 14;
+    ctx.font = "bold 38px 'Cinzel', serif";
+    ctx.fillText(String(totalStats), gridX + gridW - 24, totalY + 42);
+    ctx.shadowBlur = 0;
+
+    // Divider
+    const dividerY = totalY + 100;
+    ctx.strokeStyle = 'rgba(120, 180, 255, 0.35)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(120, dividerY); ctx.lineTo(W - 120, dividerY);
+    ctx.stroke();
+    ctx.fillStyle = rank.color;
+    ctx.beginPath();
+    ctx.moveTo(W/2, dividerY - 8); ctx.lineTo(W/2 + 7, dividerY);
+    ctx.lineTo(W/2, dividerY + 8); ctx.lineTo(W/2 - 7, dividerY);
+    ctx.closePath(); ctx.fill();
+
+    // ===== LIFETIME TOTALS =====
+    const totalsY = dividerY + 40;
+    ctx.fillStyle = 'rgba(120, 180, 255, 0.7)';
+    ctx.textAlign = 'center';
+    ctx.font = "bold 16px 'Cinzel', serif";
+    ctx.fillText('— ACCOMPLISSEMENTS —', W / 2, totalsY);
+
+    const totalsRow = [
+      { icon: '💪', label: 'POMPES',  value: String(Math.floor(totals.pushups || 0)) },
+      { icon: '🦵', label: 'SQUATS',  value: String(Math.floor(totals.squats || 0))  },
+      { icon: '🔥', label: 'ABDOS',   value: String(Math.floor(totals.abs || 0))     },
+      { icon: '🏃', label: 'COURSE',  value: `${(+(totals.km || 0)).toFixed(1)} km`  }
+    ];
+    const tCellW = 175, tCellH = 95, tGap = 14;
+    const tGridW = tCellW * 4 + tGap * 3;
+    const tGridX = (W - tGridW) / 2;
+    const tGridY = totalsY + 25;
+
+    totalsRow.forEach((t, i) => {
+      const x = tGridX + i * (tCellW + tGap);
+      const y = tGridY;
+      ctx.fillStyle = 'rgba(18, 34, 65, 0.85)';
+      ctx.fillRect(x, y, tCellW, tCellH);
+      ctx.strokeStyle = 'rgba(120, 180, 255, 0.5)';
+      ctx.lineWidth = 1.2;
+      ctx.strokeRect(x, y, tCellW, tCellH);
+      // Icon
+      ctx.font = '30px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(t.icon, x + 34, y + tCellH / 2);
+      ctx.textBaseline = 'alphabetic';
+      // Label + value
+      ctx.textAlign = 'left';
+      ctx.fillStyle = 'rgba(120, 180, 255, 0.7)';
+      ctx.font = "bold 12px 'Cinzel', serif";
+      ctx.fillText(t.label, x + 66, y + 38);
+      ctx.fillStyle = '#e9f2ff';
+      ctx.font = "bold 26px 'Cinzel', serif";
+      ctx.fillText(t.value, x + 66, y + 68);
+    });
+
+    // ===== DETAILS LINE =====
+    const detailsY = tGridY + tCellH + 42;
+    const details = [
+      ['Semaine actuelle', `${currentWeek} / 10`],
+      ['Jours reussis', String(completedDays)],
+      ['Penalites', String(missedDays)],
+      ['Activites loggees', String(activityCount)]
+    ];
+    ctx.font = "17px 'Cinzel', serif";
+    details.forEach((d, i) => {
+      const y = detailsY + i * 30;
+      ctx.textAlign = 'left';
+      ctx.fillStyle = 'rgba(120, 180, 255, 0.75)';
+      ctx.fillText(d[0], 130, y);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#e9f2ff';
+      ctx.font = "bold 17px 'Cinzel', serif";
+      ctx.fillText(d[1], W - 130, y);
+      ctx.font = "17px 'Cinzel', serif";
+    });
+
+    // ===== FOOTER =====
+    const now = new Date();
+    const dateStr = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+    ctx.fillStyle = 'rgba(120, 180, 255, 0.55)';
+    ctx.textAlign = 'center';
+    ctx.font = "italic 16px 'Cinzel', serif";
+    ctx.fillText(`Emise par le Systeme le ${dateStr}`, W / 2, H - 70);
+    ctx.fillStyle = rank.color;
+    ctx.font = "bold 15px 'Cinzel', serif";
+    ctx.fillText('◆  STAKR // SOLO LEVELING  ◆', W / 2, H - 45);
+
+    // Export
+    canvas.toBlob((blob) => {
+      if (!blob) { showToast('Erreur', 'Impossible de generer la fiche.'); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const safePseudo = pseudo.replace(/[^a-zA-Z0-9_-]/g, '_');
+      a.href = url;
+      a.download = `stakr-chasseur-${safePseudo}-${rank.name}-${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('Fiche generee !', `Chasseur ${rank.name} — ${pseudo} — telechargee.`);
+    }, 'image/png');
+  } catch (e) {
+    console.error('Hunter card error:', e);
+    showToast('Erreur', 'Impossible de generer la fiche de chasseur.');
+  }
+}
+window.downloadHunterCard = downloadHunterCard;
 
 function getTodayKey() {
   const d = new Date();
