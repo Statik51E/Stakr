@@ -197,8 +197,8 @@ header button{flex-shrink:0}
 .btn-gold:active{transform:scale(.95)}
 
 /* ===== QUEST PANEL ===== */
-#quest-btn,#map-btn{background:none;border:none;color:var(--gold-dim);font-size:1.2rem;cursor:pointer;padding:4px 6px;transition:color .2s}
-#quest-btn:hover,#map-btn:hover{color:var(--gold)}
+#map-btn{background:none;border:none;color:var(--gold-dim);font-size:1.2rem;cursor:pointer;padding:4px 6px;transition:color .2s}
+#map-btn:hover{color:var(--gold)}
 #quest-panel{position:fixed;top:0;left:-340px;width:340px;max-width:92vw;height:100%;background:linear-gradient(180deg,#1a1208,#120d07);border-right:2px solid var(--border);z-index:101;transition:left .3s;padding:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #quest-panel.open{left:0}
 #quest-panel-header{padding:14px 16px;background:linear-gradient(180deg,#1e150a,#150f08);border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5;box-shadow:0 4px 12px rgba(0,0,0,.4)}
@@ -708,7 +708,6 @@ header button{flex-shrink:0}
     <button id="project-btn" title="Projets">&#9776;</button>
     <h1>STAKR</h1>
     <span id="mood-indicator">&#9679; Serein</span>
-    <button id="quest-btn" class="header-icon-btn" title="Quetes Viking">&#9876;</button>
     <button id="map-btn" class="header-icon-btn" title="Carte du Monde">&#128506;</button>
     <button id="leaderboard-btn" class="header-icon-btn" title="Classement">🏆</button>
     <button id="account-btn" class="header-icon-btn" title="Compte">👤</button>
@@ -1609,7 +1608,8 @@ Parle en francais. Sois sinistre, dominant, menaçant. Tu es le loup des tenebre
       transformed.x += sin(uTime * 0.4) * 0.003 * pawFactor;
       transformed.z += cos(uTime * 0.3 + 1.0) * 0.002 * pawFactor;
     `,
-    cameraPos: { x:0, y:0.1, z:3.2 },
+    cameraPos: { x:0, y:0.1, z:2.2 },
+    modelScaleMultiplier: 1.75,
     hideEffects: false,
     particleMode: 'shadows',
     defaultMsgStyle: { stakrBg:'#0f0808', stakrBorder:'#4a1a1a', stakrText:'#c8a0a0', userBg:'#0a0505', userBorder:'#6a2020', userText:'#c8a0a0' },
@@ -2851,7 +2851,7 @@ function applyCompanionTheme(companionId) {
     header::after{background:linear-gradient(90deg,transparent,${goldDim},transparent) !important}
     header h1{color:${gold} !important;text-shadow:0 0 10px ${gold}40 !important}
     #mood-indicator{color:${textDim} !important}
-    #settings-btn,#project-btn,#quest-btn,#map-btn,#leaderboard-btn,#account-btn,#customize-btn,#mute-btn{color:${goldDim} !important}
+    #settings-btn,#project-btn,#map-btn,#leaderboard-btn,#account-btn,#customize-btn,#mute-btn{color:${goldDim} !important}
     #app{background:${woodDark} !important;border-color:${border} !important}
     #quest-panel-header{background:linear-gradient(180deg,${surface},${woodDark}) !important}
     #settings-panel{background:linear-gradient(180deg,${surface},${woodDark}) !important}
@@ -3110,7 +3110,6 @@ function setupListeners() {
   $('#settings-btn').addEventListener('click', toggleSettings);
   $('#project-btn').addEventListener('click', toggleProjectPanel);
   $('#customize-btn').addEventListener('click', toggleCustomize);
-  $('#quest-btn').addEventListener('click', toggleQuestPanel);
   $('#map-btn').addEventListener('click', toggleMapPanel);
   $('#account-btn').addEventListener('click', toggleAccountPanel);
   $('#leaderboard-btn').addEventListener('click', toggleLeaderboardPanel);
@@ -10514,7 +10513,8 @@ if (canvas) {
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
-        const fitScale = comp.modelScale || (1.5 / maxDim);
+        const baseScale = comp.modelScale || (1.5 / maxDim);
+        const fitScale = baseScale * (comp.modelScaleMultiplier || 1);
         model.scale.setScalar(fitScale);
         model.position.set(-center.x * fitScale, -center.y * fitScale + (comp.modelOffsetY || 0), -center.z * fitScale);
 
