@@ -342,6 +342,24 @@ header button{flex-shrink:0}
 .workout-ex-validate{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:#0e0a06;border:none;border-radius:8px;padding:10px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;letter-spacing:.5px;box-shadow:0 2px 8px rgba(196,154,60,.3),inset 0 1px 0 rgba(255,255,255,.2)}
 .workout-ex-validate:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 4px 12px rgba(196,154,60,.5)}
 .workout-ex-validate:active{transform:translateY(0) scale(.97)}
+.workout-ex-start{width:100%;background:linear-gradient(135deg,#3a2e14,#5a4520);color:var(--gold);border:1px solid var(--gold-dim);border-radius:8px;padding:10px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;letter-spacing:.5px;margin-bottom:6px}
+.workout-ex-start:hover{background:linear-gradient(135deg,#5a4520,#7a5a28);filter:brightness(1.15);transform:translateY(-1px)}
+.workout-timer-panel{margin:8px 0;padding:14px;background:linear-gradient(160deg,rgba(0,0,0,.5),rgba(196,154,60,.06));border:2px solid var(--gold);border-radius:10px;text-align:center;box-shadow:0 0 18px rgba(196,154,60,.25),inset 0 0 12px rgba(0,0,0,.4)}
+.workout-timer-panel.rest{border-color:#4aa3ff;box-shadow:0 0 18px rgba(74,163,255,.3),inset 0 0 12px rgba(0,0,0,.4);background:linear-gradient(160deg,rgba(0,0,0,.5),rgba(74,163,255,.08))}
+.workout-timer-panel.rep-wait{border-color:#ff9800;box-shadow:0 0 18px rgba(255,152,0,.3),inset 0 0 12px rgba(0,0,0,.4);background:linear-gradient(160deg,rgba(0,0,0,.5),rgba(255,152,0,.08))}
+.workout-timer-phase{font-size:.65rem;color:var(--gold-dim);letter-spacing:2px;font-weight:700;text-transform:uppercase;margin-bottom:2px}
+.workout-timer-panel.rest .workout-timer-phase{color:#4aa3ff}
+.workout-timer-panel.rep-wait .workout-timer-phase{color:#ff9800}
+.workout-timer-set{font-size:.7rem;color:var(--text-dim);margin-bottom:6px;font-weight:600}
+.workout-timer-display{font-size:3rem;font-weight:900;font-family:'Cinzel',serif;color:var(--gold);line-height:1;letter-spacing:2px;text-shadow:0 0 15px rgba(196,154,60,.6);margin:4px 0 8px}
+.workout-timer-panel.rest .workout-timer-display{color:#7ec0ff;text-shadow:0 0 15px rgba(74,163,255,.7)}
+.workout-timer-panel.rep-wait .workout-timer-display{color:#ffc166;text-shadow:0 0 15px rgba(255,152,0,.6);font-size:2.2rem}
+.workout-timer-controls{display:flex;gap:6px;margin-top:4px}
+.workout-timer-btn{flex:1;background:rgba(196,154,60,.15);border:1px solid var(--gold-dim);border-radius:6px;padding:8px;color:var(--gold);font-size:.65rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.4px}
+.workout-timer-btn:hover{background:rgba(196,154,60,.3);filter:brightness(1.15)}
+.workout-timer-btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:#0e0a06;border-color:var(--gold)}
+.workout-timer-btn.stop{background:rgba(244,67,54,.15);border-color:#e57373;color:#ff8a80}
+.workout-timer-btn.stop:hover{background:rgba(244,67,54,.3)}
 .workout-ex-done-mark{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:linear-gradient(135deg,rgba(76,175,80,.15),rgba(76,175,80,.05));border:1px solid #4caf50;border-radius:6px;color:#69f0ae;font-size:.7rem;font-weight:700;letter-spacing:.5px}
 .workout-alt-toggle{width:100%;background:rgba(0,0,0,.3);border:1px dashed var(--gold-dim);border-radius:6px;padding:7px 10px;color:var(--gold-dim);font-size:.65rem;cursor:pointer;font-family:inherit;margin-bottom:8px;transition:all .2s;text-align:center;letter-spacing:.3px}
 .workout-alt-toggle:hover{background:rgba(196,154,60,.08);color:var(--gold);border-color:var(--gold)}
@@ -1800,6 +1818,44 @@ function playClickSound() {
     gain.connect(ctx.destination);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.08);
+  } catch(e) {}
+}
+
+// --- Workout Timer Beeps ---
+// type: 'tick' (countdown), 'work' (start set), 'rest' (start rest), 'done' (exercise done)
+function playWorkoutBeep(type) {
+  if (_audioMuted) return;
+  try {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    const beep = (freq, start, dur, vol) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, now + start);
+      gain.gain.setValueAtTime(0, now + start);
+      gain.gain.linearRampToValueAtTime(vol || 0.22, now + start + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(now + start);
+      osc.stop(now + start + dur + 0.02);
+    };
+    if (type === 'tick') {
+      beep(880, 0, 0.12, 0.18);
+    } else if (type === 'work') {
+      // Double high beep — go!
+      beep(660, 0, 0.15, 0.25);
+      beep(990, 0.18, 0.3, 0.28);
+    } else if (type === 'rest') {
+      // Descending — chill out
+      beep(520, 0, 0.25, 0.2);
+      beep(330, 0.2, 0.35, 0.22);
+    } else if (type === 'done') {
+      // Triple ascending — victory
+      beep(523, 0, 0.15, 0.25);
+      beep(659, 0.16, 0.15, 0.25);
+      beep(784, 0.32, 0.4, 0.28);
+    }
   } catch(e) {}
 }
 
@@ -4253,7 +4309,42 @@ function renderWorkoutSessions() {
     }
     if (done) {
       html += `<div class="workout-ex-done-mark">✓ Valide</div>`;
+    } else if (_workoutTimer.active && _workoutTimer.exIdx === i) {
+      // Active timer UI for this exercise
+      const t = _workoutTimer;
+      if (t.phase === 'rest') {
+        html += `<div class="workout-timer-panel rest">
+          <div class="workout-timer-phase">⏸ Repos</div>
+          <div class="workout-timer-set">Serie ${t.currentSet}/${t.totalSets} terminee — prochaine dans</div>
+          <div class="workout-timer-display" id="wtimer-seconds">${formatTimerDisplay(t.seconds)}</div>
+          <div class="workout-timer-controls">
+            <button class="workout-timer-btn" onclick="skipWorkoutRest()">⏭ Passer</button>
+            <button class="workout-timer-btn stop" onclick="stopWorkoutTimer()">✕ Arreter</button>
+          </div>
+        </div>`;
+      } else if (t.phase === 'work' && t.isTimeBased) {
+        html += `<div class="workout-timer-panel">
+          <div class="workout-timer-phase">⚡ Travail</div>
+          <div class="workout-timer-set">Serie ${t.currentSet}/${t.totalSets}</div>
+          <div class="workout-timer-display" id="wtimer-seconds">${formatTimerDisplay(t.seconds)}</div>
+          <div class="workout-timer-controls">
+            <button class="workout-timer-btn stop" onclick="stopWorkoutTimer()">✕ Arreter</button>
+          </div>
+        </div>`;
+      } else if (t.phase === 'work' && !t.isTimeBased) {
+        html += `<div class="workout-timer-panel rep-wait">
+          <div class="workout-timer-phase">⚡ Travail — ${ex.reps}</div>
+          <div class="workout-timer-set">Serie ${t.currentSet}/${t.totalSets}</div>
+          <div class="workout-timer-display">GO !</div>
+          <div class="workout-timer-controls">
+            <button class="workout-timer-btn primary" onclick="finishWorkoutSetManual()">✓ Serie terminee</button>
+            <button class="workout-timer-btn stop" onclick="stopWorkoutTimer()">✕ Arreter</button>
+          </div>
+        </div>`;
+      }
+      html += `<button class="workout-ex-validate" onclick="validateWorkoutExercise(${i})">Marquer comme valide</button>`;
     } else {
+      html += `<button class="workout-ex-start" onclick="startWorkoutTimer(${i})">▶ Demarrer chrono (${ex.sets} × ${ex.reps})</button>`;
       html += `<button class="workout-ex-validate" onclick="validateWorkoutExercise(${i})">Valider l'exercice</button>`;
     }
     html += `</div>`;
@@ -4281,6 +4372,138 @@ function toggleWorkoutAlt(exId) {
   w.altOpen[exId] = !w.altOpen[exId];
   renderDailyChallenges();
 }
+
+// ===== WORKOUT TIMER =====
+let _workoutTimer = { active:false, exIdx:-1, phase:'idle', currentSet:1, totalSets:1, seconds:0, isTimeBased:false, workDuration:0, restDuration:60, intervalId:null };
+
+function parseRestSeconds(restStr) {
+  if (!restStr) return 60;
+  const m = restStr.match(/(\d+)\s*(min|s)?/i);
+  if (!m) return 60;
+  const n = parseInt(m[1]);
+  return (m[2] && m[2].toLowerCase() === 'min') ? n * 60 : n;
+}
+
+function parseRepDurationSeconds(reps) {
+  if (!reps) return null;
+  const s = reps.match(/(\d+)\s*sec/i);
+  if (s) return parseInt(s[1]);
+  const m = reps.match(/(\d+)\s*min/i);
+  if (m) return parseInt(m[1]) * 60;
+  return null; // rep-based (e.g., "8 reps")
+}
+
+function formatTimerDisplay(sec) {
+  sec = Math.max(0, Math.round(sec));
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return m > 0 ? `${m}:${String(s).padStart(2,'0')}` : String(s);
+}
+
+function clearWorkoutInterval() {
+  if (_workoutTimer.intervalId) {
+    clearInterval(_workoutTimer.intervalId);
+    _workoutTimer.intervalId = null;
+  }
+}
+
+function startWorkoutTimer(exIdx) {
+  if (_workoutTimer.active) stopWorkoutTimer(true);
+  const session = getCurrentWorkoutSession();
+  const ex = session.exercises[exIdx];
+  if (!ex) return;
+  const totalSets = Math.max(1, parseInt(ex.sets) || 1);
+  const workDur = parseRepDurationSeconds(ex.reps);
+  const restDur = parseRestSeconds(session.rest);
+  _workoutTimer = {
+    active: true, exIdx, phase: 'work',
+    currentSet: 1, totalSets,
+    isTimeBased: workDur !== null,
+    workDuration: workDur || 0,
+    restDuration: restDur,
+    seconds: workDur || 0,
+    intervalId: null
+  };
+  getAudioCtx(); // wake up audio context on user gesture
+  playWorkoutBeep('work');
+  renderDailyChallenges();
+  if (_workoutTimer.isTimeBased) startWorkoutTick();
+}
+
+function startWorkoutTick() {
+  clearWorkoutInterval();
+  _workoutTimer.intervalId = setInterval(() => {
+    _workoutTimer.seconds--;
+    if (_workoutTimer.seconds > 0 && _workoutTimer.seconds <= 3) playWorkoutBeep('tick');
+    if (_workoutTimer.seconds <= 0) {
+      clearWorkoutInterval();
+      advanceWorkoutPhase();
+    } else {
+      const el = document.getElementById('wtimer-seconds');
+      if (el) el.textContent = formatTimerDisplay(_workoutTimer.seconds);
+    }
+  }, 1000);
+}
+
+function advanceWorkoutPhase() {
+  if (!_workoutTimer.active) return;
+  if (_workoutTimer.phase === 'work') {
+    // Finished a set
+    if (_workoutTimer.currentSet >= _workoutTimer.totalSets) {
+      finishWorkoutTimer();
+      return;
+    }
+    _workoutTimer.phase = 'rest';
+    _workoutTimer.seconds = _workoutTimer.restDuration;
+    playWorkoutBeep('rest');
+    renderDailyChallenges();
+    startWorkoutTick();
+  } else if (_workoutTimer.phase === 'rest') {
+    _workoutTimer.currentSet++;
+    _workoutTimer.phase = 'work';
+    playWorkoutBeep('work');
+    if (_workoutTimer.isTimeBased) {
+      _workoutTimer.seconds = _workoutTimer.workDuration;
+      renderDailyChallenges();
+      startWorkoutTick();
+    } else {
+      _workoutTimer.seconds = 0;
+      renderDailyChallenges();
+    }
+  }
+}
+
+function finishWorkoutSetManual() {
+  // User pressed "Set terminee" on a rep-based exercise
+  if (!_workoutTimer.active || _workoutTimer.phase !== 'work' || _workoutTimer.isTimeBased) return;
+  advanceWorkoutPhase();
+}
+
+function skipWorkoutRest() {
+  if (!_workoutTimer.active || _workoutTimer.phase !== 'rest') return;
+  clearWorkoutInterval();
+  _workoutTimer.seconds = 0;
+  advanceWorkoutPhase();
+}
+
+function stopWorkoutTimer(silent) {
+  clearWorkoutInterval();
+  _workoutTimer = { active:false, exIdx:-1, phase:'idle', currentSet:1, totalSets:1, seconds:0, isTimeBased:false, workDuration:0, restDuration:60, intervalId:null };
+  if (!silent) renderDailyChallenges();
+}
+
+function finishWorkoutTimer() {
+  const idx = _workoutTimer.exIdx;
+  clearWorkoutInterval();
+  playWorkoutBeep('done');
+  _workoutTimer = { active:false, exIdx:-1, phase:'idle', currentSet:1, totalSets:1, seconds:0, isTimeBased:false, workDuration:0, restDuration:60, intervalId:null };
+  validateWorkoutExercise(idx);
+}
+
+window.startWorkoutTimer = startWorkoutTimer;
+window.finishWorkoutSetManual = finishWorkoutSetManual;
+window.skipWorkoutRest = skipWorkoutRest;
+window.stopWorkoutTimer = stopWorkoutTimer;
 
 function selectWorkoutTier(tierKey) {
   const w = state.quests.workout;
