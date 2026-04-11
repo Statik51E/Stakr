@@ -1068,6 +1068,7 @@ header button{flex-shrink:0}
         </div>
       </div>
       <div id="account-stats" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"></div>
+      <button onclick="downloadProfileCard()" style="width:100%;padding:12px;margin-bottom:12px;border:1px solid var(--gold-dim);border-radius:8px;background:linear-gradient(135deg,#3a2e14,#5a4520);color:var(--gold);font-size:.8rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:700;letter-spacing:.5px">⬇ Telecharger ma carte</button>
       <div style="margin-bottom:12px">
         <label style="font-size:.7rem;color:var(--text-dim);display:block;margin-bottom:4px">Pseudo pour le classement</label>
         <div style="display:flex;gap:6px">
@@ -7440,6 +7441,278 @@ function updateAccountUI() {
     if (accountBtn) { accountBtn.style.color = ''; accountBtn.classList.remove('connected'); }
   }
 }
+
+// ===== PROFILE CARD DOWNLOAD =====
+function loadImageSafe(url) {
+  return new Promise((resolve) => {
+    if (!url) { resolve(null); return; }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+async function downloadProfileCard() {
+  try {
+    const q = state.quests || {};
+    const level = q.level || 1;
+    const totalXp = q.totalXp || 0;
+    const streak = q.streak || 0;
+    const runes = (q.runes || []).length;
+    const rank = getRank(level);
+    const prestige = q.prestige || 0;
+    const prestigeTitle = getPrestigeTitle(prestige);
+    const prestigeStars = getPrestigeStars(prestige);
+    const xpForNext = getXpForLevel(level);
+    const xpInLevel = Math.max(0, Math.min(totalXp, xpForNext));
+    const pseudo = (state.pseudo || (currentUser && currentUser.displayName) || 'Viking').slice(0, 24);
+    const photoURL = currentUser && currentUser.photoURL ? currentUser.photoURL : '';
+    const bossVictories = (q.worldMap && q.worldMap.bossVictories) || 0;
+    const workoutSessions = (q.workout && q.workout.totalSessions) || 0;
+    const workoutTier = (q.workout && q.workout.currentTier) || 'beginner';
+    const soloWeek = (q.soloLeveling && q.soloLeveling.currentWeek) || 0;
+    const questsDone = (q.history || []).length;
+    const startDate = q.startDate ? new Date(q.startDate) : null;
+    const daysActive = startDate ? Math.max(1, Math.floor((Date.now() - startDate.getTime()) / 86400000) + 1) : 1;
+
+    const W = 900, H = 1400;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // Background — wood/parchment gradient
+    const bg = ctx.createRadialGradient(W/2, H/2, 50, W/2, H/2, 900);
+    bg.addColorStop(0, '#1a1108');
+    bg.addColorStop(0.5, '#0e0a06');
+    bg.addColorStop(1, '#050302');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Subtle rune texture — scattered dots
+    ctx.fillStyle = 'rgba(196,154,60,0.04)';
+    for (let i = 0; i < 80; i++) {
+      const x = Math.random() * W, y = Math.random() * H, r = Math.random() * 3 + 1;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // Double gold frame
+    ctx.strokeStyle = '#c49a3c';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(24, 24, W - 48, H - 48);
+    ctx.strokeStyle = '#8a6a22';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(40, 40, W - 80, H - 80);
+
+    // Corner ornaments
+    ctx.strokeStyle = '#c49a3c';
+    ctx.lineWidth = 3;
+    const corner = (cx, cy, dx, dy) => {
+      ctx.beginPath();
+      ctx.moveTo(cx, cy + dy * 30);
+      ctx.lineTo(cx, cy);
+      ctx.lineTo(cx + dx * 30, cy);
+      ctx.stroke();
+    };
+    corner(60, 60, 1, 1); corner(W - 60, 60, -1, 1);
+    corner(60, H - 60, 1, -1); corner(W - 60, H - 60, -1, -1);
+
+    // Header
+    ctx.fillStyle = '#c49a3c';
+    ctx.textAlign = 'center';
+    ctx.font = "bold 64px 'Cinzel', serif";
+    ctx.fillText('\u2694  STAKR  \u2694', W / 2, 130);
+    ctx.fillStyle = '#8a6a22';
+    ctx.font = "italic 24px 'Cinzel', serif";
+    ctx.fillText('CARTE DU GUERRIER', W / 2, 170);
+
+    // Divider
+    ctx.strokeStyle = '#c49a3c';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(200, 200); ctx.lineTo(W - 200, 200);
+    ctx.stroke();
+    // Diamond ornament
+    ctx.fillStyle = '#c49a3c';
+    ctx.beginPath();
+    ctx.moveTo(W/2, 190); ctx.lineTo(W/2 + 10, 200);
+    ctx.lineTo(W/2, 210); ctx.lineTo(W/2 - 10, 200);
+    ctx.closePath(); ctx.fill();
+
+    // Profile photo — circular
+    const photoCX = W / 2, photoCY = 340, photoR = 100;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(photoCX, photoCY, photoR, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+    // BG behind
+    ctx.fillStyle = '#2a1f10';
+    ctx.fillRect(photoCX - photoR, photoCY - photoR, photoR * 2, photoR * 2);
+    const img = await loadImageSafe(photoURL);
+    if (img) {
+      ctx.drawImage(img, photoCX - photoR, photoCY - photoR, photoR * 2, photoR * 2);
+    } else {
+      ctx.fillStyle = '#3a2e14';
+      ctx.fillRect(photoCX - photoR, photoCY - photoR, photoR * 2, photoR * 2);
+      ctx.fillStyle = '#c49a3c';
+      ctx.font = 'bold 90px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('\u2694', photoCX, photoCY);
+      ctx.textBaseline = 'alphabetic';
+    }
+    ctx.restore();
+    // Ring around photo
+    ctx.strokeStyle = '#c49a3c';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(photoCX, photoCY, photoR, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeStyle = '#8a6a22';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(photoCX, photoCY, photoR + 8, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Pseudo
+    ctx.fillStyle = '#f3e3b8';
+    ctx.textAlign = 'center';
+    ctx.font = "bold 54px 'Cinzel', serif";
+    ctx.fillText(pseudo, W / 2, 500);
+
+    // Rank
+    ctx.fillStyle = '#c49a3c';
+    ctx.font = "bold 32px 'Cinzel', serif";
+    ctx.fillText(rank.name, W / 2, 545);
+    ctx.fillStyle = '#8a6a22';
+    ctx.font = "italic 22px 'Cinzel', serif";
+    ctx.fillText(rank.subtitle || '', W / 2, 575);
+
+    // Prestige
+    if (prestige > 0) {
+      ctx.fillStyle = '#ffd76a';
+      ctx.font = "bold 28px 'Cinzel', serif";
+      ctx.fillText(`${prestigeStars} ${prestigeTitle || ''} ${prestigeStars}`, W / 2, 610);
+    }
+
+    // Big level number centerpiece
+    const lvlY = prestige > 0 ? 700 : 680;
+    ctx.fillStyle = '#8a6a22';
+    ctx.font = "bold 26px 'Cinzel', serif";
+    ctx.fillText('NIVEAU', W / 2, lvlY - 10);
+    ctx.fillStyle = '#ffd76a';
+    ctx.font = "bold 130px 'Cinzel', serif";
+    ctx.fillText(String(level), W / 2, lvlY + 110);
+
+    // XP progress bar
+    const barY = lvlY + 150;
+    const barW = 600, barH = 22, barX = (W - barW) / 2;
+    ctx.fillStyle = '#1a1108';
+    ctx.fillRect(barX, barY, barW, barH);
+    const pct = Math.max(0, Math.min(1, xpInLevel / Math.max(1, xpForNext)));
+    const grad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+    grad.addColorStop(0, '#8a6a22');
+    grad.addColorStop(1, '#ffd76a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(barX, barY, barW * pct, barH);
+    ctx.strokeStyle = '#c49a3c';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(barX, barY, barW, barH);
+    ctx.fillStyle = '#c49a3c';
+    ctx.font = "bold 20px 'Cinzel', serif";
+    ctx.fillText(`${xpInLevel} / ${xpForNext} XP`, W / 2, barY + barH + 28);
+
+    // Stats grid 2x2
+    const gridY = barY + 90;
+    const cellW = 340, cellH = 90;
+    const gridX1 = (W - cellW * 2 - 20) / 2;
+    const cells = [
+      { label: 'XP TOTAL', value: totalXp.toLocaleString('fr-FR') },
+      { label: 'STREAK', value: `${streak} j` },
+      { label: 'RUNES', value: `${runes}/24` },
+      { label: 'QUETES', value: String(questsDone) }
+    ];
+    cells.forEach((c, i) => {
+      const col = i % 2, row = Math.floor(i / 2);
+      const x = gridX1 + col * (cellW + 20);
+      const y = gridY + row * (cellH + 14);
+      ctx.fillStyle = 'rgba(196,154,60,0.08)';
+      ctx.fillRect(x, y, cellW, cellH);
+      ctx.strokeStyle = '#8a6a22';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x, y, cellW, cellH);
+      ctx.fillStyle = '#ffd76a';
+      ctx.font = "bold 42px 'Cinzel', serif";
+      ctx.textAlign = 'center';
+      ctx.fillText(c.value, x + cellW / 2, y + 50);
+      ctx.fillStyle = '#8a6a22';
+      ctx.font = "bold 16px 'Cinzel', serif";
+      ctx.fillText(c.label, x + cellW / 2, y + 78);
+    });
+
+    // Divider
+    const detailsY = gridY + cellH * 2 + 50;
+    ctx.strokeStyle = '#8a6a22';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(200, detailsY - 20); ctx.lineTo(W - 200, detailsY - 20);
+    ctx.stroke();
+
+    // Details list
+    const tierNames = { beginner: 'Initie', intermediate: 'Karl', advanced: 'Drengr', elite: 'Berserkr' };
+    const details = [
+      ['Jours actifs', `${daysActive} j`],
+      ['Boss vaincus', String(bossVictories)],
+      ['Seances Viking', `${workoutSessions} (${tierNames[workoutTier] || workoutTier})`],
+      ['Solo Leveling', soloWeek > 0 ? `Semaine ${soloWeek}/10` : 'Non commence'],
+      ['Prestige', prestige > 0 ? `${prestigeStars} ${prestigeTitle || ''}` : 'Aucun']
+    ];
+    ctx.textAlign = 'left';
+    details.forEach((d, i) => {
+      const y = detailsY + i * 36;
+      ctx.fillStyle = '#8a6a22';
+      ctx.font = "20px 'Cinzel', serif";
+      ctx.fillText(d[0], 120, y);
+      ctx.fillStyle = '#f3e3b8';
+      ctx.font = "bold 20px 'Cinzel', serif";
+      ctx.textAlign = 'right';
+      ctx.fillText(d[1], W - 120, y);
+      ctx.textAlign = 'left';
+    });
+
+    // Footer
+    const now = new Date();
+    const dateStr = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+    ctx.fillStyle = '#8a6a22';
+    ctx.textAlign = 'center';
+    ctx.font = "italic 18px 'Cinzel', serif";
+    ctx.fillText(`Forge dans les sagas le ${dateStr}`, W / 2, H - 70);
+    ctx.fillStyle = '#c49a3c';
+    ctx.font = "bold 16px 'Cinzel', serif";
+    ctx.fillText('\u16B1  stakr  \u16D2', W / 2, H - 45);
+
+    // Export
+    canvas.toBlob((blob) => {
+      if (!blob) { showToast('Erreur', 'Impossible de generer la carte.'); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const safePseudo = pseudo.replace(/[^a-zA-Z0-9_-]/g, '_');
+      a.href = url;
+      a.download = `stakr-carte-${safePseudo}-${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('Carte generee !', 'Ta carte de guerrier est telechargee.');
+    }, 'image/png');
+  } catch (e) {
+    console.error('Profile card error:', e);
+    showToast('Erreur', 'Impossible de generer la carte.');
+  }
+}
+window.downloadProfileCard = downloadProfileCard;
 
 function getTodayKey() {
   const d = new Date();
