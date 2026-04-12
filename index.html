@@ -834,6 +834,14 @@ header button{flex-shrink:0}
 #dice-label.visible{opacity:1}
 #dice-vs{font-size:.75rem;color:var(--text-dim);opacity:0;transition:opacity .3s;font-family:'Cinzel',serif}
 #dice-vs.visible{opacity:1}
+/* Reward animations */
+@keyframes goldRain{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@keyframes screenShake{0%,100%{transform:translate(0)}10%{transform:translate(-4px,2px)}20%{transform:translate(4px,-2px)}30%{transform:translate(-3px,3px)}40%{transform:translate(3px,-1px)}50%{transform:translate(-2px,2px)}60%{transform:translate(2px,-2px)}70%{transform:translate(-1px,1px)}80%{transform:translate(1px,-1px)}}
+@keyframes flameBurst{0%{transform:scale(0);opacity:1}50%{transform:scale(1.2);opacity:.8}100%{transform:scale(1.5);opacity:0}}
+.screen-shake{animation:screenShake .4s ease-in-out}
+#reward-particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;overflow:hidden}
+.gold-particle{position:absolute;top:-10px;width:8px;height:8px;background:var(--gold);border-radius:50%;animation:goldRain linear forwards;box-shadow:0 0 6px rgba(196,154,60,.6)}
+.flame-particle{position:absolute;width:12px;height:12px;border-radius:50%;animation:flameBurst .6s ease-out forwards;pointer-events:none}
 </style>
 </head>
 <body>
@@ -999,11 +1007,26 @@ header button{flex-shrink:0}
     </div>
   </div>
   <div class="setting-group">
+    <label>Sons & vibrations</label>
+    <div style="display:flex;gap:12px;margin-top:6px">
+      <label style="font-size:.75rem;display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="checkbox" id="sfx-toggle" onchange="state.config.sfxOff=!this.checked;saveState()" /> Sons
+      </label>
+      <label style="font-size:.75rem;display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="checkbox" id="haptic-toggle" onchange="state.config.hapticOff=!this.checked;saveState()" /> Vibrations
+      </label>
+    </div>
+  </div>
+  <div class="setting-group">
     <label>Mémoire</label>
     <button class="btn-danger" onclick="clearMemory()">Effacer la mémoire</button>
   </div>
   <div class="setting-group">
-    <button class="btn-secondary" onclick="exportMemory()">Exporter mémoire (JSON)</button>
+    <button class="btn-secondary" onclick="exportMemory()">Exporter sauvegarde (JSON)</button>
+    <label class="btn-secondary" style="display:inline-block;margin-top:8px;text-align:center;cursor:pointer">
+      Importer sauvegarde
+      <input type="file" accept=".json" onchange="importFullBackup(event)" style="display:none" />
+    </label>
   </div>
 </div>
 
@@ -1090,6 +1113,7 @@ header button{flex-shrink:0}
       <button class="quest-tab" data-qtab="weekly" onclick="switchQuestTab('weekly')"><span class="tab-icon">&#128197;</span>Semaine</button>
       <button class="quest-tab" data-qtab="defis" onclick="switchQuestTab('defis')"><span class="tab-icon">&#9888;</span>Defis</button>
       <button class="quest-tab" data-qtab="solo" onclick="switchQuestTab('solo')"><span class="tab-icon">&#128165;</span>Solo</button>
+      <button class="quest-tab" data-qtab="saison" onclick="switchQuestTab('saison')"><span class="tab-icon">&#127793;</span>Saison</button>
       <button class="quest-tab" data-qtab="boss" onclick="switchQuestTab('boss')"><span class="tab-icon">&#128009;</span>Boss</button>
       <button class="quest-tab" data-qtab="stakr" onclick="switchQuestTab('stakr')"><span class="tab-icon">&#129718;</span>Stakr</button>
       <button class="quest-tab" data-qtab="runes" onclick="switchQuestTab('runes')"><span class="tab-icon">&#9883;</span>Runes</button>
@@ -1101,6 +1125,7 @@ header button{flex-shrink:0}
     <div id="quest-list-weekly" style="display:none"></div>
     <div id="quest-defis-tab" style="display:none"></div>
     <div id="quest-solo-tab" style="display:none"></div>
+    <div id="quest-saison-tab" style="display:none"></div>
     <div id="quest-boss-tab" style="display:none"></div>
     <div id="quest-list-stakr" style="display:none"></div>
     <div id="quest-runes-tab" style="display:none"></div>
@@ -1364,6 +1389,168 @@ const MOODS = {
   protecteur: { label:'⛊ Protecteur', anim:'idle',     color:'#42a5f5', particles:'blue' },
   amuse:      { label:'≋ Amusé',       anim:'happy',    color:'#81c784', particles:'green' }
 };
+
+// ===== SOUND & HAPTIC SYSTEM =====
+function playSfx(type) {
+  if (state.config && state.config.sfxOff) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+  const gain = ctx.createGain();
+  gain.connect(ctx.destination);
+
+  if (type === 'clink') {
+    // Metallic clink — objective validated
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    const osc = ctx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(1200, now);
+    osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+    osc.connect(gain);
+    osc.start(now);
+    osc.stop(now + 0.3);
+  } else if (type === 'levelup') {
+    // Triumphant rising arpeggio
+    [523, 659, 784, 1047].forEach((freq, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0, now + i * 0.12);
+      g.gain.linearRampToValueAtTime(0.12, now + i * 0.12 + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.3);
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start(now + i * 0.12);
+      o.stop(now + i * 0.12 + 0.35);
+    });
+  } else if (type === 'thunder') {
+    // Low rumble — streak milestone / level up
+    const bufSize = ctx.sampleRate * 0.5;
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufSize * 0.15));
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 200;
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+    src.connect(lp);
+    lp.connect(gain);
+    src.start(now);
+  } else if (type === 'wings') {
+    // Flapping wings — Stakr greeting
+    for (let i = 0; i < 3; i++) {
+      const bufSize = ctx.sampleRate * 0.1;
+      const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let j = 0; j < bufSize; j++) d[j] = (Math.random() * 2 - 1) * Math.exp(-j / (bufSize * 0.3));
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = 400;
+      bp.Q.value = 2;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.08, now + i * 0.15);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.1);
+      src.connect(bp);
+      bp.connect(g);
+      g.connect(ctx.destination);
+      src.start(now + i * 0.15);
+    }
+  } else if (type === 'record') {
+    // Fanfare — new personal record
+    [784, 988, 1175, 1568].forEach((freq, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'square';
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0, now + i * 0.1);
+      g.gain.linearRampToValueAtTime(0.08, now + i * 0.1 + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.25);
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start(now + i * 0.1);
+      o.stop(now + i * 0.1 + 0.3);
+    });
+  } else if (type === 'xp') {
+    // Quick XP tick
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, now);
+    osc.frequency.exponentialRampToValueAtTime(1100, now + 0.1);
+    osc.connect(gain);
+    osc.start(now);
+    osc.stop(now + 0.15);
+  }
+}
+
+function haptic(pattern) {
+  if (state.config && state.config.hapticOff) return;
+  if (navigator.vibrate) {
+    try { navigator.vibrate(pattern || [30]); } catch(e) {}
+  }
+}
+
+// ===== REWARD ANIMATIONS =====
+function spawnGoldRain(count = 25) {
+  let container = document.getElementById('reward-particles');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'reward-particles';
+    document.body.appendChild(container);
+  }
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'gold-particle';
+    p.style.left = (Math.random() * 100) + '%';
+    p.style.animationDuration = (1 + Math.random() * 1.5) + 's';
+    p.style.animationDelay = (Math.random() * 0.5) + 's';
+    p.style.width = p.style.height = (4 + Math.random() * 8) + 'px';
+    container.appendChild(p);
+    setTimeout(() => p.remove(), 2500);
+  }
+}
+
+function screenShake() {
+  document.body.classList.add('screen-shake');
+  setTimeout(() => document.body.classList.remove('screen-shake'), 400);
+}
+
+function flameBurst(x, y, count = 12) {
+  let container = document.getElementById('reward-particles');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'reward-particles';
+    document.body.appendChild(container);
+  }
+  const colors = ['#ff6b35', '#ff4500', '#ffd700', '#ff8c00', '#dc143c'];
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'flame-particle';
+    p.style.left = (x || window.innerWidth / 2) + (Math.random() - 0.5) * 60 + 'px';
+    p.style.top = (y || window.innerHeight / 2) + (Math.random() - 0.5) * 60 + 'px';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.width = p.style.height = (6 + Math.random() * 12) + 'px';
+    p.style.animationDuration = (0.4 + Math.random() * 0.4) + 's';
+    container.appendChild(p);
+    setTimeout(() => p.remove(), 1000);
+  }
+}
+
+function goldFlash() {
+  const flash = document.createElement('div');
+  flash.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(196,154,60,0.15);pointer-events:none;z-index:9998;transition:opacity .4s';
+  document.body.appendChild(flash);
+  requestAnimationFrame(() => { flash.style.opacity = '0'; });
+  setTimeout(() => flash.remove(), 500);
+}
 
 // ===== COMPANIONS REGISTRY =====
 const COMPANIONS = {
@@ -3278,6 +3465,11 @@ function toggleSettings() {
   if (isOpen) { saveConfig(); }
   panel.classList.toggle('open');
   overlay.classList.toggle('open');
+  if (!isOpen) {
+    // Sync sfx/haptic toggles
+    const sfxEl = $('#sfx-toggle'); if (sfxEl) sfxEl.checked = !state.config.sfxOff;
+    const hapEl = $('#haptic-toggle'); if (hapEl) hapEl.checked = !state.config.hapticOff;
+  }
 }
 
 // ===== LISTENERS =====
@@ -3774,6 +3966,219 @@ const STREAK_MSGS = [
   "Par les runes ! {days} jours sans faillir — tu es forge dans l'acier viking !"
 ];
 
+// ===== SEASONAL SYSTEM — Monthly Viking themes with limited quests =====
+const VIKING_SEASONS = {
+  1:  { name: 'Mois du Loup', icon: '🐺', theme: 'Endurance & discipline hivernale', color: '#7eb8da',
+        quests: [
+          { id: 'sn_cold_bath', name: 'Bain de glace', icon: '🧊', target: 1, unit: 'bain', xpReward: 60, category: 'physique', desc: 'Douche ou bain froid de 2+ minutes — forge ton esprit contre le gel.' },
+          { id: 'sn_night_walk', name: 'Marche nocturne', icon: '🌙', target: 2, unit: 'km', xpReward: 40, category: 'physique', desc: 'Marche dehors apres le coucher du soleil, comme les eclaireurs vikings.' },
+          { id: 'sn_fast', name: 'Jeune intermittent', icon: '⏳', target: 16, unit: 'heures', xpReward: 45, category: 'sante', desc: 'Jeune de 16h — les guerriers ne mangeaient pas avant la bataille.' }
+        ]},
+  2:  { name: 'Mois de la Forge', icon: '⚒️', theme: 'Force brute & puissance', color: '#e07a3a',
+        quests: [
+          { id: 'sn_max_push', name: 'Max pompes d\'affilee', icon: '💪', target: 30, unit: 'reps', xpReward: 55, category: 'physique', desc: 'Fais le maximum de pompes en une serie, sans pause.' },
+          { id: 'sn_carry', name: 'Portage lourd', icon: '🪨', target: 1, unit: 'session', xpReward: 50, category: 'physique', desc: 'Porte quelque chose de lourd sur 100m — sac, buche, seau d\'eau.' },
+          { id: 'sn_war_cry', name: 'Cri de guerre', icon: '📢', target: 1, unit: 'cri', xpReward: 20, category: 'mental', desc: 'Pousse un vrai cri de guerre avant ta seance — libere l\'esprit du berserker.' }
+        ]},
+  3:  { name: 'Mois du Degel', icon: '🌱', theme: 'Renouveau & habitudes saines', color: '#7ec87e',
+        quests: [
+          { id: 'sn_sunrise', name: 'Lever au soleil', icon: '🌅', target: 1, unit: 'lever', xpReward: 35, category: 'sante', desc: 'Leve-toi avant le soleil et sors dans les 10 minutes.' },
+          { id: 'sn_plant', name: 'Manger vert', icon: '🥬', target: 3, unit: 'portions', xpReward: 30, category: 'sante', desc: '3 portions de legumes verts dans la journee.' },
+          { id: 'sn_clean', name: 'Nettoyage sacre', icon: '🧹', target: 1, unit: 'zone', xpReward: 25, category: 'mental', desc: 'Nettoie un espace de ton foyer a fond — un Viking respecte sa halle.' }
+        ]},
+  4:  { name: 'Mois du Navigateur', icon: '⛵', theme: 'Exploration & decouverte', color: '#5ba3cf',
+        quests: [
+          { id: 'sn_new_path', name: 'Nouveau chemin', icon: '🗺️', target: 1, unit: 'chemin', xpReward: 40, category: 'physique', desc: 'Explore un chemin/route que tu n\'as jamais pris.' },
+          { id: 'sn_skill', name: 'Nouvelle competence', icon: '📚', target: 15, unit: 'min', xpReward: 45, category: 'mental', desc: '15 minutes a apprendre quelque chose de completement nouveau.' },
+          { id: 'sn_stranger', name: 'Parler a un inconnu', icon: '🤝', target: 1, unit: 'conversation', xpReward: 35, category: 'social', desc: 'Engage une vraie conversation avec quelqu\'un que tu ne connais pas.' }
+        ]},
+  5:  { name: 'Mois du Berserker', icon: '⚔️', theme: 'Depassement physique total', color: '#d64545',
+        quests: [
+          { id: 'sn_100push', name: 'Centurion', icon: '💯', target: 100, unit: 'pompes', xpReward: 80, category: 'physique', desc: '100 pompes dans la journee, reparties comme tu veux.' },
+          { id: 'sn_run5k', name: 'Course du guerrier', icon: '🏃', target: 5, unit: 'km', xpReward: 70, category: 'physique', desc: 'Cours 5 km sans t\'arreter — les berserkers ne ralentissent pas.' },
+          { id: 'sn_no_comfort', name: 'Abandon du confort', icon: '🔥', target: 1, unit: 'jour', xpReward: 50, category: 'mental', desc: 'Pas de reseaux sociaux, pas de sucre, pas de canape — une journee spartiate.' }
+        ]},
+  6:  { name: 'Mois du Solstice', icon: '☀️', theme: 'Energie solaire & vitalite', color: '#f0c040',
+        quests: [
+          { id: 'sn_outdoor', name: 'Seance plein air', icon: '🌞', target: 1, unit: 'seance', xpReward: 45, category: 'physique', desc: 'Fais ta seance de sport entierement dehors.' },
+          { id: 'sn_hydra', name: 'Hyper-hydratation', icon: '💧', target: 3, unit: 'litres', xpReward: 35, category: 'sante', desc: 'Bois 3 litres d\'eau dans la journee — le soleil exige son tribut.' },
+          { id: 'sn_gratitude3', name: 'Triple gratitude', icon: '🙏', target: 3, unit: 'choses', xpReward: 30, category: 'mental', desc: 'Ecris 3 choses pour lesquelles tu es reconnaissant, en detail.' }
+        ]},
+  7:  { name: 'Mois du Thing', icon: '🏛️', theme: 'Communaute & leadership', color: '#b08cd6',
+        quests: [
+          { id: 'sn_teach', name: 'Enseigner', icon: '🎓', target: 1, unit: 'lecon', xpReward: 45, category: 'social', desc: 'Apprends quelque chose a quelqu\'un — les chefs vikings formaient leur clan.' },
+          { id: 'sn_help', name: 'Aide un allie', icon: '🤲', target: 1, unit: 'aide', xpReward: 35, category: 'social', desc: 'Aide quelqu\'un concretement aujourd\'hui, sans qu\'il le demande.' },
+          { id: 'sn_speech', name: 'Discours du chef', icon: '🗣️', target: 1, unit: 'discours', xpReward: 40, category: 'mental', desc: 'Prends la parole devant 2+ personnes — au Thing, les chefs parlent fort.' }
+        ]},
+  8:  { name: 'Mois du Raid', icon: '🛡️', theme: 'Intensite & conquete', color: '#c04040',
+        quests: [
+          { id: 'sn_double', name: 'Double seance', icon: '⚡', target: 2, unit: 'seances', xpReward: 70, category: 'physique', desc: 'Fais 2 seances de sport dans la meme journee.' },
+          { id: 'sn_early', name: 'Raid de l\'aube', icon: '🌄', target: 1, unit: 'seance', xpReward: 50, category: 'physique', desc: 'Seance de sport terminee avant 7h du matin.' },
+          { id: 'sn_war_diet', name: 'Regime de guerre', icon: '🍖', target: 1, unit: 'jour', xpReward: 40, category: 'sante', desc: 'Que des aliments non-transformes aujourd\'hui — mange comme un vrai Viking.' }
+        ]},
+  9:  { name: 'Mois de la Moisson', icon: '🌾', theme: 'Recolte & bilan', color: '#d4a44a',
+        quests: [
+          { id: 'sn_journal', name: 'Journal du Viking', icon: '📝', target: 1, unit: 'page', xpReward: 35, category: 'mental', desc: 'Ecris une page entiere sur tes progres, tes fierts et tes objectifs.' },
+          { id: 'sn_cook', name: 'Festin fait maison', icon: '🍲', target: 1, unit: 'repas', xpReward: 35, category: 'sante', desc: 'Cuisine un repas complet et equilibre de tes propres mains.' },
+          { id: 'sn_share', name: 'Partager sa recolte', icon: '🎁', target: 1, unit: 'don', xpReward: 30, category: 'social', desc: 'Donne quelque chose — objet, temps, ou savoir — a quelqu\'un.' }
+        ]},
+  10: { name: 'Mois des Esprits', icon: '👻', theme: 'Peurs & mental d\'acier', color: '#8a6fbf',
+        quests: [
+          { id: 'sn_fear', name: 'Affronter une peur', icon: '😨', target: 1, unit: 'peur', xpReward: 60, category: 'mental', desc: 'Fais quelque chose qui te fait peur — les Vikings naviguaient vers l\'inconnu.' },
+          { id: 'sn_silence', name: 'Heure de silence', icon: '🤫', target: 60, unit: 'min', xpReward: 40, category: 'mental', desc: '1 heure complete sans parler, sans ecran — ecoute le monde.' },
+          { id: 'sn_dark_train', name: 'Entrainement sombre', icon: '🖤', target: 1, unit: 'seance', xpReward: 45, category: 'physique', desc: 'Fais une seance dans le noir ou les yeux fermes — entraine tes sens.' }
+        ]},
+  11: { name: 'Mois de Skuld', icon: '🔮', theme: 'Destin & preparation', color: '#6a9fd8',
+        quests: [
+          { id: 'sn_plan', name: 'Plan de bataille', icon: '📋', target: 1, unit: 'plan', xpReward: 35, category: 'mental', desc: 'Planifie ta semaine entiere a l\'avance — objectifs, seances, repas.' },
+          { id: 'sn_stretch20', name: 'Souplesse du guerrier', icon: '🧘', target: 20, unit: 'min', xpReward: 35, category: 'physique', desc: '20 minutes d\'etirements profonds — un corps souple survit.' },
+          { id: 'sn_mentor', name: 'Voix du mentor', icon: '🦉', target: 1, unit: 'echange', xpReward: 40, category: 'social', desc: 'Demande conseil a quelqu\'un que tu admires.' }
+        ]},
+  12: { name: 'Mois du Yule', icon: '🎄', theme: 'Bilan final & celebration', color: '#c0392b',
+        quests: [
+          { id: 'sn_feast', name: 'Festin du Yule', icon: '🍻', target: 1, unit: 'festin', xpReward: 40, category: 'social', desc: 'Partage un vrai repas avec des proches — le Yule rassemble le clan.' },
+          { id: 'sn_review', name: 'Bilan de l\'annee', icon: '📖', target: 1, unit: 'bilan', xpReward: 50, category: 'mental', desc: 'Ecris ton bilan de l\'annee — victoires, lecons, objectifs pour la suite.' },
+          { id: 'sn_gift', name: 'Don sacre', icon: '🎁', target: 1, unit: 'don', xpReward: 35, category: 'social', desc: 'Offre un cadeau fait main ou symbolique a quelqu\'un qui compte.' }
+        ]}
+};
+
+function getCurrentSeason() {
+  const month = new Date().getMonth() + 1;
+  return VIKING_SEASONS[month] || VIKING_SEASONS[1];
+}
+
+function getSeasonKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function initSeason() {
+  const q = state.quests;
+  if (!q.season) q.season = { key: null, completedQuests: {}, claimedRewards: {} };
+  const currentKey = getSeasonKey();
+  if (q.season.key !== currentKey) {
+    // New month — reset seasonal quests, keep history
+    if (!q.season.history) q.season.history = [];
+    if (q.season.key) {
+      const prevMonth = parseInt(q.season.key.split('-')[1]);
+      const prevSeason = VIKING_SEASONS[prevMonth];
+      const completed = Object.keys(q.season.completedQuests || {}).length;
+      const total = prevSeason ? prevSeason.quests.length : 0;
+      q.season.history.push({ key: q.season.key, name: prevSeason?.name, completed, total });
+      if (q.season.history.length > 24) q.season.history = q.season.history.slice(-24);
+    }
+    q.season.key = currentKey;
+    q.season.completedQuests = {};
+    q.season.progress = {};
+  }
+}
+
+function logSeasonProgress(questId, value) {
+  const q = state.quests;
+  initSeason();
+  const season = getCurrentSeason();
+  const quest = season.quests.find(sq => sq.id === questId);
+  if (!quest || q.season.completedQuests[questId]) return;
+
+  if (!q.season.progress) q.season.progress = {};
+  q.season.progress[questId] = (q.season.progress[questId] || 0) + value;
+
+  if (q.season.progress[questId] >= quest.target) {
+    q.season.completedQuests[questId] = getTodayStr();
+    addQuestXp(quest.xpReward, quest.category);
+    showToast(`${season.icon} Quete saisonniere !`, `${quest.icon} ${quest.name} accompli ! +${quest.xpReward} XP`);
+    addMessage('stakr', `KRAA ! **Quete du ${season.name}** accomplie : ${quest.icon} **${quest.name}** ! +${quest.xpReward} XP ! ${season.theme} — tu honores la saison, Viking ! [MOOD:excite]`);
+
+    // Check if all seasonal quests done
+    const allDone = season.quests.every(sq => q.season.completedQuests[sq.id]);
+    if (allDone) {
+      const bonusXp = 150;
+      addQuestXp(bonusXp);
+      showToast(`${season.icon} SAISON COMPLETE !`, `Toutes les quetes du ${season.name} accomplies ! +${bonusXp} XP bonus`);
+      addMessage('stakr', `PAR ODIN ! Tu as accompli **TOUTES** les quetes du **${season.name}** ! ${season.icon} +${bonusXp} XP bonus ! Les sagas chanteront tes exploits ce mois-ci ! [MOOD:excite]`);
+    }
+  }
+
+  saveState();
+}
+
+function renderSeasonPanel() {
+  const q = state.quests;
+  initSeason();
+  const season = getCurrentSeason();
+  const month = new Date().getMonth() + 1;
+  const key = getSeasonKey();
+  const completedQuests = q.season.completedQuests || {};
+  const progress = q.season.progress || {};
+  const allDone = season.quests.every(sq => completedQuests[sq.id]);
+  const completedCount = season.quests.filter(sq => completedQuests[sq.id]).length;
+
+  let html = `
+    <div style="background:linear-gradient(135deg, ${season.color}22, transparent);border:1px solid ${season.color}55;border-radius:12px;padding:14px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-size:1.8rem">${season.icon}</span>
+        <div>
+          <div style="font-size:1rem;font-weight:700;color:${season.color};font-family:Cinzel,serif">${season.name}</div>
+          <div style="font-size:.65rem;color:var(--text-dim)">${season.theme} — ${completedCount}/${season.quests.length} quetes</div>
+        </div>
+        ${allDone ? '<span style="font-size:.7rem;background:var(--gold);color:var(--bg);padding:2px 8px;border-radius:10px;font-weight:700">COMPLETE ✓</span>' : ''}
+      </div>
+      <div style="height:4px;background:var(--wood-mid);border-radius:2px;overflow:hidden;margin-bottom:12px">
+        <div style="height:100%;width:${(completedCount / season.quests.length) * 100}%;background:${season.color};border-radius:2px;transition:width .3s"></div>
+      </div>
+      ${season.quests.map(sq => {
+        const done = !!completedQuests[sq.id];
+        const prog = progress[sq.id] || 0;
+        const pct = Math.min(100, (prog / sq.target) * 100);
+        return `<div style="background:var(--card);border:1px solid ${done ? season.color + '66' : 'var(--border)'};border-radius:10px;padding:10px 12px;margin-bottom:8px;${done ? 'opacity:0.7' : ''}">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:1.1rem">${sq.icon}</span>
+            <div style="flex:1">
+              <div style="font-size:.8rem;font-weight:600;color:${done ? season.color : 'var(--text)'}">${sq.name} ${done ? '✓' : ''}</div>
+              <div style="font-size:.55rem;color:var(--text-dim)">${sq.desc}</div>
+            </div>
+            <span style="font-size:.65rem;color:var(--gold);font-weight:700">+${sq.xpReward} XP</span>
+          </div>
+          ${done ? `<div style="font-size:.6rem;color:${season.color};text-align:center">Accompli le ${completedQuests[sq.id]}</div>` : `
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="flex:1;height:5px;background:var(--wood-mid);border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:${pct}%;background:${season.color};border-radius:3px"></div>
+              </div>
+              <span style="font-size:.6rem;color:var(--text-dim)">${prog}/${sq.target} ${sq.unit}</span>
+              <input type="number" id="season-input-${sq.id}" min="0.1" step="any" placeholder="+" style="width:50px;padding:3px 5px;font-size:.7rem;background:var(--wood-dark);border:1px solid var(--border);border-radius:6px;color:var(--text);text-align:center" />
+              <button onclick="logSeasonProgress('${sq.id}', parseFloat(document.getElementById('season-input-${sq.id}').value) || 1); document.getElementById('season-input-${sq.id}').value=''; renderSeasonInTab();" style="padding:3px 10px;font-size:.7rem;background:${season.color};color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600">+</button>
+            </div>
+          `}
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  // Past seasons history
+  const hist = (q.season.history || []).slice().reverse();
+  if (hist.length > 0) {
+    html += `<div style="margin-top:8px">
+      <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:6px;font-family:Cinzel,serif">Saisons passees</div>
+      ${hist.slice(0, 6).map(h => {
+        const m = parseInt(h.key.split('-')[1]);
+        const s = VIKING_SEASONS[m];
+        return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border);font-size:.65rem">
+          <span>${s?.icon || '📅'}</span>
+          <span style="flex:1;color:var(--text)">${s?.name || h.key}</span>
+          <span style="color:${h.completed === h.total ? 'var(--gold)' : 'var(--text-dim)'};font-weight:600">${h.completed}/${h.total}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  return html;
+}
+
+function renderSeasonInTab() {
+  const container = $('#quest-saison-tab');
+  if (!container) return;
+  container.innerHTML = renderSeasonPanel();
+}
+
 function getTodayStr() { return new Date().toISOString().slice(0, 10); }
 function getWeekStart() {
   const d = new Date();
@@ -3906,6 +4311,12 @@ function initQuests() {
   if (!Array.isArray(q.workout.phiProgress)) q.workout.phiProgress = [];
   if (q.workout.totalPhiSessions == null) q.workout.totalPhiSessions = 0;
   if (!q.defisSubTab) q.defisSubTab = 'challenges';
+
+  // Personal records
+  if (!q.personalRecords) q.personalRecords = {};
+
+  // Seasonal system
+  initSeason();
 
   // Solo Leveling state
   if (!q.soloLeveling) q.soloLeveling = { startDate: null, currentWeek: 1, dayDate: null, pushups: 0, squats: 0, abs: 0, km: 0, completedDays: 0, missedDays: 0, lastPenaltyCheck: null };
@@ -4075,6 +4486,8 @@ function initQuests() {
   checkDailyChallenges();
 
   scheduleQuestReminders();
+  // Weekly journal check (triggers on Mondays)
+  setTimeout(() => checkWeeklyJournal(), 3000);
 }
 
 // ===== DISCIPLINE VIKING =====
@@ -5170,6 +5583,8 @@ function completeWorkoutSession() {
   w.completedToday.physical[w.currentTier] = true;
   w.totalSessions = (w.totalSessions || 0) + 1;
   trackSessionExerciseReps(session);
+  // PR: total workout sessions
+  checkPersonalRecord('workout_sessions', w.totalSessions, '🏋️', 'Seances completees', 'seances');
   if (!w.history) w.history = [];
   w.history.push({ date: getTodayStr(), type: 'physical', tier: w.currentTier, xp: session.xpReward });
   if (w.history.length > 100) w.history = w.history.slice(-100);
@@ -5339,6 +5754,12 @@ function logSoloProgress(key) {
     sl.stats[k] = +((sl.stats[k] || 0) + gains[k]).toFixed(2);
   });
   sl.totals[key] = +((sl.totals[key] || 0) + value).toFixed(2);
+
+  // PR: best single-session solo leveling per exercise
+  const soloLabels = { pushups: 'Pompes Solo', squats: 'Squats Solo', abs: 'Abdos Solo', km: 'Course Solo' };
+  const soloIcons = { pushups: '💪', squats: '🦵', abs: '🔥', km: '🏃' };
+  const soloUnits = { pushups: 'reps', squats: 'reps', abs: 'reps', km: 'km' };
+  checkPersonalRecord('solo_' + key, value, soloIcons[key] || '⚔️', soloLabels[key] || key, soloUnits[key] || '');
 
   // Log activity (keep last 200)
   sl.activityLog.unshift({
@@ -5587,7 +6008,7 @@ function toggleMapPanel() {
 
 function switchQuestTab(tab) {
   document.querySelectorAll('.quest-tab').forEach(t => t.classList.toggle('active', t.dataset.qtab === tab));
-  ['daily','weekly','defis','solo','stakr','stats','arbre','boss','evolve'].forEach(t => {
+  ['daily','weekly','defis','solo','saison','stakr','stats','arbre','boss','evolve'].forEach(t => {
     const el = $(`#quest-list-${t}`) || $(`#quest-${t}-tab`);
     if (el) el.style.display = 'none';
   });
@@ -5595,6 +6016,7 @@ function switchQuestTab(tab) {
   if (tab === 'daily' || tab === 'weekly') $(`#quest-list-${tab}`).style.display = 'block';
   else if (tab === 'defis') { $('#quest-defis-tab').style.display = 'block'; renderDailyChallenges(); }
   else if (tab === 'solo') { $('#quest-solo-tab').style.display = 'block'; renderSoloLeveling(); }
+  else if (tab === 'saison') { $('#quest-saison-tab').style.display = 'block'; renderSeasonInTab(); }
   else if (tab === 'boss') { $('#quest-boss-tab').style.display = 'block'; $('#quest-boss-tab').innerHTML = renderBossSection(); }
   else if (tab === 'stakr') { $('#quest-list-stakr').style.display = 'block'; renderStakrQuests(); }
   else if (tab === 'runes') { $('#quest-runes-tab').style.display = 'block'; renderRuneCollection(); }
@@ -5972,6 +6394,9 @@ function logQuestProgress(id) {
   // Track lifetime totals
   q.lifetimeTotals[id] = (q.lifetimeTotals[id] || 0) + value;
 
+  // Personal record check — daily best for this objective
+  checkPersonalRecord('daily_' + id, obj.progress, obj.icon, obj.name + ' (jour)', obj.unit);
+
   // Calculate XP (proportional)
   const pct = Math.min(1, obj.progress / obj.target);
   const earnedXp = Math.round(obj.xpReward * (value / obj.target));
@@ -6004,6 +6429,7 @@ function logQuestProgress(id) {
             .replace('{days}', q.streak);
           addMessage('stakr', msg + ' [MOOD:excite]');
           addQuestXp(q.streak * 5); // Streak bonus
+          playSfx('thunder'); haptic([60, 30, 60, 30, 100]); flameBurst(); screenShake();
         }
       } else if (diffDays > 1) {
         q.streak = 1;
@@ -6012,6 +6438,8 @@ function logQuestProgress(id) {
       q.streak = 1;
     }
     q.lastActiveDate = today;
+    // PR: best streak
+    checkPersonalRecord('streak', q.streak, '🔥', 'Meilleure streak', 'jours');
   }
 
   // Congratulate on completion
@@ -6021,12 +6449,14 @@ function logQuestProgress(id) {
       .replace('{xp}', obj.xpReward);
     addMessage('stakr', msg + ' [MOOD:heureux]');
     showToast('Objectif atteint !', `${obj.icon} ${obj.name} complete !`);
+    playSfx('clink'); haptic([30, 20, 30]); goldFlash();
 
     // Check if all daily objectives are done
     const allDailyDone = q.objectives.filter(o => o.period === 'daily').every(o => o.progress >= o.target);
     if (allDailyDone && obj.period === 'daily') {
       addMessage('stakr', "KRAA ! Tous les objectifs du jour sont accomplis ! Tu es un vrai guerrier du Valhalla ! Bonus +50 XP ! [MOOD:excite]");
       addQuestXp(50);
+      spawnGoldRain(50); screenShake(); playSfx('levelup');
     }
 
     // Check if all weekly objectives are done
@@ -6034,6 +6464,7 @@ function logQuestProgress(id) {
     if (allWeeklyDone && obj.period === 'weekly') {
       addMessage('stakr', "KRAA ! Toutes les quetes de la semaine terminees ! Les sagas chanteront ta gloire ! Bonus +100 XP ! [MOOD:excite]");
       addQuestXp(100);
+      spawnGoldRain(60); flameBurst(); screenShake();
     }
   }
 
@@ -6382,6 +6813,148 @@ function confirmQuestEvolution() {
   }
 }
 
+// ===== PERSONAL RECORDS (PRs) =====
+const PR_MESSAGES = [
+  "KRAA ! **NOUVEAU RECORD !** {icon} {label} : **{value} {unit}** ! Tu depasses tes propres limites, Viking ! [MOOD:excite]",
+  "Par Odin ! **RECORD PERSONNEL** battu ! {icon} {label} : **{value} {unit}** ! Les sagas se reecrivent ! [MOOD:excite]",
+  "**PR !** {icon} {label} → **{value} {unit}** ! Tu es plus fort qu'hier. Le Valhalla se rapproche ! [MOOD:heureux]"
+];
+
+function checkPersonalRecord(key, value, icon, label, unit) {
+  const q = state.quests;
+  if (!q.personalRecords) q.personalRecords = {};
+  const prev = q.personalRecords[key];
+  if (prev && prev.value >= value) return false;
+  const isNew = !prev;
+  q.personalRecords[key] = { value, date: getTodayStr(), icon, label, unit };
+  // Don't announce the very first record (that's just setting the baseline)
+  if (!isNew) {
+    const msg = PR_MESSAGES[Math.floor(Math.random() * PR_MESSAGES.length)]
+      .replace('{icon}', icon).replace('{label}', label)
+      .replace('{value}', typeof value === 'number' && value % 1 !== 0 ? value.toFixed(1) : value)
+      .replace('{unit}', unit);
+    addMessage('stakr', msg);
+    showToast('RECORD PERSONNEL !', `${icon} ${label} — ${value} ${unit}`);
+    playSfx('record'); haptic([40, 20, 40, 20, 60]); spawnGoldRain(20); goldFlash();
+  }
+  return true;
+}
+
+// ===== WEEKLY EVOLUTION JOURNAL =====
+function getWeekNumber(dateStr) {
+  const d = new Date(dateStr || Date.now());
+  const start = new Date(d.getFullYear(), 0, 1);
+  return Math.ceil(((d - start) / 86400000 + start.getDay() + 1) / 7);
+}
+
+function generateWeeklyJournal() {
+  const q = state.quests;
+  if (!q.journal) q.journal = { entries: [], lastWeek: null };
+  const currentWeek = getWeekNumber() + '-' + new Date().getFullYear();
+  if (q.journal.lastWeek === currentWeek) return null; // Already generated this week
+
+  // Compute stats for last 7 days
+  const now = new Date();
+  const last7 = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    last7.push(d.toISOString().slice(0, 10));
+  }
+
+  const historyLast7 = (q.history || []).filter(h => last7.includes(h.date));
+  const totalCompleted = historyLast7.filter(h => h.progress >= h.target).length;
+  const totalObjectives = historyLast7.length;
+  const completionRate = totalObjectives > 0 ? Math.round((totalCompleted / totalObjectives) * 100) : 0;
+
+  // XP this week (approximate from history)
+  const xpThisWeek = historyLast7.reduce((s, h) => s + (h.progress >= h.target ? (h.xpReward || 0) : 0), 0);
+
+  // Streak info
+  const streak = q.streak || 0;
+
+  // Best and worst objectives
+  const objStats = {};
+  historyLast7.forEach(h => {
+    if (!objStats[h.id]) objStats[h.id] = { name: h.name || h.id, icon: h.icon || '⚔️', done: 0, total: 0 };
+    objStats[h.id].total++;
+    if (h.progress >= h.target) objStats[h.id].done++;
+  });
+  const objArr = Object.values(objStats).filter(o => o.total >= 2);
+  const best = objArr.sort((a, b) => (b.done / b.total) - (a.done / a.total))[0];
+  const worst = objArr.sort((a, b) => (a.done / a.total) - (b.done / b.total))[0];
+
+  // Generate narrative
+  let narrative = '';
+  if (completionRate >= 90) {
+    narrative = `**Semaine legendaire, Viking !** 🏆\n\nTu as accompli **${totalCompleted}/${totalObjectives}** objectifs (${completionRate}%). `;
+    narrative += streak >= 7 ? `Ta streak de **${streak} jours** brule comme un feu sacre. ` : '';
+    narrative += best ? `${best.icon} **${best.name}** est ton point fort cette semaine. ` : '';
+    narrative += `Les Valkyries elles-memes applaudissent. Continue ainsi — le Valhalla est a portee !`;
+  } else if (completionRate >= 60) {
+    narrative = `**Bonne semaine, guerrier.** ⚔️\n\n**${totalCompleted}/${totalObjectives}** objectifs (${completionRate}%). Une semaine solide. `;
+    narrative += best ? `${best.icon} **${best.name}** : ta force. ` : '';
+    narrative += worst && worst !== best ? `${worst.icon} **${worst.name}** merite plus d'attention la semaine prochaine. ` : '';
+    narrative += streak >= 3 ? `Streak de ${streak} jours — ne la brise pas ! ` : '';
+    narrative += `Tu progresses. Les dieux voient tes efforts.`;
+  } else if (completionRate >= 30) {
+    narrative = `**Semaine moyenne, Viking.** 🛡️\n\n**${totalCompleted}/${totalObjectives}** objectifs (${completionRate}%). Tu peux mieux. `;
+    narrative += worst ? `${worst.icon} **${worst.name}** est ton talon d'Achille — concentre-toi dessus. ` : '';
+    narrative += `Rappelle-toi : meme les plus grands guerriers ont connu des jours difficiles. La semaine prochaine sera meilleure.`;
+  } else {
+    narrative = `**Semaine rude, Viking.** 😤\n\n**${totalCompleted}/${totalObjectives}** objectifs (${completionRate}%). Le chemin est dur, mais abandonner n'est pas Viking. `;
+    narrative += `Choisis UN objectif et tiens-le chaque jour. Un pas apres l'autre. Je serai la pour te pousser. Kraa !`;
+  }
+
+  // XP line
+  if (xpThisWeek > 0) narrative += `\n\n⚡ **${xpThisWeek} XP** gagnes cette semaine.`;
+
+  const entry = {
+    week: currentWeek,
+    date: now.toISOString().slice(0, 10),
+    completionRate,
+    totalCompleted,
+    totalObjectives,
+    xp: xpThisWeek,
+    streak,
+    narrative
+  };
+
+  q.journal.entries.unshift(entry);
+  if (q.journal.entries.length > 52) q.journal.entries = q.journal.entries.slice(0, 52);
+  q.journal.lastWeek = currentWeek;
+  saveState();
+  return entry;
+}
+
+function checkWeeklyJournal() {
+  // Trigger on Monday (or first visit of the week)
+  const day = new Date().getDay();
+  if (day !== 1) return; // Only on Mondays
+  const entry = generateWeeklyJournal();
+  if (entry) {
+    addMessage('stakr', `📖 **Journal de la semaine** :\n\n${entry.narrative} [MOOD:${entry.completionRate >= 60 ? 'heureux' : 'neutre'}]`);
+    showToast('📖 Journal hebdomadaire', `Bilan : ${entry.completionRate}% d'objectifs accomplis`);
+  }
+}
+
+function renderJournalHistory() {
+  const q = state.quests;
+  const entries = q.journal?.entries || [];
+  if (entries.length === 0) return '<div style="font-size:.7rem;color:var(--text-dim);text-align:center;padding:20px">Pas encore de journal. Reviens lundi pour ton premier bilan !</div>';
+
+  return entries.slice(0, 12).map(e => `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:.7rem;color:var(--gold);font-weight:700;font-family:Cinzel,serif">📖 Semaine du ${e.date}</span>
+        <span style="font-size:.6rem;color:var(--text-dim)">${e.completionRate}% — ${e.totalCompleted}/${e.totalObjectives}</span>
+      </div>
+      <div style="font-size:.7rem;line-height:1.5;color:var(--text)">${e.narrative.replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--gold)">$1</strong>').replace(/\n/g, '<br/>')}</div>
+      ${e.xp ? `<div style="font-size:.6rem;color:var(--text-dim);margin-top:6px">⚡ ${e.xp} XP</div>` : ''}
+    </div>
+  `).join('');
+}
+
 function addQuestXp(amount, category) {
   const q = state.quests;
   // Streak multiplier: +10% per streak day, max +50%
@@ -6393,6 +6966,7 @@ function addQuestXp(amount, category) {
   const totalAmount = Math.round(amount * (1 + streakBonus + treeBoost + stakrBoost));
 
   q.xp += totalAmount;
+  playSfx('xp');
   q.totalXp += totalAmount;
 
   // Track daily XP for leaderboard
@@ -6402,6 +6976,9 @@ function addQuestXp(amount, category) {
     q.dailyXpToday = 0;
   }
   q.dailyXpToday += totalAmount;
+
+  // PR: best daily XP
+  checkPersonalRecord('daily_xp', q.dailyXpToday, '⚡', 'XP en un jour', 'XP');
 
   // Level up check
   if (typeof q.prestige !== 'number') q.prestige = 0;
@@ -6416,6 +6993,7 @@ function addQuestXp(amount, category) {
       .replace('{subtitle}', rank.subtitle);
     addMessage('stakr', msg + ' [MOOD:excite]');
     showToast('NIVEAU SUPERIEUR !', `Niveau ${q.level} — ${rank.name}`);
+    playSfx('levelup'); haptic([50, 30, 50, 30, 80]); spawnGoldRain(40); screenShake();
     xpNeeded = getXpForLevel(q.level);
   }
   // At max level: notify player they can prestige (XP keeps capping)
@@ -7026,14 +7604,43 @@ function renderWorldMap() {
   html += `<div class="monde-map-wrap">
     <img class="monde-map-img" src="./map.png" alt="Carte des Neuf Royaumes"/>`;
 
-  // SVG fog overlay for locked regions
+  // SVG overlay: fog + connection paths + boss indicators
   html += `<svg class="monde-fog" viewBox="0 0 100 100" preserveAspectRatio="none">`;
+  html += `<defs><filter id="fogBlur"><feGaussianBlur stdDeviation="4"/></filter>
+    <filter id="glowPin"><feGaussianBlur stdDeviation="1.2" result="glow"/><feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+
+  // Connection paths (Yggdrasil branches between regions)
+  const connections = [[0,1],[0,2],[0,3],[1,3],[2,4],[3,5],[4,5],[4,6],[5,7],[6,7],[2,8],[7,8]];
+  connections.forEach(([a, b]) => {
+    const ra = sorted[a], rb = sorted[b];
+    if (!ra || !rb) return;
+    const bothUnlocked = unlocked.has(ra.id) && unlocked.has(rb.id);
+    const oneUnlocked = unlocked.has(ra.id) || unlocked.has(rb.id);
+    html += `<line x1="${ra.mapX}" y1="${ra.mapY}" x2="${rb.mapX}" y2="${rb.mapY}"
+      stroke="${bothUnlocked ? 'rgba(196,154,60,0.4)' : oneUnlocked ? 'rgba(196,154,60,0.15)' : 'rgba(100,100,100,0.1)'}"
+      stroke-width="${bothUnlocked ? '0.5' : '0.3'}" stroke-dasharray="${bothUnlocked ? '' : '2,2'}"/>`;
+  });
+
+  // Fog for locked regions
   VIKING_WORLD_MAP.forEach(r => {
     if (!unlocked.has(r.id)) {
       html += `<circle cx="${r.mapX}" cy="${r.mapY}" r="14" fill="rgba(0,0,0,.55)" filter="url(#fogBlur)"/>`;
     }
   });
-  html += `<defs><filter id="fogBlur"><feGaussianBlur stdDeviation="4"/></filter></defs></svg>`;
+
+  // Boss indicators on unlocked regions (pulsing dot)
+  const wb = state.quests.weeklyBoss;
+  if (wb && wb.region) {
+    const bossRegion = sorted.find(r => r.id === wb.region);
+    if (bossRegion && unlocked.has(bossRegion.id)) {
+      html += `<circle cx="${bossRegion.mapX}" cy="${bossRegion.mapY + 4}" r="2" fill="#e53935" opacity="0.8">
+        <animate attributeName="r" values="1.5;3;1.5" dur="1.5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" repeatCount="indefinite"/>
+      </circle>`;
+    }
+  }
+
+  html += `</svg>`;
 
   // Region pins
   sorted.forEach(r => {
@@ -7112,16 +7719,37 @@ function toggleWorldDetail(regionId) {
   }
 
   if (isUnlocked && region.challenges) {
+    const completedChallenges = wm.completedChallenges || {};
+    const regionCompleted = completedChallenges[regionId] || [];
+    const chalDone = region.challenges.filter((_, i) => regionCompleted.includes(i)).length;
     html += `<div class="monde-detail-challenges">
-      <div style="font-size:.7rem;color:var(--gold);margin-bottom:6px;font-weight:600">Defis de la zone :</div>`;
-    region.challenges.forEach(c => {
-      html += `<div class="monde-challenge">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:.7rem;color:var(--gold);font-weight:600">Defis de la zone :</span>
+        <span style="font-size:.6rem;color:${chalDone === region.challenges.length ? 'var(--gold)' : 'var(--text-dim)'}">${chalDone}/${region.challenges.length}</span>
+      </div>
+      <div style="height:3px;background:var(--wood-mid);border-radius:2px;overflow:hidden;margin-bottom:8px">
+        <div style="height:100%;width:${(chalDone / region.challenges.length) * 100}%;background:${region.color};border-radius:2px"></div>
+      </div>`;
+    region.challenges.forEach((c, i) => {
+      const done = regionCompleted.includes(i);
+      html += `<div class="monde-challenge" style="${done ? 'opacity:0.6' : ''}">
         <span class="monde-challenge-icon">${c.icon}</span>
-        <span class="monde-challenge-name">${c.name}<br><span style="font-size:.55rem;color:var(--text-dim)">${c.desc}</span></span>
+        <span class="monde-challenge-name">${done ? '✓ ' : ''}${c.name}<br><span style="font-size:.55rem;color:var(--text-dim)">${c.desc}</span></span>
         <span class="monde-challenge-reward">${c.reward}</span>
       </div>`;
     });
     html += `</div>`;
+
+    // Boss indicator if weekly boss is in this region
+    const wb = state.quests.weeklyBoss;
+    if (wb && wb.region === regionId && wb.boss) {
+      const defeated = wb.defeated;
+      html += `<div style="background:${defeated ? 'rgba(100,200,100,0.1)' : 'rgba(229,57,53,0.1)'};border:1px solid ${defeated ? '#4caf50' : '#e53935'};border-radius:8px;padding:10px;margin-top:8px;text-align:center">
+        <div style="font-size:.7rem;color:${defeated ? '#4caf50' : '#e53935'};font-weight:700">${defeated ? '💀 Boss vaincu' : '⚔️ Boss de la semaine'}</div>
+        <div style="font-size:.9rem;margin:4px 0">${wb.boss.icon || '👹'} ${wb.boss.name}</div>
+        <div style="font-size:.6rem;color:var(--text-dim)">${defeated ? 'Victoire !' : 'Ouvre l\'onglet Boss pour le combattre'}</div>
+      </div>`;
+    }
   } else if (!isUnlocked) {
     html += `<div style="font-size:.65rem;color:var(--text-dim);text-align:center;padding:8px 0">🔒 Debloque ce royaume pour obtenir la ${region.featherIcon} ${region.feather}</div>`;
     html += reqsHtml;
@@ -8221,6 +8849,35 @@ function renderQuestStats() {
       })()}
     </div>
 
+    ${(() => {
+      const journalEntries = q.journal?.entries || [];
+      if (journalEntries.length === 0) return '';
+      return `<div class="quest-weekly-summary">
+        <div class="summary-title">📖 Journal d'evolution</div>
+        ${renderJournalHistory()}
+      </div>`;
+    })()}
+
+    ${(() => {
+      const prs = q.personalRecords || {};
+      const entries = Object.entries(prs).sort((a, b) => (b[1].date || '').localeCompare(a[1].date || ''));
+      if (entries.length === 0) return '';
+      return `<div class="quest-weekly-summary">
+        <div class="summary-title">🏆 Records Personnels</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          ${entries.map(([key, pr]) => {
+            const val = typeof pr.value === 'number' && pr.value % 1 !== 0 ? pr.value.toFixed(1) : pr.value;
+            return `<div style="background:rgba(196,154,60,0.08);border:1px solid var(--border);border-radius:8px;padding:8px 10px;text-align:center">
+              <div style="font-size:1.1rem">${pr.icon || '⚔️'}</div>
+              <div style="font-size:.65rem;color:var(--text-dim);margin:2px 0">${pr.label}</div>
+              <div style="font-size:.95rem;color:var(--gold);font-weight:700">${val} ${pr.unit}</div>
+              <div style="font-size:.5rem;color:var(--text-dim)">${pr.date || ''}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    })()}
+
     <div class="quest-weekly-summary">
       <div class="summary-title">Recapitulatif</div>
       <div style="font-size:.7rem;line-height:1.6">
@@ -8648,37 +9305,75 @@ async function callAI(userText, imageData = null) {
 // ===== FALLBACK (NO API) =====
 function generateFallbackResponse(text) {
   const lower = text.toLowerCase();
+  const q = state.quests || {};
+  const streak = q.streak || 0;
+  const level = q.level || 1;
+  const rank = getRank(level);
+  const dailyDone = (q.objectives || []).filter(o => o.period === 'daily' && o.progress >= o.target).length;
+  const dailyTotal = (q.objectives || []).filter(o => o.period === 'daily').length;
+  const hour = new Date().getHours();
+
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
   const responses = {
-    greetings: ["Kraa ! Salutations, compagnon des sentiers nordiques. Les runes brillent à ton approche. [MOOD:heureux]",
-                "Ah, te voilà ! Les vents d'Asgard m'avaient soufflé ta venue. [MOOD:heureux]"],
-    feelings: ["Les émotions sont comme les marées — elles vont et viennent. Mais sache que ce vieux corbeau veille sur toi depuis les branches d'Yggdrasil. [MOOD:protecteur]",
-               "Même Odin a connu le doute avant de sacrifier son œil pour la sagesse. Tu n'es pas seul dans cette épreuve. [MOOD:protecteur]"],
-    questions: ["Hmm... *incline la tête* Question intéressante. Laisse-moi consulter les runes... Pour une réponse plus précise, connecte-moi à un modèle local (Ollama) via les paramètres. [MOOD:pensif]",
-                "Les runes murmurent... mais leur voix est faible sans connexion à un oracle (modèle IA local). Configure Ollama dans les paramètres pour que je puisse te répondre pleinement ! [MOOD:curieux]"],
-    default: ["Kraa ! Je t'entends, compagnon. Pour des conversations plus profondes, connecte-moi à Ollama ou LM Studio via les paramètres ⚙. [MOOD:serein]",
-              "Les runes captent tes mots... mais j'ai besoin d'un modèle IA local pour te répondre avec la sagesse que tu mérites. Va dans ⚙ Paramètres ! [MOOD:curieux]",
-              "*bat des ailes* Je suis là ! Configure un backend IA dans les paramètres pour qu'on puisse vraiment discuter. [MOOD:excite]"]
+    greetings: [
+      `Kraa ! Salutations, ${rank.name} ! Les runes brillent a ton approche. ${streak > 0 ? `Streak de ${streak} jours — impressionnant !` : ''} [MOOD:heureux]`,
+      `Ah, te voila ! Les vents d'Asgard m'avaient souffle ta venue. ${dailyDone > 0 ? `Deja ${dailyDone}/${dailyTotal} objectifs aujourd'hui, beau travail !` : 'Pret a forger ta legende ?'} [MOOD:heureux]`,
+      `*bat des ailes* ${hour < 12 ? 'Le soleil se leve sur ton chemin, Viking !' : hour < 18 ? 'La journee avance — as-tu honore tes quetes ?' : 'Le crepuscule approche, guerrier. Derniere ligne droite !'} [MOOD:heureux]`
+    ],
+    feelings: [
+      "Les emotions sont comme les marees — elles vont et viennent. Mais sache que ce vieux corbeau veille sur toi depuis les branches d'Yggdrasil. [MOOD:protecteur]",
+      "Meme Odin a connu le doute avant de sacrifier son oeil pour la sagesse. Tu n'es pas seul dans cette epreuve, Viking. [MOOD:protecteur]",
+      `Kraa... Je vois que les ombres te pesent. Mais regarde : tu es la, niveau ${level}, ${rank.name}. Tu n'es pas faible — tu es en train de te forger. [MOOD:protecteur]`,
+      "Les guerriers les plus forts ne sont pas ceux qui ne tombent jamais — ce sont ceux qui se relevent. Et toi, tu te releves toujours. [MOOD:protecteur]"
+    ],
+    motivation: [
+      `KRAA ! ${rank.name}, tu as ${dailyDone}/${dailyTotal} objectifs faits aujourd'hui. ${dailyDone >= dailyTotal ? 'TOUT EST FAIT ! Les dieux sont fiers !' : dailyDone > 0 ? 'Continue, le Valhalla est proche !' : 'C\'est le moment de commencer — un Viking ne recule pas !'} [MOOD:excite]`,
+      `Tu es niveau ${level} — ${rank.name}. ${streak > 7 ? `Ta streak de ${streak} jours est legendaire !` : streak > 0 ? `${streak} jours de suite — ne brise pas la chaine !` : 'Lance ta premiere serie aujourd\'hui !'} [MOOD:excite]`,
+      "Chaque pompe, chaque pas, chaque minute de meditation — c'est une rune gravee dans ton destin. Ne lache rien ! [MOOD:excite]"
+    ],
+    quests: [
+      `Tu es a ${dailyDone}/${dailyTotal} objectifs quotidiens. ${dailyDone >= dailyTotal ? 'Tout est accompli, guerrier ! Repose-toi ou attaque les defis bonus !' : `Il te reste ${dailyTotal - dailyDone} objectif${dailyTotal - dailyDone > 1 ? 's' : ''} — va dans l'onglet Quetes pour avancer !`} [MOOD:${dailyDone >= dailyTotal ? 'heureux' : 'neutre'}]`,
+      `Tes quetes du jour t'attendent, ${rank.name}. Ouvre l'onglet Quetes et valide tes objectifs — chaque effort rapproche du Valhalla ! [MOOD:serein]`
+    ],
+    sport: [
+      "Le corps est l'epee du guerrier — sans entrainement, elle rouille. Pompes, squats, gainage... Forge ton arme ! [MOOD:excite]",
+      "Par Thor ! L'exercice est la priere du corps. Meme 10 pompes valent mieux que rien. Commence maintenant ! [MOOD:excite]",
+      "Un Viking sans muscles est un drakkar sans voile. Ouvre l'onglet Seances et attaque une session ! [MOOD:excite]"
+    ],
+    evening: [
+      `La nuit tombe sur Midgard. Avant de dormir : as-tu bu assez d'eau ? Fait tes etirements ? ${dailyDone < dailyTotal ? `Il te reste ${dailyTotal - dailyDone} objectif${dailyTotal - dailyDone > 1 ? 's' : ''} — derniere chance !` : 'Tout est fait, repose-toi bien, guerrier.'} [MOOD:serein]`,
+      "Les sagas se forgent aussi dans le repos. Dors bien, Viking — demain sera un jour de conquete. [MOOD:protecteur]"
+    ],
+    questions: [
+      "Hmm... *incline la tete* Question interessante. Les runes murmurent... mais sans connexion a un oracle IA, ma sagesse est limitee. Configure un backend dans les parametres ! [MOOD:pensif]",
+      "Les runes captent ta question... Quand tu auras configure un modele IA (Groq, Ollama...) dans les parametres, je pourrai te repondre avec toute la sagesse d'Odin ! [MOOD:curieux]"
+    ],
+    default: [
+      `Kraa ! Je t'entends, ${rank.name}. ${navigator.onLine ? 'Configure un backend IA dans les parametres pour des conversations plus profondes.' : 'Tu es hors ligne — mais je suis toujours la !'} [MOOD:serein]`,
+      `*bat des ailes* ${dailyDone > 0 ? `Tu avances bien aujourd'hui — ${dailyDone}/${dailyTotal} objectifs.` : 'La journee est jeune, Viking.'} Pour discuter vraiment, configure un modele IA dans ⚙ Parametres. [MOOD:curieux]`,
+      `Les vents soufflent fort aujourd'hui ! ${streak > 0 ? `Ta flamme brule depuis ${streak} jours.` : ''} Pour des reponses plus sagaces, connecte un backend IA. [MOOD:serein]`
+    ]
   };
 
-  if (/salut|bonjour|hello|hey|yo|coucou/i.test(lower)) {
-    return responses.greetings[Math.floor(Math.random() * responses.greetings.length)];
-  }
-  if (/triste|mal|déprimé|seul|peur|stress/i.test(lower)) {
-    return responses.feelings[Math.floor(Math.random() * responses.feelings.length)];
-  }
-  if (/\?/.test(text) || /comment|pourquoi|quoi|quel|qui|où/i.test(lower)) {
-    return responses.questions[Math.floor(Math.random() * responses.questions.length)];
-  }
+  // Reminder handling (works offline)
   if (/rappel|remind|rappelle/i.test(lower)) {
     const timeMatch = text.match(/(\d{1,2})[h:](\d{2})/);
     if (timeMatch) {
       const time = `${timeMatch[1].padStart(2,'0')}:${timeMatch[2]}`;
       const msg = text.replace(/rappel.*?(\d{1,2}[h:]\d{2})/i, '').trim() || 'Rappel';
       addReminder(time, msg);
-      return `Kraa ! C'est noté dans mes runes — je te rappellerai à ${time}. Un corbeau n'oublie jamais. [MOOD:protecteur]`;
+      return `Kraa ! C'est note dans mes runes — je te rappellerai a ${time}. Un corbeau n'oublie jamais. [MOOD:protecteur]`;
     }
   }
-  return responses.default[Math.floor(Math.random() * responses.default.length)];
+  if (/salut|bonjour|hello|hey|yo|coucou/i.test(lower)) return pick(responses.greetings);
+  if (/triste|mal|déprimé|deprime|seul|peur|stress|anxie|fatigue|epuise/i.test(lower)) return pick(responses.feelings);
+  if (/motiv|courage|force|lache|abandon|difficile|dur/i.test(lower)) return pick(responses.motivation);
+  if (/quest|objectif|defi|mission|progres/i.test(lower)) return pick(responses.quests);
+  if (/sport|pompe|push|squat|muscu|seance|training|exercice|entrainement/i.test(lower)) return pick(responses.sport);
+  if (hour >= 21 && /soir|nuit|dormir|sommeil|bonne nuit/i.test(lower)) return pick(responses.evening);
+  if (/\?/.test(text) || /comment|pourquoi|quoi|quel|qui|où/i.test(lower)) return pick(responses.questions);
+  return pick(responses.default);
 }
 
 // ===== MEMORY EXTRACTION =====
