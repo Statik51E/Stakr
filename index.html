@@ -4174,6 +4174,7 @@ function logSeasonProgress(questId, value) {
     addQuestXp(quest.xpReward, quest.category);
     showToast(`${season.icon} Quete saisonniere !`, `${quest.icon} ${quest.name} accompli ! +${quest.xpReward} XP`);
     addMessage('stakr', `KRAA ! **Quete du ${season.name}** accomplie : ${quest.icon} **${quest.name}** ! +${quest.xpReward} XP ! ${season.theme} — tu honores la saison, Viking ! [MOOD:excite]`);
+    playSfx('clink'); haptic([30, 20, 30]); goldFlash();
 
     // Check if all seasonal quests done
     const allDone = season.quests.every(sq => q.season.completedQuests[sq.id]);
@@ -4182,10 +4183,12 @@ function logSeasonProgress(questId, value) {
       addQuestXp(bonusXp);
       showToast(`${season.icon} SAISON COMPLETE !`, `Toutes les quetes du ${season.name} accomplies ! +${bonusXp} XP bonus`);
       addMessage('stakr', `PAR ODIN ! Tu as accompli **TOUTES** les quetes du **${season.name}** ! ${season.icon} +${bonusXp} XP bonus ! Les sagas chanteront tes exploits ce mois-ci ! [MOOD:excite]`);
+      spawnGoldRain(50); screenShake();
     }
   }
 
   saveState();
+  renderQuests();
 }
 
 function renderSeasonPanel() {

@@ -87,7 +87,7 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 // PWA Cache
-const CACHE_NAME = 'stakr-v45';
+const CACHE_NAME = 'stakr-v46';
 const CACHE_FILES = ['./index.html', './stakr-raven.glb', './Fenrir.glb', './map.png'];
 
 self.addEventListener('install', (e) => {
