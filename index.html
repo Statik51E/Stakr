@@ -11043,10 +11043,16 @@ async function openPlayerProfile(uid) {
 
       ${!isMe && currentUser ? `
         <div class="pv-actions">
-          <button class="pv-btn pv-btn-msg" onclick="startConversationWith('${uid}', '${(profile.name || 'Viking').replace(/'/g, "\\'")}', '${(profile.avatar || '').replace(/'/g, "\\'")}')">✉ Envoyer un message</button>
+          <button class="pv-btn pv-btn-msg" id="pv-msg-btn">✉ Envoyer un message</button>
         </div>
       ` : isMe ? '<div style="text-align:center;font-size:.65rem;color:var(--text-dim);margin-top:12px">C\'est ton propre profil !</div>' : '<div style="text-align:center;font-size:.65rem;color:var(--text-dim);margin-top:12px">Connecte-toi pour envoyer des messages.</div>'}
     `;
+
+    // Attach message button handler after rendering
+    const msgBtn = document.getElementById('pv-msg-btn');
+    if (msgBtn) {
+      msgBtn.addEventListener('click', () => startConversationWith(uid, profile.name || 'Viking', profile.avatar || ''));
+    }
   } catch(e) {
     console.error('Profile load error:', e);
     content.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:40px">Erreur de chargement du profil.</div>';
@@ -11145,31 +11151,36 @@ async function startConversationWith(uid, name, avatar) {
   if (!currentUser || !db) { showToast('Erreur', 'Connecte-toi pour envoyer des messages.'); return; }
   if (uid === currentUser.uid) { showToast('Hmm', 'Tu ne peux pas t\'envoyer de message a toi-meme !'); return; }
 
-  const convoId = getConvoId(currentUser.uid, uid);
+  try {
+    const convoId = getConvoId(currentUser.uid, uid);
 
-  // Create conversation if it doesn't exist
-  const convoRef = db.collection('conversations').doc(convoId);
-  const convoSnap = await convoRef.get();
-  if (!convoSnap.exists) {
-    await convoRef.set({
-      participants: [currentUser.uid, uid],
-      participantInfo: {
-        [currentUser.uid]: {
-          name: state.pseudo || currentUser.displayName || 'Viking',
-          avatar: currentUser.photoURL || ''
+    // Create conversation if it doesn't exist
+    const convoRef = db.collection('conversations').doc(convoId);
+    const convoSnap = await convoRef.get();
+    if (!convoSnap.exists) {
+      await convoRef.set({
+        participants: [currentUser.uid, uid],
+        participantInfo: {
+          [currentUser.uid]: {
+            name: state.pseudo || currentUser.displayName || 'Viking',
+            avatar: currentUser.photoURL || ''
+          },
+          [uid]: { name: name || 'Viking', avatar: avatar || '' }
         },
-        [uid]: { name: name || 'Viking', avatar: avatar || '' }
-      },
-      lastMessage: '',
-      lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
-      unreadCount: { [currentUser.uid]: 0, [uid]: 0 },
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-  }
+        lastMessage: '',
+        lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+        unreadCount: { [currentUser.uid]: 0, [uid]: 0 },
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
 
-  // Close profile viewer, open conversation
-  closeProfileViewer();
-  openConversation(convoId, uid, name, avatar);
+    // Close profile viewer, open conversation
+    closeProfileViewer();
+    openConversation(convoId, uid, name, avatar);
+  } catch(e) {
+    console.error('Start conversation error:', e);
+    showToast('Erreur', 'Impossible de creer la conversation. Verifie les regles Firestore.');
+  }
 }
 
 async function openConversation(convoId, otherUid, otherName, otherAvatar) {
