@@ -11153,11 +11153,10 @@ async function startConversationWith(uid, name, avatar) {
 
   try {
     const convoId = getConvoId(currentUser.uid, uid);
-
-    // Create conversation if it doesn't exist
     const convoRef = db.collection('conversations').doc(convoId);
-    const convoSnap = await convoRef.get();
-    if (!convoSnap.exists) {
+
+    // Try create first, catch already-exists silently
+    try {
       await convoRef.set({
         participants: [currentUser.uid, uid],
         participantInfo: {
@@ -11172,6 +11171,9 @@ async function startConversationWith(uid, name, avatar) {
         unreadCount: { [currentUser.uid]: 0, [uid]: 0 },
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
+    } catch(createErr) {
+      // Document may already exist (update rules apply) — that's fine
+      console.log('Conversation already exists or create blocked, continuing...');
     }
 
     // Close profile viewer, open conversation
@@ -11179,7 +11181,7 @@ async function startConversationWith(uid, name, avatar) {
     openConversation(convoId, uid, name, avatar);
   } catch(e) {
     console.error('Start conversation error:', e);
-    showToast('Erreur', 'Impossible de creer la conversation. Verifie les regles Firestore.');
+    showToast('Erreur', 'Impossible de creer la conversation : ' + (e.message || e.code || 'erreur inconnue'));
   }
 }
 
