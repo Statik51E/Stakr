@@ -668,7 +668,7 @@ header button{flex-shrink:0}
 .msg-conv-unread{display:inline-block;background:var(--gold);color:#0e0a06;font-size:.55rem;font-weight:700;padding:2px 6px;border-radius:10px;margin-top:4px}
 .msg-empty{text-align:center;padding:40px 20px;color:var(--text-dim);font-size:.75rem}
 /* Conversation View */
-#convo-panel{position:fixed;top:0;right:-100%;width:100%;max-width:500px;height:100%;background:linear-gradient(180deg,#0d0f1a,#0a0c14);border-left:2px solid var(--border);z-index:106;transition:right .35s ease;display:flex;flex-direction:column}
+#convo-panel{position:fixed;top:0;right:-100%;width:100%;max-width:500px;height:100dvh;background:linear-gradient(180deg,#0d0f1a,#0a0c14);border-left:2px solid var(--border);z-index:106;transition:right .35s ease;display:flex;flex-direction:column}
 #convo-panel.open{right:0}
 .convo-header{padding:10px 16px;background:linear-gradient(180deg,#111428,#0d0f1a);border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
 .convo-header-avatar{width:32px;height:32px;border-radius:50%;border:1px solid var(--border)}
@@ -1072,6 +1072,11 @@ header button{flex-shrink:0}
     </div>
   </div>
   <div class="setting-group">
+    <label>🛌 Jours de repos (2/semaine)</label>
+    <div style="font-size:.65rem;color:var(--text-dim);margin-bottom:6px">Active un jour de repos pour desactiver <strong>toutes</strong> les penalites (quetes, defis, seances, solo leveling). Maximum 2 par semaine.</div>
+    <div id="rest-day-status"></div>
+  </div>
+  <div class="setting-group">
     <label>Mémoire</label>
     <button class="btn-danger" onclick="clearMemory()">Effacer la mémoire</button>
   </div>
@@ -1277,7 +1282,7 @@ header button{flex-shrink:0}
   </div>
   <div class="convo-messages" id="convo-messages"></div>
   <div class="convo-input-bar">
-    <input type="text" id="convo-input" class="convo-input" placeholder="Ecris ton message..." maxlength="500" onkeydown="if(event.key==='Enter')sendPrivateMessage()"/>
+    <input type="text" id="convo-input" class="convo-input" placeholder="Ecris ton message..." maxlength="500" onkeydown="if(event.key==='Enter')sendPrivateMessage()" onfocus="setTimeout(()=>{const m=document.getElementById('convo-messages');if(m)m.scrollTop=m.scrollHeight},300)"/>
     <button class="convo-send-btn" onclick="sendPrivateMessage()">➤</button>
   </div>
 </div>
@@ -3555,6 +3560,8 @@ function toggleSettings() {
     // Sync sfx/haptic toggles
     const sfxEl = $('#sfx-toggle'); if (sfxEl) sfxEl.checked = !state.config.sfxOff;
     const hapEl = $('#haptic-toggle'); if (hapEl) hapEl.checked = !state.config.hapticOff;
+    checkRestDaysWeekReset();
+    renderRestDayStatus();
   }
 }
 
@@ -4404,6 +4411,9 @@ function initQuests() {
   // Personal records
   if (!q.personalRecords) q.personalRecords = {};
 
+  // Rest days (2 per week, disables all penalties)
+  if (!q.restDays) q.restDays = { enabled: false, weekDays: [], usedThisWeek: 0, weekKey: null };
+
   // Seasonal system
   initSeason();
 
@@ -4575,8 +4585,8 @@ function initQuests() {
   checkDailyChallenges();
 
   scheduleQuestReminders();
-  // Weekly journal check (triggers on Mondays)
-  setTimeout(() => checkWeeklyJournal(), 3000);
+  // Daily wisdom + weekly journal
+  setTimeout(() => { checkDailyWisdom(); checkWeeklyJournal(); }, 3000);
 }
 
 // ===== DISCIPLINE VIKING =====
@@ -4598,9 +4608,116 @@ const COMEBACK_MSGS = [
   "Le guerrier se releve ! Apres {days} jours d'absence, c'est l'heure de reconquerir ta gloire ! [MOOD:protecteur]"
 ];
 
+// ===== REST DAYS SYSTEM (2 per week) =====
+function getWeekKey(dateStr) {
+  const d = new Date(dateStr || Date.now());
+  const jan1 = new Date(d.getFullYear(), 0, 1);
+  const weekNum = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+  return d.getFullYear() + '-W' + weekNum;
+}
+
+function isRestDay(dateStr) {
+  const q = state.quests;
+  if (!q.restDays || !q.restDays.enabled) return false;
+  const today = dateStr || getTodayStr();
+  return (q.restDays.weekDays || []).includes(today);
+}
+
+function activateRestDay() {
+  const q = state.quests;
+  if (!q.restDays) q.restDays = { enabled: true, weekDays: [], usedThisWeek: 0, weekKey: null };
+  q.restDays.enabled = true;
+  const today = getTodayStr();
+  const currentWeekKey = getWeekKey(today);
+
+  // Reset counter if new week
+  if (q.restDays.weekKey !== currentWeekKey) {
+    q.restDays.weekKey = currentWeekKey;
+    q.restDays.weekDays = [];
+    q.restDays.usedThisWeek = 0;
+  }
+
+  // Already a rest day today?
+  if (q.restDays.weekDays.includes(today)) {
+    showToast('Deja en repos', 'Aujourd\'hui est deja un jour de repos.');
+    return;
+  }
+
+  // Max 2 per week
+  if (q.restDays.usedThisWeek >= 2) {
+    showToast('Limite atteinte', 'Tu as deja utilise tes 2 jours de repos cette semaine.');
+    return;
+  }
+
+  q.restDays.weekDays.push(today);
+  q.restDays.usedThisWeek++;
+  saveState();
+  addMessage('stakr', `Le guerrier aussi doit se reposer. Aujourd'hui est un **jour de repos** — aucune penalite ne sera appliquee. Il te reste **${2 - q.restDays.usedThisWeek} jour(s) de repos** cette semaine. Recupere bien, Viking. [MOOD:calme]`);
+  showToast('Jour de repos active !', `Aucune penalite aujourd'hui. ${2 - q.restDays.usedThisWeek}/2 restants.`);
+  renderRestDayStatus();
+}
+
+function deactivateRestDay() {
+  const q = state.quests;
+  if (!q.restDays) return;
+  const today = getTodayStr();
+  const idx = (q.restDays.weekDays || []).indexOf(today);
+  if (idx >= 0) {
+    q.restDays.weekDays.splice(idx, 1);
+    q.restDays.usedThisWeek = Math.max(0, (q.restDays.usedThisWeek || 1) - 1);
+    saveState();
+    showToast('Repos annule', 'Les penalites sont de retour aujourd\'hui.');
+    renderRestDayStatus();
+  }
+}
+
+function renderRestDayStatus() {
+  const el = document.getElementById('rest-day-status');
+  if (!el) return;
+  const q = state.quests;
+  if (!q.restDays) return;
+  const today = getTodayStr();
+  const currentWeekKey = getWeekKey(today);
+  // Reset display if new week
+  if (q.restDays.weekKey !== currentWeekKey) {
+    q.restDays.weekKey = currentWeekKey;
+    q.restDays.weekDays = [];
+    q.restDays.usedThisWeek = 0;
+  }
+  const isToday = (q.restDays.weekDays || []).includes(today);
+  const used = q.restDays.usedThisWeek || 0;
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <div>
+        <div style="font-size:.75rem;color:${isToday ? '#4caf50' : 'var(--text)'}">${isToday ? '🛌 Jour de repos actif' : '⚔️ Jour normal (penalites actives)'}</div>
+        <div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">${used}/2 jours utilises cette semaine</div>
+      </div>
+      ${isToday
+        ? `<button class="btn-secondary" onclick="deactivateRestDay()" style="margin:0;padding:4px 10px;font-size:.7rem;white-space:nowrap">Annuler</button>`
+        : used < 2
+          ? `<button class="btn-secondary" onclick="activateRestDay()" style="margin:0;padding:4px 10px;font-size:.7rem;white-space:nowrap">🛌 Repos</button>`
+          : `<span style="font-size:.6rem;color:var(--text-dim)">Limite atteinte</span>`
+      }
+    </div>
+  `;
+}
+
+function checkRestDaysWeekReset() {
+  const q = state.quests;
+  if (!q.restDays) return;
+  const currentWeekKey = getWeekKey(getTodayStr());
+  if (q.restDays.weekKey !== currentWeekKey) {
+    q.restDays.weekKey = currentWeekKey;
+    q.restDays.weekDays = [];
+    q.restDays.usedThisWeek = 0;
+    saveState();
+  }
+}
+
 function checkVikingDiscipline(today) {
   const q = state.quests;
   if (!q.lastActiveDate) return; // First time — no penalty
+  if (isRestDay(today)) return; // Rest day — no penalty
 
   const lastDate = new Date(q.lastActiveDate);
   const todayDate = new Date(today);
@@ -4703,7 +4820,8 @@ function showDisciplinePopup(days, xpLost) {
           <p style="margin:0">Tu peux meme <strong>perdre des niveaux</strong>. Les dieux ne respectent que ceux qui se battent chaque jour.</p>
         </div>
         <div style="font-size:.7rem;color:var(--gold-dim);text-align:center;margin-bottom:12px;padding:8px;background:rgba(196,154,60,.08);border-radius:6px">
-          Complete au moins <strong>1 quete</strong> par jour pour eviter la penalite.
+          Complete au moins <strong>1 quete</strong> par jour pour eviter la penalite.<br>
+          <span style="font-size:.6rem">💡 Tu peux activer <strong>2 jours de repos/semaine</strong> dans les Parametres.</span>
         </div>
         <button onclick="closeDisciplinePopup();takeDailyOath()" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:8px;color:#0e0a06;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:6px">⚔️ Je m'engage a me battre aujourd'hui</button>
         <button onclick="closeDisciplinePopup()" style="width:100%;padding:8px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:.7rem;cursor:pointer;font-family:inherit">Fermer</button>
@@ -4796,19 +4914,22 @@ function checkDailyChallenges() {
 
   // Check penalties for yesterday's accepted-but-incomplete challenges
   if (dc.date && dc.date !== today && dc.penaltyChecked !== today) {
-    dc.challenges.forEach(ch => {
-      if (ch.accepted && ch.progress < ch.target) {
-        const penalty = ch.xpReward * 2;
-        q.xp = Math.max(0, q.xp - penalty);
-        q.totalXp = Math.max(0, q.totalXp - penalty);
-        dc.totalFailed = (dc.totalFailed || 0) + 1;
-        const msg = CHALLENGE_PENALTY_MSGS[Math.floor(Math.random() * CHALLENGE_PENALTY_MSGS.length)]
-          .replace('{name}', `${ch.icon} ${ch.name}`)
-          .replace('{xp}', penalty);
-        addMessage('stakr', msg);
-        showToast('Defi echoue !', `${ch.icon} ${ch.name} — -${penalty} XP`);
-      }
-    });
+    const yesterdayWasRest = isRestDay(dc.date);
+    if (!yesterdayWasRest) {
+      dc.challenges.forEach(ch => {
+        if (ch.accepted && ch.progress < ch.target) {
+          const penalty = ch.xpReward * 2;
+          q.xp = Math.max(0, q.xp - penalty);
+          q.totalXp = Math.max(0, q.totalXp - penalty);
+          dc.totalFailed = (dc.totalFailed || 0) + 1;
+          const msg = CHALLENGE_PENALTY_MSGS[Math.floor(Math.random() * CHALLENGE_PENALTY_MSGS.length)]
+            .replace('{name}', `${ch.icon} ${ch.name}`)
+            .replace('{xp}', penalty);
+          addMessage('stakr', msg);
+          showToast('Defi echoue !', `${ch.icon} ${ch.name} — -${penalty} XP`);
+        }
+      });
+    }
     dc.penaltyChecked = today;
   }
 
@@ -5780,11 +5901,12 @@ function checkSoloLeveling() {
 
   // Check penalty for previous day
   if (sl.dayDate && sl.dayDate !== today && sl.lastPenaltyCheck !== today) {
+    const prevDayWasRest = isRestDay(sl.dayDate);
     const prevTargets = getSoloTargets(sl.currentWeek);
     const done = sl.pushups >= prevTargets.pushups && sl.squats >= prevTargets.squats && sl.abs >= prevTargets.abs && sl.km >= prevTargets.km;
     if (done) {
       sl.completedDays = (sl.completedDays || 0) + 1;
-    } else {
+    } else if (!prevDayWasRest) {
       sl.missedDays = (sl.missedDays || 0) + 1;
       q.xp = Math.max(0, q.xp - SOLO_PENALTY_XP);
       q.totalXp = Math.max(0, q.totalXp - SOLO_PENALTY_XP);
@@ -6927,6 +7049,86 @@ function checkPersonalRecord(key, value, icon, label, unit) {
     playSfx('record'); haptic([40, 20, 40, 20, 60]); spawnGoldRain(20); goldFlash();
   }
   return true;
+}
+
+// ===== DAILY STOIC / VIKING WISDOM =====
+const DAILY_WISDOM = [
+  // Stoicisme
+  { text: "Ce n'est pas ce qui t'arrive qui compte, mais comment tu reagis.", author: "Epictete", tag: "stoic" },
+  { text: "Le bonheur de ta vie depend de la qualite de tes pensees.", author: "Marc Aurele", tag: "stoic" },
+  { text: "Nous souffrons plus souvent en imagination qu'en realite.", author: "Seneque", tag: "stoic" },
+  { text: "L'obstacle sur le chemin devient le chemin.", author: "Marc Aurele", tag: "stoic" },
+  { text: "Ce qui ne depend pas de toi ne merite pas ton tourment.", author: "Epictete", tag: "stoic" },
+  { text: "Chaque nuit, avant de dormir, passe en revue ta journee. Qu'as-tu fait de bien ? Ou as-tu failli ?", author: "Seneque", tag: "stoic" },
+  { text: "La richesse ne consiste pas a posseder beaucoup, mais a desirer peu.", author: "Epictete", tag: "stoic" },
+  { text: "Tu as le pouvoir sur ton esprit, pas sur les evenements. Realise cela, et tu trouveras la force.", author: "Marc Aurele", tag: "stoic" },
+  { text: "Il n'est pas parce que les choses sont difficiles que nous n'osons pas. C'est parce que nous n'osons pas qu'elles sont difficiles.", author: "Seneque", tag: "stoic" },
+  { text: "Commence chaque matin en te disant : je vais rencontrer des gens ingrats, violents, traitres. Mais je ne peux pas etre blesse, car personne ne peut m'impliquer dans la laideur.", author: "Marc Aurele", tag: "stoic" },
+  { text: "La vie est longue si tu sais l'utiliser.", author: "Seneque", tag: "stoic" },
+  { text: "Ne demande pas que les evenements arrivent comme tu le veux. Veuille qu'ils arrivent comme ils arrivent, et tu seras heureux.", author: "Epictete", tag: "stoic" },
+  { text: "Perds ton temps a te plaindre et tu perds ton temps.", author: "Marc Aurele", tag: "stoic" },
+  { text: "Le sage ne s'afflige pas de ce qu'il n'a pas, mais se rejouit de ce qu'il a.", author: "Epictete", tag: "stoic" },
+  { text: "Tant que tu vis, continue d'apprendre a vivre.", author: "Seneque", tag: "stoic" },
+  { text: "La meilleure vengeance est de ne pas ressembler a ton ennemi.", author: "Marc Aurele", tag: "stoic" },
+  { text: "Si un homme sait ou il navigue, tous les vents lui sont favorables.", author: "Seneque", tag: "stoic" },
+  { text: "Ce n'est pas l'homme qui a trop peu qui est pauvre, mais celui qui desire toujours plus.", author: "Seneque", tag: "stoic" },
+  // Sagesse Viking / Havamal
+  { text: "Mieux vaut etre vivant et heureux que sage et mort.", author: "Havamal", tag: "viking" },
+  { text: "Un homme sans amis est comme un bouleau sans feuilles.", author: "Havamal", tag: "viking" },
+  { text: "Le lache croit qu'il vivra eternellement s'il evite le combat. Mais la vieillesse ne lui epargnera rien.", author: "Havamal", tag: "viking" },
+  { text: "Leve-toi tot si tu veux prendre la vie d'un autre — ou la tienne. Le loup qui dort ne gagne pas de viande.", author: "Havamal", tag: "viking" },
+  { text: "Un homme doit etre un ami pour son ami, et rendre don pour don.", author: "Havamal", tag: "viking" },
+  { text: "Le betail meurt, la famille meurt, tu mourras aussi. Mais une chose ne meurt jamais : la reputation d'un homme mort.", author: "Havamal", tag: "viking" },
+  { text: "Celui qui a voyage loin sait beaucoup de choses.", author: "Havamal", tag: "viking" },
+  { text: "Ne fais confiance aux paroles d'une femme dans son lit, ni a une epee qui n'a pas ete testee.", author: "Havamal", tag: "viking" },
+  { text: "Le feu semble le plus chaud a celui qui vient du froid.", author: "Havamal", tag: "viking" },
+  { text: "L'homme prudent qui entre dans une maison regarde d'abord toutes les portes.", author: "Havamal", tag: "viking" },
+  { text: "Il vaut mieux marcher que rester immobile.", author: "Proverbe viking", tag: "viking" },
+  { text: "La peur est le premier ennemi du guerrier.", author: "Saga d'Egill", tag: "viking" },
+  { text: "Meme le plus petit loup a des crocs.", author: "Proverbe nordique", tag: "viking" },
+  { text: "Le navire est en securite au port, mais ce n'est pas pour ca qu'on construit des navires.", author: "Proverbe viking", tag: "viking" },
+  { text: "Tes actes te definissent, pas tes paroles.", author: "Sagesse nordique", tag: "viking" },
+  { text: "Ou tu trouveras le mal, combats-le. Ou tu trouveras le mensonge, expose-le.", author: "Code viking", tag: "viking" },
+  { text: "Il n'y a pas de mauvais temps, seulement de mauvais vetements.", author: "Proverbe nordique", tag: "viking" },
+  // Philosophie de vie / discipline
+  { text: "La discipline est le pont entre les objectifs et leur accomplissement.", author: "Jim Rohn", tag: "discipline" },
+  { text: "Tu ne seras jamais toujours motive. Tu dois apprendre a etre discipline.", author: "Sagesse moderne", tag: "discipline" },
+  { text: "Le confort est l'ennemi du progres.", author: "P.T. Barnum", tag: "discipline" },
+  { text: "Le guerrier qui s'entraine chaque jour n'a pas peur du combat.", author: "Musashi", tag: "discipline" },
+  { text: "Fais le difficile quand c'est facile. Fais l'impossible quand c'est difficile.", author: "Sagesse japonaise", tag: "discipline" },
+  { text: "La douleur de la discipline pese des grammes. La douleur du regret pese des tonnes.", author: "Jim Rohn", tag: "discipline" },
+  { text: "Ce que tu fais chaque jour compte plus que ce que tu fais de temps en temps.", author: "Gretchen Rubin", tag: "discipline" },
+  { text: "Le corps atteint ce que l'esprit croit.", author: "Sagesse ancienne", tag: "discipline" },
+  { text: "Sois dur avec toi-meme et la vie sera douce. Sois doux avec toi-meme et la vie sera dure.", author: "Proverbe chinois", tag: "discipline" },
+  { text: "Un ocean de sueur aujourd'hui, un empire de gloire demain.", author: "Sagesse guerriere", tag: "discipline" },
+  { text: "Chaque matin tu as deux choix : continuer a dormir ou te lever et poursuivre tes reves.", author: "Sagesse universelle", tag: "discipline" },
+  { text: "La repetition est la mere de la maitrise.", author: "Proverbe ancien", tag: "discipline" },
+];
+
+function getDailyWisdom() {
+  // Deterministic pick based on date — same quote all day, new one tomorrow
+  const today = getTodayStr();
+  let hash = 0;
+  for (let i = 0; i < today.length; i++) hash = ((hash << 5) - hash) + today.charCodeAt(i);
+  const idx = Math.abs(hash) % DAILY_WISDOM.length;
+  return DAILY_WISDOM[idx];
+}
+
+function checkDailyWisdom() {
+  const q = state.quests;
+  const today = getTodayStr();
+  if (q.lastWisdomDate === today) return; // Already shown today
+
+  const w = getDailyWisdom();
+  q.lastWisdomDate = today;
+  saveState();
+
+  const tagIcons = { stoic: '🏛️', viking: '⚔️', discipline: '🔥' };
+  const tagNames = { stoic: 'Stoicisme', viking: 'Sagesse Viking', discipline: 'Discipline' };
+  const icon = tagIcons[w.tag] || '📜';
+  const tagName = tagNames[w.tag] || 'Sagesse';
+
+  addMessage('stakr', `${icon} **${tagName} du jour**\n\n> *"${w.text}"*\n> — **${w.author}**\n\nMedite ces mots, Viking. Puis agis. [MOOD:pensif]`);
 }
 
 // ===== WEEKLY EVOLUTION JOURNAL =====
@@ -10746,6 +10948,10 @@ async function syncToCloud() {
 
   try {
     // Leaderboard data (public profile)
+    const w = q.workout || {};
+    const sl = q.soloLeveling || {};
+    const dc = q.dailyChallenges || {};
+    const hist = q.history || [];
     const profileData = {
       companion: state.companion || 'raven',
       name: state.pseudo || currentUser.displayName || 'Viking',
@@ -10758,6 +10964,23 @@ async function syncToCloud() {
       streak: q.streak || 0,
       runes: (q.runes || []).length,
       rank: getRank(q.level || 1).name,
+      // Extended stats for profile viewer
+      workoutSessions: w.totalSessions || 0,
+      workoutTier: w.currentTier || 'beginner',
+      medSessions: w.totalMedSessions || 0,
+      phiSessions: w.totalPhiSessions || 0,
+      soloWeek: sl.currentWeek || 0,
+      soloCompletedDays: sl.completedDays || 0,
+      soloMissedDays: sl.missedDays || 0,
+      soloStarted: !!sl.startDate,
+      defisCompleted: dc.totalCompleted || 0,
+      defisAccepted: dc.totalAccepted || 0,
+      defisFailed: dc.totalFailed || 0,
+      dailyQuestsDone: hist.filter(h => h.period === 'daily' && h.progress >= h.target).length,
+      weeklyQuestsDone: hist.filter(h => h.period === 'weekly' && h.progress >= h.target).length,
+      personalRecords: q.personalRecords || {},
+      startDate: q.startDate || null,
+      daysActive: q.startDate ? Math.max(1, Math.ceil((Date.now() - new Date(q.startDate).getTime()) / 86400000)) : 0,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     await db.collection('users').doc(currentUser.uid).set(profileData, { merge: true });
@@ -11023,23 +11246,71 @@ async function openPlayerProfile(uid) {
     const companionData = window.COMPANIONS && window.COMPANIONS[profile.companion || 'raven'];
     const companionEmoji = companionData ? companionData.emoji : '🪶';
 
+    const tierNames = { beginner: 'Initie', intermediate: 'Karl', advanced: 'Hirdman', elite: 'Berserkr' };
+    const prs = profile.personalRecords || {};
+    const prEntries = Object.entries(prs).sort((a, b) => (b[1].date || '').localeCompare(a[1].date || ''));
+
     content.innerHTML = `
       <div style="text-align:center;margin-bottom:16px">
         ${profile.avatar ? `<img class="pv-avatar" src="${profile.avatar}" alt=""/>` : `<div class="pv-avatar" style="display:inline-flex;align-items:center;justify-content:center;font-size:1.8rem;background:var(--wood-mid)">👤</div>`}
         <div class="pv-name" style="margin-top:8px">${companionEmoji} ${profile.name || 'Viking'}${pStars}</div>
         <div class="pv-rank">${profile.rank || 'Thrall'} — Niveau ${profile.level || 1}</div>
+        ${profile.startDate ? `<div style="font-size:.55rem;color:var(--text-dim);margin-top:4px">Viking depuis ${profile.startDate} • ${profile.daysActive || 0} jours actifs</div>` : ''}
       </div>
 
+      <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:12px 0 6px;font-variant:small-caps;letter-spacing:1px">Progression generale</div>
       <div class="pv-stats">
         <div class="pv-stat"><div class="pv-stat-val">${profile.level || 1}</div><div class="pv-stat-label">Niveau</div></div>
         <div class="pv-stat"><div class="pv-stat-val">${(profile.totalXp || 0).toLocaleString('fr-FR')}</div><div class="pv-stat-label">XP Total</div></div>
-        <div class="pv-stat"><div class="pv-stat-val">${profile.streak || 0}</div><div class="pv-stat-label">Streak</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.streak || 0}🔥</div><div class="pv-stat-label">Streak</div></div>
         <div class="pv-stat"><div class="pv-stat-val">${profile.runes || 0}/24</div><div class="pv-stat-label">Runes</div></div>
         <div class="pv-stat"><div class="pv-stat-val">${profile.dailyXp || 0}</div><div class="pv-stat-label">XP Aujourd'hui</div></div>
         <div class="pv-stat"><div class="pv-stat-val">${profile.prestige || 0}</div><div class="pv-stat-label">Prestige</div></div>
       </div>
 
-      ${profile.companion ? `<div style="text-align:center;margin:12px 0;font-size:.7rem;color:var(--text-dim)">Compagnon : ${companionEmoji} ${companionData ? companionData.name : profile.companion}</div>` : ''}
+      <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">💪 Seances Viking</div>
+      <div class="pv-stats">
+        <div class="pv-stat"><div class="pv-stat-val">${profile.workoutSessions || 0}</div><div class="pv-stat-label">Seances physiques</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${tierNames[profile.workoutTier] || 'Initie'}</div><div class="pv-stat-label">Rang actuel</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.medSessions || 0}</div><div class="pv-stat-label">Meditations</div></div>
+      </div>
+
+      <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">⚔ Defis quotidiens</div>
+      <div class="pv-stats">
+        <div class="pv-stat"><div class="pv-stat-val">${profile.defisCompleted || 0}</div><div class="pv-stat-label">Accomplis</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.defisAccepted || 0}</div><div class="pv-stat-label">Acceptes</div></div>
+        <div class="pv-stat"><div class="pv-stat-val" style="color:${(profile.defisFailed || 0) > 0 ? '#e74c3c' : 'var(--gold)'}">${profile.defisFailed || 0}</div><div class="pv-stat-label">Echoues</div></div>
+      </div>
+
+      <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">📜 Quetes</div>
+      <div class="pv-stats">
+        <div class="pv-stat"><div class="pv-stat-val">${profile.dailyQuestsDone || 0}</div><div class="pv-stat-label">Quotidiennes</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.weeklyQuestsDone || 0}</div><div class="pv-stat-label">Hebdomadaires</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${(profile.dailyQuestsDone || 0) + (profile.weeklyQuestsDone || 0)}</div><div class="pv-stat-label">Total</div></div>
+      </div>
+
+      ${profile.soloStarted ? `
+        <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">💥 Solo Leveling</div>
+        <div class="pv-stats">
+          <div class="pv-stat"><div class="pv-stat-val">S${profile.soloWeek || 1}/10</div><div class="pv-stat-label">Semaine</div></div>
+          <div class="pv-stat"><div class="pv-stat-val">${profile.soloCompletedDays || 0}</div><div class="pv-stat-label">Jours reussis</div></div>
+          <div class="pv-stat"><div class="pv-stat-val" style="color:${(profile.soloMissedDays || 0) > 0 ? '#e74c3c' : 'var(--gold)'}">${profile.soloMissedDays || 0}</div><div class="pv-stat-label">Penalites</div></div>
+        </div>
+      ` : ''}
+
+      ${prEntries.length > 0 ? `
+        <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">🏆 Records Personnels</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          ${prEntries.slice(0, 10).map(([key, pr]) => `
+            <div class="pv-stat" style="text-align:left;padding:6px 8px">
+              <div style="font-size:.65rem;font-weight:700;color:var(--gold)">${pr.icon || '🏆'} ${pr.value}${pr.unit ? ' ' + pr.unit : ''}</div>
+              <div style="font-size:.5rem;color:var(--text-dim)">${pr.label || key}${pr.date ? ' • ' + pr.date : ''}</div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+
+      ${profile.companion ? `<div style="text-align:center;margin:14px 0 6px;font-size:.7rem;color:var(--text-dim)">Compagnon : ${companionEmoji} ${companionData ? companionData.name : profile.companion}</div>` : ''}
 
       ${!isMe && currentUser ? `
         <div class="pv-actions">
@@ -11241,8 +11512,33 @@ async function openConversation(convoId, otherUid, otherName, otherAvatar) {
       });
   }
 
-  // Focus input
-  setTimeout(() => document.getElementById('convo-input')?.focus(), 300);
+  // Focus input + handle mobile keyboard
+  setTimeout(() => {
+    const input = document.getElementById('convo-input');
+    if (!input) return;
+    input.focus();
+    // On mobile, virtual keyboard shrinks the viewport. Adapt the panel height and scroll to bottom.
+    const adjustForKeyboard = () => {
+      const panel = document.getElementById('convo-panel');
+      if (!panel || !panel.classList.contains('open')) return;
+      if (window.visualViewport) {
+        panel.style.height = window.visualViewport.height + 'px';
+        panel.style.top = window.visualViewport.offsetTop + 'px';
+      }
+      setTimeout(() => { messagesEl.scrollTop = messagesEl.scrollHeight; }, 80);
+    };
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', adjustForKeyboard);
+      window.visualViewport.addEventListener('scroll', adjustForKeyboard);
+      // Store cleanup ref
+      panel._vvCleanup = () => {
+        window.visualViewport.removeEventListener('resize', adjustForKeyboard);
+        window.visualViewport.removeEventListener('scroll', adjustForKeyboard);
+        panel.style.height = '';
+        panel.style.top = '';
+      };
+    }
+  }, 300);
 }
 
 function escapeHtml(str) {
@@ -11255,7 +11551,9 @@ function closeConversation() {
   if (_convoListener) { _convoListener(); _convoListener = null; }
   _currentConvoId = null;
   _currentConvoUid = null;
-  document.getElementById('convo-panel').classList.remove('open');
+  const convoPanel = document.getElementById('convo-panel');
+  if (convoPanel._vvCleanup) { convoPanel._vvCleanup(); convoPanel._vvCleanup = null; }
+  convoPanel.classList.remove('open');
   // Don't close overlay if messaging panel is still open
   const anyOpen = ['messaging-panel','leaderboard-panel','account-panel'].some(id => document.getElementById(id)?.classList.contains('open'));
   if (!anyOpen) document.getElementById('settings-overlay').classList.remove('open');
