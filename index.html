@@ -5169,6 +5169,7 @@ function completeWorkoutSession() {
 
   w.completedToday.physical[w.currentTier] = true;
   w.totalSessions = (w.totalSessions || 0) + 1;
+  trackSessionExerciseReps(session);
   if (!w.history) w.history = [];
   w.history.push({ date: getTodayStr(), type: 'physical', tier: w.currentTier, xp: session.xpReward });
   if (w.history.length > 100) w.history = w.history.slice(-100);
@@ -6047,6 +6048,47 @@ function logQuestProgress(id) {
   renderQuests();
 }
 
+// ===== WORKOUT EXERCISE → STAT GROUP MAPPING =====
+// Maps each workout exercise ID to an exercise group so session reps count in stats.
+const EXERCISE_GROUP_MAP = {
+  // Pompes
+  b_pushups:'pompes', b_incline:'pompes', i_diamond:'pompes', i_wide:'pompes', i_pike:'pompes',
+  a_hindu:'pompes', a_archer:'pompes', e_pseudo:'pompes', e_archer_slow:'pompes', e_slow_pushup:'pompes',
+  // Gainage
+  b_plank:'gainage', i_plank:'gainage', a_plank:'gainage', e_plank:'gainage', e_lsit:'gainage',
+  // Tractions & Dips
+  b_rows:'tractions', b_dips:'tractions', b_curl_iso:'tractions',
+  i_tractions_ass:'tractions', i_rows:'tractions', i_chin_neg:'tractions',
+  a_tractions_large:'tractions', a_dips_deep:'tractions', a_rows_str:'tractions', a_chin:'tractions', a_curl_iso:'tractions',
+  e_tractions_lest:'tractions', e_muscle_up:'tractions', e_dips_lest:'tractions', e_chin_slow:'tractions', e_curl_iso:'tractions'
+};
+
+function estimateExerciseReps(exercise) {
+  const sets = parseInt(exercise.sets) || 1;
+  const repsStr = exercise.reps || '';
+  const match = repsStr.match(/^(\d+)/);
+  if (!match) return { count: 0, unit: null };
+  const num = parseInt(match[1]);
+  if (/min/i.test(repsStr)) return { count: 0, unit: 'min' }; // skip warmup/stretching
+  if (/sec/i.test(repsStr)) return { count: sets * num, unit: 'sec' };
+  const perSide = /cote|side/i.test(repsStr) ? 2 : 1;
+  return { count: sets * num * perSide, unit: 'reps' };
+}
+
+function trackSessionExerciseReps(session) {
+  const w = state.quests.workout;
+  if (!w.exerciseTotals) w.exerciseTotals = {};
+  session.exercises.forEach(ex => {
+    const group = EXERCISE_GROUP_MAP[ex.id];
+    if (!group) return;
+    const { count, unit } = estimateExerciseReps(ex);
+    if (count <= 0) return;
+    // Store as "group:unit" so reps and sec stay separate (both are useful)
+    const key = group + (unit === 'sec' ? '_sec' : '');
+    w.exerciseTotals[key] = (w.exerciseTotals[key] || 0) + count;
+  });
+}
+
 // ===== QUEST EVOLUTION SYSTEM =====
 const EVOLVE_TIER_NAMES = ['Base', 'Forge', 'Acier', 'Runique', 'Mythique', 'Divin'];
 const EVOLVE_TIER_MULT = [1, 1.3, 1.7, 2.2, 2.8, 3.5]; // target multiplier per tier
@@ -6076,6 +6118,9 @@ function getQuestEvolveTier(obj) {
   return obj.evolveTier || 0;
 }
 
+// Hard caps for quests whose evolved targets would become unrealistic
+const EVOLVE_TARGET_CAPS = { sleep: 9 };
+
 function getEvolvedTarget(obj, tier) {
   const def = DEFAULT_OBJECTIVES.find(d => d.id === obj.id);
   const baseTarget = def ? def.target : obj.target;
@@ -6084,15 +6129,30 @@ function getEvolvedTarget(obj, tier) {
   const isDecimal = (unit === 'km' || unit === 'litres' || unit === 'heures');
   const round = (v) => isDecimal ? Math.round(v * 10) / 10 : Math.round(v);
   const minStep = isDecimal ? 0.1 : 1;
+  const cap = EVOLVE_TARGET_CAPS[obj.id] || Infinity;
   // Walk up tier by tier, enforcing strictly-monotonic progression.
-  // Prevents collisions like base=1 → 1.3→1.7 both rounding to 1 for integer units.
   let prev = round(baseTarget);
   for (let t = 1; t <= tier; t++) {
     let next = round(baseTarget * EVOLVE_TIER_MULT[t]);
     if (next <= prev) next = +(prev + minStep).toFixed(1);
+    if (next > cap) next = cap;
     prev = next;
   }
   return prev;
+}
+
+function getMaxEvolveTier(obj) {
+  // Returns the highest tier where the target is still strictly above the previous tier's.
+  // Used to exclude quests that have hit their cap from the evolution UI.
+  const cap = EVOLVE_TARGET_CAPS[obj.id];
+  if (!cap) return 5; // no cap — full 5 tiers available
+  let prev = getEvolvedTarget(obj, 0);
+  for (let t = 1; t <= 5; t++) {
+    const next = getEvolvedTarget(obj, t);
+    if (next <= prev) return t - 1;
+    prev = next;
+  }
+  return 5;
 }
 
 function getEvolvedXp(obj, tier) {
@@ -6180,8 +6240,8 @@ function renderQuestEvolution() {
   }
 
   // Quest cards (only show if no trials active and can evolve)
-  const evolvable = q.objectives.filter(o => !o.custom && (o.evolveTier || 0) < 5 && !o.evolveTrial?.active);
-  const maxedOut = q.objectives.filter(o => !o.custom && (o.evolveTier || 0) >= 5);
+  const evolvable = q.objectives.filter(o => !o.custom && (o.evolveTier || 0) < getMaxEvolveTier(o) && !o.evolveTrial?.active);
+  const maxedOut = q.objectives.filter(o => !o.custom && (o.evolveTier || 0) >= getMaxEvolveTier(o));
   const canSelect = canEvolve && !trialsActive;
 
   if (evolvable.length === 0 && maxedOut.length > 0 && !trialsActive) {
@@ -7687,9 +7747,11 @@ function computeCombinedStats() {
   });
 
   // ===== EXERCISE GROUP AGGREGATION =====
-  // Combine all sources: lifetimeTotals (daily quests), defiTotals (daily challenges), solo totals
+  // Combine all sources: lifetimeTotals (daily quests), defiTotals (daily challenges),
+  // solo totals, and workout session reps (w.exerciseTotals)
   const lt = q.lifetimeTotals || {};
   const dt = dc.defiTotals || {};
+  const wt = w.exerciseTotals || {};
   const sum = (...ids) => ids.reduce((s, id) => s + (lt[id] || 0) + (dt[id] || 0), 0);
 
   const exerciseGroups = {
@@ -7697,7 +7759,7 @@ function computeCombinedStats() {
       label: 'Pompes (toutes)', icon: '💪', unit: 'reps',
       total: sum('pushups', 'ch_pompes_dia', 'ch_pompes_pike', 'ch_pompes_larges', 'ch_pompes_lentes',
                  'ch_pompes_archer', 'ch_commando', 'ch_hindu', 'ch_pseudo_planche', 'ch_muscle_up')
-             + (soloTotals.pushups || 0)
+             + (soloTotals.pushups || 0) + (wt.pompes || 0)
     },
     squats: {
       label: 'Squats (tous)', icon: '🦵', unit: 'reps',
@@ -7711,11 +7773,13 @@ function computeCombinedStats() {
     gainage: {
       label: 'Gainage', icon: '🛡️', unit: 'sec',
       total: sum('ch_gainage', 'ch_superman', 'ch_bear_crawl', 'ch_isometric_push')
+             + (wt.gainage_sec || 0)
     },
     tractions: {
       label: 'Tractions & Dips', icon: '🪨', unit: 'reps',
       total: sum('ch_tractions', 'ch_traction_supination', 'ch_traction_neg', 'ch_dips', 'ch_dips_profonds',
                  'ch_row_inversee', 'ch_biceps_iso')
+             + (wt.tractions || 0)
     },
     course: {
       label: 'Course / Marche', icon: '🏃', unit: 'km',
@@ -7956,6 +8020,168 @@ function renderQuestStats() {
         `).join('')}
       </div>
     </div>
+
+    ${(() => {
+      // ===== CONTRIBUTION CALENDAR (GitHub-style, 90 days) =====
+      const WEEKS = 13;
+      const CELL = 11, GAP = 2, PAD = 28;
+      const calW = WEEKS * (CELL + GAP) + PAD + 10;
+      const calH = 7 * (CELL + GAP) + 20;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const dayOfWeek = (today.getDay() + 6) % 7; // Mon=0
+      const startDate = new Date(today);
+      startDate.setDate(startDate.getDate() - (WEEKS * 7 - 1) - dayOfWeek);
+
+      // Build activity map from history
+      const actMap = {};
+      (q.history || []).forEach(h => {
+        if (!h.date) return;
+        if (!actMap[h.date]) actMap[h.date] = { done: 0, total: 0 };
+        actMap[h.date].total++;
+        if (h.progress >= h.target) actMap[h.date].done++;
+      });
+      // Also count workout sessions
+      ((q.workout && q.workout.history) || []).forEach(h => {
+        if (!h.date) return;
+        if (!actMap[h.date]) actMap[h.date] = { done: 0, total: 0 };
+        actMap[h.date].done++;
+        actMap[h.date].total++;
+      });
+
+      const COLORS = ['rgba(196,154,60,0.06)', 'rgba(196,154,60,0.25)', 'rgba(196,154,60,0.45)', 'rgba(196,154,60,0.7)', '#c49a3c'];
+      const getColor = (done) => {
+        if (!done) return COLORS[0];
+        if (done <= 1) return COLORS[1];
+        if (done <= 3) return COLORS[2];
+        if (done <= 5) return COLORS[3];
+        return COLORS[4];
+      };
+
+      const DAYS_FR = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+      let calSvg = '';
+      // Day labels
+      for (let d = 0; d < 7; d++) {
+        if (d % 2 === 0) calSvg += `<text x="${PAD - 4}" y="${d * (CELL + GAP) + CELL - 1}" text-anchor="end" font-size="8" fill="rgba(196,154,60,0.5)" font-family="Cinzel,serif">${DAYS_FR[d]}</text>`;
+      }
+      // Cells
+      let totalActive = 0;
+      for (let w = 0; w < WEEKS; w++) {
+        for (let d = 0; d < 7; d++) {
+          const cellDate = new Date(startDate);
+          cellDate.setDate(cellDate.getDate() + w * 7 + d);
+          if (cellDate > today) continue;
+          const dateStr = cellDate.toISOString().slice(0, 10);
+          const act = actMap[dateStr];
+          const done = act ? act.done : 0;
+          if (done > 0) totalActive++;
+          const x = PAD + w * (CELL + GAP);
+          const y = d * (CELL + GAP);
+          calSvg += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${getColor(done)}" stroke="rgba(196,154,60,0.1)" stroke-width="0.5"><title>${dateStr}: ${done} objectifs</title></rect>`;
+        }
+      }
+      // Month labels
+      let lastMonth = -1;
+      for (let w = 0; w < WEEKS; w++) {
+        const d = new Date(startDate);
+        d.setDate(d.getDate() + w * 7);
+        if (d.getMonth() !== lastMonth) {
+          lastMonth = d.getMonth();
+          const monthName = d.toLocaleDateString('fr-FR', { month: 'short' });
+          calSvg += `<text x="${PAD + w * (CELL + GAP)}" y="${7 * (CELL + GAP) + 12}" font-size="8" fill="rgba(196,154,60,0.5)" font-family="Cinzel,serif">${monthName}</text>`;
+        }
+      }
+
+      return `<div class="quest-weekly-summary">
+        <div class="summary-title">📅 Calendrier d'activite</div>
+        <div style="font-size:.55rem;color:var(--text-dim);text-align:center;margin-bottom:6px">${totalActive} jours actifs sur les 90 derniers jours</div>
+        <div style="overflow-x:auto;display:flex;justify-content:center">
+          <svg width="${calW}" height="${calH}" viewBox="0 0 ${calW} ${calH}" xmlns="http://www.w3.org/2000/svg">${calSvg}</svg>
+        </div>
+        <div style="display:flex;gap:4px;align-items:center;justify-content:flex-end;margin-top:4px;font-size:.5rem;color:var(--text-dim)">
+          Moins ${COLORS.map(c => `<span style="display:inline-block;width:${CELL}px;height:${CELL}px;background:${c};border-radius:2px"></span>`).join('')} Plus
+        </div>
+      </div>`;
+    })()}
+
+    ${(() => {
+      // ===== WEEKLY PROGRESSION LINE CHART =====
+      // Show XP earned and objectives completed per week over the last 12 weeks
+      const CHART_WEEKS = 12;
+      const now = new Date();
+      const weekData = [];
+      for (let wi = CHART_WEEKS - 1; wi >= 0; wi--) {
+        const weekEnd = new Date(now);
+        weekEnd.setDate(weekEnd.getDate() - wi * 7);
+        const weekStart = new Date(weekEnd);
+        weekStart.setDate(weekStart.getDate() - 6);
+        const ws = weekStart.toISOString().slice(0, 10);
+        const we = weekEnd.toISOString().slice(0, 10);
+        let xp = 0, done = 0;
+        (q.history || []).forEach(h => {
+          if (h.date >= ws && h.date <= we) {
+            if (h.progress >= h.target) { done++; const obj = (q.objectives || []).find(o => o.id === h.id); xp += obj ? obj.xpReward : 20; }
+          }
+        });
+        const label = weekStart.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+        weekData.push({ label, xp, done });
+      }
+
+      const CW = 300, CH = 120, PL = 30, PR = 10, PT = 10, PB = 25;
+      const plotW = CW - PL - PR, plotH = CH - PT - PB;
+      const maxXp = Math.max(1, ...weekData.map(d => d.xp));
+      const maxDone = Math.max(1, ...weekData.map(d => d.done));
+      const stepX = plotW / Math.max(1, weekData.length - 1);
+
+      // XP line (gold)
+      const xpPoints = weekData.map((d, i) => `${PL + i * stepX},${PT + plotH - (d.xp / maxXp) * plotH}`);
+      const xpLine = xpPoints.join(' ');
+      const xpFill = `${PL},${PT + plotH} ${xpLine} ${PL + (weekData.length - 1) * stepX},${PT + plotH}`;
+
+      // Objectives line (teal)
+      const donePoints = weekData.map((d, i) => `${PL + i * stepX},${PT + plotH - (d.done / maxDone) * plotH}`);
+      const doneLine = donePoints.join(' ');
+
+      // X-axis labels (show every 2-3 weeks)
+      let xLabels = '';
+      weekData.forEach((d, i) => {
+        if (i % 3 === 0 || i === weekData.length - 1) {
+          xLabels += `<text x="${PL + i * stepX}" y="${CH - 4}" text-anchor="middle" font-size="7" fill="rgba(196,154,60,0.5)" font-family="Cinzel,serif">${d.label}</text>`;
+        }
+      });
+
+      // Y-axis labels
+      const yLabels = `
+        <text x="${PL - 4}" y="${PT + 6}" text-anchor="end" font-size="7" fill="rgba(196,154,60,0.4)" font-family="Cinzel,serif">${maxXp}</text>
+        <text x="${PL - 4}" y="${PT + plotH + 2}" text-anchor="end" font-size="7" fill="rgba(196,154,60,0.4)" font-family="Cinzel,serif">0</text>`;
+
+      // Grid lines
+      let gridLines = '';
+      for (let g = 0; g <= 4; g++) {
+        const gy = PT + (plotH * g / 4);
+        gridLines += `<line x1="${PL}" y1="${gy}" x2="${PL + plotW}" y2="${gy}" stroke="rgba(196,154,60,0.1)" stroke-width="0.5"/>`;
+      }
+
+      return `<div class="quest-weekly-summary">
+        <div class="summary-title">📈 Progression hebdomadaire</div>
+        <div style="font-size:.55rem;color:var(--text-dim);text-align:center;margin-bottom:4px">12 dernieres semaines</div>
+        <div style="display:flex;justify-content:center">
+          <svg width="${CW}" height="${CH}" viewBox="0 0 ${CW} ${CH}" xmlns="http://www.w3.org/2000/svg">
+            ${gridLines}
+            <polygon points="${xpFill}" fill="rgba(196,154,60,0.12)" />
+            <polyline points="${xpLine}" fill="none" stroke="#c49a3c" stroke-width="2" stroke-linejoin="round" />
+            <polyline points="${doneLine}" fill="none" stroke="#5bb5a2" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="4 2" />
+            ${xpPoints.map(p => `<circle cx="${p.split(',')[0]}" cy="${p.split(',')[1]}" r="2.5" fill="#c49a3c" />`).join('')}
+            ${xLabels}
+            ${yLabels}
+          </svg>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:4px;font-size:.5rem;color:var(--text-dim)">
+          <span><span style="display:inline-block;width:14px;height:3px;background:#c49a3c;vertical-align:middle;margin-right:3px;border-radius:1px"></span>XP (max ${maxXp})</span>
+          <span><span style="display:inline-block;width:14px;height:2px;border-top:1.5px dashed #5bb5a2;vertical-align:middle;margin-right:3px"></span>Objectifs (max ${maxDone})</span>
+        </div>
+      </div>`;
+    })()}
 
     <div class="quest-weekly-summary">
       <div class="summary-title">XP par categorie</div>
