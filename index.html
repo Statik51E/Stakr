@@ -632,6 +632,59 @@ header button{flex-shrink:0}
 .lb-name{flex:1;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lb-xp{color:var(--gold);font-weight:700;font-size:.7rem;flex-shrink:0}
 .lb-row.lb-me{background:rgba(212,175,55,.08);border:1px solid var(--gold-dim);border-radius:6px}
+.lb-row.lb-clickable{cursor:pointer;transition:background .2s}
+.lb-row.lb-clickable:hover{background:rgba(196,154,60,.06)}
+/* Profile Viewer */
+#profile-viewer{position:fixed;top:0;right:-100%;width:100%;max-width:500px;height:100%;background:linear-gradient(180deg,#0d0f1a,#0a0c14);border-left:2px solid var(--border);z-index:105;transition:right .35s ease;display:flex;flex-direction:column;overflow-y:auto}
+#profile-viewer.open{right:0}
+.pv-header{padding:14px 16px;background:linear-gradient(180deg,#111428,#0d0f1a);border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
+.pv-header h2{color:var(--gold);font-size:1rem;font-variant:small-caps;letter-spacing:1px;margin:0}
+.pv-body{padding:16px;flex:1}
+.pv-avatar{width:64px;height:64px;border-radius:50%;border:2px solid var(--gold);object-fit:cover}
+.pv-name{font-size:1.1rem;font-weight:700;color:var(--gold);font-family:'Cinzel',serif}
+.pv-rank{font-size:.7rem;color:var(--text-dim)}
+.pv-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:14px 0}
+.pv-stat{background:rgba(196,154,60,.06);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+.pv-stat-val{font-size:1.1rem;font-weight:700;color:var(--gold)}
+.pv-stat-label{font-size:.55rem;color:var(--text-dim);margin-top:2px}
+.pv-actions{display:flex;gap:8px;margin-top:12px}
+.pv-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.pv-btn-msg{background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:#0e0a06}
+.pv-btn-msg:hover{filter:brightness(1.1)}
+/* Messaging */
+#messaging-panel{position:fixed;top:0;right:-100%;width:100%;max-width:500px;height:100%;background:linear-gradient(180deg,#0d0f1a,#0a0c14);border-left:2px solid var(--border);z-index:104;transition:right .35s ease;display:flex;flex-direction:column}
+#messaging-panel.open{right:0}
+.msg-header{padding:14px 16px;background:linear-gradient(180deg,#111428,#0d0f1a);border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
+.msg-header h2{color:var(--gold);font-size:1rem;font-variant:small-caps;letter-spacing:1px;margin:0}
+.msg-inbox{flex:1;overflow-y:auto;padding:0}
+.msg-conv-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .2s}
+.msg-conv-row:hover{background:rgba(196,154,60,.06)}
+.msg-conv-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--border);flex-shrink:0;object-fit:cover}
+.msg-conv-info{flex:1;overflow:hidden}
+.msg-conv-name{font-size:.8rem;font-weight:700;color:var(--text)}
+.msg-conv-last{font-size:.65rem;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg-conv-meta{text-align:right;flex-shrink:0}
+.msg-conv-time{font-size:.55rem;color:var(--text-dim)}
+.msg-conv-unread{display:inline-block;background:var(--gold);color:#0e0a06;font-size:.55rem;font-weight:700;padding:2px 6px;border-radius:10px;margin-top:4px}
+.msg-empty{text-align:center;padding:40px 20px;color:var(--text-dim);font-size:.75rem}
+/* Conversation View */
+#convo-panel{position:fixed;top:0;right:-100%;width:100%;max-width:500px;height:100%;background:linear-gradient(180deg,#0d0f1a,#0a0c14);border-left:2px solid var(--border);z-index:106;transition:right .35s ease;display:flex;flex-direction:column}
+#convo-panel.open{right:0}
+.convo-header{padding:10px 16px;background:linear-gradient(180deg,#111428,#0d0f1a);border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
+.convo-header-avatar{width:32px;height:32px;border-radius:50%;border:1px solid var(--border)}
+.convo-header-name{flex:1;font-size:.85rem;font-weight:700;color:var(--gold);font-family:'Cinzel',serif}
+.convo-messages{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:6px}
+.convo-msg{max-width:80%;padding:8px 12px;border-radius:12px;font-size:.75rem;line-height:1.4;word-wrap:break-word}
+.convo-msg.sent{align-self:flex-end;background:linear-gradient(135deg,rgba(196,154,60,.2),rgba(196,154,60,.1));border:1px solid rgba(196,154,60,.3);color:var(--text)}
+.convo-msg.received{align-self:flex-start;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text)}
+.convo-msg-time{font-size:.5rem;color:var(--text-dim);margin-top:3px}
+.convo-input-bar{padding:10px 16px;border-top:2px solid var(--border);display:flex;gap:8px;background:linear-gradient(180deg,#0d0f1a,#111428)}
+.convo-input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:20px;background:rgba(255,255,255,.05);color:var(--text);font-size:.8rem;font-family:inherit;outline:none}
+.convo-input:focus{border-color:var(--gold)}
+.convo-send-btn{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;color:#0e0a06;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.convo-send-btn:hover{filter:brightness(1.1)}
+.msg-badge{position:absolute;top:-4px;right:-4px;background:#e53935;color:#fff;font-size:.5rem;font-weight:700;padding:1px 4px;border-radius:8px;min-width:14px;text-align:center;display:none}
+.msg-badge.visible{display:block}
 .account-stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
 .account-stat-value{font-size:1.2rem;font-weight:700;color:var(--gold)}
 .account-stat-label{font-size:.6rem;color:var(--text-dim);margin-top:2px}
@@ -853,6 +906,7 @@ header button{flex-shrink:0}
     <h1>STAKR</h1>
     <span id="mood-indicator">&#9679; Serein</span>
     <button id="map-btn" class="header-icon-btn" title="Carte du Monde">&#128506;</button>
+    <button id="messaging-btn" class="header-icon-btn" title="Messages" onclick="toggleMessagingPanel()" style="position:relative">✉<span id="msg-badge" class="msg-badge"></span></button>
     <button id="leaderboard-btn" class="header-icon-btn" title="Classement">🏆</button>
     <button id="account-btn" class="header-icon-btn" title="Compte">👤</button>
     <button id="customize-btn" class="header-icon-btn" title="Personnaliser Stakr">&#9998;</button>
@@ -1194,6 +1248,38 @@ header button{flex-shrink:0}
   </div>
   <div id="leaderboard-content" style="padding:0 16px 16px;overflow-y:auto;flex:1"></div>
   <div id="leaderboard-my-rank" style="padding:8px 16px;border-top:1px solid var(--border);background:var(--surface);font-size:.7rem;color:var(--text-dim);text-align:center"></div>
+</div>
+
+<!-- PROFILE VIEWER -->
+<div id="profile-viewer">
+  <div class="pv-header">
+    <h2>👤 Profil Viking</h2>
+    <button class="btn-secondary" onclick="closeProfileViewer()" style="margin:0;padding:6px 14px;background:var(--gold-dim);border:none;border-radius:4px;color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600">✕</button>
+  </div>
+  <div class="pv-body" id="profile-viewer-content"></div>
+</div>
+
+<!-- MESSAGING PANEL (Inbox) -->
+<div id="messaging-panel">
+  <div class="msg-header">
+    <h2>✉ Messages</h2>
+    <button class="btn-secondary" onclick="toggleMessagingPanel()" style="margin:0;padding:6px 14px;background:var(--gold-dim);border:none;border-radius:4px;color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600">OK</button>
+  </div>
+  <div class="msg-inbox" id="msg-inbox"></div>
+</div>
+
+<!-- CONVERSATION PANEL -->
+<div id="convo-panel">
+  <div class="convo-header">
+    <button onclick="closeConversation()" style="background:none;border:none;color:var(--gold);font-size:1.2rem;cursor:pointer;padding:4px">←</button>
+    <img id="convo-avatar" class="convo-header-avatar" src=""/>
+    <div id="convo-name" class="convo-header-name"></div>
+  </div>
+  <div class="convo-messages" id="convo-messages"></div>
+  <div class="convo-input-bar">
+    <input type="text" id="convo-input" class="convo-input" placeholder="Ecris ton message..." maxlength="500" onkeydown="if(event.key==='Enter')sendPrivateMessage()"/>
+    <button class="convo-send-btn" onclick="sendPrivateMessage()">➤</button>
+  </div>
 </div>
 
 <!-- ONBOARDING MODAL -->
@@ -3451,7 +3537,7 @@ function toggleCustomize() {
 
 function closeAllPanels() {
   const overlay = $('#settings-overlay');
-  ['#settings-panel','#quest-panel','#map-panel','#customize-panel','#project-panel','#account-panel','#leaderboard-panel'].forEach(sel => {
+  ['#settings-panel','#quest-panel','#map-panel','#customize-panel','#project-panel','#account-panel','#leaderboard-panel','#profile-viewer','#messaging-panel','#convo-panel'].forEach(sel => {
     const p = $(sel);
     if (p && p.classList.contains('open')) p.classList.remove('open');
   });
@@ -9616,6 +9702,9 @@ function initAuth() {
       await loadFromCloud();
       await syncToCloud();
       loadLeaderboard(currentLeaderboardTab);
+      startInboxListener();
+    } else {
+      stopInboxListener();
     }
   });
 }
@@ -10861,7 +10950,7 @@ async function loadLeaderboard(tab) {
       const rankClass = pos === 1 ? 'lb-rank-1' : pos === 2 ? 'lb-rank-2' : pos === 3 ? 'lb-rank-3' : 'lb-rank-default';
 
       const pStars = (d.prestige || 0) > 0 ? `<span style="color:#ffd700;font-size:.55rem;margin-left:3px" title="Prestige ${d.prestige}">${'★'.repeat(Math.min(d.prestige, 10))}</span>` : '';
-      html += `<div class="lb-row ${isMe ? 'lb-me' : ''}">
+      html += `<div class="lb-row lb-clickable ${isMe ? 'lb-me' : ''}" onclick="openPlayerProfile('${d.id}')">
         <div class="lb-rank ${rankClass}">${pos <= 3 ? ['🥇','🥈','🥉'][pos-1] : pos}</div>
         ${d.avatar ? `<img class="lb-avatar" src="${d.avatar}" alt=""/>` : `<div class="lb-avatar" style="background:var(--wood-mid);display:flex;align-items:center;justify-content:center;font-size:.8rem">👤</div>`}
         <div class="lb-name">${d.name || 'Viking'}${pStars}${d.rank ? ` <span style="font-size:.55rem;color:var(--text-dim)">Niv.${d.level || 1} ${d.rank}</span>` : ''}</div>
@@ -10901,6 +10990,336 @@ function toggleLeaderboardPanel() {
   panel.classList.toggle('open');
   overlay.classList.toggle('open');
   if (panel.classList.contains('open')) loadLeaderboard(currentLeaderboardTab);
+}
+
+// ===== PLAYER PROFILE VIEWER =====
+let _profileCache = {};
+
+async function openPlayerProfile(uid) {
+  const panel = document.getElementById('profile-viewer');
+  const content = document.getElementById('profile-viewer-content');
+  if (!panel || !content || !db) return;
+
+  panel.classList.add('open');
+  document.getElementById('settings-overlay').classList.add('open');
+  content.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:40px;font-size:.75rem">Chargement du profil...</div>';
+
+  try {
+    let profile;
+    if (_profileCache[uid] && Date.now() - _profileCache[uid]._ts < 60000) {
+      profile = _profileCache[uid];
+    } else {
+      const snap = await db.collection('users').doc(uid).get();
+      if (!snap.exists) { content.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:40px">Profil introuvable.</div>'; return; }
+      profile = { id: uid, ...snap.data(), _ts: Date.now() };
+      _profileCache[uid] = profile;
+    }
+
+    const isMe = currentUser && uid === currentUser.uid;
+    const pStars = (profile.prestige || 0) > 0 ? '<span style="color:#ffd700;margin-left:4px">' + '★'.repeat(Math.min(profile.prestige, 10)) + '</span>' : '';
+    const companionData = window.COMPANIONS && window.COMPANIONS[profile.companion || 'raven'];
+    const companionEmoji = companionData ? companionData.emoji : '🪶';
+
+    content.innerHTML = `
+      <div style="text-align:center;margin-bottom:16px">
+        ${profile.avatar ? `<img class="pv-avatar" src="${profile.avatar}" alt=""/>` : `<div class="pv-avatar" style="display:inline-flex;align-items:center;justify-content:center;font-size:1.8rem;background:var(--wood-mid)">👤</div>`}
+        <div class="pv-name" style="margin-top:8px">${companionEmoji} ${profile.name || 'Viking'}${pStars}</div>
+        <div class="pv-rank">${profile.rank || 'Thrall'} — Niveau ${profile.level || 1}</div>
+      </div>
+
+      <div class="pv-stats">
+        <div class="pv-stat"><div class="pv-stat-val">${profile.level || 1}</div><div class="pv-stat-label">Niveau</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${(profile.totalXp || 0).toLocaleString('fr-FR')}</div><div class="pv-stat-label">XP Total</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.streak || 0}</div><div class="pv-stat-label">Streak</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.runes || 0}/24</div><div class="pv-stat-label">Runes</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.dailyXp || 0}</div><div class="pv-stat-label">XP Aujourd'hui</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.prestige || 0}</div><div class="pv-stat-label">Prestige</div></div>
+      </div>
+
+      ${profile.companion ? `<div style="text-align:center;margin:12px 0;font-size:.7rem;color:var(--text-dim)">Compagnon : ${companionEmoji} ${companionData ? companionData.name : profile.companion}</div>` : ''}
+
+      ${!isMe && currentUser ? `
+        <div class="pv-actions">
+          <button class="pv-btn pv-btn-msg" onclick="startConversationWith('${uid}', '${(profile.name || 'Viking').replace(/'/g, "\\'")}', '${(profile.avatar || '').replace(/'/g, "\\'")}')">✉ Envoyer un message</button>
+        </div>
+      ` : isMe ? '<div style="text-align:center;font-size:.65rem;color:var(--text-dim);margin-top:12px">C\'est ton propre profil !</div>' : '<div style="text-align:center;font-size:.65rem;color:var(--text-dim);margin-top:12px">Connecte-toi pour envoyer des messages.</div>'}
+    `;
+  } catch(e) {
+    console.error('Profile load error:', e);
+    content.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:40px">Erreur de chargement du profil.</div>';
+  }
+}
+
+function closeProfileViewer() {
+  document.getElementById('profile-viewer').classList.remove('open');
+  // Don't close overlay if other panels are open
+  const anyOpen = ['leaderboard-panel','messaging-panel','account-panel'].some(id => document.getElementById(id)?.classList.contains('open'));
+  if (!anyOpen) document.getElementById('settings-overlay').classList.remove('open');
+}
+
+// ===== MESSAGING SYSTEM =====
+let _currentConvoId = null;
+let _currentConvoUid = null;
+let _convoListener = null;
+let _inboxListener = null;
+
+function getConvoId(uid1, uid2) {
+  return [uid1, uid2].sort().join('_');
+}
+
+function toggleMessagingPanel() {
+  const panel = document.getElementById('messaging-panel');
+  const overlay = document.getElementById('settings-overlay');
+  panel.classList.toggle('open');
+  overlay.classList.toggle('open');
+  if (panel.classList.contains('open')) loadInbox();
+}
+
+async function loadInbox() {
+  const inbox = document.getElementById('msg-inbox');
+  if (!inbox || !db || !currentUser) {
+    if (inbox) inbox.innerHTML = '<div class="msg-empty">Connecte-toi pour acceder a tes messages.</div>';
+    return;
+  }
+
+  inbox.innerHTML = '<div class="msg-empty">Chargement...</div>';
+
+  try {
+    // Get all conversations where user is a participant
+    const snap = await db.collection('conversations')
+      .where('participants', 'array-contains', currentUser.uid)
+      .orderBy('lastMessageAt', 'desc')
+      .limit(50)
+      .get();
+
+    if (snap.empty) {
+      inbox.innerHTML = '<div class="msg-empty">Aucune conversation.<br><br><span style="font-size:.65rem">Ouvre le profil d\'un Viking depuis le classement pour lui envoyer un message !</span></div>';
+      return;
+    }
+
+    let html = '';
+    snap.forEach(doc => {
+      const c = doc.data();
+      const otherUid = c.participants.find(p => p !== currentUser.uid);
+      const other = c.participantInfo?.[otherUid] || {};
+      const unread = (c.unreadCount?.[currentUser.uid] || 0);
+      const lastTime = c.lastMessageAt?.toDate?.() || new Date();
+      const timeStr = formatMsgTime(lastTime);
+
+      html += `<div class="msg-conv-row" onclick="openConversation('${doc.id}', '${otherUid}', '${(other.name || 'Viking').replace(/'/g, "\\'")}', '${(other.avatar || '').replace(/'/g, "\\'")}')">
+        ${other.avatar ? `<img class="msg-conv-avatar" src="${other.avatar}" alt=""/>` : `<div class="msg-conv-avatar" style="background:var(--wood-mid);display:flex;align-items:center;justify-content:center;font-size:1rem">👤</div>`}
+        <div class="msg-conv-info">
+          <div class="msg-conv-name">${other.name || 'Viking'}</div>
+          <div class="msg-conv-last">${c.lastMessage || '...'}</div>
+        </div>
+        <div class="msg-conv-meta">
+          <div class="msg-conv-time">${timeStr}</div>
+          ${unread > 0 ? `<div class="msg-conv-unread">${unread}</div>` : ''}
+        </div>
+      </div>`;
+    });
+
+    inbox.innerHTML = html;
+  } catch(e) {
+    console.error('Inbox error:', e);
+    let errMsg = 'Erreur de chargement.';
+    if (e.code === 'failed-precondition') errMsg = 'Index Firestore manquant pour les conversations. Cree un index composite sur "conversations" : participants (array-contains) + lastMessageAt (desc).';
+    inbox.innerHTML = `<div class="msg-empty">${errMsg}</div>`;
+  }
+}
+
+function formatMsgTime(date) {
+  const now = new Date();
+  const diff = now - date;
+  if (diff < 60000) return 'Maintenant';
+  if (diff < 3600000) return Math.floor(diff / 60000) + ' min';
+  if (diff < 86400000) return Math.floor(diff / 3600000) + ' h';
+  if (diff < 604800000) return Math.floor(diff / 86400000) + ' j';
+  return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+}
+
+async function startConversationWith(uid, name, avatar) {
+  if (!currentUser || !db) { showToast('Erreur', 'Connecte-toi pour envoyer des messages.'); return; }
+  if (uid === currentUser.uid) { showToast('Hmm', 'Tu ne peux pas t\'envoyer de message a toi-meme !'); return; }
+
+  const convoId = getConvoId(currentUser.uid, uid);
+
+  // Create conversation if it doesn't exist
+  const convoRef = db.collection('conversations').doc(convoId);
+  const convoSnap = await convoRef.get();
+  if (!convoSnap.exists) {
+    await convoRef.set({
+      participants: [currentUser.uid, uid],
+      participantInfo: {
+        [currentUser.uid]: {
+          name: state.pseudo || currentUser.displayName || 'Viking',
+          avatar: currentUser.photoURL || ''
+        },
+        [uid]: { name: name || 'Viking', avatar: avatar || '' }
+      },
+      lastMessage: '',
+      lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+      unreadCount: { [currentUser.uid]: 0, [uid]: 0 },
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+
+  // Close profile viewer, open conversation
+  closeProfileViewer();
+  openConversation(convoId, uid, name, avatar);
+}
+
+async function openConversation(convoId, otherUid, otherName, otherAvatar) {
+  _currentConvoId = convoId;
+  _currentConvoUid = otherUid;
+
+  const panel = document.getElementById('convo-panel');
+  const overlay = document.getElementById('settings-overlay');
+  panel.classList.add('open');
+  overlay.classList.add('open');
+
+  document.getElementById('convo-name').textContent = otherName || 'Viking';
+  const avatarEl = document.getElementById('convo-avatar');
+  if (otherAvatar) { avatarEl.src = otherAvatar; avatarEl.style.display = 'block'; }
+  else { avatarEl.style.display = 'none'; }
+
+  const messagesEl = document.getElementById('convo-messages');
+  messagesEl.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.7rem">Chargement...</div>';
+
+  // Mark as read
+  if (currentUser && db) {
+    try {
+      await db.collection('conversations').doc(convoId).update({
+        [`unreadCount.${currentUser.uid}`]: 0
+      });
+    } catch(e) { /* might not exist yet */ }
+  }
+
+  // Stop previous listener
+  if (_convoListener) { _convoListener(); _convoListener = null; }
+
+  // Real-time listener for messages
+  if (db) {
+    _convoListener = db.collection('conversations').doc(convoId)
+      .collection('messages')
+      .orderBy('sentAt', 'asc')
+      .limit(200)
+      .onSnapshot(snap => {
+        let html = '';
+        snap.forEach(doc => {
+          const m = doc.data();
+          const isMine = m.sender === currentUser?.uid;
+          const time = m.sentAt?.toDate?.();
+          const timeStr = time ? time.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
+          html += `<div class="convo-msg ${isMine ? 'sent' : 'received'}">
+            <div>${escapeHtml(m.text)}</div>
+            <div class="convo-msg-time">${timeStr}</div>
+          </div>`;
+        });
+        if (!html) html = '<div style="text-align:center;color:var(--text-dim);padding:30px;font-size:.7rem">Aucun message. Envoie le premier !</div>';
+        messagesEl.innerHTML = html;
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }, err => {
+        console.error('Message listener error:', err);
+        messagesEl.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.7rem">Erreur de chargement des messages.</div>';
+      });
+  }
+
+  // Focus input
+  setTimeout(() => document.getElementById('convo-input')?.focus(), 300);
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function closeConversation() {
+  if (_convoListener) { _convoListener(); _convoListener = null; }
+  _currentConvoId = null;
+  _currentConvoUid = null;
+  document.getElementById('convo-panel').classList.remove('open');
+  // Don't close overlay if messaging panel is still open
+  const anyOpen = ['messaging-panel','leaderboard-panel','account-panel'].some(id => document.getElementById(id)?.classList.contains('open'));
+  if (!anyOpen) document.getElementById('settings-overlay').classList.remove('open');
+  // Refresh inbox
+  loadInbox();
+}
+
+async function sendPrivateMessage() {
+  const input = document.getElementById('convo-input');
+  const text = input?.value?.trim();
+  if (!text || !_currentConvoId || !currentUser || !db) return;
+  if (text.length > 500) { showToast('Trop long', 'Max 500 caracteres.'); return; }
+
+  input.value = '';
+
+  try {
+    // Add message
+    await db.collection('conversations').doc(_currentConvoId)
+      .collection('messages').add({
+        sender: currentUser.uid,
+        text: text,
+        sentAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+    // Update conversation metadata
+    const updateData = {
+      lastMessage: text.slice(0, 100),
+      lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+      // Update participant info (name/avatar might have changed)
+      [`participantInfo.${currentUser.uid}`]: {
+        name: state.pseudo || currentUser.displayName || 'Viking',
+        avatar: currentUser.photoURL || ''
+      }
+    };
+    // Increment unread for the other participant
+    if (_currentConvoUid) {
+      updateData[`unreadCount.${_currentConvoUid}`] = firebase.firestore.FieldValue.increment(1);
+    }
+    await db.collection('conversations').doc(_currentConvoId).update(updateData);
+
+    playSfx('xp'); haptic([20]);
+  } catch(e) {
+    console.error('Send message error:', e);
+    showToast('Erreur', 'Message non envoye. Reessaie.');
+    input.value = text; // Restore text
+  }
+}
+
+// ===== UNREAD MESSAGE BADGE =====
+function startInboxListener() {
+  if (!currentUser || !db || _inboxListener) return;
+
+  _inboxListener = db.collection('conversations')
+    .where('participants', 'array-contains', currentUser.uid)
+    .onSnapshot(snap => {
+      let totalUnread = 0;
+      snap.forEach(doc => {
+        const c = doc.data();
+        totalUnread += (c.unreadCount?.[currentUser.uid] || 0);
+      });
+      updateMsgBadge(totalUnread);
+    }, err => {
+      console.error('Inbox listener error:', err);
+    });
+}
+
+function stopInboxListener() {
+  if (_inboxListener) { _inboxListener(); _inboxListener = null; }
+  updateMsgBadge(0);
+}
+
+function updateMsgBadge(count) {
+  const badge = document.getElementById('msg-badge');
+  if (!badge) return;
+  if (count > 0) {
+    badge.textContent = count > 99 ? '99+' : count;
+    badge.classList.add('visible');
+  } else {
+    badge.classList.remove('visible');
+  }
 }
 
 async function setupFCM() {
