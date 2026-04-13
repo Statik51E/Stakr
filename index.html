@@ -403,6 +403,21 @@ header button{flex-shrink:0}
 .workout-tier-pill{flex:1;min-width:70px;padding:7px 6px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:.62rem;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;font-family:inherit}
 .workout-tier-pill.active{background:linear-gradient(135deg,rgba(196,154,60,.25),rgba(196,154,60,.05));border-color:var(--gold);color:var(--gold);box-shadow:0 0 10px rgba(196,154,60,.25)}
 .workout-tier-pill:hover:not(.active){color:var(--text);border-color:var(--gold-dim)}
+/* ===== SPECIALIZATIONS ===== */
+.spec-milestone{background:linear-gradient(160deg,rgba(196,154,60,.08),rgba(0,0,0,.3));border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.spec-milestone.unlocked{border-color:var(--gold);box-shadow:0 0 12px rgba(196,154,60,.15)}
+.spec-milestone.locked{opacity:.5}
+.spec-milestone-title{font-size:.8rem;font-weight:700;color:var(--gold);margin-bottom:8px;font-variant:small-caps;letter-spacing:1px}
+.spec-choices{display:flex;flex-direction:column;gap:6px}
+.spec-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .25s}
+.spec-card:hover{border-color:var(--gold-dim);background:rgba(196,154,60,.06)}
+.spec-card.chosen{border-color:var(--gold);background:linear-gradient(135deg,rgba(196,154,60,.15),rgba(196,154,60,.05));box-shadow:0 0 10px rgba(196,154,60,.2)}
+.spec-card.chosen::after{content:'✓ Choisi';float:right;font-size:.55rem;color:var(--gold);font-weight:700}
+.spec-card-name{font-size:.75rem;font-weight:700;color:var(--text);margin-bottom:2px}
+.spec-card-desc{font-size:.6rem;color:var(--text-dim);line-height:1.3}
+.spec-card-effect{font-size:.6rem;color:var(--gold);margin-top:4px;font-weight:600}
+.spec-summary{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.spec-badge{background:linear-gradient(135deg,rgba(196,154,60,.12),rgba(196,154,60,.04));border:1px solid var(--gold-dim);border-radius:8px;padding:4px 8px;font-size:.6rem;color:var(--gold)}
 /* ===== SOLO LEVELING ===== */
 .solo-intro{padding:20px 18px;background:linear-gradient(160deg,rgba(138,43,226,.1),rgba(0,0,0,.5));border:1px solid rgba(138,43,226,.5);border-radius:14px;text-align:center;position:relative;overflow:hidden;box-shadow:0 0 24px rgba(138,43,226,.2) inset}
 .solo-intro::before{content:'';position:absolute;top:0;left:-100%;width:200%;height:2px;background:linear-gradient(90deg,transparent,#8a2be2,#c04efb,transparent);animation:defisShimmer 3s linear infinite}
@@ -1177,6 +1192,7 @@ header button{flex-shrink:0}
       <button class="quest-tab" data-qtab="stakr" onclick="switchQuestTab('stakr')"><span class="tab-icon">&#129718;</span>Stakr</button>
       <button class="quest-tab" data-qtab="runes" onclick="switchQuestTab('runes')"><span class="tab-icon">&#9883;</span>Runes</button>
       <button class="quest-tab" data-qtab="arbre" onclick="switchQuestTab('arbre')"><span class="tab-icon">&#127794;</span>Arbre</button>
+      <button class="quest-tab" data-qtab="talents" onclick="switchQuestTab('talents')"><span class="tab-icon">&#9733;</span>Talents</button>
       <button class="quest-tab" data-qtab="evolve" onclick="switchQuestTab('evolve')"><span class="tab-icon">&#11014;</span>Evoluer</button>
       <button class="quest-tab" data-qtab="stats" onclick="switchQuestTab('stats')"><span class="tab-icon">&#128200;</span>Stats</button>
     </div>
@@ -1189,6 +1205,7 @@ header button{flex-shrink:0}
     <div id="quest-list-stakr" style="display:none"></div>
     <div id="quest-runes-tab" style="display:none"></div>
     <div id="quest-arbre-tab" style="display:none"></div>
+    <div id="quest-talents-tab" style="display:none"></div>
     <div id="quest-evolve-tab" style="display:none"></div>
     <div id="quest-stats-tab" style="display:none"></div>
   </div>
@@ -4414,6 +4431,9 @@ function initQuests() {
   // Rest days (2 per week, disables all penalties)
   if (!q.restDays) q.restDays = { enabled: false, weekDays: [], usedThisWeek: 0, weekKey: null };
 
+  // Specializations
+  if (!q.specializations) q.specializations = { chosen: {} };
+
   // Seasonal system
   initSeason();
 
@@ -4643,17 +4663,19 @@ function activateRestDay() {
     return;
   }
 
-  // Max 2 per week
-  if (q.restDays.usedThisWeek >= 2) {
-    showToast('Limite atteinte', 'Tu as deja utilise tes 2 jours de repos cette semaine.');
+  // Max 2 per week + bonus from specs
+  const maxRestDays = 2 + (getSpecBoosts().bonusRestDays || 0);
+  if (q.restDays.usedThisWeek >= maxRestDays) {
+    showToast('Limite atteinte', `Tu as deja utilise tes ${maxRestDays} jours de repos cette semaine.`);
     return;
   }
 
   q.restDays.weekDays.push(today);
   q.restDays.usedThisWeek++;
   saveState();
-  addMessage('stakr', `Le guerrier aussi doit se reposer. Aujourd'hui est un **jour de repos** — aucune penalite ne sera appliquee. Il te reste **${2 - q.restDays.usedThisWeek} jour(s) de repos** cette semaine. Recupere bien, Viking. [MOOD:calme]`);
-  showToast('Jour de repos active !', `Aucune penalite aujourd'hui. ${2 - q.restDays.usedThisWeek}/2 restants.`);
+  const remaining = maxRestDays - q.restDays.usedThisWeek;
+  addMessage('stakr', `Le guerrier aussi doit se reposer. Aujourd'hui est un **jour de repos** — aucune penalite ne sera appliquee. Il te reste **${remaining} jour(s) de repos** cette semaine. Recupere bien, Viking. [MOOD:calme]`);
+  showToast('Jour de repos active !', `Aucune penalite aujourd'hui. ${remaining}/${maxRestDays} restants.`);
   renderRestDayStatus();
 }
 
@@ -4686,15 +4708,16 @@ function renderRestDayStatus() {
   }
   const isToday = (q.restDays.weekDays || []).includes(today);
   const used = q.restDays.usedThisWeek || 0;
+  const maxRest = 2 + (getSpecBoosts().bonusRestDays || 0);
   el.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
       <div>
         <div style="font-size:.75rem;color:${isToday ? '#4caf50' : 'var(--text)'}">${isToday ? '🛌 Jour de repos actif' : '⚔️ Jour normal (penalites actives)'}</div>
-        <div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">${used}/2 jours utilises cette semaine</div>
+        <div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">${used}/${maxRest} jours utilises cette semaine</div>
       </div>
       ${isToday
         ? `<button class="btn-secondary" onclick="deactivateRestDay()" style="margin:0;padding:4px 10px;font-size:.7rem;white-space:nowrap">Annuler</button>`
-        : used < 2
+        : used < maxRest
           ? `<button class="btn-secondary" onclick="activateRestDay()" style="margin:0;padding:4px 10px;font-size:.7rem;white-space:nowrap">🛌 Repos</button>`
           : `<span style="font-size:.6rem;color:var(--text-dim)">Limite atteinte</span>`
       }
@@ -4718,6 +4741,8 @@ function checkVikingDiscipline(today) {
   const q = state.quests;
   if (!q.lastActiveDate) return; // First time — no penalty
   if (isRestDay(today)) return; // Rest day — no penalty
+  const specB = getSpecBoosts();
+  if (specB.penaltyImmune) return; // Spec: immune to penalties
 
   const lastDate = new Date(q.lastActiveDate);
   const todayDate = new Date(today);
@@ -4727,6 +4752,20 @@ function checkVikingDiscipline(today) {
   if (q.disciplineCheckedDate === today) return;
 
   if (inactiveDays <= 0) return; // Same day, no check needed
+
+  // Streak grace from spec (Flamme Eternelle)
+  if (inactiveDays <= (specB.graceDays || 0) + 1) {
+    // Check if yesterday had any completed quests
+    const yesterdayKey = new Date(todayDate - 86400000).toISOString().slice(0, 10);
+    const hadActivityYesterday = q.objectives.some(o => {
+      if (o.period !== 'daily') return false;
+      return o.lastReset === yesterdayKey && o.progress > 0;
+    }) || (q.dailyXpDate === yesterdayKey && q.dailyXpToday > 0);
+    if (hadActivityYesterday || inactiveDays <= (specB.graceDays || 0)) {
+      q.disciplineCheckedDate = today;
+      return;
+    }
+  }
 
   // Check if yesterday had any completed quests
   const yesterdayKey = new Date(todayDate - 86400000).toISOString().slice(0, 10);
@@ -4743,7 +4782,9 @@ function checkVikingDiscipline(today) {
   // Calculate penalty — escalates with inactivity
   const basePenalty = 15;
   const inactiveStreak = Math.max(1, inactiveDays);
-  const penalty = Math.min(basePenalty * inactiveStreak, q.totalXp * 0.1, 200); // Cap at 10% totalXp or 200
+  let penalty = Math.min(basePenalty * inactiveStreak, q.totalXp * 0.1, 200); // Cap at 10% totalXp or 200
+  // Spec penalty reduction
+  if (specB.penaltyReduction > 0) penalty *= (1 - specB.penaltyReduction);
   const roundedPenalty = Math.round(penalty);
 
   if (roundedPenalty > 0) {
@@ -4915,10 +4956,12 @@ function checkDailyChallenges() {
   // Check penalties for yesterday's accepted-but-incomplete challenges
   if (dc.date && dc.date !== today && dc.penaltyChecked !== today) {
     const yesterdayWasRest = isRestDay(dc.date);
-    if (!yesterdayWasRest) {
+    const dcSpecB = getSpecBoosts();
+    if (!yesterdayWasRest && !dcSpecB.penaltyImmune) {
       dc.challenges.forEach(ch => {
         if (ch.accepted && ch.progress < ch.target) {
-          const penalty = ch.xpReward * 2;
+          let penalty = ch.xpReward * 2;
+          if (dcSpecB.penaltyReduction > 0) penalty = Math.round(penalty * (1 - dcSpecB.penaltyReduction));
           q.xp = Math.max(0, q.xp - penalty);
           q.totalXp = Math.max(0, q.totalXp - penalty);
           dc.totalFailed = (dc.totalFailed || 0) + 1;
@@ -5902,16 +5945,19 @@ function checkSoloLeveling() {
   // Check penalty for previous day
   if (sl.dayDate && sl.dayDate !== today && sl.lastPenaltyCheck !== today) {
     const prevDayWasRest = isRestDay(sl.dayDate);
+    const soloSpecB = getSpecBoosts();
     const prevTargets = getSoloTargets(sl.currentWeek);
     const done = sl.pushups >= prevTargets.pushups && sl.squats >= prevTargets.squats && sl.abs >= prevTargets.abs && sl.km >= prevTargets.km;
     if (done) {
       sl.completedDays = (sl.completedDays || 0) + 1;
-    } else if (!prevDayWasRest) {
+    } else if (!prevDayWasRest && !soloSpecB.penaltyImmune) {
       sl.missedDays = (sl.missedDays || 0) + 1;
-      q.xp = Math.max(0, q.xp - SOLO_PENALTY_XP);
-      q.totalXp = Math.max(0, q.totalXp - SOLO_PENALTY_XP);
-      addMessage('stakr', `Par Odin ! Tu n'as pas accompli ton Solo Leveling d'hier... **-${SOLO_PENALTY_XP} XP** ! Le Systeme ne pardonne pas la faiblesse. [MOOD:triste]`);
-      showToast('Penalite Solo Leveling', `-${SOLO_PENALTY_XP} XP — tu n'as pas complete hier.`);
+      let soloPenalty = SOLO_PENALTY_XP;
+      if (soloSpecB.penaltyReduction > 0) soloPenalty = Math.round(soloPenalty * (1 - soloSpecB.penaltyReduction));
+      q.xp = Math.max(0, q.xp - soloPenalty);
+      q.totalXp = Math.max(0, q.totalXp - soloPenalty);
+      addMessage('stakr', `Par Odin ! Tu n'as pas accompli ton Solo Leveling d'hier... **-${soloPenalty} XP** ! Le Systeme ne pardonne pas la faiblesse. [MOOD:triste]`);
+      showToast('Penalite Solo Leveling', `-${soloPenalty} XP — tu n'as pas complete hier.`);
     }
     sl.lastPenaltyCheck = today;
   }
@@ -6219,7 +6265,7 @@ function toggleMapPanel() {
 
 function switchQuestTab(tab) {
   document.querySelectorAll('.quest-tab').forEach(t => t.classList.toggle('active', t.dataset.qtab === tab));
-  ['daily','weekly','defis','solo','saison','stakr','stats','arbre','boss','evolve'].forEach(t => {
+  ['daily','weekly','defis','solo','saison','stakr','stats','arbre','talents','boss','evolve'].forEach(t => {
     const el = $(`#quest-list-${t}`) || $(`#quest-${t}-tab`);
     if (el) el.style.display = 'none';
   });
@@ -6232,6 +6278,7 @@ function switchQuestTab(tab) {
   else if (tab === 'stakr') { $('#quest-list-stakr').style.display = 'block'; renderStakrQuests(); }
   else if (tab === 'runes') { $('#quest-runes-tab').style.display = 'block'; renderRuneCollection(); }
   else if (tab === 'arbre') { $('#quest-arbre-tab').style.display = 'block'; renderSkillTree(); }
+  else if (tab === 'talents') { $('#quest-talents-tab').style.display = 'block'; renderSpecializations(); }
   else if (tab === 'evolve') { $('#quest-evolve-tab').style.display = 'block'; renderQuestEvolution(); }
   else if (tab === 'stats') { $('#quest-stats-tab').style.display = 'block'; renderQuestStats(); }
 }
@@ -7248,13 +7295,18 @@ function renderJournalHistory() {
 
 function addQuestXp(amount, category) {
   const q = state.quests;
-  // Streak multiplier: +10% per streak day, max +50%
-  const streakBonus = Math.min(0.5, q.streak * 0.1);
+  // Specialization boosts
+  const specB = getSpecBoosts();
+  // Streak multiplier: +10% per streak day, max +50% (modified by spec)
+  const streakCap = specB.streakMult >= 3 ? 1.5 : (specB.streakMult >= 2 ? 1.0 : 0.5);
+  const streakPct = specB.streakMult >= 2 ? 0.2 : 0.1;
+  const streakBonus = Math.min(streakCap, q.streak * streakPct);
   // Skill tree boost
   const boosts = q.skillTree?.activeBoosts || {};
   const treeBoost = (category ? (boosts[category] || 0) : 0) + (boosts.global || 0);
+  const specCatBoost = (category ? (specB[category] || 0) : 0) + (specB.global || 0);
   const stakrBoost = q.worldMap?.stakrPowered ? 0.15 : 0;
-  const totalAmount = Math.round(amount * (1 + streakBonus + treeBoost + stakrBoost));
+  const totalAmount = Math.round(amount * (1 + streakBonus + treeBoost + specCatBoost + stakrBoost));
 
   q.xp += totalAmount;
   playSfx('xp');
@@ -7285,6 +7337,14 @@ function addQuestXp(amount, category) {
     addMessage('stakr', msg + ' [MOOD:excite]');
     showToast('NIVEAU SUPERIEUR !', `Niveau ${q.level} — ${rank.name}`);
     playSfx('levelup'); haptic([50, 30, 50, 30, 80]); spawnGoldRain(40); screenShake();
+    // Check if a specialization milestone was reached
+    const specMilestone = SPEC_MILESTONES.find(m => m.level === q.level && !q.specializations?.chosen?.[m.level]);
+    if (specMilestone) {
+      setTimeout(() => {
+        addMessage('stakr', `KRAA ! Niveau **${q.level}** atteint ! Un nouveau **talent** est disponible dans l'onglet ★ Talents ! Choisis ta voie, guerrier — Corps, Esprit ou Volonte ! [MOOD:excite]`);
+        showToast('TALENT DISPONIBLE !', `Ouvre l'onglet Talents pour choisir ta specialisation.`);
+      }, 1500);
+    }
     xpNeeded = getXpForLevel(q.level);
   }
   // At max level: notify player they can prestige (XP keeps capping)
@@ -7576,6 +7636,210 @@ const YGGDRASIL_TREE = {
     ]
   }
 };
+
+// ===== SPECIALIZATIONS (Player choice at milestone levels) =====
+const SPEC_MILESTONES = [
+  {
+    level: 10, title: 'Voie du Guerrier — Niveau 10',
+    desc: 'Tu as prouve ta valeur. Choisis ta premiere specialisation.',
+    choices: [
+      { id: 'berserker_10', name: 'Furie du Berserkr', icon: '🐻', branch: 'corps',
+        desc: 'La rage brule en toi. Chaque seance physique est plus intense.',
+        effect: '+15% XP sur les seances physiques et le Solo Leveling',
+        boost: { type: 'xp_mult', categories: ['physique'], value: 0.15 }},
+      { id: 'skald_10', name: 'Voix du Skald', icon: '📜', branch: 'esprit',
+        desc: 'Les mots sont tes armes. Sagesse et discipline te guident.',
+        effect: '+15% XP sur les quetes mentales et la meditation',
+        boost: { type: 'xp_mult', categories: ['mental'], value: 0.15 }},
+      { id: 'ulfhednar_10', name: 'Instinct du Loup', icon: '🐺', branch: 'volonte',
+        desc: 'Ni repos, ni abandon. Ta constance est ta plus grande force.',
+        effect: 'Bonus de streak double (+20% par jour au lieu de +10%, max +100%)',
+        boost: { type: 'streak_mult', value: 2.0 }}
+    ]
+  },
+  {
+    level: 20, title: 'Epreuve du Hirdman — Niveau 20',
+    desc: 'Le chemin se divise. Approfondis ta specialisation.',
+    choices: [
+      { id: 'thunderborn_20', name: 'Ne du Tonnerre', icon: '⚡', branch: 'corps',
+        desc: 'La foudre coule dans tes veines. Les defis physiques te forgent.',
+        effect: '+20% XP sur les defis quotidiens physiques + penalites reduites de 50%',
+        boost: { type: 'xp_mult_defi', categories: ['physique'], value: 0.20, penaltyReduction: 0.5 }},
+      { id: 'runemaster_20', name: 'Maitre des Runes', icon: '✦', branch: 'esprit',
+        desc: 'Les runes te parlent. Chaque connaissance accelere ta progression.',
+        effect: '+10% XP global + bonus XP par rune possedee (+2% par rune)',
+        boost: { type: 'xp_mult_global_rune', globalValue: 0.10, perRuneValue: 0.02 }},
+      { id: 'ironwill_20', name: 'Volonte de Fer', icon: '🛡️', branch: 'volonte',
+        desc: 'Rien ne t\'arrete. Les penalites glissent sur toi comme la pluie.',
+        effect: 'Toutes les penalites reduites de 60% + 1 jour de repos bonus/semaine',
+        boost: { type: 'penalty_reduce', value: 0.6, bonusRestDays: 1 }}
+    ]
+  },
+  {
+    level: 30, title: 'Sagesse du Hersir — Niveau 30',
+    desc: 'Tu es un chef. Tes choix definissent ton heritage.',
+    choices: [
+      { id: 'warforged_30', name: 'Forge de Guerre', icon: '🔨', branch: 'corps',
+        desc: 'Ton corps est une arme vivante. Les records tombent plus vite.',
+        effect: '+25% XP seances + les records personnels donnent un bonus de +50 XP',
+        boost: { type: 'xp_mult_workout', value: 0.25, prBonus: 50 }},
+      { id: 'allseer_30', name: 'Oeil d\'Odin', icon: '👁️', branch: 'esprit',
+        desc: 'Tu vois tout, tu comprends tout. La sagesse accelere toute progression.',
+        effect: '+15% XP global permanent',
+        boost: { type: 'xp_mult_global', value: 0.15 }},
+      { id: 'undying_30', name: 'Flamme Eternelle', icon: '🔥', branch: 'volonte',
+        desc: 'Ta flamme ne s\'eteint jamais. Le streak est ta plus grande arme.',
+        effect: 'Le streak ne se perd plus apres 1 jour d\'inactivite (grace de 24h)',
+        boost: { type: 'streak_grace', graceDays: 1 }}
+    ]
+  },
+  {
+    level: 40, title: 'Ascension du Konungr — Niveau 40',
+    desc: 'Tu approches des dieux. Choisis ton pouvoir ultime.',
+    choices: [
+      { id: 'avatar_thor_40', name: 'Avatar de Thor', icon: '⚡', branch: 'corps',
+        desc: 'La foudre incarnee. Tout effort physique est amplifie au maximum.',
+        effect: '+30% XP sur tout ce qui est physique + seances donnent +50% XP',
+        boost: { type: 'xp_mult', categories: ['physique'], value: 0.30, workoutMult: 0.5 }},
+      { id: 'avatar_odin_40', name: 'Avatar d\'Odin', icon: '🌌', branch: 'esprit',
+        desc: 'Tu as sacrifie un oeil pour la sagesse. Tout savoir t\'enrichit.',
+        effect: '+25% XP global sur toutes les sources',
+        boost: { type: 'xp_mult_global', value: 0.25 }},
+      { id: 'avatar_tyr_40', name: 'Avatar de Tyr', icon: '⚖️', branch: 'volonte',
+        desc: 'Le dieu de la justice et du sacrifice. Ta discipline est legendaire.',
+        effect: 'Penalites nulles + streak bonus triple + 2 jours de repos bonus',
+        boost: { type: 'penalty_immune', streakTriple: true, bonusRestDays: 2 }}
+    ]
+  }
+];
+
+function getSpecBoosts() {
+  const q = state.quests;
+  if (!q.specializations || !q.specializations.chosen || Object.keys(q.specializations.chosen).length === 0) return { physique: 0, mental: 0, sante: 0, social: 0, global: 0, streakMult: 1, penaltyReduction: 0, penaltyImmune: false, graceDays: 0, bonusRestDays: 0, prBonus: 0, workoutMult: 0, perRuneBonus: 0 };
+  const chosen = q.specializations.chosen || {};
+  const boosts = { physique: 0, mental: 0, sante: 0, social: 0, global: 0, streakMult: 1, penaltyReduction: 0, penaltyImmune: false, graceDays: 0, bonusRestDays: 0, prBonus: 0, workoutMult: 0, perRuneBonus: 0 };
+
+  Object.values(chosen).forEach(specId => {
+    const spec = SPEC_MILESTONES.flatMap(m => m.choices).find(c => c.id === specId);
+    if (!spec) return;
+    const b = spec.boost;
+    if (b.type === 'xp_mult' && b.categories) b.categories.forEach(c => { boosts[c] = (boosts[c] || 0) + b.value; });
+    if (b.type === 'xp_mult_global') boosts.global += b.value;
+    if (b.type === 'xp_mult_global_rune') { boosts.global += b.globalValue; boosts.perRuneBonus = b.perRuneValue; }
+    if (b.type === 'streak_mult') boosts.streakMult = b.value;
+    if (b.type === 'xp_mult_defi') { if (b.categories) b.categories.forEach(c => { boosts[c] = (boosts[c] || 0) + b.value; }); boosts.penaltyReduction = Math.max(boosts.penaltyReduction, b.penaltyReduction || 0); }
+    if (b.type === 'penalty_reduce') { boosts.penaltyReduction = Math.max(boosts.penaltyReduction, b.value); boosts.bonusRestDays += b.bonusRestDays || 0; }
+    if (b.type === 'xp_mult_workout') { boosts.physique += b.value; boosts.prBonus = b.prBonus || 0; boosts.workoutMult += b.value; }
+    if (b.type === 'streak_grace') boosts.graceDays = Math.max(boosts.graceDays, b.graceDays);
+    if (b.type === 'penalty_immune') { boosts.penaltyImmune = true; if (b.streakTriple) boosts.streakMult = 3; boosts.bonusRestDays += b.bonusRestDays || 0; }
+    if (b.workoutMult) boosts.workoutMult += b.workoutMult;
+  });
+
+  // Rune-based bonus
+  if (boosts.perRuneBonus > 0) {
+    const runeCount = (state.quests.runes || []).length;
+    boosts.global += boosts.perRuneBonus * runeCount;
+  }
+
+  return boosts;
+}
+
+function chooseSpecialization(milestoneLevel, specId) {
+  const q = state.quests;
+  if (!q.specializations) q.specializations = { chosen: {} };
+  if (q.specializations.chosen[milestoneLevel]) {
+    showToast('Deja choisi', 'Tu as deja fait ton choix pour ce palier.');
+    return;
+  }
+  if (q.level < milestoneLevel) {
+    showToast('Niveau insuffisant', `Tu dois atteindre le niveau ${milestoneLevel}.`);
+    return;
+  }
+
+  const milestone = SPEC_MILESTONES.find(m => m.level === milestoneLevel);
+  const spec = milestone?.choices.find(c => c.id === specId);
+  if (!spec) return;
+
+  q.specializations.chosen[milestoneLevel] = specId;
+  saveState();
+
+  addMessage('stakr', `KRAA ! Tu as choisi la voie **${spec.name}** ${spec.icon} ! *${spec.desc}* Effet : **${spec.effect}**. Les Nornes tissent ton destin, guerrier ! [MOOD:excite]`);
+  showToast('Specialisation choisie !', `${spec.icon} ${spec.name}`);
+  playSfx('levelup'); haptic([50, 30, 80]); spawnGoldRain(25); goldFlash();
+  renderSpecializations();
+}
+
+function renderSpecializations() {
+  const container = $('#quest-talents-tab');
+  if (!container) return;
+  const q = state.quests;
+  if (!q.specializations) q.specializations = { chosen: {} };
+  const chosen = q.specializations.chosen;
+  const specBoosts = getSpecBoosts();
+
+  // Active bonuses summary
+  const activeSpecs = Object.entries(chosen).map(([lvl, specId]) => {
+    const spec = SPEC_MILESTONES.flatMap(m => m.choices).find(c => c.id === specId);
+    return spec ? `<div class="spec-badge">${spec.icon} ${spec.name}</div>` : '';
+  }).filter(Boolean).join('');
+
+  let html = `
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:1.2rem">★</div>
+      <div style="font-size:.9rem;font-weight:700;color:var(--gold);font-variant:small-caps;letter-spacing:1px">Specialisations Viking</div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">A chaque palier, choisis ta voie. Corps, Esprit ou Volonte — chaque choix est definitif.</div>
+      ${activeSpecs ? `<div class="spec-summary">${activeSpecs}</div>` : ''}
+    </div>
+  `;
+
+  // Active boosts summary
+  const boostLines = [];
+  if (specBoosts.physique > 0) boostLines.push(`💪 +${Math.round(specBoosts.physique * 100)}% XP Physique`);
+  if (specBoosts.mental > 0) boostLines.push(`🧘 +${Math.round(specBoosts.mental * 100)}% XP Mental`);
+  if (specBoosts.global > 0) boostLines.push(`✦ +${Math.round(specBoosts.global * 100)}% XP Global`);
+  if (specBoosts.streakMult > 1) boostLines.push(`🔥 Streak x${specBoosts.streakMult}`);
+  if (specBoosts.penaltyReduction > 0) boostLines.push(`🛡️ Penalites -${Math.round(specBoosts.penaltyReduction * 100)}%`);
+  if (specBoosts.penaltyImmune) boostLines.push(`⚖️ Immunite aux penalites`);
+  if (specBoosts.graceDays > 0) boostLines.push(`🕐 Grace de ${specBoosts.graceDays}j sur le streak`);
+  if (specBoosts.bonusRestDays > 0) boostLines.push(`🛌 +${specBoosts.bonusRestDays} jour(s) de repos/sem`);
+  if (specBoosts.prBonus > 0) boostLines.push(`🏆 +${specBoosts.prBonus} XP par record perso`);
+
+  if (boostLines.length > 0) {
+    html += `<div style="background:rgba(196,154,60,.06);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:14px">
+      <div style="font-size:.65rem;font-weight:700;color:var(--gold);margin-bottom:6px;font-variant:small-caps">Bonus actifs</div>
+      ${boostLines.map(l => `<div style="font-size:.6rem;color:var(--text);margin:2px 0">${l}</div>`).join('')}
+    </div>`;
+  }
+
+  SPEC_MILESTONES.forEach(milestone => {
+    const isUnlocked = q.level >= milestone.level;
+    const chosenId = chosen[milestone.level];
+
+    html += `<div class="spec-milestone ${isUnlocked ? 'unlocked' : 'locked'}">
+      <div class="spec-milestone-title">${milestone.title} ${isUnlocked ? '✓' : '🔒'}</div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-bottom:8px">${milestone.desc}</div>`;
+
+    if (isUnlocked) {
+      html += '<div class="spec-choices">';
+      milestone.choices.forEach(choice => {
+        const isChosen = chosenId === choice.id;
+        const isOther = chosenId && !isChosen;
+        html += `<div class="spec-card ${isChosen ? 'chosen' : ''}" ${!chosenId && isUnlocked ? `onclick="chooseSpecialization(${milestone.level},'${choice.id}')"` : ''} style="${isOther ? 'opacity:.4;cursor:default' : ''}">
+          <div class="spec-card-name">${choice.icon} ${choice.name}</div>
+          <div class="spec-card-desc">${choice.desc}</div>
+          <div class="spec-card-effect">${choice.effect}</div>
+        </div>`;
+      });
+      html += '</div>';
+    } else {
+      html += `<div style="text-align:center;font-size:.65rem;color:var(--text-dim);padding:8px">Atteins le niveau ${milestone.level} pour debloquer ces talents.</div>`;
+    }
+
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+}
 
 // ===== VIKING RUNES =====
 const VIKING_RUNES = [
@@ -9443,6 +9707,86 @@ async function sendMessage() {
   }
 }
 
+// ===== EVOLVING COMPANION PERSONALITY =====
+// Analyzes 7-day performance and returns a dynamic tone directive
+function getCompanionMoodDirective() {
+  const q = state.quests || {};
+  if (!q.level) return '';
+
+  const today = new Date();
+  const streak = q.streak || 0;
+  const level = q.level || 1;
+  const history = q.history || [];
+  const sl = q.soloLeveling || {};
+  const dc = q.dailyChallenges || {};
+  const w = q.workout || {};
+
+  // Count completed objectives in the last 7 days
+  const sevenDaysAgo = new Date(today);
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const sevenDaysStr = sevenDaysAgo.toISOString().slice(0, 10);
+
+  const recentHistory = history.filter(h => h.date && h.date >= sevenDaysStr);
+  const recentCompleted = recentHistory.filter(h => h.progress >= h.target).length;
+  const recentTotal = recentHistory.length;
+  const completionRate = recentTotal > 0 ? recentCompleted / recentTotal : 0;
+
+  // Daily XP trend
+  const dailyXp = q.dailyXpToday || 0;
+  const avgDailyXp = q.totalXp && q.startDate ? Math.round(q.totalXp / Math.max(1, Math.ceil((Date.now() - new Date(q.startDate).getTime()) / 86400000))) : 0;
+  const xpTrend = dailyXp > avgDailyXp * 1.5 ? 'excellent' : dailyXp > avgDailyXp ? 'bon' : dailyXp > 0 ? 'faible' : 'inactif';
+
+  // Solo Leveling status
+  const soloActive = !!sl.startDate;
+  const soloMissed = sl.missedDays || 0;
+  const soloCompleted = sl.completedDays || 0;
+
+  // Determine the companion's current emotional state
+  let tone = '';
+  let attitude = '';
+
+  // ELITE PERFORMANCE — streak 14+, high completion, active today
+  if (streak >= 14 && completionRate > 0.8 && dailyXp > 0) {
+    tone = 'fier';
+    attitude = `TON ATTITUDE ACTUELLE : Tu es FIER de ton compagnon. Il enchaine ${streak} jours de suite avec un taux de completion de ${Math.round(completionRate * 100)}%. C'est un vrai guerrier. Tu le traites comme un egal, tu le felicites avec respect, tu partages des sagesses profondes. Tu es plus ouvert et vulnerable avec lui. Tu lui donnes des conseils de haut niveau.`;
+  }
+  // GOOD PERFORMANCE — streak 7+, decent completion
+  else if (streak >= 7 && completionRate > 0.6) {
+    tone = 'encourageant';
+    attitude = `TON ATTITUDE ACTUELLE : Tu es ENCOURAGEANT et chaleureux. Ton compagnon tient un streak de ${streak} jours et complete ${Math.round(completionRate * 100)}% de ses objectifs. Tu le pousses a aller plus loin, tu le motives avec des metaphores de victoire. Tu es enthousiaste mais tu lui rappelles que la route est longue.`;
+  }
+  // STAGNATION — some activity but inconsistent
+  else if (streak >= 1 && streak <= 3 && completionRate > 0.3 && completionRate <= 0.6) {
+    tone = 'provocateur';
+    attitude = `TON ATTITUDE ACTUELLE : Tu es PROVOCATEUR et piquant. Ton compagnon fait des efforts (streak ${streak}j, ${Math.round(completionRate * 100)}% completion) mais c'est irregulier. Tu le provoques avec humour pour qu'il se depasse. "C'est tout ce que tu as ?" "Un vrai Viking ne fait pas les choses a moitie." Tu le pousses dans ses retranchements avec bienveillance.`;
+  }
+  // DECLINING — streak broken or low activity
+  else if (streak === 0 && completionRate < 0.3) {
+    tone = 'dur';
+    attitude = `TON ATTITUDE ACTUELLE : Tu es DUR et direct. Ton compagnon a perdu son streak et ne complete que ${Math.round(completionRate * 100)}% de ses objectifs. Tu ne le menages pas. Tu es decu mais pas cruel. "Les dieux n'aident pas ceux qui restent couches." Tu parles de discipline, de releve, de ne pas abandonner. Tu es bourru mais loyal.`;
+  }
+  // COMEBACK — just started again after inactivity
+  else if (streak <= 2 && dailyXp > 0 && completionRate < 0.4) {
+    tone = 'protecteur';
+    attitude = `TON ATTITUDE ACTUELLE : Tu es PROTECTEUR. Ton compagnon revient apres une periode difficile (streak ${streak}j seulement). Tu l'accueilles sans jugement, tu le rassures. "Le guerrier qui se releve est plus fort que celui qui n'est jamais tombe." Tu es doux mais ferme — pas de pitie, juste du soutien.`;
+  }
+  // DEFAULT — moderate
+  else {
+    tone = 'equilibre';
+    attitude = `TON ATTITUDE ACTUELLE : Tu es EQUILIBRE. Ton compagnon avance a son rythme (streak ${streak}j, ~${Math.round(completionRate * 100)}% completion). Tu alternes entre encouragement et provocation selon le contexte. Tu restes fidele a toi-meme : loyal, sarcastique, sage.`;
+  }
+
+  // Add specific context about recent achievements or failures
+  let details = '';
+  if (soloActive && soloMissed > 3) details += ` Son Solo Leveling souffre : ${soloMissed} jours manques contre ${soloCompleted} reussis — mentionne-le si pertinent.`;
+  if (soloActive && soloCompleted > soloMissed * 2) details += ` Son Solo Leveling est impressionnant : ${soloCompleted} jours reussis — felicite-le si le sujet vient.`;
+  if (level >= 40) details += ` Il est niveau ${level}, un Konungr — traite-le avec le respect du a son rang.`;
+  if (level >= 20 && level < 40) details += ` Il est niveau ${level}, un guerrier confirme. Parle-lui comme a un compagnon de raid.`;
+  if ((w.totalSessions || 0) > 50) details += ` Il a complete ${w.totalSessions} seances physiques — c'est un athlete.`;
+
+  return `\n\n${attitude}${details}\n`;
+}
+
 async function callAI(userText, imageData = null) {
   const memoryContext = state.longTermMemory.length > 0
     ? `\n\nCe que tu sais sur ton compagnon:\n${state.longTermMemory.slice(-20).join('\n')}`
@@ -9482,7 +9826,8 @@ async function callAI(userText, imageData = null) {
 - Messages echanges : ${msgCount}
 - Niveau de complicite : ${level}/100 - ${relationDesc}${questInfo}`;
 
-  const systemContent = state.config.personality + memoryContext + timeInfo + modePrompt + projectContext;
+  const moodDirective = getCompanionMoodDirective();
+  const systemContent = state.config.personality + moodDirective + memoryContext + timeInfo + modePrompt + projectContext;
   const msgs = getCurrentMessages();
 
   // Build message history
