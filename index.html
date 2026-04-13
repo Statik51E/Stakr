@@ -418,6 +418,33 @@ header button{flex-shrink:0}
 .spec-card-effect{font-size:.6rem;color:var(--gold);margin-top:4px;font-weight:600}
 .spec-summary{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .spec-badge{background:linear-gradient(135deg,rgba(196,154,60,.12),rgba(196,154,60,.04));border:1px solid var(--gold-dim);border-radius:8px;padding:4px 8px;font-size:.6rem;color:var(--gold)}
+/* ===== EPIC QUESTS ===== */
+.epic-card{background:linear-gradient(160deg,rgba(196,154,60,.06),rgba(0,0,0,.4));border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.epic-card.active{border-color:var(--gold);box-shadow:0 0 16px rgba(196,154,60,.12)}
+.epic-card.completed{border-color:#4caf50;box-shadow:0 0 12px rgba(76,175,80,.15)}
+.epic-card.locked{opacity:.5}
+.epic-card::before{content:'';position:absolute;top:0;left:-100%;width:200%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.epic-card.active::before{animation:defisShimmer 4s linear infinite}
+.epic-title{font-size:.85rem;font-weight:700;color:var(--gold);font-variant:small-caps;letter-spacing:1px;margin-bottom:4px}
+.epic-subtitle{font-size:.6rem;color:var(--text-dim);margin-bottom:10px;line-height:1.3}
+.epic-duration{font-size:.55rem;color:var(--gold-dim);margin-bottom:8px}
+.epic-milestones{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.epic-ms{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05)}
+.epic-ms.done{border-color:rgba(76,175,80,.3);background:rgba(76,175,80,.06)}
+.epic-ms.current{border-color:var(--gold-dim);background:rgba(196,154,60,.06)}
+.epic-ms-icon{font-size:1rem;flex-shrink:0}
+.epic-ms-info{flex:1;min-width:0}
+.epic-ms-name{font-size:.65rem;font-weight:700;color:var(--text)}
+.epic-ms-desc{font-size:.55rem;color:var(--text-dim)}
+.epic-ms-reward{font-size:.55rem;color:var(--gold);margin-top:1px}
+.epic-ms-check{font-size:.8rem;flex-shrink:0}
+.epic-progress-bar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;margin:8px 0;overflow:hidden}
+.epic-progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold-dim),var(--gold));transition:width .5s ease}
+.epic-reward-box{background:linear-gradient(135deg,rgba(196,154,60,.12),rgba(196,154,60,.04));border:1px solid var(--gold-dim);border-radius:8px;padding:8px 10px;margin-top:8px;text-align:center}
+.epic-reward-box .reward-title{font-size:.6rem;font-weight:700;color:var(--gold);margin-bottom:4px;font-variant:small-caps}
+.epic-reward-box .reward-items{font-size:.55rem;color:var(--text)}
+.epic-btn{background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;color:#0e0a06;font-size:.7rem;font-weight:700;padding:8px 16px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:8px}
+.epic-btn:hover{filter:brightness(1.1)}
 /* ===== SOLO LEVELING ===== */
 .solo-intro{padding:20px 18px;background:linear-gradient(160deg,rgba(138,43,226,.1),rgba(0,0,0,.5));border:1px solid rgba(138,43,226,.5);border-radius:14px;text-align:center;position:relative;overflow:hidden;box-shadow:0 0 24px rgba(138,43,226,.2) inset}
 .solo-intro::before{content:'';position:absolute;top:0;left:-100%;width:200%;height:2px;background:linear-gradient(90deg,transparent,#8a2be2,#c04efb,transparent);animation:defisShimmer 3s linear infinite}
@@ -1188,6 +1215,7 @@ header button{flex-shrink:0}
       <button class="quest-tab" data-qtab="defis" onclick="switchQuestTab('defis')"><span class="tab-icon">&#9888;</span>Defis</button>
       <button class="quest-tab" data-qtab="solo" onclick="switchQuestTab('solo')"><span class="tab-icon">&#128165;</span>Solo</button>
       <button class="quest-tab" data-qtab="saison" onclick="switchQuestTab('saison')"><span class="tab-icon">&#127793;</span>Saison</button>
+      <button class="quest-tab" data-qtab="epiques" onclick="switchQuestTab('epiques')"><span class="tab-icon">&#127942;</span>Epiques</button>
       <button class="quest-tab" data-qtab="boss" onclick="switchQuestTab('boss')"><span class="tab-icon">&#128009;</span>Boss</button>
       <button class="quest-tab" data-qtab="stakr" onclick="switchQuestTab('stakr')"><span class="tab-icon">&#129718;</span>Stakr</button>
       <button class="quest-tab" data-qtab="runes" onclick="switchQuestTab('runes')"><span class="tab-icon">&#9883;</span>Runes</button>
@@ -1201,6 +1229,7 @@ header button{flex-shrink:0}
     <div id="quest-defis-tab" style="display:none"></div>
     <div id="quest-solo-tab" style="display:none"></div>
     <div id="quest-saison-tab" style="display:none"></div>
+    <div id="quest-epiques-tab" style="display:none"></div>
     <div id="quest-boss-tab" style="display:none"></div>
     <div id="quest-list-stakr" style="display:none"></div>
     <div id="quest-runes-tab" style="display:none"></div>
@@ -4434,6 +4463,10 @@ function initQuests() {
   // Specializations
   if (!q.specializations) q.specializations = { chosen: {} };
 
+  // Epic quests
+  if (!q.epicQuests) q.epicQuests = {};
+  if (!q.epicTitles) q.epicTitles = [];
+
   // Seasonal system
   initSeason();
 
@@ -4606,7 +4639,7 @@ function initQuests() {
 
   scheduleQuestReminders();
   // Daily wisdom + weekly journal
-  setTimeout(() => { checkDailyWisdom(); checkWeeklyJournal(); }, 3000);
+  setTimeout(() => { checkDailyWisdom(); checkWeeklyJournal(); checkEpicQuestProgress(); }, 3000);
 }
 
 // ===== DISCIPLINE VIKING =====
@@ -6265,7 +6298,7 @@ function toggleMapPanel() {
 
 function switchQuestTab(tab) {
   document.querySelectorAll('.quest-tab').forEach(t => t.classList.toggle('active', t.dataset.qtab === tab));
-  ['daily','weekly','defis','solo','saison','stakr','stats','arbre','talents','boss','evolve'].forEach(t => {
+  ['daily','weekly','defis','solo','saison','epiques','stakr','stats','arbre','talents','boss','evolve'].forEach(t => {
     const el = $(`#quest-list-${t}`) || $(`#quest-${t}-tab`);
     if (el) el.style.display = 'none';
   });
@@ -6274,6 +6307,7 @@ function switchQuestTab(tab) {
   else if (tab === 'defis') { $('#quest-defis-tab').style.display = 'block'; renderDailyChallenges(); }
   else if (tab === 'solo') { $('#quest-solo-tab').style.display = 'block'; renderSoloLeveling(); }
   else if (tab === 'saison') { $('#quest-saison-tab').style.display = 'block'; renderSeasonInTab(); }
+  else if (tab === 'epiques') { $('#quest-epiques-tab').style.display = 'block'; renderEpicQuests(); }
   else if (tab === 'boss') { $('#quest-boss-tab').style.display = 'block'; $('#quest-boss-tab').innerHTML = renderBossSection(); }
   else if (tab === 'stakr') { $('#quest-list-stakr').style.display = 'block'; renderStakrQuests(); }
   else if (tab === 'runes') { $('#quest-runes-tab').style.display = 'block'; renderRuneCollection(); }
@@ -7833,6 +7867,308 @@ function renderSpecializations() {
       html += '</div>';
     } else {
       html += `<div style="text-align:center;font-size:.65rem;color:var(--text-dim);padding:8px">Atteins le niveau ${milestone.level} pour debloquer ces talents.</div>`;
+    }
+
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+// ===== EPIC QUESTS (Long-term 30-90 day quests) =====
+const EPIC_QUESTS = [
+  {
+    id: 'lindisfarne',
+    name: 'Le Raid de Lindisfarne',
+    icon: '⚔️',
+    subtitle: 'Reproduis l\'exploit des premiers Vikings. 60 jours de discipline absolue.',
+    duration: 60,
+    levelMin: 5,
+    milestones: [
+      { day: 7, name: 'Preparer le Drakkar', desc: '7 jours de streak consecutifs', icon: '🛶',
+        check: (q, eq) => eq.bestStreak >= 7, reward: { xp: 200, label: '+200 XP' }},
+      { day: 14, name: 'Traverser la Mer du Nord', desc: '20 seances physiques completees', icon: '🌊',
+        check: (q, eq) => (q.workout?.totalSessions || 0) - (eq.startWorkouts || 0) >= 20, reward: { xp: 300, label: '+300 XP' }},
+      { day: 30, name: 'Apercevoir les Cotes', desc: '30 jours de streak + 5000 XP gagnes', icon: '🏝️',
+        check: (q, eq) => eq.bestStreak >= 30 && (q.totalXp - (eq.startXp || 0)) >= 5000, reward: { xp: 500, label: '+500 XP' }},
+      { day: 45, name: 'Debarquer a l\'Aube', desc: '50 defis quotidiens completes', icon: '🏴',
+        check: (q, eq) => (q.dailyChallenges?.totalCompleted || 0) - (eq.startDefis || 0) >= 50, reward: { xp: 500, label: '+500 XP' }},
+      { day: 60, name: 'Piller le Monastere', desc: '60 jours de streak + niveau 10+', icon: '⚔️',
+        check: (q, eq) => eq.bestStreak >= 60 && q.level >= 10, reward: { xp: 1000, label: '+1000 XP' }}
+    ],
+    finalReward: { xp: 2000, title: 'Pilleur de Lindisfarne', rune: null, label: '2000 XP + Titre exclusif' }
+  },
+  {
+    id: 'berserker_forge',
+    name: 'La Forge du Berserkr',
+    icon: '🔨',
+    subtitle: '90 jours pour transformer ton corps en arme vivante.',
+    duration: 90,
+    levelMin: 8,
+    milestones: [
+      { day: 10, name: 'Chauffer la Forge', desc: '10 seances physiques + 500 pompes totales', icon: '🔥',
+        check: (q, eq) => (q.workout?.totalSessions || 0) - (eq.startWorkouts || 0) >= 10 && (q.lifetimeTotals?.pushups || 0) - (eq.startPushups || 0) >= 500, reward: { xp: 300, label: '+300 XP' }},
+      { day: 25, name: 'Marteler le Metal', desc: '25 jours de Solo Leveling completes', icon: '🔨',
+        check: (q, eq) => (q.soloLeveling?.completedDays || 0) - (eq.startSoloDays || 0) >= 25, reward: { xp: 500, label: '+500 XP' }},
+      { day: 45, name: 'Tremper dans la Glace', desc: '10 douches froides + 30 seances physiques', icon: '🧊',
+        check: (q, eq) => (q.lifetimeTotals?.cold_shower || 0) - (eq.startColdShower || 0) >= 10 && (q.workout?.totalSessions || 0) - (eq.startWorkouts || 0) >= 30, reward: { xp: 500, label: '+500 XP' }},
+      { day: 70, name: 'Aiguiser la Lame', desc: '2000 pompes + 2000 squats + 50km', icon: '⚔️',
+        check: (q, eq) => (q.lifetimeTotals?.pushups || 0) - (eq.startPushups || 0) >= 2000 && ((q.soloLeveling?.totals?.squats || 0) - (eq.startSquats || 0)) >= 2000 && ((q.lifetimeTotals?.walk || 0) + (q.soloLeveling?.totals?.km || 0)) - (eq.startKm || 0) >= 50, reward: { xp: 800, label: '+800 XP' }},
+      { day: 90, name: 'Le Corps est l\'Arme', desc: '60 seances physiques + Solo Leveling semaine 5+', icon: '🐻',
+        check: (q, eq) => (q.workout?.totalSessions || 0) - (eq.startWorkouts || 0) >= 60 && (q.soloLeveling?.currentWeek || 0) >= 5, reward: { xp: 1500, label: '+1500 XP' }}
+    ],
+    finalReward: { xp: 3000, title: 'Berserkr Eternel', rune: null, label: '3000 XP + Titre exclusif' }
+  },
+  {
+    id: 'odin_wisdom',
+    name: 'Le Sacrifice d\'Odin',
+    icon: '👁️',
+    subtitle: '45 jours de sagesse et de discipline mentale.',
+    duration: 45,
+    levelMin: 3,
+    milestones: [
+      { day: 7, name: 'S\'accrocher a l\'Arbre', desc: '7 jours de meditation consecutive (3 min/jour)', icon: '🌳',
+        check: (q, eq) => eq.bestStreak >= 7 && (q.lifetimeTotals?.meditation || 0) - (eq.startMeditation || 0) >= 21, reward: { xp: 150, label: '+150 XP' }},
+      { day: 15, name: 'Voir les Runes', desc: '3 runes collectees + 150 min de lecture', icon: '✦',
+        check: (q, eq) => (q.runes || []).length - (eq.startRunes || 0) >= 3 && (q.lifetimeTotals?.reading || 0) - (eq.startReading || 0) >= 150, reward: { xp: 250, label: '+250 XP' }},
+      { day: 30, name: 'Comprendre le Cosmos', desc: '30 reflexions stoiques + 10 seances meditation', icon: '🏛️',
+        check: (q, eq) => (q.workout?.totalMedSessions || 0) - (eq.startMedSessions || 0) >= 10 && (q.lifetimeTotals?.gratitude || 0) - (eq.startGratitude || 0) >= 30, reward: { xp: 400, label: '+400 XP' }},
+      { day: 45, name: 'L\'Oeil Sacrifie', desc: '45 jours streak + 5 competences Arbre de Vie', icon: '👁️',
+        check: (q, eq) => eq.bestStreak >= 45 && (q.skillTree?.unlockedNodes || []).length - (eq.startSkillNodes || 0) >= 5, reward: { xp: 800, label: '+800 XP' }}
+    ],
+    finalReward: { xp: 1500, title: 'Oeil d\'Odin', rune: null, label: '1500 XP + Titre exclusif' }
+  },
+  {
+    id: 'ragnarok_prep',
+    name: 'Preparation au Ragnarok',
+    icon: '🌋',
+    subtitle: '90 jours pour devenir un Einherjar digne du Valhalla.',
+    duration: 90,
+    levelMin: 15,
+    milestones: [
+      { day: 10, name: 'L\'Appel des Valkyries', desc: 'Streak 10j + 3000 XP gagnes', icon: '🪽',
+        check: (q, eq) => eq.bestStreak >= 10 && (q.totalXp - (eq.startXp || 0)) >= 3000, reward: { xp: 400, label: '+400 XP' }},
+      { day: 25, name: 'Forger Mjolnir', desc: '30 seances + 20 defis completes', icon: '🔨',
+        check: (q, eq) => (q.workout?.totalSessions || 0) - (eq.startWorkouts || 0) >= 30 && (q.dailyChallenges?.totalCompleted || 0) - (eq.startDefis || 0) >= 20, reward: { xp: 600, label: '+600 XP' }},
+      { day: 45, name: 'Dompter Fenrir', desc: 'Solo Leveling semaine 6+ + 45j streak', icon: '🐺',
+        check: (q, eq) => (q.soloLeveling?.currentWeek || 0) >= 6 && eq.bestStreak >= 45, reward: { xp: 800, label: '+800 XP' }},
+      { day: 65, name: 'Naviguer sur Naglfar', desc: '6 royaumes debloques + 10000 XP gagnes', icon: '⛵',
+        check: (q, eq) => (q.worldMap?.unlockedRegions || []).length >= 6 && (q.totalXp - (eq.startXp || 0)) >= 10000, reward: { xp: 1000, label: '+1000 XP' }},
+      { day: 90, name: 'Le Crepuscule des Dieux', desc: '90j streak + niveau 25+ + 12 runes + Solo S8+', icon: '🌋',
+        check: (q, eq) => eq.bestStreak >= 90 && q.level >= 25 && (q.runes || []).length >= 12 && (q.soloLeveling?.currentWeek || 0) >= 8, reward: { xp: 2000, label: '+2000 XP' }}
+    ],
+    finalReward: { xp: 5000, title: 'Einherjar du Ragnarok', rune: null, label: '5000 XP + Titre legendaire' }
+  },
+  {
+    id: 'viking_way',
+    name: 'La Voie du Viking',
+    icon: '🪶',
+    subtitle: '30 jours pour poser les fondations d\'un guerrier.',
+    duration: 30,
+    levelMin: 1,
+    milestones: [
+      { day: 3, name: 'Premier Pas', desc: '3 jours de streak', icon: '👣',
+        check: (q, eq) => eq.bestStreak >= 3, reward: { xp: 100, label: '+100 XP' }},
+      { day: 7, name: 'Premiere Semaine', desc: '7j streak + 5 seances completees', icon: '🗡️',
+        check: (q, eq) => eq.bestStreak >= 7 && (q.workout?.totalSessions || 0) - (eq.startWorkouts || 0) >= 5, reward: { xp: 200, label: '+200 XP' }},
+      { day: 14, name: 'Le Sang du Guerrier', desc: '10 defis completes + 100 pompes', icon: '💪',
+        check: (q, eq) => (q.dailyChallenges?.totalCompleted || 0) - (eq.startDefis || 0) >= 10 && (q.lifetimeTotals?.pushups || 0) - (eq.startPushups || 0) >= 100, reward: { xp: 300, label: '+300 XP' }},
+      { day: 30, name: 'Forgeron de Soi', desc: '30j streak + niveau 5+ + 1 rune', icon: '🪶',
+        check: (q, eq) => eq.bestStreak >= 30 && q.level >= 5 && (q.runes || []).length >= 1, reward: { xp: 500, label: '+500 XP' }}
+    ],
+    finalReward: { xp: 1000, title: 'Viking Authentique', rune: null, label: '1000 XP + Titre exclusif' }
+  }
+];
+
+function initEpicQuests() {
+  const q = state.quests;
+  if (!q.epicQuests) q.epicQuests = {};
+}
+
+function startEpicQuest(questId) {
+  const q = state.quests;
+  if (!q.epicQuests) q.epicQuests = {};
+  const quest = EPIC_QUESTS.find(eq => eq.id === questId);
+  if (!quest) return;
+  if (q.level < quest.levelMin) { showToast('Niveau insuffisant', `Tu dois etre niveau ${quest.levelMin}+.`); return; }
+  if (q.epicQuests[questId]) { showToast('Deja en cours', 'Cette quete est deja active ou completee.'); return; }
+
+  // Snapshot starting stats to measure progress from now
+  q.epicQuests[questId] = {
+    startDate: getTodayStr(),
+    milestonesCompleted: [],
+    completed: false,
+    bestStreak: 0,
+    startXp: q.totalXp || 0,
+    startWorkouts: q.workout?.totalSessions || 0,
+    startDefis: q.dailyChallenges?.totalCompleted || 0,
+    startSoloDays: q.soloLeveling?.completedDays || 0,
+    startPushups: q.lifetimeTotals?.pushups || 0,
+    startSquats: q.soloLeveling?.totals?.squats || 0,
+    startKm: (q.lifetimeTotals?.walk || 0) + (q.soloLeveling?.totals?.km || 0),
+    startColdShower: q.lifetimeTotals?.cold_shower || 0,
+    startMeditation: q.lifetimeTotals?.meditation || 0,
+    startReading: q.lifetimeTotals?.reading || 0,
+    startGratitude: q.lifetimeTotals?.gratitude || 0,
+    startRunes: (q.runes || []).length,
+    startMedSessions: q.workout?.totalMedSessions || 0,
+    startSkillNodes: (q.skillTree?.unlockedNodes || []).length
+  };
+
+  saveState();
+  addMessage('stakr', `KRAA ! Tu acceptes la quete epique **${quest.icon} ${quest.name}** ! *${quest.subtitle}* Tu as **${quest.duration} jours** pour accomplir cet exploit. Que les Nornes guident tes pas, guerrier ! [MOOD:excite]`);
+  showToast('Quete epique lancee !', `${quest.icon} ${quest.name} — ${quest.duration} jours`);
+  playSfx('levelup'); haptic([50, 30, 80]); goldFlash();
+  renderEpicQuests();
+}
+
+function checkEpicQuestProgress() {
+  const q = state.quests;
+  if (!q.epicQuests) return;
+  const today = getTodayStr();
+
+  Object.keys(q.epicQuests).forEach(questId => {
+    const eq = q.epicQuests[questId];
+    if (eq.completed) return;
+    const quest = EPIC_QUESTS.find(e => e.id === questId);
+    if (!quest) return;
+
+    // Track best streak during the quest
+    eq.bestStreak = Math.max(eq.bestStreak || 0, q.streak || 0);
+
+    // Days elapsed
+    const daysElapsed = Math.floor((new Date(today) - new Date(eq.startDate)) / 86400000);
+
+    // Check each milestone
+    quest.milestones.forEach((ms, idx) => {
+      if (eq.milestonesCompleted.includes(idx)) return;
+      if (ms.check(q, eq)) {
+        eq.milestonesCompleted.push(idx);
+        // Award milestone XP
+        if (ms.reward.xp) addQuestXp(ms.reward.xp);
+        addMessage('stakr', `⚡ Quete epique **${quest.name}** — etape accomplie : **${ms.icon} ${ms.name}** ! ${ms.reward.label} ! Continue, Viking ! [MOOD:excite]`);
+        showToast('Etape epique !', `${ms.icon} ${ms.name} — ${ms.reward.label}`);
+        playSfx('clink'); haptic([30, 20, 50]);
+      }
+    });
+
+    // Check if all milestones are done = quest complete
+    if (eq.milestonesCompleted.length === quest.milestones.length && !eq.completed) {
+      eq.completed = true;
+      eq.completedDate = today;
+      // Award final reward
+      if (quest.finalReward.xp) addQuestXp(quest.finalReward.xp);
+      // Store earned title
+      if (!q.epicTitles) q.epicTitles = [];
+      if (quest.finalReward.title && !q.epicTitles.includes(quest.finalReward.title)) {
+        q.epicTitles.push(quest.finalReward.title);
+      }
+      addMessage('stakr', `KRAA ! ⚡🏆⚡ QUETE EPIQUE ACCOMPLIE : **${quest.icon} ${quest.name}** ! Tu as obtenu le titre **${quest.finalReward.title}** et **${quest.finalReward.xp} XP** ! Les sagas chanteront ton nom a travers les ages ! [MOOD:excite]`);
+      showToast('QUETE EPIQUE TERMINEE !', `${quest.icon} ${quest.name} — ${quest.finalReward.label}`);
+      playSfx('levelup'); haptic([80, 40, 80, 40, 120]); spawnGoldRain(60); screenShake(); goldFlash();
+    }
+
+    // Check if quest expired (past duration and not all milestones done)
+    if (daysElapsed > quest.duration && !eq.completed) {
+      eq.expired = true;
+    }
+  });
+
+  saveState();
+}
+
+function abandonEpicQuest(questId) {
+  const q = state.quests;
+  if (!q.epicQuests || !q.epicQuests[questId]) return;
+  if (!confirm('Abandonner cette quete epique ? Tu pourras la relancer plus tard mais ta progression sera perdue.')) return;
+  delete q.epicQuests[questId];
+  saveState();
+  showToast('Quete abandonnee', 'Tu pourras la relancer quand tu seras pret.');
+  renderEpicQuests();
+}
+
+function restartEpicQuest(questId) {
+  const q = state.quests;
+  if (q.epicQuests && q.epicQuests[questId]) delete q.epicQuests[questId];
+  startEpicQuest(questId);
+}
+
+function renderEpicQuests() {
+  const container = $('#quest-epiques-tab');
+  if (!container) return;
+  const q = state.quests;
+  if (!q.epicQuests) q.epicQuests = {};
+  const today = getTodayStr();
+
+  // Check progress first
+  checkEpicQuestProgress();
+
+  // Earned titles
+  const titles = q.epicTitles || [];
+  let html = `
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:1.2rem">🏆</div>
+      <div style="font-size:.9rem;font-weight:700;color:var(--gold);font-variant:small-caps;letter-spacing:1px">Quetes Epiques</div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">Des exploits de 30 a 90 jours. Chaque etape franchie donne de l'XP. Termine la quete pour un titre unique.</div>
+      ${titles.length > 0 ? `<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;justify-content:center">${titles.map(t => `<span class="spec-badge">🏆 ${t}</span>`).join('')}</div>` : ''}
+    </div>
+  `;
+
+  EPIC_QUESTS.forEach(quest => {
+    const eq = q.epicQuests[quest.id];
+    const isActive = eq && !eq.completed && !eq.expired;
+    const isCompleted = eq && eq.completed;
+    const isExpired = eq && eq.expired && !eq.completed;
+    const isLocked = q.level < quest.levelMin;
+    const notStarted = !eq;
+
+    const daysElapsed = eq ? Math.floor((new Date(today) - new Date(eq.startDate)) / 86400000) : 0;
+    const daysLeft = eq ? Math.max(0, quest.duration - daysElapsed) : quest.duration;
+    const milestoneDone = eq ? eq.milestonesCompleted.length : 0;
+    const progressPct = quest.milestones.length > 0 ? Math.round((milestoneDone / quest.milestones.length) * 100) : 0;
+
+    const cardClass = isCompleted ? 'completed' : isActive ? 'active' : isLocked ? 'locked' : '';
+
+    html += `<div class="epic-card ${cardClass}">
+      <div class="epic-title">${quest.icon} ${quest.name} ${isCompleted ? '✓' : isLocked ? '🔒' : ''}</div>
+      <div class="epic-subtitle">${quest.subtitle}</div>
+      <div class="epic-duration">⏳ ${quest.duration} jours ${isActive ? `— Jour ${daysElapsed}/${quest.duration} (${daysLeft}j restants)` : isCompleted ? `— Complete en ${daysElapsed}j !` : ''} ${isLocked ? `— Niveau ${quest.levelMin} requis` : ''}</div>`;
+
+    if (isActive || isCompleted) {
+      html += `<div class="epic-progress-bar"><div class="epic-progress-fill" style="width:${progressPct}%"></div></div>
+      <div style="font-size:.55rem;color:var(--text-dim);margin-bottom:6px">${milestoneDone}/${quest.milestones.length} etapes — ${progressPct}%</div>`;
+    }
+
+    // Milestones
+    html += '<div class="epic-milestones">';
+    quest.milestones.forEach((ms, idx) => {
+      const isDone = eq && eq.milestonesCompleted.includes(idx);
+      const isCurrent = isActive && !isDone && (idx === 0 || eq.milestonesCompleted.includes(idx - 1));
+      html += `<div class="epic-ms ${isDone ? 'done' : isCurrent ? 'current' : ''}">
+        <div class="epic-ms-icon">${isDone ? '✅' : ms.icon}</div>
+        <div class="epic-ms-info">
+          <div class="epic-ms-name">${ms.name} ${!isDone && !isLocked ? `(Jour ${ms.day})` : ''}</div>
+          <div class="epic-ms-desc">${ms.desc}</div>
+          <div class="epic-ms-reward">${ms.reward.label}</div>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+
+    // Final reward
+    html += `<div class="epic-reward-box">
+      <div class="reward-title">🏆 Recompense finale</div>
+      <div class="reward-items">${quest.finalReward.label}${quest.finalReward.title ? ` — Titre : "${quest.finalReward.title}"` : ''}</div>
+    </div>`;
+
+    // Action buttons
+    if (notStarted && !isLocked) {
+      html += `<button class="epic-btn" onclick="startEpicQuest('${quest.id}')">⚔️ Accepter la Quete</button>`;
+    } else if (isActive) {
+      html += `<button class="epic-btn" style="background:rgba(229,57,53,.2);color:#e53935;border:1px solid rgba(229,57,53,.3)" onclick="abandonEpicQuest('${quest.id}')">Abandonner</button>`;
+    } else if (isExpired) {
+      html += `<div style="font-size:.6rem;color:#e53935;margin-top:6px">⏰ Temps ecoule ! La quete a expire.</div>
+      <button class="epic-btn" onclick="restartEpicQuest('${quest.id}')">🔄 Recommencer</button>`;
     }
 
     html += '</div>';
@@ -11326,6 +11662,8 @@ async function syncToCloud() {
       personalRecords: q.personalRecords || {},
       startDate: q.startDate || null,
       daysActive: q.startDate ? Math.max(1, Math.ceil((Date.now() - new Date(q.startDate).getTime()) / 86400000)) : 0,
+      epicTitles: q.epicTitles || [],
+      epicQuestsCompleted: Object.values(q.epicQuests || {}).filter(e => e.completed).length,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     await db.collection('users').doc(currentUser.uid).set(profileData, { merge: true });
@@ -11653,6 +11991,11 @@ async function openPlayerProfile(uid) {
             </div>
           `).join('')}
         </div>
+      ` : ''}
+
+      ${(profile.epicTitles || []).length > 0 ? `
+        <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">🏆 Titres Epiques</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center">${(profile.epicTitles || []).map(t => `<span class="spec-badge">🏆 ${t}</span>`).join('')}</div>
       ` : ''}
 
       ${profile.companion ? `<div style="text-align:center;margin:14px 0 6px;font-size:.7rem;color:var(--text-dim)">Compagnon : ${companionEmoji} ${companionData ? companionData.name : profile.companion}</div>` : ''}
