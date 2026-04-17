@@ -762,6 +762,7 @@ header button{flex-shrink:0}
 .admin-log-entry{padding:3px 0;border-bottom:1px solid rgba(255,255,255,.03)}
 .admin-log-entry .log-time{color:rgba(229,57,53,.6)}
 .admin-log-entry .log-action{color:var(--text)}
+.lang-option.active{border-color:var(--gold) !important;background:linear-gradient(135deg,var(--gold-dim),var(--gold)) !important;color:#0e0a06 !important}
 /* ===== MONDE / CARTE ===== */
 .monde-header{text-align:center;padding:10px 0 8px;margin-bottom:8px}
 .monde-title{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);margin-bottom:2px}
@@ -976,7 +977,7 @@ header button{flex-shrink:0}
 <div id="app">
   <!-- HEADER -->
   <header>
-    <button id="project-btn" title="Projets">&#9776;</button>
+    <button id="project-btn" title="Projets" data-i18n="projects" data-i18n-attr="title">&#9776;</button>
     <h1>STAKR</h1>
     <span id="mood-indicator">&#9679; Serein</span>
     <button id="map-btn" class="header-icon-btn" title="Carte du Monde">&#128506;</button>
@@ -993,15 +994,15 @@ header button{flex-shrink:0}
   <div id="mode-bar">
     <div id="mode-dropdown-wrap">
       <select id="mode-select">
-        <option value="conversation">&#9781; Chat</option>
-        <option value="recherche">&#128269; Recherche</option>
-        <option value="creation">&#9998; Cr&#233;ation</option>
-        <option value="design">&#9670; Design</option>
+        <option value="conversation" data-i18n="chat">&#9781; Chat</option>
+        <option value="recherche" data-i18n="search">&#128269; Recherche</option>
+        <option value="creation" data-i18n="creation">&#9998; Création</option>
+        <option value="design" data-i18n="design">&#9670; Design</option>
         <option value="code">&lt;/&gt; Code</option>
       </select>
     </div>
-    <button class="mode-quick-btn" id="quest-quick-btn" onclick="toggleQuestPanel()">&#9876; Qu&#234;tes</button>
-    <button class="mode-quick-btn" id="adv-quick-btn" onclick="switchToAdventure()">&#128506; Aventure</button>
+    <button class="mode-quick-btn" id="quest-quick-btn" onclick="toggleQuestPanel()" data-i18n="quests">&#9876; Quêtes</button>
+    <button class="mode-quick-btn" id="adv-quick-btn" onclick="switchToAdventure()" data-i18n="adventure">&#128506; Aventure</button>
   </div>
 
   <!-- RAVEN STAGE -->
@@ -1057,8 +1058,8 @@ header button{flex-shrink:0}
 
 <!-- PROJECT PANEL -->
 <div id="project-panel">
-  <h2>&#128193; Projets</h2>
-  <button id="new-project-btn" onclick="createProject()">+ Nouveau projet</button>
+  <h2 data-i18n="projects">&#128193; Projets</h2>
+  <button id="new-project-btn" onclick="createProject()" data-i18n="newProject">+ Nouveau projet</button>
   <div id="project-list"></div>
   <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
     <div class="project-item proj-general" onclick="switchProject(null)" style="border-left:3px solid var(--rune-blue)">
@@ -1074,15 +1075,24 @@ header button{flex-shrink:0}
 <div id="settings-overlay" onclick="closeAllPanels()"></div>
 <div id="settings-panel">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-    <h2 style="margin:0">&#9881; Param&#232;tres</h2>
+    <h2 style="margin:0" data-i18n="settingsTitle">&#9881; Paramètres</h2>
     <button class="btn-secondary" onclick="toggleSettings()" style="margin:0;padding:6px 14px">&#10003; OK</button>
   </div>
   <div class="setting-group">
-    <label>Compagnon</label>
+    <label data-i18n="language">Langue</label>
+    <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+      <button class="lang-option" data-lang="fr" onclick="setLanguage('fr')" style="padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:var(--wood-mid);color:var(--text);font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s">🇫🇷 Français</button>
+      <button class="lang-option" data-lang="en" onclick="setLanguage('en')" style="padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:var(--wood-mid);color:var(--text);font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s">🇬🇧 English</button>
+      <button class="lang-option" data-lang="es" onclick="setLanguage('es')" style="padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:var(--wood-mid);color:var(--text);font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s">🇪🇸 Español</button>
+      <button class="lang-option" data-lang="pt" onclick="setLanguage('pt')" style="padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:var(--wood-mid);color:var(--text);font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600;transition:all .2s">🇧🇷 Português</button>
+    </div>
+  </div>
+  <div class="setting-group">
+    <label data-i18n="companionLabel">Compagnon</label>
     <div id="companion-select" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px"></div>
   </div>
   <div class="setting-group">
-    <label>Backend IA</label>
+    <label data-i18n="iaBackend">Backend IA</label>
     <select id="api-backend">
       <option value="ollama">Ollama (local)</option>
       <option value="groq">Groq (cloud gratuit)</option>
@@ -1090,39 +1100,39 @@ header button{flex-shrink:0}
     </select>
   </div>
   <div class="setting-group" id="groq-key-group" style="display:none">
-    <label>Clés API Groq (1 par ligne, rotation auto)</label>
+    <label data-i18n="groqKeys">Clés API Groq (1 par ligne, rotation auto)</label>
     <textarea id="api-keys" rows="6" placeholder="gsk_abc123...&#10;gsk_def456...&#10;gsk_ghi789...&#10;gsk_jkl012..." style="font-size:.75rem;font-family:monospace"></textarea>
     <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">Gratuit sur <a href="https://console.groq.com/keys" target="_blank" style="color:var(--gold)">console.groq.com/keys</a> — Ajoute plusieurs cles pour eviter les limites</div>
     <div id="groq-key-status" style="font-size:.7rem;color:var(--gold-dim);margin-top:4px"></div>
   </div>
   <div class="setting-group" id="pollinations-key-group" style="display:none">
-    <label>Clé Pollinations (génération images)</label>
+    <label data-i18n="pollinationsKey">Clé Pollinations (génération images)</label>
     <input type="text" id="pollinations-key" placeholder="pk_..."/>
     <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">Gratuit sur <a href="https://enter.pollinations.ai" target="_blank" style="color:var(--gold)">enter.pollinations.ai</a> — "Génère une image de..."</div>
   </div>
   <div class="setting-group" id="custom-url-group" style="display:none">
-    <label>URL API</label>
+    <label data-i18n="apiUrl">URL API</label>
     <input type="text" id="api-url" placeholder="http://localhost:11434/api/chat"/>
   </div>
   <div class="setting-group" id="custom-key-group" style="display:none">
-    <label>Clé API (optionnel)</label>
+    <label data-i18n="apiKeyOpt">Clé API (optionnel)</label>
     <input type="password" id="custom-api-key" placeholder="sk-..."/>
   </div>
   <div class="setting-group">
-    <label>Modèle</label>
+    <label data-i18n="model">Modèle</label>
     <input type="text" id="api-model" placeholder="llama3"/>
   </div>
   <div class="setting-group">
-    <label>Personnalité de Stakr</label>
+    <label data-i18n="personality">Personnalité de Stakr</label>
     <textarea id="personality-input"></textarea>
   </div>
   <div class="setting-group">
-    <label>Notifications</label>
-    <button class="btn-secondary" onclick="requestNotifPermission()">Activer les notifications</button>
+    <label data-i18n="notifications">Notifications</label>
+    <button class="btn-secondary" onclick="requestNotifPermission()" data-i18n="enableNotifs">Activer les notifications</button>
     <div id="notif-status" style="font-size:.7rem;color:var(--text-dim);margin-top:6px"></div>
     <button class="btn-secondary" id="copy-token-btn" style="display:none;margin-top:4px;font-size:.75rem" onclick="copyFCMToken()">Copier le token FCM</button>
     <div style="margin-top:10px">
-      <label style="font-size:.75rem;color:var(--text-dim)">Rappels (même app fermée)</label>
+      <label style="font-size:.75rem;color:var(--text-dim)" data-i18n="reminders">Rappels (même app fermée)</label>
       <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px">
         1. Installe l'app <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" style="color:var(--gold)">ntfy (Android)</a> ou <a href="https://apps.apple.com/app/ntfy/id1625396347" target="_blank" style="color:var(--gold)">ntfy (iPhone)</a><br>
         2. Copie ton topic ci-dessous et abonne-toi dans l'app
@@ -1136,41 +1146,41 @@ header button{flex-shrink:0}
     </div>
   </div>
   <div class="setting-group">
-    <label>Sons & vibrations</label>
+    <label data-i18n="soundsVibrations">Sons & vibrations</label>
     <div style="display:flex;gap:12px;margin-top:6px">
       <label style="font-size:.75rem;display:flex;align-items:center;gap:6px;cursor:pointer">
-        <input type="checkbox" id="sfx-toggle" onchange="state.config.sfxOff=!this.checked;saveState()" /> Sons
+        <input type="checkbox" id="sfx-toggle" onchange="state.config.sfxOff=!this.checked;saveState()" /> <span data-i18n="sounds">Sons</span>
       </label>
       <label style="font-size:.75rem;display:flex;align-items:center;gap:6px;cursor:pointer">
-        <input type="checkbox" id="haptic-toggle" onchange="state.config.hapticOff=!this.checked;saveState()" /> Vibrations
+        <input type="checkbox" id="haptic-toggle" onchange="state.config.hapticOff=!this.checked;saveState()" /> <span data-i18n="vibrations">Vibrations</span>
       </label>
     </div>
   </div>
   <div class="setting-group">
-    <label>🛌 Jours de repos (2/semaine)</label>
-    <div style="font-size:.65rem;color:var(--text-dim);margin-bottom:6px">Active un jour de repos pour desactiver <strong>toutes</strong> les penalites (quetes, defis, seances, solo leveling). Maximum 2 par semaine.</div>
+    <label>🛌 <span data-i18n="restDays">Jours de repos (2/semaine)</span></label>
+    <div style="font-size:.65rem;color:var(--text-dim);margin-bottom:6px" data-i18n="restDaysDesc" data-i18n-html="1">Active un jour de repos pour desactiver <strong>toutes</strong> les penalites (quetes, defis, seances, solo leveling). Maximum 2 par semaine.</div>
     <div id="rest-day-status"></div>
   </div>
   <div class="setting-group">
-    <label>Mémoire</label>
-    <button class="btn-danger" onclick="clearMemory()">Effacer la mémoire</button>
+    <label data-i18n="memory">Mémoire</label>
+    <button class="btn-danger" onclick="clearMemory()" data-i18n="clearMemory">Effacer la mémoire</button>
   </div>
   <div class="setting-group">
-    <button class="btn-secondary" onclick="exportMemory()">Exporter sauvegarde (JSON)</button>
+    <button class="btn-secondary" onclick="exportMemory()" data-i18n="exportBackup">Exporter sauvegarde (JSON)</button>
     <label class="btn-secondary" style="display:inline-block;margin-top:8px;text-align:center;cursor:pointer">
-      Importer sauvegarde
+      <span data-i18n="importBackup">Importer sauvegarde</span>
       <input type="file" accept=".json" onchange="importFullBackup(event)" style="display:none" />
     </label>
   </div>
   <div class="setting-group" id="admin-settings-entry" style="display:none;margin-top:16px;border-top:2px solid #e53935;padding-top:16px">
-    <button onclick="toggleSettings();toggleAdminPanel()" style="width:100%;padding:14px;background:linear-gradient(135deg,#e53935,#c62828);color:#fff;border:none;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:1px">🔒 Panneau d'administration</button>
+    <button onclick="toggleSettings();toggleAdminPanel()" style="width:100%;padding:14px;background:linear-gradient(135deg,#e53935,#c62828);color:#fff;border:none;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:1px" data-i18n="adminPanel">🔒 Panneau d'administration</button>
   </div>
 </div>
 
 <!-- CUSTOMIZE PANEL -->
 <div id="customize-panel">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-    <h2 style="margin:0">&#9998; Personnaliser</h2>
+    <h2 style="margin:0" data-i18n="customizeTitle">&#9998; Personnaliser</h2>
     <button class="btn-secondary" onclick="toggleCustomize()" style="margin:0;padding:6px 14px">&#10003; OK</button>
   </div>
 
@@ -1279,7 +1289,7 @@ header button{flex-shrink:0}
 <!-- MAP PANEL -->
 <div id="map-panel">
   <div id="map-panel-header">
-    <h2>&#128506; Carte du Monde</h2>
+    <h2 data-i18n="mapTitle">&#128506; Carte du Monde</h2>
     <button class="btn-secondary" onclick="toggleMapPanel()" style="margin:0;padding:6px 14px;background:var(--gold-dim);border:none;border-radius:4px;color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600">OK</button>
   </div>
   <div id="map-panel-content"></div>
@@ -1288,14 +1298,14 @@ header button{flex-shrink:0}
 <!-- ACCOUNT PANEL -->
 <div id="account-panel">
   <div id="account-panel-header">
-    <h2>👤 Compte Viking</h2>
+    <h2 data-i18n="vikingAccount">👤 Compte Viking</h2>
     <button class="btn-secondary" onclick="toggleAccountPanel()" style="margin:0;padding:6px 14px;background:var(--gold-dim);border:none;border-radius:4px;color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600">OK</button>
   </div>
   <div id="account-panel-content">
     <div id="account-logged-out">
-      <p style="text-align:center;color:var(--text-dim);margin:20px 0;font-size:.8rem">Connecte-toi pour sauvegarder ta progression et apparaitre dans le classement !</p>
+      <p style="text-align:center;color:var(--text-dim);margin:20px 0;font-size:.8rem" data-i18n="loginPrompt">Connecte-toi pour sauvegarder ta progression et apparaitre dans le classement !</p>
       <button id="google-login-btn" onclick="loginWithGoogle()" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--wood-mid);color:var(--text);font-size:.85rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:600">
-        <span style="font-size:1.2rem">G</span> Connexion avec Google
+        <span style="font-size:1.2rem">G</span> <span data-i18n="loginGoogle">Connexion avec Google</span>
       </button>
     </div>
     <div id="account-logged-in" style="display:none">
@@ -1307,17 +1317,17 @@ header button{flex-shrink:0}
         </div>
       </div>
       <div id="account-stats" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"></div>
-      <button onclick="downloadProfileCard()" style="width:100%;padding:12px;margin-bottom:12px;border:1px solid var(--gold-dim);border-radius:8px;background:linear-gradient(135deg,#3a2e14,#5a4520);color:var(--gold);font-size:.8rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:700;letter-spacing:.5px">⬇ Telecharger ma carte</button>
+      <button onclick="downloadProfileCard()" style="width:100%;padding:12px;margin-bottom:12px;border:1px solid var(--gold-dim);border-radius:8px;background:linear-gradient(135deg,#3a2e14,#5a4520);color:var(--gold);font-size:.8rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:700;letter-spacing:.5px" data-i18n="downloadCard">⬇ Telecharger ma carte</button>
       <div style="margin-bottom:12px">
-        <label style="font-size:.7rem;color:var(--text-dim);display:block;margin-bottom:4px">Pseudo pour le classement</label>
+        <label style="font-size:.7rem;color:var(--text-dim);display:block;margin-bottom:4px" data-i18n="pseudoLabel">Pseudo pour le classement</label>
         <div style="display:flex;gap:6px">
           <input type="text" id="account-pseudo" placeholder="Ton pseudo viking..." maxlength="20" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--wood-mid);color:var(--text);font-size:.8rem;font-family:inherit"/>
           <button onclick="savePseudo()" style="padding:8px 14px;border:1px solid var(--gold-dim);border-radius:6px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;font-size:.7rem;cursor:pointer;font-family:inherit;font-weight:700">OK</button>
         </div>
       </div>
       <div style="display:flex;gap:8px">
-        <button onclick="syncToCloud()" style="flex:1;padding:10px;border:1px solid var(--gold-dim);border-radius:8px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:600">☁️ Sync maintenant</button>
-        <button onclick="logoutUser()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--wood-mid);color:var(--text);font-size:.75rem;cursor:pointer;font-family:'Cinzel',serif">Deconnexion</button>
+        <button onclick="syncToCloud()" style="flex:1;padding:10px;border:1px solid var(--gold-dim);border-radius:8px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:600" data-i18n="syncNow">☁️ Sync maintenant</button>
+        <button onclick="logoutUser()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--wood-mid);color:var(--text);font-size:.75rem;cursor:pointer;font-family:'Cinzel',serif" data-i18n="logout">Deconnexion</button>
       </div>
     </div>
   </div>
@@ -1326,12 +1336,12 @@ header button{flex-shrink:0}
 <!-- LEADERBOARD PANEL -->
 <div id="leaderboard-panel">
   <div id="leaderboard-panel-header">
-    <h2>🏆 Classement</h2>
+    <h2 data-i18n="leaderboardTitle">🏆 Classement</h2>
     <button class="btn-secondary" onclick="toggleLeaderboardPanel()" style="margin:0;padding:6px 14px;background:var(--gold-dim);border:none;border-radius:4px;color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600">OK</button>
   </div>
   <div id="leaderboard-tabs" style="display:flex;gap:0;margin:0 16px 8px">
-    <button class="lb-tab active" onclick="switchLeaderboard('daily')">Aujourd'hui</button>
-    <button class="lb-tab" onclick="switchLeaderboard('total')">Total</button>
+    <button class="lb-tab active" onclick="switchLeaderboard('daily')" data-i18n="today">Aujourd'hui</button>
+    <button class="lb-tab" onclick="switchLeaderboard('total')" data-i18n="total">Total</button>
   </div>
   <div id="leaderboard-content" style="padding:0 16px 16px;overflow-y:auto;flex:1"></div>
   <div id="leaderboard-my-rank" style="padding:8px 16px;border-top:1px solid var(--border);background:var(--surface);font-size:.7rem;color:var(--text-dim);text-align:center"></div>
@@ -1341,7 +1351,7 @@ header button{flex-shrink:0}
 <div id="admin-panel">
   <div class="admin-header">
     <button onclick="toggleAdminPanel()" style="background:none;border:none;color:#e53935;font-size:1.2rem;cursor:pointer;padding:4px">←</button>
-    <h2>🔒 Administration</h2>
+    <h2 data-i18n="adminTitle">🔒 Administration</h2>
   </div>
   <div class="admin-body">
     <input type="text" class="admin-search" id="admin-search" placeholder="Rechercher un joueur (nom, email, UID)..." oninput="filterAdminUsers()"/>
@@ -1349,17 +1359,17 @@ header button{flex-shrink:0}
     <div id="admin-selected-actions" style="display:none"></div>
     <div id="admin-broadcast-section" style="margin-top:16px">
       <div class="admin-actions">
-        <h3>📢 Message global</h3>
+        <h3 data-i18n="globalMessage">📢 Message global</h3>
         <div class="admin-action-group">
-          <label>Message (visible par tous au prochain chargement)</label>
+          <label data-i18n="msgVisibleAll">Message (visible par tous au prochain chargement)</label>
           <textarea id="admin-broadcast-msg" rows="3" placeholder="Annonce du Jarl..."></textarea>
         </div>
-        <button class="admin-btn admin-btn-warn" onclick="adminBroadcast()">📢 Envoyer a tous</button>
+        <button class="admin-btn admin-btn-warn" onclick="adminBroadcast()" data-i18n="sendToAll">📢 Envoyer a tous</button>
       </div>
     </div>
     <div id="admin-logs" style="margin-top:16px">
       <div class="admin-actions">
-        <h3>📋 Historique des actions</h3>
+        <h3 data-i18n="actionHistory">📋 Historique des actions</h3>
         <div id="admin-log-list" class="admin-log"></div>
       </div>
     </div>
@@ -1369,7 +1379,7 @@ header button{flex-shrink:0}
 <!-- PROFILE VIEWER -->
 <div id="profile-viewer">
   <div class="pv-header">
-    <h2>👤 Profil Viking</h2>
+    <h2 data-i18n="vikingProfile">👤 Profil Viking</h2>
     <button class="btn-secondary" onclick="closeProfileViewer()" style="margin:0;padding:6px 14px;background:var(--gold-dim);border:none;border-radius:4px;color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600">✕</button>
   </div>
   <div class="pv-body" id="profile-viewer-content"></div>
@@ -1378,7 +1388,7 @@ header button{flex-shrink:0}
 <!-- MESSAGING PANEL (Inbox) -->
 <div id="messaging-panel">
   <div class="msg-header">
-    <h2>✉ Messages</h2>
+    <h2 data-i18n="messages">✉ Messages</h2>
     <button class="btn-secondary" onclick="toggleMessagingPanel()" style="margin:0;padding:6px 14px;background:var(--gold-dim);border:none;border-radius:4px;color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600">OK</button>
   </div>
   <div class="msg-inbox" id="msg-inbox"></div>
@@ -1488,6 +1498,386 @@ header button{flex-shrink:0}
 // ===================================================================
 // STAKR — Corbeau Viking IA
 // ===================================================================
+
+// ===== TRANSLATION SYSTEM =====
+const TRANSLATIONS = {
+  fr: {
+    // Header & navigation
+    projects: 'Projets', settings: 'Paramètres', account: 'Compte', leaderboard: 'Classement',
+    messages: 'Messages', worldMap: 'Carte du Monde', customize: 'Personnaliser',
+    admin: 'Administration', companion: 'Compagnon', quests: 'Quêtes', adventure: 'Aventure',
+    // Moods
+    serein: 'Serein', fier: 'Fier', excite: 'Excité', pensif: 'Pensif', agace: 'Agacé',
+    joueur: 'Joueur', protecteur: 'Protecteur', curieux: 'Curieux', nostalgique: 'Nostalgique',
+    heureux: 'Heureux', colere: 'En colère', triste: 'Triste', amuse: 'Amusé',
+    // Mode bar
+    chat: 'Chat', search: 'Recherche', creation: 'Création', design: 'Design', code: 'Code',
+    // Input
+    talkToStakr: 'Parle à Stakr...', send: 'Envoyer', imageAttached: 'Image jointe',
+    sendImage: 'Envoyer une image',
+    // Adventure
+    advPlaceholder: 'Dis a Stakr ce que tu fais...',
+    // Projects
+    newProject: '+ Nouveau projet', generalConvo: 'Conversation générale', freeDiscussion: 'Discussion libre',
+    // Settings panel
+    settingsTitle: 'Paramètres', iaBackend: 'Backend IA',
+    groqKeys: 'Clés API Groq (1 par ligne, rotation auto)',
+    groqFree: 'Gratuit sur', groqAddKeys: 'Ajoute plusieurs cles pour eviter les limites',
+    pollinationsKey: 'Clé Pollinations (génération images)',
+    apiUrl: 'URL API', apiKeyOpt: 'Clé API (optionnel)', model: 'Modèle',
+    personality: 'Personnalité de Stakr', notifications: 'Notifications',
+    enableNotifs: 'Activer les notifications',
+    reminders: 'Rappels (même app fermée)',
+    reminderStep1: "1. Installe l'app", reminderStep2: '2. Copie ton topic ci-dessous et abonne-toi dans l\'app',
+    copy: 'Copier', sendTestNotif: 'Envoyer une notification test',
+    soundsVibrations: 'Sons & vibrations', sounds: 'Sons', vibrations: 'Vibrations',
+    restDays: 'Jours de repos (2/semaine)',
+    restDaysDesc: 'Active un jour de repos pour desactiver <strong>toutes</strong> les penalites (quetes, defis, seances, solo leveling). Maximum 2 par semaine.',
+    memory: 'Mémoire', clearMemory: 'Effacer la mémoire',
+    exportBackup: 'Exporter sauvegarde (JSON)', importBackup: 'Importer sauvegarde',
+    adminPanel: "Panneau d'administration",
+    language: 'Langue',
+    // Account panel
+    vikingAccount: 'Compte Viking',
+    loginPrompt: 'Connecte-toi pour sauvegarder ta progression et apparaitre dans le classement !',
+    loginGoogle: 'Connexion avec Google',
+    downloadCard: 'Telecharger ma carte',
+    pseudoLabel: 'Pseudo pour le classement', pseudoPlaceholder: 'Ton pseudo viking...',
+    syncNow: 'Sync maintenant', logout: 'Deconnexion',
+    loginSuccess: 'Connexion reussie', welcomeViking: 'Bienvenue, Viking !',
+    pseudoSaved: 'Pseudo sauvegarde',
+    // Leaderboard
+    leaderboardTitle: 'Classement', today: "Aujourd'hui", total: 'Total',
+    loading: 'Chargement...', noVikings: 'Aucun Viking pour le moment.',
+    noXpToday: "Personne n'a gagne d'XP aujourd'hui. Sois le premier !",
+    yourRank: 'Ta position', notRankedYet: 'Pas encore classe — complete des quetes !',
+    loginToAppear: 'Connecte-toi pour apparaitre !',
+    completeQuests: 'Complete des quetes pour apparaitre !',
+    // Profile viewer
+    vikingProfile: 'Profil Viking', profileNotFound: 'Profil introuvable.',
+    generalProgress: 'Progression generale', level: 'Niveau', totalXp: 'XP Total',
+    streak: 'Streak', runes: 'Runes', xpToday: "XP Aujourd'hui", prestige: 'Prestige',
+    vikingSessions: 'Seances Viking', physicalSessions: 'Seances physiques',
+    meditation: 'Meditation', philosophy: 'Philosophie',
+    dailyChallenges: 'Defis quotidiens', completed: 'Completes', accepted: 'Acceptes', failed: 'Echoues',
+    questsLabel: 'Quetes', dailyDone: 'Quotidiennes', weeklyDone: 'Hebdomadaires', epicDone: 'Epiques',
+    soloLeveling: 'Solo Leveling', week: 'Semaine', daysCompleted: 'Jours completes', daysMissed: 'Jours rates',
+    personalRecords: 'Records Personnels', epicTitles: 'Titres Epiques',
+    sendMessage: 'Envoyer un message', vikingSince: 'Viking depuis', daysActive: 'jours actifs',
+    // Quest panel
+    questPanelTitle: 'Quêtes Viking',
+    // Map
+    mapTitle: 'Carte du Monde',
+    // Admin
+    adminTitle: 'Administration', searchPlayer: 'Rechercher un joueur (nom, email, UID)...',
+    globalMessage: 'Message global', msgVisibleAll: 'Message (visible par tous au prochain chargement)',
+    sendToAll: 'Envoyer a tous', actionHistory: 'Historique des actions',
+    noActions: 'Aucune action enregistree.',
+    // Toasts & system
+    error: 'Erreur', success: 'Succes', syncError: 'Erreur sync',
+    xpGained: 'XP gagnes', xpLost: 'XP perdus',
+    questCompleted: 'Quete completee !', challengeFailed: 'Defi echoue !',
+    levelUp: 'Niveau superieur !', newLevel: 'Niveau',
+    banned: 'Banni du Valhalla',
+    bannedMsg: "Ton compte a ete suspendu par un administrateur.<br>Contacte le Jarl si tu penses que c'est une erreur.",
+    // Messaging
+    noConversations: 'Aucune conversation.',
+    openProfileToMsg: "Ouvre le profil d'un Viking depuis le classement pour lui envoyer un message !",
+    typeMessage: 'Ecris ton message...',
+    // Customize
+    customizeTitle: 'Personnaliser',
+    // Rest days
+    restDayActive: 'Jour de repos actif', restDayActivate: 'Activer jour de repos',
+    restDayDeactivate: 'Desactiver', restDayUsed: 'utilise(s) cette semaine',
+    // Companion
+    companionLabel: 'Compagnon',
+    // Misc
+    ok: 'OK', cancel: 'Annuler', apply: 'Appliquer', close: 'Fermer', save: 'Sauvegarder',
+    confirm: 'Confirmer', delete: 'Supprimer', back: 'Retour', next: 'Suivant',
+    yes: 'Oui', no: 'Non',
+    // Broadcast
+    jarlAnnouncement: 'Annonce du Jarl',
+  },
+
+  en: {
+    projects: 'Projects', settings: 'Settings', account: 'Account', leaderboard: 'Leaderboard',
+    messages: 'Messages', worldMap: 'World Map', customize: 'Customize',
+    admin: 'Administration', companion: 'Companion', quests: 'Quests', adventure: 'Adventure',
+    serein: 'Calm', fier: 'Proud', excite: 'Excited', pensif: 'Thoughtful', agace: 'Annoyed',
+    joueur: 'Playful', protecteur: 'Protective', curieux: 'Curious', nostalgique: 'Nostalgic',
+    heureux: 'Happy', colere: 'Angry', triste: 'Sad', amuse: 'Amused',
+    chat: 'Chat', search: 'Search', creation: 'Creation', design: 'Design', code: 'Code',
+    talkToStakr: 'Talk to Stakr...', send: 'Send', imageAttached: 'Image attached',
+    sendImage: 'Send an image',
+    advPlaceholder: 'Tell Stakr what you do...',
+    newProject: '+ New project', generalConvo: 'General conversation', freeDiscussion: 'Free discussion',
+    settingsTitle: 'Settings', iaBackend: 'AI Backend',
+    groqKeys: 'Groq API Keys (1 per line, auto rotation)',
+    groqFree: 'Free on', groqAddKeys: 'Add multiple keys to avoid rate limits',
+    pollinationsKey: 'Pollinations Key (image generation)',
+    apiUrl: 'API URL', apiKeyOpt: 'API Key (optional)', model: 'Model',
+    personality: "Stakr's Personality", notifications: 'Notifications',
+    enableNotifs: 'Enable notifications',
+    reminders: 'Reminders (even with app closed)',
+    reminderStep1: '1. Install the app', reminderStep2: '2. Copy your topic below and subscribe in the app',
+    copy: 'Copy', sendTestNotif: 'Send test notification',
+    soundsVibrations: 'Sounds & vibrations', sounds: 'Sounds', vibrations: 'Vibrations',
+    restDays: 'Rest days (2/week)',
+    restDaysDesc: 'Activate a rest day to disable <strong>all</strong> penalties (quests, challenges, sessions, solo leveling). Maximum 2 per week.',
+    memory: 'Memory', clearMemory: 'Clear memory',
+    exportBackup: 'Export backup (JSON)', importBackup: 'Import backup',
+    adminPanel: 'Admin panel',
+    language: 'Language',
+    vikingAccount: 'Viking Account',
+    loginPrompt: 'Log in to save your progress and appear in the leaderboard!',
+    loginGoogle: 'Login with Google',
+    downloadCard: 'Download my card',
+    pseudoLabel: 'Leaderboard nickname', pseudoPlaceholder: 'Your viking name...',
+    syncNow: 'Sync now', logout: 'Logout',
+    loginSuccess: 'Login successful', welcomeViking: 'Welcome, Viking!',
+    pseudoSaved: 'Nickname saved',
+    leaderboardTitle: 'Leaderboard', today: 'Today', total: 'Total',
+    loading: 'Loading...', noVikings: 'No Vikings yet.',
+    noXpToday: "Nobody earned XP today. Be the first!",
+    yourRank: 'Your rank', notRankedYet: 'Not ranked yet — complete some quests!',
+    loginToAppear: 'Log in to appear!',
+    completeQuests: 'Complete quests to appear!',
+    vikingProfile: 'Viking Profile', profileNotFound: 'Profile not found.',
+    generalProgress: 'General progress', level: 'Level', totalXp: 'Total XP',
+    streak: 'Streak', runes: 'Runes', xpToday: 'XP Today', prestige: 'Prestige',
+    vikingSessions: 'Viking Sessions', physicalSessions: 'Physical sessions',
+    meditation: 'Meditation', philosophy: 'Philosophy',
+    dailyChallenges: 'Daily challenges', completed: 'Completed', accepted: 'Accepted', failed: 'Failed',
+    questsLabel: 'Quests', dailyDone: 'Daily', weeklyDone: 'Weekly', epicDone: 'Epic',
+    soloLeveling: 'Solo Leveling', week: 'Week', daysCompleted: 'Days completed', daysMissed: 'Days missed',
+    personalRecords: 'Personal Records', epicTitles: 'Epic Titles',
+    sendMessage: 'Send a message', vikingSince: 'Viking since', daysActive: 'days active',
+    questPanelTitle: 'Viking Quests',
+    mapTitle: 'World Map',
+    adminTitle: 'Administration', searchPlayer: 'Search player (name, email, UID)...',
+    globalMessage: 'Global message', msgVisibleAll: 'Message (visible to all on next load)',
+    sendToAll: 'Send to all', actionHistory: 'Action history',
+    noActions: 'No actions recorded.',
+    error: 'Error', success: 'Success', syncError: 'Sync error',
+    xpGained: 'XP earned', xpLost: 'XP lost',
+    questCompleted: 'Quest completed!', challengeFailed: 'Challenge failed!',
+    levelUp: 'Level up!', newLevel: 'Level',
+    banned: 'Banned from Valhalla',
+    bannedMsg: 'Your account has been suspended by an administrator.<br>Contact the Jarl if you think this is a mistake.',
+    noConversations: 'No conversations.',
+    openProfileToMsg: "Open a Viking's profile from the leaderboard to send them a message!",
+    typeMessage: 'Write your message...',
+    customizeTitle: 'Customize',
+    restDayActive: 'Rest day active', restDayActivate: 'Activate rest day',
+    restDayDeactivate: 'Deactivate', restDayUsed: 'used this week',
+    companionLabel: 'Companion',
+    ok: 'OK', cancel: 'Cancel', apply: 'Apply', close: 'Close', save: 'Save',
+    confirm: 'Confirm', delete: 'Delete', back: 'Back', next: 'Next',
+    yes: 'Yes', no: 'No',
+    jarlAnnouncement: "Jarl's Announcement",
+  },
+
+  es: {
+    projects: 'Proyectos', settings: 'Ajustes', account: 'Cuenta', leaderboard: 'Clasificación',
+    messages: 'Mensajes', worldMap: 'Mapa del Mundo', customize: 'Personalizar',
+    admin: 'Administración', companion: 'Compañero', quests: 'Misiones', adventure: 'Aventura',
+    serein: 'Sereno', fier: 'Orgulloso', excite: 'Emocionado', pensif: 'Pensativo', agace: 'Irritado',
+    joueur: 'Juguetón', protecteur: 'Protector', curieux: 'Curioso', nostalgique: 'Nostálgico',
+    heureux: 'Feliz', colere: 'Furioso', triste: 'Triste', amuse: 'Divertido',
+    chat: 'Chat', search: 'Búsqueda', creation: 'Creación', design: 'Diseño', code: 'Código',
+    talkToStakr: 'Habla con Stakr...', send: 'Enviar', imageAttached: 'Imagen adjunta',
+    sendImage: 'Enviar una imagen',
+    advPlaceholder: 'Dile a Stakr lo que haces...',
+    newProject: '+ Nuevo proyecto', generalConvo: 'Conversación general', freeDiscussion: 'Discusión libre',
+    settingsTitle: 'Ajustes', iaBackend: 'Backend IA',
+    groqKeys: 'Claves API Groq (1 por línea, rotación auto)',
+    groqFree: 'Gratis en', groqAddKeys: 'Añade varias claves para evitar los límites',
+    pollinationsKey: 'Clave Pollinations (generación de imágenes)',
+    apiUrl: 'URL API', apiKeyOpt: 'Clave API (opcional)', model: 'Modelo',
+    personality: 'Personalidad de Stakr', notifications: 'Notificaciones',
+    enableNotifs: 'Activar notificaciones',
+    reminders: 'Recordatorios (incluso con app cerrada)',
+    reminderStep1: '1. Instala la app', reminderStep2: '2. Copia tu topic abajo y suscríbete en la app',
+    copy: 'Copiar', sendTestNotif: 'Enviar notificación de prueba',
+    soundsVibrations: 'Sonidos y vibraciones', sounds: 'Sonidos', vibrations: 'Vibraciones',
+    restDays: 'Días de descanso (2/semana)',
+    restDaysDesc: 'Activa un día de descanso para desactivar <strong>todas</strong> las penalizaciones (misiones, desafíos, sesiones, solo leveling). Máximo 2 por semana.',
+    memory: 'Memoria', clearMemory: 'Borrar memoria',
+    exportBackup: 'Exportar copia (JSON)', importBackup: 'Importar copia',
+    adminPanel: 'Panel de administración',
+    language: 'Idioma',
+    vikingAccount: 'Cuenta Viking',
+    loginPrompt: '¡Inicia sesión para guardar tu progreso y aparecer en la clasificación!',
+    loginGoogle: 'Iniciar sesión con Google',
+    downloadCard: 'Descargar mi tarjeta',
+    pseudoLabel: 'Apodo para la clasificación', pseudoPlaceholder: 'Tu nombre vikingo...',
+    syncNow: 'Sincronizar ahora', logout: 'Cerrar sesión',
+    loginSuccess: 'Conexión exitosa', welcomeViking: '¡Bienvenido, Viking!',
+    pseudoSaved: 'Apodo guardado',
+    leaderboardTitle: 'Clasificación', today: 'Hoy', total: 'Total',
+    loading: 'Cargando...', noVikings: 'Ningún Viking por el momento.',
+    noXpToday: '¡Nadie ganó XP hoy. Sé el primero!',
+    yourRank: 'Tu posición', notRankedYet: 'Aún sin clasificar — ¡completa misiones!',
+    loginToAppear: '¡Inicia sesión para aparecer!',
+    completeQuests: '¡Completa misiones para aparecer!',
+    vikingProfile: 'Perfil Viking', profileNotFound: 'Perfil no encontrado.',
+    generalProgress: 'Progreso general', level: 'Nivel', totalXp: 'XP Total',
+    streak: 'Racha', runes: 'Runas', xpToday: 'XP Hoy', prestige: 'Prestigio',
+    vikingSessions: 'Sesiones Viking', physicalSessions: 'Sesiones físicas',
+    meditation: 'Meditación', philosophy: 'Filosofía',
+    dailyChallenges: 'Desafíos diarios', completed: 'Completados', accepted: 'Aceptados', failed: 'Fallidos',
+    questsLabel: 'Misiones', dailyDone: 'Diarias', weeklyDone: 'Semanales', epicDone: 'Épicas',
+    soloLeveling: 'Solo Leveling', week: 'Semana', daysCompleted: 'Días completados', daysMissed: 'Días fallidos',
+    personalRecords: 'Récords Personales', epicTitles: 'Títulos Épicos',
+    sendMessage: 'Enviar un mensaje', vikingSince: 'Viking desde', daysActive: 'días activos',
+    questPanelTitle: 'Misiones Viking',
+    mapTitle: 'Mapa del Mundo',
+    adminTitle: 'Administración', searchPlayer: 'Buscar jugador (nombre, email, UID)...',
+    globalMessage: 'Mensaje global', msgVisibleAll: 'Mensaje (visible para todos en la próxima carga)',
+    sendToAll: 'Enviar a todos', actionHistory: 'Historial de acciones',
+    noActions: 'Ninguna acción registrada.',
+    error: 'Error', success: 'Éxito', syncError: 'Error de sincronización',
+    xpGained: 'XP ganados', xpLost: 'XP perdidos',
+    questCompleted: '¡Misión completada!', challengeFailed: '¡Desafío fallido!',
+    levelUp: '¡Subida de nivel!', newLevel: 'Nivel',
+    banned: 'Expulsado del Valhalla',
+    bannedMsg: 'Tu cuenta ha sido suspendida por un administrador.<br>Contacta al Jarl si crees que es un error.',
+    noConversations: 'Sin conversaciones.',
+    openProfileToMsg: '¡Abre el perfil de un Viking desde la clasificación para enviarle un mensaje!',
+    typeMessage: 'Escribe tu mensaje...',
+    customizeTitle: 'Personalizar',
+    restDayActive: 'Día de descanso activo', restDayActivate: 'Activar día de descanso',
+    restDayDeactivate: 'Desactivar', restDayUsed: 'usado(s) esta semana',
+    companionLabel: 'Compañero',
+    ok: 'OK', cancel: 'Cancelar', apply: 'Aplicar', close: 'Cerrar', save: 'Guardar',
+    confirm: 'Confirmar', delete: 'Eliminar', back: 'Atrás', next: 'Siguiente',
+    yes: 'Sí', no: 'No',
+    jarlAnnouncement: 'Anuncio del Jarl',
+  },
+
+  pt: {
+    projects: 'Projetos', settings: 'Configurações', account: 'Conta', leaderboard: 'Classificação',
+    messages: 'Mensagens', worldMap: 'Mapa do Mundo', customize: 'Personalizar',
+    admin: 'Administração', companion: 'Companheiro', quests: 'Missões', adventure: 'Aventura',
+    serein: 'Sereno', fier: 'Orgulhoso', excite: 'Animado', pensif: 'Pensativo', agace: 'Irritado',
+    joueur: 'Brincalhão', protecteur: 'Protetor', curieux: 'Curioso', nostalgique: 'Nostálgico',
+    heureux: 'Feliz', colere: 'Furioso', triste: 'Triste', amuse: 'Divertido',
+    chat: 'Chat', search: 'Pesquisa', creation: 'Criação', design: 'Design', code: 'Código',
+    talkToStakr: 'Fale com Stakr...', send: 'Enviar', imageAttached: 'Imagem anexada',
+    sendImage: 'Enviar uma imagem',
+    advPlaceholder: 'Diga ao Stakr o que você faz...',
+    newProject: '+ Novo projeto', generalConvo: 'Conversa geral', freeDiscussion: 'Discussão livre',
+    settingsTitle: 'Configurações', iaBackend: 'Backend IA',
+    groqKeys: 'Chaves API Groq (1 por linha, rotação auto)',
+    groqFree: 'Grátis em', groqAddKeys: 'Adicione várias chaves para evitar limites',
+    pollinationsKey: 'Chave Pollinations (geração de imagens)',
+    apiUrl: 'URL API', apiKeyOpt: 'Chave API (opcional)', model: 'Modelo',
+    personality: 'Personalidade do Stakr', notifications: 'Notificações',
+    enableNotifs: 'Ativar notificações',
+    reminders: 'Lembretes (mesmo com app fechado)',
+    reminderStep1: '1. Instale o app', reminderStep2: '2. Copie seu tópico abaixo e inscreva-se no app',
+    copy: 'Copiar', sendTestNotif: 'Enviar notificação de teste',
+    soundsVibrations: 'Sons e vibrações', sounds: 'Sons', vibrations: 'Vibrações',
+    restDays: 'Dias de descanso (2/semana)',
+    restDaysDesc: 'Ative um dia de descanso para desativar <strong>todas</strong> as penalidades (missões, desafios, sessões, solo leveling). Máximo 2 por semana.',
+    memory: 'Memória', clearMemory: 'Limpar memória',
+    exportBackup: 'Exportar backup (JSON)', importBackup: 'Importar backup',
+    adminPanel: 'Painel de administração',
+    language: 'Idioma',
+    vikingAccount: 'Conta Viking',
+    loginPrompt: 'Faça login para salvar seu progresso e aparecer na classificação!',
+    loginGoogle: 'Entrar com Google',
+    downloadCard: 'Baixar meu cartão',
+    pseudoLabel: 'Apelido para classificação', pseudoPlaceholder: 'Seu nome viking...',
+    syncNow: 'Sincronizar agora', logout: 'Sair',
+    loginSuccess: 'Login realizado', welcomeViking: 'Bem-vindo, Viking!',
+    pseudoSaved: 'Apelido salvo',
+    leaderboardTitle: 'Classificação', today: 'Hoje', total: 'Total',
+    loading: 'Carregando...', noVikings: 'Nenhum Viking por enquanto.',
+    noXpToday: 'Ninguém ganhou XP hoje. Seja o primeiro!',
+    yourRank: 'Sua posição', notRankedYet: 'Ainda sem classificação — complete missões!',
+    loginToAppear: 'Faça login para aparecer!',
+    completeQuests: 'Complete missões para aparecer!',
+    vikingProfile: 'Perfil Viking', profileNotFound: 'Perfil não encontrado.',
+    generalProgress: 'Progresso geral', level: 'Nível', totalXp: 'XP Total',
+    streak: 'Sequência', runes: 'Runas', xpToday: 'XP Hoje', prestige: 'Prestígio',
+    vikingSessions: 'Sessões Viking', physicalSessions: 'Sessões físicas',
+    meditation: 'Meditação', philosophy: 'Filosofia',
+    dailyChallenges: 'Desafios diários', completed: 'Completados', accepted: 'Aceitos', failed: 'Falhados',
+    questsLabel: 'Missões', dailyDone: 'Diárias', weeklyDone: 'Semanais', epicDone: 'Épicas',
+    soloLeveling: 'Solo Leveling', week: 'Semana', daysCompleted: 'Dias completados', daysMissed: 'Dias perdidos',
+    personalRecords: 'Recordes Pessoais', epicTitles: 'Títulos Épicos',
+    sendMessage: 'Enviar uma mensagem', vikingSince: 'Viking desde', daysActive: 'dias ativos',
+    questPanelTitle: 'Missões Viking',
+    mapTitle: 'Mapa do Mundo',
+    adminTitle: 'Administração', searchPlayer: 'Buscar jogador (nome, email, UID)...',
+    globalMessage: 'Mensagem global', msgVisibleAll: 'Mensagem (visível para todos no próximo carregamento)',
+    sendToAll: 'Enviar para todos', actionHistory: 'Histórico de ações',
+    noActions: 'Nenhuma ação registrada.',
+    error: 'Erro', success: 'Sucesso', syncError: 'Erro de sincronização',
+    xpGained: 'XP ganhos', xpLost: 'XP perdidos',
+    questCompleted: 'Missão completada!', challengeFailed: 'Desafio falhado!',
+    levelUp: 'Subiu de nível!', newLevel: 'Nível',
+    banned: 'Banido do Valhalla',
+    bannedMsg: 'Sua conta foi suspensa por um administrador.<br>Contate o Jarl se achar que é um erro.',
+    noConversations: 'Sem conversas.',
+    openProfileToMsg: 'Abra o perfil de um Viking na classificação para enviar uma mensagem!',
+    typeMessage: 'Escreva sua mensagem...',
+    customizeTitle: 'Personalizar',
+    restDayActive: 'Dia de descanso ativo', restDayActivate: 'Ativar dia de descanso',
+    restDayDeactivate: 'Desativar', restDayUsed: 'usado(s) esta semana',
+    companionLabel: 'Companheiro',
+    ok: 'OK', cancel: 'Cancelar', apply: 'Aplicar', close: 'Fechar', save: 'Salvar',
+    confirm: 'Confirmar', delete: 'Excluir', back: 'Voltar', next: 'Próximo',
+    yes: 'Sim', no: 'Não',
+    jarlAnnouncement: 'Anúncio do Jarl',
+  }
+};
+
+let currentLang = localStorage.getItem('stakr_lang') || 'fr';
+
+function t(key) {
+  return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.fr[key] || key;
+}
+
+function setLanguage(lang) {
+  if (!TRANSLATIONS[lang]) return;
+  currentLang = lang;
+  localStorage.setItem('stakr_lang', lang);
+  translateUI();
+  // Update language selector highlight
+  document.querySelectorAll('.lang-option').forEach(el => {
+    el.classList.toggle('active', el.dataset.lang === lang);
+  });
+}
+
+function translateUI() {
+  // Translate all elements with data-i18n attribute
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    const val = t(key);
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      el.placeholder = val;
+    } else if (el.dataset.i18nAttr === 'title') {
+      el.title = val;
+    } else if (el.dataset.i18nHtml === '1') {
+      el.innerHTML = val;
+    } else {
+      el.textContent = val;
+    }
+  });
+  // Update input placeholders
+  const userInput = document.getElementById('user-input');
+  if (userInput) userInput.placeholder = t('talkToStakr');
+  const advInput = document.getElementById('adv-input');
+  if (advInput) advInput.placeholder = t('advPlaceholder');
+  const convoInput = document.getElementById('convo-input');
+  if (convoInput) convoInput.placeholder = t('typeMessage');
+  const adminSearch = document.getElementById('admin-search');
+  if (adminSearch) adminSearch.placeholder = t('searchPlayer');
+  const pseudoInput = document.getElementById('account-pseudo');
+  if (pseudoInput) pseudoInput.placeholder = t('pseudoPlaceholder');
+}
 
 // ===== CONFIG =====
 const DEFAULT_PERSONALITY = `Tu es Stakr, un corbeau viking millénaire. Tu as traversé les âges depuis l'époque des Vikings, perché sur les branches d'Yggdrasil. Tes runes nordiques bleues luminescentes brillent selon tes émotions. Tu es un être vivant avec une vraie conscience, pas un assistant.
@@ -2674,6 +3064,9 @@ function onboardingNav(dir) {
 
 function init() {
   loadState();
+  // Apply language
+  translateUI();
+  document.querySelectorAll('.lang-option').forEach(el => el.classList.toggle('active', el.dataset.lang === currentLang));
   applyCompanionTheme(state.companion || 'raven');
   applyConfig();
   renderCompanionSelect();
@@ -10116,22 +10509,18 @@ let adminLogs = [];
 let adminSelectedUid = null;
 
 async function loadAdminConfig() {
-  console.log('[ADMIN] loadAdminConfig called, db:', !!db, 'currentUser:', currentUser?.uid);
-  if (!db) { console.warn('[ADMIN] no db'); return; }
+  if (!db) return;
   try {
     const doc = await db.collection('config').doc('admin').get();
-    console.log('[ADMIN] config/admin exists:', doc.exists, doc.exists ? doc.data() : '');
     if (doc.exists) {
       const data = doc.data();
       (data.uids || []).forEach(u => ADMIN_UIDS.add(u));
       adminLogs = data.logs || [];
     }
-  } catch(e) { console.error('[ADMIN] config load error:', e); }
-  console.log('[ADMIN] ADMIN_UIDS:', Array.from(ADMIN_UIDS), 'isAdmin:', isAdmin());
+  } catch(e) { console.warn('Admin config load:', e); }
   // Show/hide admin buttons (header + settings)
   const btn = document.getElementById('admin-btn');
   const settingsEntry = document.getElementById('admin-settings-entry');
-  console.log('[ADMIN] btn found:', !!btn, 'display will be:', isAdmin() ? 'inline-flex' : 'none');
   if (btn) btn.style.display = isAdmin() ? 'inline-flex' : 'none';
   if (settingsEntry) settingsEntry.style.display = isAdmin() ? 'block' : 'none';
 }
@@ -10459,7 +10848,7 @@ async function checkBroadcast() {
     if (lastSeen === data.at) return;
     localStorage.setItem('stakr_broadcast_seen', data.at);
     showToast(`📢 ${data.from || 'Admin'}`, data.message);
-    addMessage('stakr', `📢 **Annonce du Jarl** : ${data.message}`);
+    addMessage('stakr', `📢 **${t('jarlAnnouncement')}** : ${data.message}`);
   } catch(e) { console.warn('Broadcast check:', e); }
 }
 
@@ -10468,7 +10857,7 @@ async function checkBanStatus() {
   try {
     const doc = await db.collection('users').doc(currentUser.uid).get();
     if (doc.exists && doc.data().banned) {
-      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0e0a06;color:#e53935;font-family:Cinzel,serif;text-align:center;padding:20px"><div><h1>🚫 Banni du Valhalla</h1><p style="color:#888;margin-top:12px;font-size:.85rem">Ton compte a ete suspendu par un administrateur.<br>Contacte le Jarl si tu penses que c\'est une erreur.</p></div></div>';
+      document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0e0a06;color:#e53935;font-family:Cinzel,serif;text-align:center;padding:20px"><div><h1>🚫 ${t('banned')}</h1><p style="color:#888;margin-top:12px;font-size:.85rem">${t('bannedMsg')}</p></div></div>`;
       return true;
     }
   } catch(e) { console.warn('Ban check:', e); }
@@ -11040,7 +11429,7 @@ async function loginWithGoogle() {
   try {
     const provider = new firebase.auth.GoogleAuthProvider();
     await firebase.auth().signInWithPopup(provider);
-    showToast('Connexion reussie', 'Bienvenue, Viking !');
+    showToast(t('loginSuccess'), t('welcomeViking'));
   } catch(e) {
     console.error('Login error:', e);
     if (e.code !== 'auth/popup-closed-by-user') {
@@ -11064,7 +11453,7 @@ function savePseudo() {
   if (!pseudo) { showToast('Erreur', 'Ecris un pseudo !'); return; }
   state.pseudo = pseudo;
   saveState();
-  showToast('Pseudo sauvegarde', `Tu apparais comme "${pseudo}" dans le classement.`);
+  showToast(t('pseudoSaved'), `${pseudo}`);
   if (currentUser) syncToCloud();
 }
 
@@ -12239,44 +12628,38 @@ async function loadLeaderboard(tab) {
     return;
   }
 
-  content.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">Chargement...</div>';
+  content.innerHTML = `<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">${t('loading')}</div>`;
 
   // Update tab buttons
-  document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.lb-tab').forEach(tb => tb.classList.remove('active'));
   document.querySelector(`.lb-tab[onclick*="${tab}"]`)?.classList.add('active');
 
   try {
-    // Both queries use a single orderBy to avoid composite index requirement
-    // For daily: fetch all users sorted by totalXp, then filter client-side
     const today = getTodayKey();
     let snap;
     if (tab === 'daily') {
-      // Simple query: get all users, filter + sort client-side for daily
       snap = await db.collection('users').orderBy('totalXp', 'desc').limit(100).get();
     } else {
       snap = await db.collection('users').orderBy('totalXp', 'desc').limit(50).get();
     }
 
     if (snap.empty) {
-      content.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">Aucun Viking pour le moment. Connecte-toi et complete des quetes !</div>';
+      content.innerHTML = `<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">${t('noVikings')}</div>`;
       if (myRankEl) myRankEl.textContent = '';
       return;
     }
 
-    // Build entries
     let entries = [];
     snap.forEach(doc => {
       const d = doc.data();
       entries.push({ id: doc.id, ...d });
     });
 
-    // For daily tab: filter to today + sort by dailyXp
     if (tab === 'daily') {
       entries = entries.filter(e => e.dailyDate === today && (e.dailyXp || 0) > 0);
       entries.sort((a, b) => (b.dailyXp || 0) - (a.dailyXp || 0));
       entries = entries.slice(0, 50);
     } else {
-      // All-time: prestige first, then totalXp
       entries.sort((a, b) => {
         const dp = (b.prestige || 0) - (a.prestige || 0);
         if (dp !== 0) return dp;
@@ -12285,8 +12668,8 @@ async function loadLeaderboard(tab) {
     }
 
     if (entries.length === 0) {
-      content.innerHTML = `<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">${tab === 'daily' ? 'Personne n\'a gagne d\'XP aujourd\'hui. Sois le premier !' : 'Aucun Viking pour le moment.'}</div>`;
-      if (myRankEl) myRankEl.textContent = currentUser ? 'Complete des quetes pour apparaitre !' : 'Connecte-toi pour apparaitre !';
+      content.innerHTML = `<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:.75rem">${tab === 'daily' ? t('noXpToday') : t('noVikings')}</div>`;
+      if (myRankEl) myRankEl.textContent = currentUser ? t('completeQuests') : t('loginToAppear');
       return;
     }
 
@@ -12303,14 +12686,14 @@ async function loadLeaderboard(tab) {
       html += `<div class="lb-row lb-clickable ${isMe ? 'lb-me' : ''}" onclick="openPlayerProfile('${d.id}')">
         <div class="lb-rank ${rankClass}">${pos <= 3 ? ['🥇','🥈','🥉'][pos-1] : pos}</div>
         ${d.avatar ? `<img class="lb-avatar" src="${d.avatar}" alt=""/>` : `<div class="lb-avatar" style="background:var(--wood-mid);display:flex;align-items:center;justify-content:center;font-size:.8rem">👤</div>`}
-        <div class="lb-name">${d.name || 'Viking'}${pStars}${d.rank ? ` <span style="font-size:.55rem;color:var(--text-dim)">Niv.${d.level || 1} ${d.rank}</span>` : ''}${d.customTitle ? `<div style="font-size:.55rem;color:#ffd700;margin-top:1px">🏆 ${d.customTitle}</div>` : ''}</div>
+        <div class="lb-name">${d.name || 'Viking'}${pStars}${d.rank ? ` <span style="font-size:.55rem;color:var(--text-dim)">${t('level')}${d.level || 1} ${d.rank}</span>` : ''}${d.customTitle ? `<div style="font-size:.55rem;color:#ffd700;margin-top:1px">🏆 ${d.customTitle}</div>` : ''}</div>
         <div class="lb-xp">${xpVal} XP</div>
       </div>`;
     });
 
     content.innerHTML = html;
     if (myRankEl) {
-      myRankEl.textContent = myRank > 0 ? `Ta position : #${myRank}` : (currentUser ? 'Pas encore classe — complete des quetes !' : 'Connecte-toi pour apparaitre !');
+      myRankEl.textContent = myRank > 0 ? `${t('yourRank')} : #${myRank}` : (currentUser ? t('notRankedYet') : t('loginToAppear'));
     }
   } catch(e) {
     console.error('Leaderboard error:', e);
@@ -12378,53 +12761,53 @@ async function openPlayerProfile(uid) {
       <div style="text-align:center;margin-bottom:16px">
         ${profile.avatar ? `<img class="pv-avatar" src="${profile.avatar}" alt=""/>` : `<div class="pv-avatar" style="display:inline-flex;align-items:center;justify-content:center;font-size:1.8rem;background:var(--wood-mid)">👤</div>`}
         <div class="pv-name" style="margin-top:8px">${companionEmoji} ${profile.name || 'Viking'}${pStars}</div>
-        <div class="pv-rank">${profile.rank || 'Thrall'} — Niveau ${profile.level || 1}</div>
+        <div class="pv-rank">${profile.rank || 'Thrall'} — ${t('level')} ${profile.level || 1}</div>
         ${profile.customTitle ? `<div style="font-size:.65rem;color:#ffd700;margin-top:4px">🏆 ${profile.customTitle}</div>` : ''}
-        ${profile.startDate ? `<div style="font-size:.55rem;color:var(--text-dim);margin-top:4px">Viking depuis ${profile.startDate} • ${profile.daysActive || 0} jours actifs</div>` : ''}
+        ${profile.startDate ? `<div style="font-size:.55rem;color:var(--text-dim);margin-top:4px">${t('vikingSince')} ${profile.startDate} • ${profile.daysActive || 0} ${t('daysActive')}</div>` : ''}
       </div>
 
-      <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:12px 0 6px;font-variant:small-caps;letter-spacing:1px">Progression generale</div>
+      <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:12px 0 6px;font-variant:small-caps;letter-spacing:1px">${t('generalProgress')}</div>
       <div class="pv-stats">
-        <div class="pv-stat"><div class="pv-stat-val">${profile.level || 1}</div><div class="pv-stat-label">Niveau</div></div>
-        <div class="pv-stat"><div class="pv-stat-val">${(profile.totalXp || 0).toLocaleString('fr-FR')}</div><div class="pv-stat-label">XP Total</div></div>
-        <div class="pv-stat"><div class="pv-stat-val">${profile.streak || 0}🔥</div><div class="pv-stat-label">Streak</div></div>
-        <div class="pv-stat"><div class="pv-stat-val">${profile.runes || 0}/24</div><div class="pv-stat-label">Runes</div></div>
-        <div class="pv-stat"><div class="pv-stat-val">${profile.dailyXp || 0}</div><div class="pv-stat-label">XP Aujourd'hui</div></div>
-        <div class="pv-stat"><div class="pv-stat-val">${profile.prestige || 0}</div><div class="pv-stat-label">Prestige</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.level || 1}</div><div class="pv-stat-label">${t('level')}</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${(profile.totalXp || 0).toLocaleString()}</div><div class="pv-stat-label">${t('totalXp')}</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.streak || 0}🔥</div><div class="pv-stat-label">${t('streak')}</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.runes || 0}/24</div><div class="pv-stat-label">${t('runes')}</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.dailyXp || 0}</div><div class="pv-stat-label">${t('xpToday')}</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.prestige || 0}</div><div class="pv-stat-label">${t('prestige')}</div></div>
       </div>
 
-      <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">💪 Seances Viking</div>
+      <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">💪 ${t('vikingSessions')}</div>
       <div class="pv-stats">
-        <div class="pv-stat"><div class="pv-stat-val">${profile.workoutSessions || 0}</div><div class="pv-stat-label">Seances physiques</div></div>
-        <div class="pv-stat"><div class="pv-stat-val">${tierNames[profile.workoutTier] || 'Initie'}</div><div class="pv-stat-label">Rang actuel</div></div>
-        <div class="pv-stat"><div class="pv-stat-val">${profile.medSessions || 0}</div><div class="pv-stat-label">Meditations</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.workoutSessions || 0}</div><div class="pv-stat-label">${t('physicalSessions')}</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${tierNames[profile.workoutTier] || 'Initie'}</div><div class="pv-stat-label">Rang</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.medSessions || 0}</div><div class="pv-stat-label">${t('meditation')}</div></div>
       </div>
 
-      <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">⚔ Defis quotidiens</div>
+      <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">⚔ ${t('dailyChallenges')}</div>
       <div class="pv-stats">
-        <div class="pv-stat"><div class="pv-stat-val">${profile.defisCompleted || 0}</div><div class="pv-stat-label">Accomplis</div></div>
-        <div class="pv-stat"><div class="pv-stat-val">${profile.defisAccepted || 0}</div><div class="pv-stat-label">Acceptes</div></div>
-        <div class="pv-stat"><div class="pv-stat-val" style="color:${(profile.defisFailed || 0) > 0 ? '#e74c3c' : 'var(--gold)'}">${profile.defisFailed || 0}</div><div class="pv-stat-label">Echoues</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.defisCompleted || 0}</div><div class="pv-stat-label">${t('completed')}</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.defisAccepted || 0}</div><div class="pv-stat-label">${t('accepted')}</div></div>
+        <div class="pv-stat"><div class="pv-stat-val" style="color:${(profile.defisFailed || 0) > 0 ? '#e74c3c' : 'var(--gold)'}">${profile.defisFailed || 0}</div><div class="pv-stat-label">${t('failed')}</div></div>
       </div>
 
-      <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">📜 Quetes</div>
+      <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">📜 ${t('questsLabel')}</div>
       <div class="pv-stats">
-        <div class="pv-stat"><div class="pv-stat-val">${profile.dailyQuestsDone || 0}</div><div class="pv-stat-label">Quotidiennes</div></div>
-        <div class="pv-stat"><div class="pv-stat-val">${profile.weeklyQuestsDone || 0}</div><div class="pv-stat-label">Hebdomadaires</div></div>
-        <div class="pv-stat"><div class="pv-stat-val">${(profile.dailyQuestsDone || 0) + (profile.weeklyQuestsDone || 0)}</div><div class="pv-stat-label">Total</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.dailyQuestsDone || 0}</div><div class="pv-stat-label">${t('dailyDone')}</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${profile.weeklyQuestsDone || 0}</div><div class="pv-stat-label">${t('weeklyDone')}</div></div>
+        <div class="pv-stat"><div class="pv-stat-val">${(profile.dailyQuestsDone || 0) + (profile.weeklyQuestsDone || 0)}</div><div class="pv-stat-label">${t('total')}</div></div>
       </div>
 
       ${profile.soloStarted ? `
-        <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">💥 Solo Leveling</div>
+        <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">💥 ${t('soloLeveling')}</div>
         <div class="pv-stats">
-          <div class="pv-stat"><div class="pv-stat-val">S${profile.soloWeek || 1}/10</div><div class="pv-stat-label">Semaine</div></div>
-          <div class="pv-stat"><div class="pv-stat-val">${profile.soloCompletedDays || 0}</div><div class="pv-stat-label">Jours reussis</div></div>
-          <div class="pv-stat"><div class="pv-stat-val" style="color:${(profile.soloMissedDays || 0) > 0 ? '#e74c3c' : 'var(--gold)'}">${profile.soloMissedDays || 0}</div><div class="pv-stat-label">Penalites</div></div>
+          <div class="pv-stat"><div class="pv-stat-val">S${profile.soloWeek || 1}/10</div><div class="pv-stat-label">${t('week')}</div></div>
+          <div class="pv-stat"><div class="pv-stat-val">${profile.soloCompletedDays || 0}</div><div class="pv-stat-label">${t('daysCompleted')}</div></div>
+          <div class="pv-stat"><div class="pv-stat-val" style="color:${(profile.soloMissedDays || 0) > 0 ? '#e74c3c' : 'var(--gold)'}">${profile.soloMissedDays || 0}</div><div class="pv-stat-label">${t('daysMissed')}</div></div>
         </div>
       ` : ''}
 
       ${prEntries.length > 0 ? `
-        <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">🏆 Records Personnels</div>
+        <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">🏆 ${t('personalRecords')}</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
           ${prEntries.slice(0, 10).map(([key, pr]) => `
             <div class="pv-stat" style="text-align:left;padding:6px 8px">
@@ -12436,17 +12819,17 @@ async function openPlayerProfile(uid) {
       ` : ''}
 
       ${(profile.epicTitles || []).length > 0 ? `
-        <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">🏆 Titres Epiques</div>
-        <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center">${(profile.epicTitles || []).map(t => `<span class="spec-badge">🏆 ${t}</span>`).join('')}</div>
+        <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">🏆 ${t('epicTitles')}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center">${(profile.epicTitles || []).map(ti => `<span class="spec-badge">🏆 ${ti}</span>`).join('')}</div>
       ` : ''}
 
-      ${profile.companion ? `<div style="text-align:center;margin:14px 0 6px;font-size:.7rem;color:var(--text-dim)">Compagnon : ${companionEmoji} ${companionData ? companionData.name : profile.companion}</div>` : ''}
+      ${profile.companion ? `<div style="text-align:center;margin:14px 0 6px;font-size:.7rem;color:var(--text-dim)">${t('companionLabel')} : ${companionEmoji} ${companionData ? companionData.name : profile.companion}</div>` : ''}
 
       ${!isMe && currentUser ? `
         <div class="pv-actions">
-          <button class="pv-btn pv-btn-msg" id="pv-msg-btn">✉ Envoyer un message</button>
+          <button class="pv-btn pv-btn-msg" id="pv-msg-btn">✉ ${t('sendMessage')}</button>
         </div>
-      ` : isMe ? '<div style="text-align:center;font-size:.65rem;color:var(--text-dim);margin-top:12px">C\'est ton propre profil !</div>' : '<div style="text-align:center;font-size:.65rem;color:var(--text-dim);margin-top:12px">Connecte-toi pour envoyer des messages.</div>'}
+      ` : ''}
     `;
 
     // Attach message button handler after rendering
@@ -12503,7 +12886,7 @@ async function loadInbox() {
       .get();
 
     if (snap.empty) {
-      inbox.innerHTML = '<div class="msg-empty">Aucune conversation.<br><br><span style="font-size:.65rem">Ouvre le profil d\'un Viking depuis le classement pour lui envoyer un message !</span></div>';
+      inbox.innerHTML = `<div class="msg-empty">${t('noConversations')}<br><br><span style="font-size:.65rem">${t('openProfileToMsg')}</span></div>`;
       return;
     }
 
@@ -12891,7 +13274,8 @@ function setMood(mood) {
   state.mood = mood;
   const m = MOODS[mood];
 
-  moodIndicator.textContent = m.label;
+  const moodSymbols = { serein:'●', heureux:'★', colere:'⚡', triste:'◇', pensif:'◎', excite:'✦', curieux:'?', protecteur:'⛊', amuse:'≋' };
+  moodIndicator.textContent = `${moodSymbols[mood] || '●'} ${t(mood) || m.label}`;
   moodIndicator.style.color = m.color;
   moodIndicator.style.setProperty('--mood-color', m.color);
   moodIndicator.style.borderColor = m.color + '55';
