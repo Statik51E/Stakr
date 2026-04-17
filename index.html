@@ -10113,17 +10113,21 @@ let adminLogs = [];
 let adminSelectedUid = null;
 
 async function loadAdminConfig() {
-  if (!db) return;
+  console.log('[ADMIN] loadAdminConfig called, db:', !!db, 'currentUser:', currentUser?.uid);
+  if (!db) { console.warn('[ADMIN] no db'); return; }
   try {
     const doc = await db.collection('config').doc('admin').get();
+    console.log('[ADMIN] config/admin exists:', doc.exists, doc.exists ? doc.data() : '');
     if (doc.exists) {
       const data = doc.data();
       (data.uids || []).forEach(u => ADMIN_UIDS.add(u));
       adminLogs = data.logs || [];
     }
-  } catch(e) { console.warn('Admin config load:', e); }
+  } catch(e) { console.error('[ADMIN] config load error:', e); }
+  console.log('[ADMIN] ADMIN_UIDS:', Array.from(ADMIN_UIDS), 'isAdmin:', isAdmin());
   // Show/hide admin button
   const btn = document.getElementById('admin-btn');
+  console.log('[ADMIN] btn found:', !!btn, 'display will be:', isAdmin() ? 'inline-flex' : 'none');
   if (btn) btn.style.display = isAdmin() ? 'inline-flex' : 'none';
 }
 
