@@ -730,6 +730,38 @@ header button{flex-shrink:0}
 .account-stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
 .account-stat-value{font-size:1.2rem;font-weight:700;color:var(--gold)}
 .account-stat-label{font-size:.6rem;color:var(--text-dim);margin-top:2px}
+/* ===== ADMIN PANEL ===== */
+#admin-panel{position:fixed;top:0;right:-100%;width:100%;max-width:550px;height:100%;background:linear-gradient(180deg,#0a0514,#0d0820);border-left:2px solid #e53935;z-index:108;transition:right .35s ease;display:flex;flex-direction:column;overflow:hidden}
+#admin-panel.open{right:0}
+.admin-header{padding:12px 16px;background:linear-gradient(180deg,#1a0a24,#0d0820);border-bottom:2px solid #e53935;display:flex;align-items:center;gap:10px}
+.admin-header h2{flex:1;color:#e53935;font-size:.9rem;font-variant:small-caps;letter-spacing:1px;margin:0}
+.admin-body{flex:1;overflow-y:auto;padding:12px 16px;-webkit-overflow-scrolling:touch}
+.admin-search{width:100%;padding:10px 14px;border:1px solid rgba(229,57,53,.3);border-radius:10px;background:rgba(229,57,53,.05);color:var(--text);font-size:.8rem;font-family:inherit;outline:none;margin-bottom:12px}
+.admin-search:focus{border-color:#e53935}
+.admin-user-row{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.02)}
+.admin-user-row:hover{border-color:rgba(229,57,53,.4);background:rgba(229,57,53,.05)}
+.admin-user-row.selected{border-color:#e53935;background:rgba(229,57,53,.1);box-shadow:0 0 12px rgba(229,57,53,.15)}
+.admin-user-row.banned{opacity:.4;border-color:rgba(229,57,53,.5)}
+.admin-avatar{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);flex-shrink:0}
+.admin-user-info{flex:1;min-width:0}
+.admin-user-name{font-size:.75rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-user-meta{font-size:.55rem;color:var(--text-dim)}
+.admin-actions{background:rgba(229,57,53,.04);border:1px solid rgba(229,57,53,.2);border-radius:12px;padding:14px;margin-top:12px}
+.admin-actions h3{font-size:.75rem;color:#e53935;margin:0 0 10px;font-variant:small-caps;letter-spacing:1px}
+.admin-action-group{margin-bottom:12px}
+.admin-action-group label{display:block;font-size:.65rem;color:var(--text-dim);margin-bottom:4px}
+.admin-action-group input,.admin-action-group textarea,.admin-action-group select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,.04);color:var(--text);font-size:.75rem;font-family:inherit;outline:none;box-sizing:border-box}
+.admin-action-group input:focus,.admin-action-group textarea:focus{border-color:#e53935}
+.admin-btn{padding:6px 14px;border:none;border-radius:8px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;margin:2px}
+.admin-btn-primary{background:linear-gradient(135deg,#e53935,#c62828);color:#fff}
+.admin-btn-warn{background:linear-gradient(135deg,#ff9800,#e65100);color:#fff}
+.admin-btn-danger{background:linear-gradient(135deg,#b71c1c,#7f0000);color:#fff}
+.admin-btn-success,.admin-btn-ok{background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff}
+.admin-btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.admin-log{font-size:.55rem;color:var(--text-dim);border-top:1px solid var(--border);padding-top:8px;margin-top:12px;max-height:200px;overflow-y:auto}
+.admin-log-entry{padding:3px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.admin-log-entry .log-time{color:rgba(229,57,53,.6)}
+.admin-log-entry .log-action{color:var(--text)}
 /* ===== MONDE / CARTE ===== */
 .monde-header{text-align:center;padding:10px 0 8px;margin-bottom:8px}
 .monde-title{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);margin-bottom:2px}
@@ -950,6 +982,7 @@ header button{flex-shrink:0}
     <button id="map-btn" class="header-icon-btn" title="Carte du Monde">&#128506;</button>
     <button id="messaging-btn" class="header-icon-btn" title="Messages" onclick="toggleMessagingPanel()" style="position:relative">✉<span id="msg-badge" class="msg-badge"></span></button>
     <button id="leaderboard-btn" class="header-icon-btn" title="Classement">🏆</button>
+    <button id="admin-btn" class="header-icon-btn" title="Admin" onclick="toggleAdminPanel()" style="display:none;color:#e53935;border-color:rgba(229,57,53,.3)">🔒</button>
     <button id="account-btn" class="header-icon-btn" title="Compte">👤</button>
     <button id="customize-btn" class="header-icon-btn" title="Personnaliser Stakr">&#9998;</button>
     <button id="mute-btn" class="header-icon-btn" title="Son on/off" onclick="toggleAudioMute()">🔊</button>
@@ -1299,6 +1332,35 @@ header button{flex-shrink:0}
   </div>
   <div id="leaderboard-content" style="padding:0 16px 16px;overflow-y:auto;flex:1"></div>
   <div id="leaderboard-my-rank" style="padding:8px 16px;border-top:1px solid var(--border);background:var(--surface);font-size:.7rem;color:var(--text-dim);text-align:center"></div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="admin-panel">
+  <div class="admin-header">
+    <button onclick="toggleAdminPanel()" style="background:none;border:none;color:#e53935;font-size:1.2rem;cursor:pointer;padding:4px">←</button>
+    <h2>🔒 Administration</h2>
+  </div>
+  <div class="admin-body">
+    <input type="text" class="admin-search" id="admin-search" placeholder="Rechercher un joueur (nom, email, UID)..." oninput="filterAdminUsers()"/>
+    <div id="admin-user-list"></div>
+    <div id="admin-selected-actions" style="display:none"></div>
+    <div id="admin-broadcast-section" style="margin-top:16px">
+      <div class="admin-actions">
+        <h3>📢 Message global</h3>
+        <div class="admin-action-group">
+          <label>Message (visible par tous au prochain chargement)</label>
+          <textarea id="admin-broadcast-msg" rows="3" placeholder="Annonce du Jarl..."></textarea>
+        </div>
+        <button class="admin-btn admin-btn-warn" onclick="adminBroadcast()">📢 Envoyer a tous</button>
+      </div>
+    </div>
+    <div id="admin-logs" style="margin-top:16px">
+      <div class="admin-actions">
+        <h3>📋 Historique des actions</h3>
+        <div id="admin-log-list" class="admin-log"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- PROFILE VIEWER -->
@@ -3588,7 +3650,7 @@ function toggleCustomize() {
 
 function closeAllPanels() {
   const overlay = $('#settings-overlay');
-  ['#settings-panel','#quest-panel','#map-panel','#customize-panel','#project-panel','#account-panel','#leaderboard-panel','#profile-viewer','#messaging-panel','#convo-panel'].forEach(sel => {
+  ['#settings-panel','#quest-panel','#map-panel','#customize-panel','#project-panel','#account-panel','#leaderboard-panel','#profile-viewer','#messaging-panel','#convo-panel','#admin-panel'].forEach(sel => {
     const p = $(sel);
     if (p && p.classList.contains('open')) p.classList.remove('open');
   });
@@ -4774,6 +4836,7 @@ function checkVikingDiscipline(today) {
   const q = state.quests;
   if (!q.lastActiveDate) return; // First time — no penalty
   if (isRestDay(today)) return; // Rest day — no penalty
+  if (checkAdminPenaltiesDisabled()) return; // Admin: penalties disabled
   const specB = getSpecBoosts();
   if (specB.penaltyImmune) return; // Spec: immune to penalties
 
@@ -4990,7 +5053,7 @@ function checkDailyChallenges() {
   if (dc.date && dc.date !== today && dc.penaltyChecked !== today) {
     const yesterdayWasRest = isRestDay(dc.date);
     const dcSpecB = getSpecBoosts();
-    if (!yesterdayWasRest && !dcSpecB.penaltyImmune) {
+    if (!yesterdayWasRest && !dcSpecB.penaltyImmune && !checkAdminPenaltiesDisabled()) {
       dc.challenges.forEach(ch => {
         if (ch.accepted && ch.progress < ch.target) {
           let penalty = ch.xpReward * 2;
@@ -5983,7 +6046,7 @@ function checkSoloLeveling() {
     const done = sl.pushups >= prevTargets.pushups && sl.squats >= prevTargets.squats && sl.abs >= prevTargets.abs && sl.km >= prevTargets.km;
     if (done) {
       sl.completedDays = (sl.completedDays || 0) + 1;
-    } else if (!prevDayWasRest && !soloSpecB.penaltyImmune) {
+    } else if (!prevDayWasRest && !soloSpecB.penaltyImmune && !checkAdminPenaltiesDisabled()) {
       sl.missedDays = (sl.missedDays || 0) + 1;
       let soloPenalty = SOLO_PENALTY_XP;
       if (soloSpecB.penaltyReduction > 0) soloPenalty = Math.round(soloPenalty * (1 - soloSpecB.penaltyReduction));
@@ -10043,6 +10106,371 @@ async function sendMessage() {
   }
 }
 
+// ===== ADMIN PANEL — JAVASCRIPT =====
+const ADMIN_UIDS = new Set();
+let adminUsers = [];
+let adminLogs = [];
+let adminSelectedUid = null;
+
+async function loadAdminConfig() {
+  if (!db) return;
+  try {
+    const doc = await db.collection('config').doc('admin').get();
+    if (doc.exists) {
+      const data = doc.data();
+      (data.uids || []).forEach(u => ADMIN_UIDS.add(u));
+      adminLogs = data.logs || [];
+    }
+  } catch(e) { console.warn('Admin config load:', e); }
+  // Show/hide admin button
+  const btn = document.getElementById('admin-btn');
+  if (btn) btn.style.display = isAdmin() ? 'inline-flex' : 'none';
+}
+
+function isAdmin() {
+  return currentUser && ADMIN_UIDS.has(currentUser.uid);
+}
+
+async function saveAdminConfig() {
+  if (!db || !isAdmin()) return;
+  try {
+    await db.collection('config').doc('admin').set({
+      uids: Array.from(ADMIN_UIDS),
+      logs: adminLogs.slice(0, 200)
+    });
+  } catch(e) { console.error('Admin config save:', e); }
+}
+
+function adminLog(action) {
+  adminLogs.unshift({
+    action,
+    by: currentUser?.uid || '?',
+    byName: state.pseudo || currentUser?.displayName || '?',
+    at: new Date().toISOString()
+  });
+  if (adminLogs.length > 200) adminLogs = adminLogs.slice(0, 200);
+  saveAdminConfig();
+}
+
+function toggleAdminPanel() {
+  if (!isAdmin()) return;
+  const panel = document.getElementById('admin-panel');
+  const overlay = document.getElementById('settings-overlay');
+  const opening = !panel.classList.contains('open');
+  panel.classList.toggle('open');
+  overlay.classList.toggle('open', opening);
+  if (opening) {
+    loadAdminUsers();
+    renderAdminLogs();
+  }
+}
+
+async function loadAdminUsers() {
+  if (!db) return;
+  try {
+    const snap = await db.collection('users').orderBy('totalXp', 'desc').limit(200).get();
+    adminUsers = [];
+    snap.forEach(doc => adminUsers.push({ id: doc.id, ...doc.data() }));
+    renderAdminUserList();
+  } catch(e) { console.error('Admin load users:', e); }
+}
+
+function filterAdminUsers() {
+  const q = (document.getElementById('admin-search')?.value || '').toLowerCase();
+  renderAdminUserList(q);
+}
+
+function renderAdminUserList(filter = '') {
+  const list = document.getElementById('admin-user-list');
+  if (!list) return;
+  let filtered = adminUsers;
+  if (filter) filtered = adminUsers.filter(u => (u.name||'').toLowerCase().includes(filter) || (u.id||'').toLowerCase().includes(filter));
+  list.innerHTML = filtered.slice(0, 50).map(u => `<div class="admin-user-row ${u.id === adminSelectedUid ? 'selected' : ''}" onclick="selectAdminUser('${u.id}')">
+    ${u.avatar ? `<img src="${u.avatar}" style="width:28px;height:28px;border-radius:50%;margin-right:8px"/>` : '<span style="margin-right:8px">👤</span>'}
+    <div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${u.name || 'Viking'} <span style="color:var(--text-dim);font-weight:400">Niv.${u.level||1}</span></div>
+    <div style="font-size:.6rem;color:var(--text-dim)">${u.id.slice(0,12)}... — ${u.totalXp||0} XP${u.banned ? ' 🚫 BANNI' : ''}${u.customTitle ? ' — 🏆 '+u.customTitle : ''}</div></div>
+  </div>`).join('');
+}
+
+function selectAdminUser(uid) {
+  adminSelectedUid = uid;
+  renderAdminUserList((document.getElementById('admin-search')?.value || '').toLowerCase());
+  renderAdminActions();
+}
+
+function renderAdminActions() {
+  const section = document.getElementById('admin-selected-actions');
+  if (!section) return;
+  const u = adminUsers.find(u => u.id === adminSelectedUid);
+  if (!u) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  section.innerHTML = `
+    <div class="admin-actions">
+      <h3>⚔ ${u.name || 'Viking'} <span style="font-size:.6rem;color:var(--text-dim)">${u.id.slice(0,16)}...</span></h3>
+      <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:8px">Niv.${u.level||1} — ${u.totalXp||0} XP — Streak ${u.streak||0}${u.banned ? ' — 🚫 BANNI' : ''}${u.penaltiesDisabled ? ' — ⏸ Penalites OFF' : ''}${u.customTitle ? ' — 🏆 '+u.customTitle : ''}</div>
+
+      <div class="admin-action-group">
+        <label>💰 XP</label>
+        <div style="display:flex;gap:6px"><input type="number" id="admin-xp-amount" value="100" style="flex:1;background:#1a1030;border:1px solid #333;color:#fff;border-radius:4px;padding:4px 8px;font-size:.75rem"/>
+        <button class="admin-btn admin-btn-ok" onclick="adminGiveXp()">+ Donner</button>
+        <button class="admin-btn admin-btn-danger" onclick="adminRemoveXp()">- Retirer</button></div>
+      </div>
+
+      <div class="admin-action-group">
+        <label>📊 Niveau</label>
+        <div style="display:flex;gap:6px"><input type="number" id="admin-level-val" value="${u.level||1}" min="1" max="100" style="flex:1;background:#1a1030;border:1px solid #333;color:#fff;border-radius:4px;padding:4px 8px;font-size:.75rem"/>
+        <button class="admin-btn admin-btn-ok" onclick="adminSetLevel()">Appliquer</button></div>
+      </div>
+
+      <div class="admin-action-group">
+        <label>🔥 Streak</label>
+        <div style="display:flex;gap:6px"><input type="number" id="admin-streak-val" value="${u.streak||0}" min="0" style="flex:1;background:#1a1030;border:1px solid #333;color:#fff;border-radius:4px;padding:4px 8px;font-size:.75rem"/>
+        <button class="admin-btn admin-btn-ok" onclick="adminSetStreak()">Appliquer</button></div>
+      </div>
+
+      <div class="admin-action-group">
+        <label>💎 Runes</label>
+        <div style="display:flex;gap:6px"><input type="number" id="admin-runes-val" value="${u.runes||0}" min="0" style="flex:1;background:#1a1030;border:1px solid #333;color:#fff;border-radius:4px;padding:4px 8px;font-size:.75rem"/>
+        <button class="admin-btn admin-btn-ok" onclick="adminSetRunes()">Appliquer</button></div>
+      </div>
+
+      <div class="admin-action-group">
+        <label>🏆 Titre personnalise (visible dans le classement)</label>
+        <div style="display:flex;gap:6px"><input type="text" id="admin-title-val" value="${u.customTitle||''}" placeholder="Ex: Champion du Valhalla" maxlength="40" style="flex:1;background:#1a1030;border:1px solid #333;color:#fff;border-radius:4px;padding:4px 8px;font-size:.75rem"/>
+        <button class="admin-btn admin-btn-ok" onclick="adminSetTitle()">Appliquer</button>
+        <button class="admin-btn admin-btn-danger" onclick="adminRemoveTitle()">Retirer</button></div>
+      </div>
+
+      <div class="admin-action-group">
+        <label>🔑 Cles API (JSON array)</label>
+        <div style="display:flex;gap:6px"><textarea id="admin-api-keys" rows="2" placeholder='["sk-...","sk-..."]' style="flex:1;background:#1a1030;border:1px solid #333;color:#fff;border-radius:4px;padding:4px 8px;font-size:.7rem;font-family:monospace;resize:none"></textarea>
+        <button class="admin-btn admin-btn-ok" onclick="adminSetApiKeys()">Appliquer</button></div>
+      </div>
+
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+        <button class="admin-btn ${u.penaltiesDisabled ? 'admin-btn-ok' : 'admin-btn-warn'}" onclick="adminTogglePenalties()">${u.penaltiesDisabled ? '▶ Reactiver penalites' : '⏸ Desactiver penalites'}</button>
+        <button class="admin-btn ${u.banned ? 'admin-btn-ok' : 'admin-btn-danger'}" onclick="adminBanUser()">${u.banned ? '✅ Debannir' : '🚫 Bannir'}</button>
+      </div>
+    </div>`;
+}
+
+async function adminGiveXp() {
+  if (!adminSelectedUid || !db) return;
+  const amount = parseInt(document.getElementById('admin-xp-amount')?.value) || 0;
+  if (amount <= 0) return;
+  try {
+    await db.collection('users').doc(adminSelectedUid).update({
+      totalXp: firebase.firestore.FieldValue.increment(amount)
+    });
+    // Also update private quest data
+    const qdoc = await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').get();
+    if (qdoc.exists) {
+      await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').update({
+        xp: firebase.firestore.FieldValue.increment(amount),
+        totalXp: firebase.firestore.FieldValue.increment(amount)
+      });
+    }
+    adminLog(`+${amount} XP → ${adminSelectedUid.slice(0,8)}`);
+    showToast('Admin', `+${amount} XP attribues`);
+    await loadAdminUsers();
+    selectAdminUser(adminSelectedUid);
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function adminRemoveXp() {
+  if (!adminSelectedUid || !db) return;
+  const amount = parseInt(document.getElementById('admin-xp-amount')?.value) || 0;
+  if (amount <= 0) return;
+  try {
+    await db.collection('users').doc(adminSelectedUid).update({
+      totalXp: firebase.firestore.FieldValue.increment(-amount)
+    });
+    const qdoc = await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').get();
+    if (qdoc.exists) {
+      await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').update({
+        xp: firebase.firestore.FieldValue.increment(-amount),
+        totalXp: firebase.firestore.FieldValue.increment(-amount)
+      });
+    }
+    adminLog(`-${amount} XP → ${adminSelectedUid.slice(0,8)}`);
+    showToast('Admin', `-${amount} XP retires`);
+    await loadAdminUsers();
+    selectAdminUser(adminSelectedUid);
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function adminSetLevel() {
+  if (!adminSelectedUid || !db) return;
+  const lvl = parseInt(document.getElementById('admin-level-val')?.value) || 1;
+  try {
+    await db.collection('users').doc(adminSelectedUid).update({ level: lvl });
+    const qdoc = await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').get();
+    if (qdoc.exists) {
+      await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').update({ level: lvl });
+    }
+    adminLog(`Niveau → ${lvl} pour ${adminSelectedUid.slice(0,8)}`);
+    showToast('Admin', `Niveau mis a ${lvl}`);
+    await loadAdminUsers();
+    selectAdminUser(adminSelectedUid);
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function adminSetStreak() {
+  if (!adminSelectedUid || !db) return;
+  const val = parseInt(document.getElementById('admin-streak-val')?.value) || 0;
+  try {
+    await db.collection('users').doc(adminSelectedUid).update({ streak: val });
+    const qdoc = await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').get();
+    if (qdoc.exists) {
+      await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').update({ streak: val });
+    }
+    adminLog(`Streak → ${val} pour ${adminSelectedUid.slice(0,8)}`);
+    showToast('Admin', `Streak mis a ${val}`);
+    await loadAdminUsers();
+    selectAdminUser(adminSelectedUid);
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function adminSetTitle() {
+  if (!adminSelectedUid || !db) return;
+  const title = (document.getElementById('admin-title-val')?.value || '').trim();
+  if (!title) return;
+  try {
+    await db.collection('users').doc(adminSelectedUid).update({ customTitle: title });
+    adminLog(`Titre "${title}" → ${adminSelectedUid.slice(0,8)}`);
+    showToast('Admin', `Titre "${title}" attribue`);
+    await loadAdminUsers();
+    selectAdminUser(adminSelectedUid);
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function adminRemoveTitle() {
+  if (!adminSelectedUid || !db) return;
+  try {
+    await db.collection('users').doc(adminSelectedUid).update({ customTitle: firebase.firestore.FieldValue.delete() });
+    adminLog(`Titre retire → ${adminSelectedUid.slice(0,8)}`);
+    showToast('Admin', 'Titre retire');
+    await loadAdminUsers();
+    selectAdminUser(adminSelectedUid);
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function adminSetRunes() {
+  if (!adminSelectedUid || !db) return;
+  const val = parseInt(document.getElementById('admin-runes-val')?.value) || 0;
+  try {
+    await db.collection('users').doc(adminSelectedUid).update({ runes: val });
+    adminLog(`Runes → ${val} pour ${adminSelectedUid.slice(0,8)}`);
+    showToast('Admin', `Runes mis a ${val}`);
+    await loadAdminUsers();
+    selectAdminUser(adminSelectedUid);
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function adminTogglePenalties() {
+  if (!adminSelectedUid || !db) return;
+  const u = adminUsers.find(u => u.id === adminSelectedUid);
+  const newVal = !(u?.penaltiesDisabled);
+  try {
+    await db.collection('users').doc(adminSelectedUid).update({ penaltiesDisabled: newVal });
+    // Also update private quests data so the user's app reads it
+    const qdoc = await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').get();
+    if (qdoc.exists) {
+      await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').update({ penaltiesDisabled: newVal });
+    }
+    adminLog(`Penalites ${newVal ? 'OFF' : 'ON'} → ${adminSelectedUid.slice(0,8)}`);
+    showToast('Admin', `Penalites ${newVal ? 'desactivees' : 'reactivees'}`);
+    await loadAdminUsers();
+    selectAdminUser(adminSelectedUid);
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function adminSetApiKeys() {
+  if (!adminSelectedUid || !db) return;
+  const raw = (document.getElementById('admin-api-keys')?.value || '').trim();
+  let keys;
+  try { keys = JSON.parse(raw); } catch { showToast('Erreur', 'JSON invalide — format: ["sk-..."]'); return; }
+  if (!Array.isArray(keys)) { showToast('Erreur', 'Doit etre un tableau JSON'); return; }
+  try {
+    await db.collection('users').doc(adminSelectedUid).collection('data').doc('config').set({ apiKeys: keys }, { merge: true });
+    adminLog(`API keys (${keys.length}) → ${adminSelectedUid.slice(0,8)}`);
+    showToast('Admin', `${keys.length} cle(s) API configuree(s)`);
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function adminBanUser() {
+  if (!adminSelectedUid || !db) return;
+  const u = adminUsers.find(u => u.id === adminSelectedUid);
+  const newVal = !(u?.banned);
+  try {
+    await db.collection('users').doc(adminSelectedUid).update({ banned: newVal });
+    adminLog(`${newVal ? 'BANNI' : 'DEBANNI'} → ${adminSelectedUid.slice(0,8)}`);
+    showToast('Admin', newVal ? '🚫 Utilisateur banni' : '✅ Utilisateur debanni');
+    await loadAdminUsers();
+    selectAdminUser(adminSelectedUid);
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function adminBroadcast() {
+  if (!db || !isAdmin()) return;
+  const msg = (document.getElementById('admin-broadcast-msg')?.value || '').trim();
+  if (!msg) return;
+  try {
+    await db.collection('config').doc('broadcast').set({
+      message: msg,
+      from: state.pseudo || currentUser?.displayName || 'Admin',
+      at: new Date().toISOString()
+    });
+    adminLog(`Broadcast: "${msg.slice(0,40)}..."`);
+    showToast('Admin', 'Message global envoye');
+    document.getElementById('admin-broadcast-msg').value = '';
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+function renderAdminLogs() {
+  const el = document.getElementById('admin-log-list');
+  if (!el) return;
+  if (adminLogs.length === 0) { el.innerHTML = '<div style="color:var(--text-dim);font-size:.65rem;padding:8px">Aucune action enregistree.</div>'; return; }
+  el.innerHTML = adminLogs.slice(0, 50).map(l => {
+    const d = new Date(l.at);
+    const ts = `${d.getDate()}/${d.getMonth()+1} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    return `<div style="font-size:.65rem;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="color:var(--text-dim)">${ts}</span> <span style="color:#e53935">${l.byName||'?'}</span> — ${l.action}</div>`;
+  }).join('');
+}
+
+async function checkBroadcast() {
+  if (!db || !currentUser) return;
+  try {
+    const doc = await db.collection('config').doc('broadcast').get();
+    if (!doc.exists) return;
+    const data = doc.data();
+    if (!data.message) return;
+    // Check if user already saw this broadcast
+    const lastSeen = localStorage.getItem('stakr_broadcast_seen') || '';
+    if (lastSeen === data.at) return;
+    localStorage.setItem('stakr_broadcast_seen', data.at);
+    showToast(`📢 ${data.from || 'Admin'}`, data.message);
+    addMessage('stakr', `📢 **Annonce du Jarl** : ${data.message}`);
+  } catch(e) { console.warn('Broadcast check:', e); }
+}
+
+async function checkBanStatus() {
+  if (!db || !currentUser) return false;
+  try {
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    if (doc.exists && doc.data().banned) {
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0e0a06;color:#e53935;font-family:Cinzel,serif;text-align:center;padding:20px"><div><h1>🚫 Banni du Valhalla</h1><p style="color:#888;margin-top:12px;font-size:.85rem">Ton compte a ete suspendu par un administrateur.<br>Contacte le Jarl si tu penses que c\'est une erreur.</p></div></div>';
+      return true;
+    }
+  } catch(e) { console.warn('Ban check:', e); }
+  return false;
+}
+
+function checkAdminPenaltiesDisabled() {
+  const q = state.quests;
+  return q.penaltiesDisabled === true;
+}
+
 // ===== EVOLVING COMPANION PERSONALITY =====
 // Analyzes 7-day performance and returns a dynamic tone directive
 function getCompanionMoodDirective() {
@@ -10586,9 +11014,13 @@ function initAuth() {
     updateAccountUI();
     if (user) {
       await loadFromCloud();
+      await loadAdminConfig();
+      const banned = await checkBanStatus();
+      if (banned) return;
       await syncToCloud();
       loadLeaderboard(currentLeaderboardTab);
       startInboxListener();
+      checkBroadcast();
     } else {
       stopInboxListener();
     }
@@ -11862,7 +12294,7 @@ async function loadLeaderboard(tab) {
       html += `<div class="lb-row lb-clickable ${isMe ? 'lb-me' : ''}" onclick="openPlayerProfile('${d.id}')">
         <div class="lb-rank ${rankClass}">${pos <= 3 ? ['🥇','🥈','🥉'][pos-1] : pos}</div>
         ${d.avatar ? `<img class="lb-avatar" src="${d.avatar}" alt=""/>` : `<div class="lb-avatar" style="background:var(--wood-mid);display:flex;align-items:center;justify-content:center;font-size:.8rem">👤</div>`}
-        <div class="lb-name">${d.name || 'Viking'}${pStars}${d.rank ? ` <span style="font-size:.55rem;color:var(--text-dim)">Niv.${d.level || 1} ${d.rank}</span>` : ''}</div>
+        <div class="lb-name">${d.name || 'Viking'}${pStars}${d.rank ? ` <span style="font-size:.55rem;color:var(--text-dim)">Niv.${d.level || 1} ${d.rank}</span>` : ''}${d.customTitle ? `<div style="font-size:.55rem;color:#ffd700;margin-top:1px">🏆 ${d.customTitle}</div>` : ''}</div>
         <div class="lb-xp">${xpVal} XP</div>
       </div>`;
     });
@@ -11938,6 +12370,7 @@ async function openPlayerProfile(uid) {
         ${profile.avatar ? `<img class="pv-avatar" src="${profile.avatar}" alt=""/>` : `<div class="pv-avatar" style="display:inline-flex;align-items:center;justify-content:center;font-size:1.8rem;background:var(--wood-mid)">👤</div>`}
         <div class="pv-name" style="margin-top:8px">${companionEmoji} ${profile.name || 'Viking'}${pStars}</div>
         <div class="pv-rank">${profile.rank || 'Thrall'} — Niveau ${profile.level || 1}</div>
+        ${profile.customTitle ? `<div style="font-size:.65rem;color:#ffd700;margin-top:4px">🏆 ${profile.customTitle}</div>` : ''}
         ${profile.startDate ? `<div style="font-size:.55rem;color:var(--text-dim);margin-top:4px">Viking depuis ${profile.startDate} • ${profile.daysActive || 0} jours actifs</div>` : ''}
       </div>
 
