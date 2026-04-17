@@ -1162,6 +1162,9 @@ header button{flex-shrink:0}
       <input type="file" accept=".json" onchange="importFullBackup(event)" style="display:none" />
     </label>
   </div>
+  <div class="setting-group" id="admin-settings-entry" style="display:none;margin-top:16px;border-top:2px solid #e53935;padding-top:16px">
+    <button onclick="toggleSettings();toggleAdminPanel()" style="width:100%;padding:14px;background:linear-gradient(135deg,#e53935,#c62828);color:#fff;border:none;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:1px">🔒 Panneau d'administration</button>
+  </div>
 </div>
 
 <!-- CUSTOMIZE PANEL -->
@@ -10125,10 +10128,12 @@ async function loadAdminConfig() {
     }
   } catch(e) { console.error('[ADMIN] config load error:', e); }
   console.log('[ADMIN] ADMIN_UIDS:', Array.from(ADMIN_UIDS), 'isAdmin:', isAdmin());
-  // Show/hide admin button
+  // Show/hide admin buttons (header + settings)
   const btn = document.getElementById('admin-btn');
+  const settingsEntry = document.getElementById('admin-settings-entry');
   console.log('[ADMIN] btn found:', !!btn, 'display will be:', isAdmin() ? 'inline-flex' : 'none');
   if (btn) btn.style.display = isAdmin() ? 'inline-flex' : 'none';
+  if (settingsEntry) settingsEntry.style.display = isAdmin() ? 'block' : 'none';
 }
 
 function isAdmin() {
