@@ -10110,13 +10110,12 @@ async function sendMessage() {
 }
 
 // ===== ADMIN PANEL — JAVASCRIPT =====
-const ADMIN_UIDS = new Set(['u26jZP61pEZvv25dXgVlfwQALlf1']);
+const ADMIN_UIDS = new Set(['u26jZP61pEZvv25dXgVIfwQALIf1']);
 let adminUsers = [];
 let adminLogs = [];
 let adminSelectedUid = null;
 
 async function loadAdminConfig() {
-  alert('DEBUG ADMIN — Ton UID: ' + (currentUser?.uid || 'non connecte'));
   console.log('[ADMIN] loadAdminConfig called, db:', !!db, 'currentUser:', currentUser?.uid);
   if (!db) { console.warn('[ADMIN] no db'); return; }
   try {
