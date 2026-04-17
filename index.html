@@ -10116,6 +10116,7 @@ let adminLogs = [];
 let adminSelectedUid = null;
 
 async function loadAdminConfig() {
+  alert('DEBUG ADMIN — Ton UID: ' + (currentUser?.uid || 'non connecte'));
   console.log('[ADMIN] loadAdminConfig called, db:', !!db, 'currentUser:', currentUser?.uid);
   if (!db) { console.warn('[ADMIN] no db'); return; }
   try {
