@@ -1025,6 +1025,24 @@ header button{flex-shrink:0}
 .route-loading::before{content:'';width:16px;height:16px;border:2px solid var(--gold-dim);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .route-error{background:rgba(229,115,115,.1);border:1px solid rgba(229,115,115,.3);border-radius:8px;padding:10px;font-size:.75rem;color:#e57373;text-align:center;margin-bottom:12px}
+/* Fullscreen route map */
+.route-fullscreen{position:fixed!important;top:0;left:0;width:100vw!important;height:100vh!important;z-index:10000;border-radius:0!important;border:none!important;margin:0!important}
+.route-fullscreen .leaflet-container{width:100%!important;height:100%!important}
+.route-fs-controls{position:absolute;bottom:0;left:0;right:0;z-index:10001;background:linear-gradient(transparent,rgba(14,10,6,.95) 30%);padding:20px 16px 28px;pointer-events:none}
+.route-fs-controls>*{pointer-events:auto}
+.route-fs-close{position:absolute;top:16px;right:16px;z-index:10002;width:40px;height:40px;border-radius:50%;background:rgba(14,10,6,.85);border:1px solid var(--border);color:var(--text);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.route-fs-recenter{position:absolute;top:16px;left:16px;z-index:10002;width:40px;height:40px;border-radius:50%;background:rgba(14,10,6,.85);border:1px solid var(--border);color:var(--gold);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.route-live-stats{display:flex;gap:6px;margin-bottom:12px;justify-content:center}
+.route-live-stat{background:rgba(14,10,6,.7);border:1px solid var(--border);border-radius:10px;padding:8px 12px;text-align:center;backdrop-filter:blur(8px);min-width:70px}
+.route-live-stat-val{font-size:1.1rem;color:var(--gold);font-weight:700}
+.route-live-stat-lbl{font-size:.55rem;color:var(--text-dim);margin-top:2px;text-transform:uppercase}
+.route-run-btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit}
+.route-run-start{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff}
+.route-run-stop{background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff}
+.route-run-pause{background:linear-gradient(135deg,#d4a017,var(--gold));color:#0e0a06}
+.route-run-btns{display:flex;gap:8px}
+.route-run-btns .route-run-btn{flex:1}
+@keyframes pulse{0%,100%{box-shadow:0 0 4px rgba(46,204,113,.6)}50%{box-shadow:0 0 16px rgba(46,204,113,1)}}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1654,6 +1672,14 @@ const TRANSLATIONS = {
     routeNoGeo: 'La geolocalisation n\'est pas disponible sur ton appareil.',
     routeGeoError: 'Impossible d\'obtenir ta position. Autorise la geolocalisation.',
     routeError: 'Erreur lors du calcul de l\'itineraire. Reessaie.',
+    routeStartRun: 'Lancer la course',
+    routePause: 'Pause',
+    routeResume: 'Reprendre',
+    routeFinish: 'Terminer',
+    routeTime: 'Temps',
+    routePace: 'Allure',
+    routeRunComplete: 'Course terminee !',
+    routeRunCompleteMsg: 'KRAA ! Belle course, Viking ! **{dist} km** en **{time}** — tu gagnes **+{xp} XP** ! Tes jambes sont dignes d\'un guerrier.',
     // Solo Leveling
     soloTitle: 'Solo Leveling', systemWatches: 'Le Systeme t\'observe',
     soloDesc: 'Inspire de Solo Leveling. Chaque jour : pompes, squats, abdos, et course. Les quotas augmentent chaque semaine.',
@@ -1985,6 +2011,14 @@ const TRANSLATIONS = {
     routeNoGeo: 'Geolocation is not available on your device.',
     routeGeoError: 'Unable to get your position. Please allow geolocation.',
     routeError: 'Error calculating route. Please try again.',
+    routeStartRun: 'Start run',
+    routePause: 'Pause',
+    routeResume: 'Resume',
+    routeFinish: 'Finish',
+    routeTime: 'Time',
+    routePace: 'Pace',
+    routeRunComplete: 'Run complete!',
+    routeRunCompleteMsg: 'KRAAW! Great run, Viking! **{dist} km** in **{time}** — you earn **+{xp} XP**! Your legs are worthy of a warrior.',
     soloTitle: 'Solo Leveling', systemWatches: 'The System watches you',
     soloDesc: 'Inspired by Solo Leveling. Every day: push-ups, squats, abs, and running. Quotas increase each week.',
     soloFailWarning: 'The System does not tolerate weakness.',
@@ -2293,6 +2327,14 @@ const TRANSLATIONS = {
     routeNoGeo: 'La geolocalización no está disponible en tu dispositivo.',
     routeGeoError: 'No se pudo obtener tu posición. Autoriza la geolocalización.',
     routeError: 'Error al calcular la ruta. Inténtalo de nuevo.',
+    routeStartRun: 'Iniciar carrera',
+    routePause: 'Pausa',
+    routeResume: 'Reanudar',
+    routeFinish: 'Terminar',
+    routeTime: 'Tiempo',
+    routePace: 'Ritmo',
+    routeRunComplete: '¡Carrera terminada!',
+    routeRunCompleteMsg: '¡KRAAW! ¡Gran carrera, Viking! **{dist} km** en **{time}** — ganas **+{xp} XP**. ¡Tus piernas son dignas de un guerrero!',
     soloTitle: 'Solo Leveling', systemWatches: 'El Sistema te observa',
     soloDesc: 'Inspirado en Solo Leveling. Cada día: flexiones, sentadillas, abdominales y carrera. Las cuotas aumentan cada semana.',
     soloFailWarning: 'El Sistema no tolera la debilidad.',
@@ -2601,6 +2643,14 @@ const TRANSLATIONS = {
     routeNoGeo: 'A geolocalização não está disponível no seu dispositivo.',
     routeGeoError: 'Não foi possível obter sua posição. Autorize a geolocalização.',
     routeError: 'Erro ao calcular a rota. Tente novamente.',
+    routeStartRun: 'Iniciar corrida',
+    routePause: 'Pausar',
+    routeResume: 'Retomar',
+    routeFinish: 'Finalizar',
+    routeTime: 'Tempo',
+    routePace: 'Ritmo',
+    routeRunComplete: 'Corrida concluída!',
+    routeRunCompleteMsg: 'KRAAW! Bela corrida, Viking! **{dist} km** em **{time}** — você ganha **+{xp} XP**! Suas pernas são dignas de um guerreiro.',
     soloTitle: 'Solo Leveling', systemWatches: 'O Sistema te observa',
     soloDesc: 'Inspirado em Solo Leveling. Todo dia: flexões, agachamentos, abdominais e corrida. As cotas aumentam a cada semana.',
     soloFailWarning: 'O Sistema não tolera fraqueza.',
@@ -8418,6 +8468,8 @@ let routeLayer = null;
 let routeMarkerStart = null;
 let routeArrows = [];
 let routeState = { lat: null, lng: null, distance: 5, loading: false, error: null, stats: null };
+// Live tracking state
+let routeTracking = { active: false, paused: false, watchId: null, startTime: null, pausedTime: 0, pauseStart: null, positions: [], distanceCovered: 0, runnerMarker: null, trailLayer: null, fullscreen: false };
 
 function renderRoutePlanner() {
   const rs = routeState;
@@ -8434,13 +8486,17 @@ function renderRoutePlanner() {
     </div>
   </div>`;
 
-  // Map container
-  html += `<div class="route-map-container"><div id="route-map"></div></div>`;
+  // Map container with expand button
+  html += `<div class="route-map-container" id="route-map-wrap">
+    <div id="route-map"></div>
+    ${rs.stats ? `<button onclick="toggleRouteFullscreen()" style="position:absolute;top:8px;right:8px;z-index:1001;width:32px;height:32px;border-radius:6px;background:rgba(14,10,6,.8);border:1px solid var(--border);color:var(--text);font-size:.9rem;cursor:pointer;backdrop-filter:blur(6px)">⛶</button>` : ''}
+  </div>`;
 
   // Action buttons
   html += `<div style="display:flex;gap:8px;margin-bottom:12px">
     <button class="route-btn route-btn-primary" onclick="generateRoute()" ${rs.loading ? 'disabled' : ''}>📍 ${t('routeGenerate')}</button>
     <button class="route-btn route-btn-secondary" onclick="regenerateRoute()" ${!rs.stats || rs.loading ? 'disabled' : ''}>🔄 ${t('routeRegenerate')}</button>
+    ${rs.stats && !routeTracking.active ? `<button class="route-btn route-run-start" onclick="startRunTracking()" style="flex:1">▶ ${t('routeStartRun')}</button>` : ''}
   </div>`;
 
   // Loading
@@ -8686,6 +8742,280 @@ function addRouteArrows(coordinates) {
     });
     const arrow = L.marker([curr[1], curr[0]], { icon, interactive: false }).addTo(routeMap);
     routeArrows.push(arrow);
+  }
+}
+
+// ===== ROUTE — Fullscreen & Live Tracking =====
+
+function toggleRouteFullscreen() {
+  const wrap = document.getElementById('route-map-wrap');
+  if (!wrap) return;
+  routeTracking.fullscreen = !routeTracking.fullscreen;
+
+  if (routeTracking.fullscreen) {
+    wrap.classList.add('route-fullscreen');
+    // Remove old overlay if any
+    const oldCtrl = wrap.querySelector('.route-fs-controls');
+    if (oldCtrl) oldCtrl.remove();
+    const oldClose = wrap.querySelector('.route-fs-close');
+    if (oldClose) oldClose.remove();
+    const oldRecenter = wrap.querySelector('.route-fs-recenter');
+    if (oldRecenter) oldRecenter.remove();
+    // Expand button hidden in fullscreen
+    const expandBtn = wrap.querySelector('button[onclick="toggleRouteFullscreen()"]');
+    if (expandBtn) expandBtn.style.display = 'none';
+
+    // Close button
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'route-fs-close';
+    closeBtn.innerHTML = '✕';
+    closeBtn.onclick = () => toggleRouteFullscreen();
+    wrap.appendChild(closeBtn);
+
+    // Recenter button
+    const recBtn = document.createElement('button');
+    recBtn.className = 'route-fs-recenter';
+    recBtn.innerHTML = '◎';
+    recBtn.onclick = () => recenterRouteMap();
+    wrap.appendChild(recBtn);
+
+    // Bottom controls overlay
+    const ctrl = document.createElement('div');
+    ctrl.className = 'route-fs-controls';
+    ctrl.id = 'route-fs-ctrl';
+    updateFsControls(ctrl);
+    wrap.appendChild(ctrl);
+
+    // Lock screen awake if possible
+    requestWakeLock();
+  } else {
+    wrap.classList.remove('route-fullscreen');
+    const c = wrap.querySelector('.route-fs-controls');
+    if (c) c.remove();
+    const cb = wrap.querySelector('.route-fs-close');
+    if (cb) cb.remove();
+    const rb = wrap.querySelector('.route-fs-recenter');
+    if (rb) rb.remove();
+    const expandBtn = wrap.querySelector('button[onclick="toggleRouteFullscreen()"]');
+    if (expandBtn) expandBtn.style.display = '';
+    releaseWakeLock();
+  }
+
+  // Leaflet needs resize after container change
+  setTimeout(() => { if (routeMap) routeMap.invalidateSize(); }, 200);
+}
+
+function updateFsControls(ctrl) {
+  if (!ctrl) ctrl = document.getElementById('route-fs-ctrl');
+  if (!ctrl) return;
+
+  const rt = routeTracking;
+  const elapsed = getRunElapsed();
+  const elMin = Math.floor(elapsed / 60);
+  const elSec = Math.floor(elapsed % 60);
+  const dist = rt.distanceCovered / 1000;
+  const pace = dist > 0.01 ? (elapsed / 60) / dist : 0;
+  const paceMin = Math.floor(pace);
+  const paceSec = Math.round((pace - paceMin) * 60);
+  const cal = Math.round(dist * 60);
+
+  let html = `<div class="route-live-stats">
+    <div class="route-live-stat"><div class="route-live-stat-val">${dist.toFixed(2)}</div><div class="route-live-stat-lbl">km</div></div>
+    <div class="route-live-stat"><div class="route-live-stat-val">${elMin}:${String(elSec).padStart(2,'0')}</div><div class="route-live-stat-lbl">${t('routeTime')}</div></div>
+    <div class="route-live-stat"><div class="route-live-stat-val">${dist > 0.01 ? paceMin + ':' + String(paceSec).padStart(2,'0') : '--'}</div><div class="route-live-stat-lbl">${t('routePace')}</div></div>
+    <div class="route-live-stat"><div class="route-live-stat-val">${cal}</div><div class="route-live-stat-lbl">kcal</div></div>
+  </div>`;
+
+  if (!rt.active) {
+    html += `<button class="route-run-btn route-run-start" onclick="startRunTracking()">▶ ${t('routeStartRun')}</button>`;
+  } else if (rt.paused) {
+    html += `<div class="route-run-btns">
+      <button class="route-run-btn route-run-start" onclick="resumeRunTracking()">▶ ${t('routeResume')}</button>
+      <button class="route-run-btn route-run-stop" onclick="stopRunTracking()">⏹ ${t('routeFinish')}</button>
+    </div>`;
+  } else {
+    html += `<div class="route-run-btns">
+      <button class="route-run-btn route-run-pause" onclick="pauseRunTracking()">⏸ ${t('routePause')}</button>
+      <button class="route-run-btn route-run-stop" onclick="stopRunTracking()">⏹ ${t('routeFinish')}</button>
+    </div>`;
+  }
+
+  ctrl.innerHTML = html;
+}
+
+function getRunElapsed() {
+  const rt = routeTracking;
+  if (!rt.startTime) return 0;
+  if (rt.paused) return (rt.pauseStart - rt.startTime) / 1000 - rt.pausedTime;
+  return (Date.now() - rt.startTime) / 1000 - rt.pausedTime;
+}
+
+function startRunTracking() {
+  const rt = routeTracking;
+  rt.active = true;
+  rt.paused = false;
+  rt.startTime = Date.now();
+  rt.pausedTime = 0;
+  rt.pauseStart = null;
+  rt.positions = [];
+  rt.distanceCovered = 0;
+
+  // Remove old trail
+  if (rt.trailLayer && routeMap) routeMap.removeLayer(rt.trailLayer);
+  rt.trailLayer = L.polyline([], { color: '#2ecc71', weight: 5, opacity: 0.8 }).addTo(routeMap);
+
+  // Runner marker
+  if (rt.runnerMarker && routeMap) routeMap.removeLayer(rt.runnerMarker);
+  const runIcon = L.divIcon({
+    html: '<div style="background:#2ecc71;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 12px rgba(46,204,113,.9);animation:pulse 1.5s infinite"></div>',
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+    className: ''
+  });
+  const startPos = routeState.lat && routeState.lng ? [routeState.lat, routeState.lng] : [48.8566, 2.3522];
+  rt.runnerMarker = L.marker(startPos, { icon: runIcon, zIndexOffset: 1000 }).addTo(routeMap);
+
+  // Open fullscreen automatically
+  if (!routeTracking.fullscreen) toggleRouteFullscreen();
+
+  // Start watching position
+  rt.watchId = navigator.geolocation.watchPosition(
+    (pos) => onRunPosition(pos),
+    (err) => {},
+    { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 }
+  );
+
+  // Update live stats every second
+  rt.statsInterval = setInterval(() => updateFsControls(), 1000);
+}
+
+function onRunPosition(pos) {
+  const rt = routeTracking;
+  if (!rt.active || rt.paused) return;
+
+  const lat = pos.coords.latitude;
+  const lng = pos.coords.longitude;
+  const acc = pos.coords.accuracy;
+
+  // Ignore very inaccurate readings
+  if (acc > 50) return;
+
+  const newPos = [lat, lng];
+
+  // Calculate distance from last position
+  if (rt.positions.length > 0) {
+    const last = rt.positions[rt.positions.length - 1];
+    const d = haversineDistance(last[0], last[1], lat, lng);
+    // Ignore tiny jumps (GPS noise) and impossibly large jumps
+    if (d > 2 && d < 200) {
+      rt.distanceCovered += d;
+    }
+  }
+
+  rt.positions.push(newPos);
+
+  // Update runner marker
+  if (rt.runnerMarker) rt.runnerMarker.setLatLng(newPos);
+
+  // Update trail
+  if (rt.trailLayer) rt.trailLayer.addLatLng(newPos);
+
+  // Center map on runner
+  if (routeMap) routeMap.panTo(newPos, { animate: true, duration: 0.5 });
+}
+
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // meters
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function pauseRunTracking() {
+  const rt = routeTracking;
+  rt.paused = true;
+  rt.pauseStart = Date.now();
+  updateFsControls();
+}
+
+function resumeRunTracking() {
+  const rt = routeTracking;
+  if (rt.pauseStart) {
+    rt.pausedTime += (Date.now() - rt.pauseStart) / 1000;
+  }
+  rt.paused = false;
+  rt.pauseStart = null;
+  updateFsControls();
+}
+
+function stopRunTracking() {
+  const rt = routeTracking;
+
+  // Stop GPS watch
+  if (rt.watchId !== null) {
+    navigator.geolocation.clearWatch(rt.watchId);
+    rt.watchId = null;
+  }
+  if (rt.statsInterval) {
+    clearInterval(rt.statsInterval);
+    rt.statsInterval = null;
+  }
+
+  const elapsed = getRunElapsed();
+  const distKm = rt.distanceCovered / 1000;
+  const cal = Math.round(distKm * 60);
+
+  rt.active = false;
+  rt.paused = false;
+
+  // Award XP based on distance (100 XP per km, capped at route distance * 120)
+  const maxXp = Math.round((routeState.stats?.distance || routeState.distance) * 120);
+  const earnedXp = Math.min(maxXp, Math.round(distKm * 100));
+  if (earnedXp > 0 && state.quests) {
+    addQuestXp(earnedXp);
+    const elMin = Math.floor(elapsed / 60);
+    const elSec = Math.floor(elapsed % 60);
+    addMessage('stakr', t('routeRunCompleteMsg')
+      .replace('{dist}', distKm.toFixed(2))
+      .replace('{time}', `${elMin}:${String(elSec).padStart(2,'0')}`)
+      .replace('{xp}', earnedXp)
+      + ' [MOOD:excite]');
+    showToast(t('routeRunComplete'), `${distKm.toFixed(2)} km — +${earnedXp} XP`);
+    saveState();
+  }
+
+  // Update fullscreen controls to show "Start" again
+  updateFsControls();
+  releaseWakeLock();
+}
+
+function recenterRouteMap() {
+  if (!routeMap) return;
+  const rt = routeTracking;
+  if (rt.active && rt.positions.length > 0) {
+    const last = rt.positions[rt.positions.length - 1];
+    routeMap.setView(last, 16, { animate: true });
+  } else if (routeState.lat && routeState.lng) {
+    routeMap.setView([routeState.lat, routeState.lng], 14, { animate: true });
+  }
+}
+
+// Wake Lock — keep screen on during run
+let wakeLockSentinel = null;
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLockSentinel = await navigator.wakeLock.request('screen');
+    }
+  } catch (e) {}
+}
+function releaseWakeLock() {
+  if (wakeLockSentinel) {
+    wakeLockSentinel.release().catch(() => {});
+    wakeLockSentinel = null;
   }
 }
 
