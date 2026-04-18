@@ -1235,7 +1235,7 @@ header button{flex-shrink:0}
 <!-- QUEST PANEL -->
 <div id="quest-panel">
   <div id="quest-panel-header">
-    <h2>&#9876; Quetes Viking</h2>
+    <h2 data-i18n="questPanelTitle">&#9876; Quetes Viking</h2>
     <button class="btn-secondary" onclick="toggleQuestPanel()" style="margin:0;padding:6px 14px;background:var(--gold-dim);border:none;border-radius:4px;color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:inherit;font-weight:600">OK</button>
   </div>
   <div id="quest-panel-content">
@@ -1250,25 +1250,25 @@ header button{flex-shrink:0}
         </div>
       </div>
       <div class="quest-stats">
-        <div class="quest-stat"><span class="stat-val" id="quest-streak-val">0</span><span class="stat-label">Jours de suite</span></div>
-        <div class="quest-stat"><span class="stat-val" id="quest-total-xp">0</span><span class="stat-label">XP total</span></div>
-        <div class="quest-stat"><span class="stat-val" id="quest-completed-today">0</span><span class="stat-label">Fait aujourd'hui</span></div>
+        <div class="quest-stat"><span class="stat-val" id="quest-streak-val">0</span><span class="stat-label" data-i18n="consecutiveDays">Jours de suite</span></div>
+        <div class="quest-stat"><span class="stat-val" id="quest-total-xp">0</span><span class="stat-label" data-i18n="totalXpLabel">XP total</span></div>
+        <div class="quest-stat"><span class="stat-val" id="quest-completed-today">0</span><span class="stat-label" data-i18n="doneToday">Fait aujourd'hui</span></div>
       </div>
     </div>
     <div class="quest-tabs">
-      <button class="quest-tab active" data-qtab="daily" onclick="switchQuestTab('daily')"><span class="tab-icon">&#9876;</span>Jour</button>
-      <button class="quest-tab" data-qtab="weekly" onclick="switchQuestTab('weekly')"><span class="tab-icon">&#128197;</span>Semaine</button>
-      <button class="quest-tab" data-qtab="defis" onclick="switchQuestTab('defis')"><span class="tab-icon">&#9888;</span>Defis</button>
-      <button class="quest-tab" data-qtab="solo" onclick="switchQuestTab('solo')"><span class="tab-icon">&#128165;</span>Solo</button>
-      <button class="quest-tab" data-qtab="saison" onclick="switchQuestTab('saison')"><span class="tab-icon">&#127793;</span>Saison</button>
-      <button class="quest-tab" data-qtab="epiques" onclick="switchQuestTab('epiques')"><span class="tab-icon">&#127942;</span>Epiques</button>
+      <button class="quest-tab active" data-qtab="daily" onclick="switchQuestTab('daily')"><span class="tab-icon">&#9876;</span><span data-i18n="day">Jour</span></button>
+      <button class="quest-tab" data-qtab="weekly" onclick="switchQuestTab('weekly')"><span class="tab-icon">&#128197;</span><span data-i18n="weekTab">Semaine</span></button>
+      <button class="quest-tab" data-qtab="defis" onclick="switchQuestTab('defis')"><span class="tab-icon">&#9888;</span><span data-i18n="challenges">Defis</span></button>
+      <button class="quest-tab" data-qtab="solo" onclick="switchQuestTab('solo')"><span class="tab-icon">&#128165;</span><span data-i18n="solo">Solo</span></button>
+      <button class="quest-tab" data-qtab="saison" onclick="switchQuestTab('saison')"><span class="tab-icon">&#127793;</span><span data-i18n="season">Saison</span></button>
+      <button class="quest-tab" data-qtab="epiques" onclick="switchQuestTab('epiques')"><span class="tab-icon">&#127942;</span><span data-i18n="epics">Epiques</span></button>
       <button class="quest-tab" data-qtab="boss" onclick="switchQuestTab('boss')"><span class="tab-icon">&#128009;</span>Boss</button>
       <button class="quest-tab" data-qtab="stakr" onclick="switchQuestTab('stakr')"><span class="tab-icon">&#129718;</span>Stakr</button>
-      <button class="quest-tab" data-qtab="runes" onclick="switchQuestTab('runes')"><span class="tab-icon">&#9883;</span>Runes</button>
-      <button class="quest-tab" data-qtab="arbre" onclick="switchQuestTab('arbre')"><span class="tab-icon">&#127794;</span>Arbre</button>
-      <button class="quest-tab" data-qtab="talents" onclick="switchQuestTab('talents')"><span class="tab-icon">&#9733;</span>Talents</button>
-      <button class="quest-tab" data-qtab="evolve" onclick="switchQuestTab('evolve')"><span class="tab-icon">&#11014;</span>Evoluer</button>
-      <button class="quest-tab" data-qtab="stats" onclick="switchQuestTab('stats')"><span class="tab-icon">&#128200;</span>Stats</button>
+      <button class="quest-tab" data-qtab="runes" onclick="switchQuestTab('runes')"><span class="tab-icon">&#9883;</span><span data-i18n="runesTab">Runes</span></button>
+      <button class="quest-tab" data-qtab="arbre" onclick="switchQuestTab('arbre')"><span class="tab-icon">&#127794;</span><span data-i18n="tree">Arbre</span></button>
+      <button class="quest-tab" data-qtab="talents" onclick="switchQuestTab('talents')"><span class="tab-icon">&#9733;</span><span data-i18n="talents">Talents</span></button>
+      <button class="quest-tab" data-qtab="evolve" onclick="switchQuestTab('evolve')"><span class="tab-icon">&#11014;</span><span data-i18n="evolve">Evoluer</span></button>
+      <button class="quest-tab" data-qtab="stats" onclick="switchQuestTab('stats')"><span class="tab-icon">&#128200;</span><span data-i18n="stats">Stats</span></button>
     </div>
     <div id="quest-list-daily"></div>
     <div id="quest-list-weekly" style="display:none"></div>
@@ -1566,6 +1566,34 @@ const TRANSLATIONS = {
     sendMessage: 'Envoyer un message', vikingSince: 'Viking depuis', daysActive: 'jours actifs',
     // Quest panel
     questPanelTitle: 'Quêtes Viking',
+    consecutiveDays: 'Jours de suite', totalXpLabel: 'XP total', doneToday: "Fait aujourd'hui",
+    day: 'Jour', weekTab: 'Semaine', challenges: 'Defis', solo: 'Solo',
+    season: 'Saison', epics: 'Epiques', boss: 'Boss', runesTab: 'Runes',
+    tree: 'Arbre', talents: 'Talents', evolve: 'Evoluer', stats: 'Stats',
+    validate: 'Valider', addObjective: '+ Ajouter un objectif',
+    limitObjectives: 'Limite : objectifs personnels',
+    add: 'Ajouter', objective: 'Objectif', name: 'Nom', unit: 'Unite',
+    xpReward: 'XP recompense', physical: 'Physique', mental: 'Mental',
+    health: 'Sante', social: 'Social', personal: 'Personnel',
+    totalSince: 'depuis le debut', doubleBonus: 'BONUS x2 OBTENU !',
+    prestigeRitual: 'Rituel de Prestige',
+    // Defis
+    dailyChallengesTitle: 'Defis du Jour',
+    dailyChallengesDesc: "Les dieux te lancent des epreuves. Accepte-les pour gagner de l'XP — mais gare au prix de l'echec.",
+    acceptChallenge: 'Accepter le defi', pass: 'Passer', passed: 'Passe',
+    penaltyWarning: 'Penalite en cas d\'echec',
+    notCompletedWarning: 'Si non complete avant minuit',
+    challengeDone: 'Defi accompli — Les dieux sont fiers',
+    noChallenges: 'Aucun defi disponible.',
+    sessions: 'Seances', succeeded: 'Reussis', xpEarned: 'XP gagne',
+    // Solo Leveling
+    soloTitle: 'Solo Leveling', systemWatches: 'Le Systeme t\'observe',
+    soloDesc: 'Inspire de Solo Leveling. Chaque jour : pompes, squats, abdos, et course. Les quotas augmentent chaque semaine.',
+    soloFailWarning: 'Le Systeme ne tolere pas la faiblesse.',
+    acceptPact: 'Accepter le Pacte',
+    pushups: 'Pompes', squats: 'Squats', abs: 'Abdos', running: 'Course',
+    daysSucceeded: 'Jours reussis', penalties: 'Penalites',
+    objectiveReached: 'Objectif atteint',
     // Map
     mapTitle: 'Carte du Monde',
     // Admin
@@ -1597,6 +1625,172 @@ const TRANSLATIONS = {
     yes: 'Oui', no: 'Non',
     // Broadcast
     jarlAnnouncement: 'Annonce du Jarl',
+    // Workout sessions
+    body: 'Corps', mind: 'Esprit', wisdom: 'Sagesse',
+    sessionDoneToday: 'Seance accomplie aujourd\'hui',
+    sessionDoneMsg: 'Les dieux sont fiers, Viking. Reviens demain pour forger encore davantage ton corps. Les muscles grandissent pendant le repos — dors bien et mange proteine.',
+    readyToEvolve: 'Prêt a evoluer ?',
+    evolveToNext: 'Passe au rang suivant',
+    moreIntense: 'Seance plus longue et plus intense, mais',
+    perSession: 'par seance au lieu de',
+    evolveToward: 'Evoluer vers',
+    maxRank: 'Rang Maximum',
+    maxRankMsg: 'Tu es au sommet — Berserkr, le fou de guerre. Continue ces seances pour maintenir ton physique de legende.',
+    hideAlt: 'Masquer l\'alternative',
+    noEquipAlt: 'Alternative sans materiel',
+    validated: 'Valide',
+    rest: 'Repos',
+    setDone: 'Serie terminee — prochaine dans',
+    skip: 'Passer',
+    stop: 'Arreter',
+    work: 'Travail',
+    go: 'GO !',
+    setFinished: 'Serie terminee',
+    markValid: 'Marquer comme valide',
+    startChrono: 'Demarrer chrono',
+    validateExercise: 'Valider l\'exercice',
+    finishSession: 'Terminer la seance',
+    completeAllExercises: 'Complete tous les exercices',
+    accomplished: 'Accompli',
+    inProgress: 'En cours',
+    stayFocused: 'Reste concentre — laisse le temps faire son œuvre',
+    finishNow: 'Terminer maintenant',
+    cancelAction: 'Annuler',
+    mindDoneMeditation: 'L\'esprit est affute. Reviens demain pour creuser plus profond — le calme se cultive chaque jour.',
+    mindDonePhilosophy: 'La sagesse a ete semée. Laisse-la germer aujourd\'hui — demain, une nouvelle reflexion t\'attend.',
+    mindMaxRankMsg: 'Continue ces seances pour maintenir ta maitrise interieure.',
+    mindMoreDeep: 'Plus long et plus profond, mais',
+    // Specializations
+    vikingSpecs: 'Specialisations Viking',
+    specsDesc: 'A chaque palier, choisis ta voie. Corps, Esprit ou Volonte — chaque choix est definitif.',
+    activeBoosts: 'Bonus actifs',
+    xpPhysique: 'XP Physique',
+    xpMental: 'XP Mental',
+    xpGlobal: 'XP Global',
+    penaltyReduction: 'Penalites',
+    penaltyImmunity: 'Immunite aux penalites',
+    streakGrace: 'Grace sur le streak',
+    bonusRestDaysSpec: 'jour(s) de repos/sem',
+    prBonusSpec: 'XP par record perso',
+    reachLevel: 'Atteins le niveau',
+    toUnlockTalents: 'pour debloquer ces talents.',
+    // Epic quests
+    epicQuestsTitle: 'Quetes Epiques',
+    epicQuestsDesc: 'Des exploits de 30 a 90 jours. Chaque etape franchie donne de l\'XP. Termine la quete pour un titre unique.',
+    days: 'jours',
+    dayLabel: 'Jour',
+    daysRemaining: 'restants',
+    completedIn: 'Complete en',
+    levelRequired: 'requis',
+    steps: 'etapes',
+    finalReward: 'Recompense finale',
+    titleLabel: 'Titre',
+    acceptQuest: 'Accepter la Quete',
+    abandon: 'Abandonner',
+    timeExpired: 'Temps ecoule ! La quete a expire.',
+    restart: 'Recommencer',
+    // Runes
+    runeCollection: 'Collection de Runes',
+    // Skill tree
+    yggdrasilTitle: 'Yggdrasil — Arbre de Vie',
+    skillsUnlocked: 'competences debloquees',
+    lvl: 'Niv.',
+    // Season
+    questsSmall: 'quetes',
+    completedLabel: 'COMPLETE',
+    accomplishedOn: 'Accompli le',
+    pastSeasons: 'Saisons passees',
+    // Boss
+    noBossThisWeek: 'Aucun boss cette semaine. Reviens lundi !',
+    bossPhysique: 'Physique',
+    bossMental: 'Mental',
+    bossAssiduite: 'Assiduite',
+    bossPhysiqueDesc: 'XP gagnes via quetes physiques cette semaine',
+    bossMentalDesc: 'XP gagnes via quetes mentales cette semaine',
+    bossAssiduiteDesc: 'Quetes completees cette semaine',
+    defeated: 'VAINCU !',
+    bossSurvived: 'Le boss a survecu...',
+    bossDefeated: 'Vaincu !',
+    bossFailed: 'Echoue',
+    bossProgression: 'Progression',
+    daysRemainingBoss: 'jour(s) restant(s)',
+    bossReward: 'Recompense',
+    bossChangesMonday: 'Le boss change chaque lundi. Accumule des points pour le vaincre !',
+    nextBossMonday: 'Prochain boss : lundi prochain',
+    // Stats
+    downloadStats: 'Telecharger ma fiche de stats',
+    warriorProfile: 'Profil de Guerrier',
+    allCombined: 'Tout combine : quetes • defis • seances • solo leveling',
+    consolidatedTotals: 'Totaux consolides',
+    dailyQuests: 'Quetes quotidiennes',
+    weeklyQuests: 'Quetes hebdo',
+    challengesDone: 'Defis accomplis',
+    failedLabel: 'echoues',
+    physicalSessionsLabel: 'Seances physiques',
+    meditationsLabel: 'Meditations',
+    wisdomsLabel: 'Sagesses',
+    soloDaysLabel: 'Solo — jours reussis',
+    currentStreak: 'Streak actuel',
+    exercisesCumul: 'Exercices — Cumul total',
+    combinedDesc: 'Quetes + defis + seances + solo leveling combines',
+    noDataYet: 'Pas encore de donnees. Tes exercices apparaitront ici !',
+    last7days: '7 derniers jours',
+    activityCalendar: 'Calendrier d\'activite',
+    activeDaysLast90: 'jours actifs sur les 90 derniers jours',
+    weeklyProgression: 'Progression hebdomadaire',
+    last12weeks: '12 dernieres semaines',
+    xpByCategory: 'XP par categorie',
+    totalsSinceBeginning: 'Totaux depuis le debut',
+    since: 'Depuis',
+    noDataValidate: 'Pas encore de donnees. Valide tes premiers objectifs !',
+    evolutionJournal: 'Journal d\'evolution',
+    summary: 'Recapitulatif',
+    currentLevel: 'Niveau actuel',
+    totalXpAccumulated: 'XP total accumule',
+    bestStreak: 'Meilleure serie',
+    objectivesInHistory: 'Objectifs en historique',
+    less: 'Moins',
+    more: 'Plus',
+    objectives: 'Objectifs',
+    // Evolve
+    questEvolution: 'Evolution des Quetes',
+    evolveDesc: 'Rends tes quetes plus difficiles pour gagner plus d\'XP.',
+    evolveOncePerWeek: 'Tu peux evoluer une fois par semaine.',
+    trialsInProgressTitle: 'Epreuves en cours',
+    trialsDesc: 'Complete les objectifs ameliores 3 jours de suite pour confirmer l\'evolution.',
+    trialsFailWarning: 'Si tu echoues un jour : revert + perte de 2x l\'XP !',
+    objectiveLabel: 'Objectif',
+    before: 'avant',
+    todayObjectiveDone: 'Objectif du jour atteint !',
+    todayLabel: 'Aujourd\'hui',
+    nextEvolutionIn: 'Prochaine evolution dans',
+    alreadyEvolvedThisWeek: 'Tu as deja evolue tes quetes cette semaine.',
+    comeBackIn: 'Reviens',
+    tomorrow: 'demain',
+    inDays: 'dans',
+    trialsOngoing: 'Epreuves en cours',
+    finishTrialsFirst: 'Termine tes epreuves avant de pouvoir evoluer d\'autres quetes.',
+    allQuestsDivine: 'Toutes tes quetes sont au rang Divin !',
+    reachedTop: 'Tu as atteint le sommet, guerrier.',
+    daily: 'Quotidien',
+    weekly: 'Hebdomadaire',
+    nextRank: 'Rang suivant',
+    trialOf3days: 'epreuve de 3 jours',
+    evolveSelected: 'Evoluer',
+    questSelected: 'quete(s) selectionnee(s)',
+    harderObjectives: 'Les objectifs seront plus difficiles — epreuve de 3 jours pour confirmer !',
+    failWarning: 'Attention : echouer = perte de 2x l\'XP de la quete !',
+    maxRankReached: 'Rang maximum atteint',
+    // Stakr quests
+    stakrCreateQuests: 'Stakr, cree-moi des quetes !',
+    nextGenIn: 'Prochaine generation dans',
+    min: 'min',
+    secretQuests: 'Quetes Secretes',
+    unlocked: 'debloquees',
+    unknownConditions: 'Conditions de deblocage inconnues...',
+    stakrChallenges: 'Defis de Stakr',
+    ongoing: 'En cours',
+    accomplished: 'Accomplis',
   },
 
   en: {
@@ -1653,6 +1847,32 @@ const TRANSLATIONS = {
     personalRecords: 'Personal Records', epicTitles: 'Epic Titles',
     sendMessage: 'Send a message', vikingSince: 'Viking since', daysActive: 'days active',
     questPanelTitle: 'Viking Quests',
+    consecutiveDays: 'Consecutive days', totalXpLabel: 'Total XP', doneToday: 'Done today',
+    day: 'Day', weekTab: 'Week', challenges: 'Challenges', solo: 'Solo',
+    season: 'Season', epics: 'Epics', boss: 'Boss', runesTab: 'Runes',
+    tree: 'Tree', talents: 'Talents', evolve: 'Evolve', stats: 'Stats',
+    validate: 'Validate', addObjective: '+ Add objective',
+    limitObjectives: 'Limit: personal objectives',
+    add: 'Add', objective: 'Objective', name: 'Name', unit: 'Unit',
+    xpReward: 'XP reward', physical: 'Physical', mental: 'Mental',
+    health: 'Health', social: 'Social', personal: 'Personal',
+    totalSince: 'since the beginning', doubleBonus: 'x2 BONUS EARNED!',
+    prestigeRitual: 'Prestige Ritual',
+    dailyChallengesTitle: 'Daily Challenges',
+    dailyChallengesDesc: 'The gods challenge you. Accept to earn XP — but beware the price of failure.',
+    acceptChallenge: 'Accept challenge', pass: 'Pass', passed: 'Passed',
+    penaltyWarning: 'Penalty on failure',
+    notCompletedWarning: 'If not completed before midnight',
+    challengeDone: 'Challenge completed — The gods are proud',
+    noChallenges: 'No challenges available.',
+    sessions: 'Sessions', succeeded: 'Succeeded', xpEarned: 'XP earned',
+    soloTitle: 'Solo Leveling', systemWatches: 'The System watches you',
+    soloDesc: 'Inspired by Solo Leveling. Every day: push-ups, squats, abs, and running. Quotas increase each week.',
+    soloFailWarning: 'The System does not tolerate weakness.',
+    acceptPact: 'Accept the Pact',
+    pushups: 'Push-ups', squats: 'Squats', abs: 'Abs', running: 'Running',
+    daysSucceeded: 'Days succeeded', penalties: 'Penalties',
+    objectiveReached: 'Objective reached',
     mapTitle: 'World Map',
     adminTitle: 'Administration', searchPlayer: 'Search player (name, email, UID)...',
     globalMessage: 'Global message', msgVisibleAll: 'Message (visible to all on next load)',
@@ -1675,6 +1895,162 @@ const TRANSLATIONS = {
     confirm: 'Confirm', delete: 'Delete', back: 'Back', next: 'Next',
     yes: 'Yes', no: 'No',
     jarlAnnouncement: "Jarl's Announcement",
+    body: 'Body', mind: 'Mind', wisdom: 'Wisdom',
+    sessionDoneToday: 'Session completed today',
+    sessionDoneMsg: 'The gods are proud, Viking. Come back tomorrow to forge your body further. Muscles grow during rest — sleep well and eat protein.',
+    readyToEvolve: 'Ready to evolve?',
+    evolveToNext: 'Move to next rank',
+    moreIntense: 'Longer and more intense session, but',
+    perSession: 'per session instead of',
+    evolveToward: 'Evolve to',
+    maxRank: 'Maximum Rank',
+    maxRankMsg: 'You are at the top — Berserkr, the war fury. Keep these sessions to maintain your legendary physique.',
+    hideAlt: 'Hide alternative',
+    noEquipAlt: 'No equipment alternative',
+    validated: 'Validated',
+    rest: 'Rest',
+    setDone: 'Set done — next in',
+    skip: 'Skip',
+    stop: 'Stop',
+    work: 'Work',
+    go: 'GO!',
+    setFinished: 'Set finished',
+    markValid: 'Mark as valid',
+    startChrono: 'Start timer',
+    validateExercise: 'Validate exercise',
+    finishSession: 'Finish session',
+    completeAllExercises: 'Complete all exercises',
+    accomplished: 'Done',
+    inProgress: 'In progress',
+    stayFocused: 'Stay focused — let time do its work',
+    finishNow: 'Finish now',
+    cancelAction: 'Cancel',
+    mindDoneMeditation: 'The mind is sharp. Come back tomorrow to dig deeper — calm is cultivated every day.',
+    mindDonePhilosophy: 'Wisdom has been sown. Let it grow today — tomorrow, a new reflection awaits.',
+    mindMaxRankMsg: 'Keep these sessions to maintain your inner mastery.',
+    mindMoreDeep: 'Longer and deeper, but',
+    vikingSpecs: 'Viking Specializations',
+    specsDesc: 'At each milestone, choose your path. Body, Mind or Will — each choice is final.',
+    activeBoosts: 'Active boosts',
+    xpPhysique: 'Physical XP',
+    xpMental: 'Mental XP',
+    xpGlobal: 'Global XP',
+    penaltyReduction: 'Penalties',
+    penaltyImmunity: 'Penalty immunity',
+    streakGrace: 'Streak grace period',
+    bonusRestDaysSpec: 'rest day(s)/week',
+    prBonusSpec: 'XP per personal record',
+    reachLevel: 'Reach level',
+    toUnlockTalents: 'to unlock these talents.',
+    epicQuestsTitle: 'Epic Quests',
+    epicQuestsDesc: 'Exploits spanning 30 to 90 days. Each milestone gives XP. Complete the quest for a unique title.',
+    days: 'days',
+    dayLabel: 'Day',
+    daysRemaining: 'remaining',
+    completedIn: 'Completed in',
+    levelRequired: 'required',
+    steps: 'steps',
+    finalReward: 'Final reward',
+    titleLabel: 'Title',
+    acceptQuest: 'Accept Quest',
+    abandon: 'Abandon',
+    timeExpired: 'Time expired! Quest has expired.',
+    restart: 'Restart',
+    runeCollection: 'Rune Collection',
+    yggdrasilTitle: 'Yggdrasil — Tree of Life',
+    skillsUnlocked: 'skills unlocked',
+    lvl: 'Lvl.',
+    questsSmall: 'quests',
+    completedLabel: 'COMPLETE',
+    accomplishedOn: 'Completed on',
+    pastSeasons: 'Past seasons',
+    noBossThisWeek: 'No boss this week. Come back Monday!',
+    bossPhysique: 'Physical',
+    bossMental: 'Mental',
+    bossAssiduite: 'Consistency',
+    bossPhysiqueDesc: 'XP earned via physical quests this week',
+    bossMentalDesc: 'XP earned via mental quests this week',
+    bossAssiduiteDesc: 'Quests completed this week',
+    defeated: 'DEFEATED!',
+    bossSurvived: 'The boss survived...',
+    bossDefeated: 'Defeated!',
+    bossFailed: 'Failed',
+    bossProgression: 'Progression',
+    daysRemainingBoss: 'day(s) remaining',
+    bossReward: 'Reward',
+    bossChangesMonday: 'The boss changes every Monday. Earn points to defeat it!',
+    nextBossMonday: 'Next boss: next Monday',
+    downloadStats: 'Download my stats card',
+    warriorProfile: 'Warrior Profile',
+    allCombined: 'All combined: quests • challenges • sessions • solo leveling',
+    consolidatedTotals: 'Consolidated totals',
+    dailyQuests: 'Daily quests',
+    weeklyQuests: 'Weekly quests',
+    challengesDone: 'Challenges done',
+    failedLabel: 'failed',
+    physicalSessionsLabel: 'Physical sessions',
+    meditationsLabel: 'Meditations',
+    wisdomsLabel: 'Wisdoms',
+    soloDaysLabel: 'Solo — days succeeded',
+    currentStreak: 'Current streak',
+    exercisesCumul: 'Exercises — Cumulative total',
+    combinedDesc: 'Quests + challenges + sessions + solo leveling combined',
+    noDataYet: 'No data yet. Your exercises will appear here!',
+    last7days: 'Last 7 days',
+    activityCalendar: 'Activity calendar',
+    activeDaysLast90: 'active days over the last 90 days',
+    weeklyProgression: 'Weekly progression',
+    last12weeks: 'Last 12 weeks',
+    xpByCategory: 'XP by category',
+    totalsSinceBeginning: 'Totals since beginning',
+    since: 'Since',
+    noDataValidate: 'No data yet. Validate your first objectives!',
+    evolutionJournal: 'Evolution journal',
+    summary: 'Summary',
+    currentLevel: 'Current level',
+    totalXpAccumulated: 'Total XP accumulated',
+    bestStreak: 'Best streak',
+    objectivesInHistory: 'Objectives in history',
+    less: 'Less',
+    more: 'More',
+    objectives: 'Objectives',
+    questEvolution: 'Quest Evolution',
+    evolveDesc: 'Make your quests harder to earn more XP.',
+    evolveOncePerWeek: 'You can evolve once per week.',
+    trialsInProgressTitle: 'Trials in progress',
+    trialsDesc: 'Complete the improved objectives 3 days in a row to confirm evolution.',
+    trialsFailWarning: 'If you fail a day: revert + loss of 2x the XP!',
+    objectiveLabel: 'Objective',
+    before: 'before',
+    todayObjectiveDone: 'Today\'s objective reached!',
+    todayLabel: 'Today',
+    nextEvolutionIn: 'Next evolution in',
+    alreadyEvolvedThisWeek: 'You already evolved your quests this week.',
+    comeBackIn: 'Come back',
+    tomorrow: 'tomorrow',
+    inDays: 'in',
+    trialsOngoing: 'Trials ongoing',
+    finishTrialsFirst: 'Finish your trials before evolving other quests.',
+    allQuestsDivine: 'All your quests are at Divine rank!',
+    reachedTop: 'You have reached the top, warrior.',
+    daily: 'Daily',
+    weekly: 'Weekly',
+    nextRank: 'Next rank',
+    trialOf3days: '3-day trial',
+    evolveSelected: 'Evolve',
+    questSelected: 'quest(s) selected',
+    harderObjectives: 'Objectives will be harder — 3-day trial to confirm!',
+    failWarning: 'Warning: failure = loss of 2x the quest XP!',
+    maxRankReached: 'Maximum rank reached',
+    stakrCreateQuests: 'Stakr, create quests for me!',
+    nextGenIn: 'Next generation in',
+    min: 'min',
+    secretQuests: 'Secret Quests',
+    unlocked: 'unlocked',
+    unknownConditions: 'Unlock conditions unknown...',
+    stakrChallenges: 'Stakr Challenges',
+    ongoing: 'Ongoing',
+    accomplished: 'Accomplished',
   },
 
   es: {
@@ -1731,6 +2107,32 @@ const TRANSLATIONS = {
     personalRecords: 'Récords Personales', epicTitles: 'Títulos Épicos',
     sendMessage: 'Enviar un mensaje', vikingSince: 'Viking desde', daysActive: 'días activos',
     questPanelTitle: 'Misiones Viking',
+    consecutiveDays: 'Días seguidos', totalXpLabel: 'XP total', doneToday: 'Hecho hoy',
+    day: 'Día', weekTab: 'Semana', challenges: 'Desafíos', solo: 'Solo',
+    season: 'Temporada', epics: 'Épicas', boss: 'Jefe', runesTab: 'Runas',
+    tree: 'Árbol', talents: 'Talentos', evolve: 'Evolucionar', stats: 'Stats',
+    validate: 'Validar', addObjective: '+ Añadir objetivo',
+    limitObjectives: 'Límite: objetivos personales',
+    add: 'Añadir', objective: 'Objetivo', name: 'Nombre', unit: 'Unidad',
+    xpReward: 'XP recompensa', physical: 'Físico', mental: 'Mental',
+    health: 'Salud', social: 'Social', personal: 'Personal',
+    totalSince: 'desde el inicio', doubleBonus: '¡BONUS x2 OBTENIDO!',
+    prestigeRitual: 'Ritual de Prestigio',
+    dailyChallengesTitle: 'Desafíos del Día',
+    dailyChallengesDesc: 'Los dioses te desafían. Acéptalos para ganar XP — pero cuidado con el precio del fracaso.',
+    acceptChallenge: 'Aceptar desafío', pass: 'Pasar', passed: 'Pasado',
+    penaltyWarning: 'Penalización en caso de fallo',
+    notCompletedWarning: 'Si no se completa antes de medianoche',
+    challengeDone: 'Desafío completado — Los dioses están orgullosos',
+    noChallenges: 'Ningún desafío disponible.',
+    sessions: 'Sesiones', succeeded: 'Exitosos', xpEarned: 'XP ganado',
+    soloTitle: 'Solo Leveling', systemWatches: 'El Sistema te observa',
+    soloDesc: 'Inspirado en Solo Leveling. Cada día: flexiones, sentadillas, abdominales y carrera. Las cuotas aumentan cada semana.',
+    soloFailWarning: 'El Sistema no tolera la debilidad.',
+    acceptPact: 'Aceptar el Pacto',
+    pushups: 'Flexiones', squats: 'Sentadillas', abs: 'Abdominales', running: 'Carrera',
+    daysSucceeded: 'Días exitosos', penalties: 'Penalizaciones',
+    objectiveReached: 'Objetivo alcanzado',
     mapTitle: 'Mapa del Mundo',
     adminTitle: 'Administración', searchPlayer: 'Buscar jugador (nombre, email, UID)...',
     globalMessage: 'Mensaje global', msgVisibleAll: 'Mensaje (visible para todos en la próxima carga)',
@@ -1753,6 +2155,162 @@ const TRANSLATIONS = {
     confirm: 'Confirmar', delete: 'Eliminar', back: 'Atrás', next: 'Siguiente',
     yes: 'Sí', no: 'No',
     jarlAnnouncement: 'Anuncio del Jarl',
+    body: 'Cuerpo', mind: 'Mente', wisdom: 'Sabiduría',
+    sessionDoneToday: 'Sesión completada hoy',
+    sessionDoneMsg: 'Los dioses están orgullosos, Viking. Vuelve mañana para forjar aún más tu cuerpo. Los músculos crecen durante el descanso — duerme bien y come proteína.',
+    readyToEvolve: '¿Listo para evolucionar?',
+    evolveToNext: 'Pasa al siguiente rango',
+    moreIntense: 'Sesión más larga e intensa, pero',
+    perSession: 'por sesión en lugar de',
+    evolveToward: 'Evolucionar a',
+    maxRank: 'Rango Máximo',
+    maxRankMsg: 'Estás en la cima — Berserkr, el loco de guerra. Continúa estas sesiones para mantener tu físico legendario.',
+    hideAlt: 'Ocultar alternativa',
+    noEquipAlt: 'Alternativa sin equipamiento',
+    validated: 'Validado',
+    rest: 'Descanso',
+    setDone: 'Serie terminada — siguiente en',
+    skip: 'Saltar',
+    stop: 'Parar',
+    work: 'Trabajo',
+    go: '¡YA!',
+    setFinished: 'Serie terminada',
+    markValid: 'Marcar como válido',
+    startChrono: 'Iniciar cronómetro',
+    validateExercise: 'Validar ejercicio',
+    finishSession: 'Terminar la sesión',
+    completeAllExercises: 'Completa todos los ejercicios',
+    accomplished: 'Cumplido',
+    inProgress: 'En curso',
+    stayFocused: 'Mantén la concentración — deja que el tiempo haga su obra',
+    finishNow: 'Terminar ahora',
+    cancelAction: 'Cancelar',
+    mindDoneMeditation: 'La mente está afilada. Vuelve mañana para profundizar más — la calma se cultiva cada día.',
+    mindDonePhilosophy: 'La sabiduría ha sido sembrada. Déjala germinar hoy — mañana, una nueva reflexión te espera.',
+    mindMaxRankMsg: 'Continúa estas sesiones para mantener tu dominio interior.',
+    mindMoreDeep: 'Más largo y profundo, pero',
+    vikingSpecs: 'Especializaciones Viking',
+    specsDesc: 'En cada hito, elige tu camino. Cuerpo, Mente o Voluntad — cada elección es definitiva.',
+    activeBoosts: 'Bonificaciones activas',
+    xpPhysique: 'XP Físico',
+    xpMental: 'XP Mental',
+    xpGlobal: 'XP Global',
+    penaltyReduction: 'Penalizaciones',
+    penaltyImmunity: 'Inmunidad a penalizaciones',
+    streakGrace: 'Gracia en la racha',
+    bonusRestDaysSpec: 'día(s) de descanso/sem',
+    prBonusSpec: 'XP por récord personal',
+    reachLevel: 'Alcanza el nivel',
+    toUnlockTalents: 'para desbloquear estos talentos.',
+    epicQuestsTitle: 'Misiones Épicas',
+    epicQuestsDesc: 'Hazañas de 30 a 90 días. Cada etapa da XP. Completa la misión para un título único.',
+    days: 'días',
+    dayLabel: 'Día',
+    daysRemaining: 'restantes',
+    completedIn: 'Completado en',
+    levelRequired: 'requerido',
+    steps: 'etapas',
+    finalReward: 'Recompensa final',
+    titleLabel: 'Título',
+    acceptQuest: 'Aceptar Misión',
+    abandon: 'Abandonar',
+    timeExpired: '¡Tiempo agotado! La misión ha expirado.',
+    restart: 'Reiniciar',
+    runeCollection: 'Colección de Runas',
+    yggdrasilTitle: 'Yggdrasil — Árbol de la Vida',
+    skillsUnlocked: 'habilidades desbloqueadas',
+    lvl: 'Niv.',
+    questsSmall: 'misiones',
+    completedLabel: 'COMPLETO',
+    accomplishedOn: 'Completado el',
+    pastSeasons: 'Temporadas pasadas',
+    noBossThisWeek: '¡Ningún jefe esta semana. Vuelve el lunes!',
+    bossPhysique: 'Físico',
+    bossMental: 'Mental',
+    bossAssiduite: 'Constancia',
+    bossPhysiqueDesc: 'XP ganados en misiones físicas esta semana',
+    bossMentalDesc: 'XP ganados en misiones mentales esta semana',
+    bossAssiduiteDesc: 'Misiones completadas esta semana',
+    defeated: '¡VENCIDO!',
+    bossSurvived: 'El jefe ha sobrevivido...',
+    bossDefeated: '¡Vencido!',
+    bossFailed: 'Fallido',
+    bossProgression: 'Progresión',
+    daysRemainingBoss: 'día(s) restante(s)',
+    bossReward: 'Recompensa',
+    bossChangesMonday: '¡El jefe cambia cada lunes. Acumula puntos para vencerlo!',
+    nextBossMonday: 'Próximo jefe: el lunes',
+    downloadStats: 'Descargar mi ficha de stats',
+    warriorProfile: 'Perfil de Guerrero',
+    allCombined: 'Todo combinado: misiones • desafíos • sesiones • solo leveling',
+    consolidatedTotals: 'Totales consolidados',
+    dailyQuests: 'Misiones diarias',
+    weeklyQuests: 'Misiones semanales',
+    challengesDone: 'Desafíos completados',
+    failedLabel: 'fallidos',
+    physicalSessionsLabel: 'Sesiones físicas',
+    meditationsLabel: 'Meditaciones',
+    wisdomsLabel: 'Sabidurías',
+    soloDaysLabel: 'Solo — días exitosos',
+    currentStreak: 'Racha actual',
+    exercisesCumul: 'Ejercicios — Total acumulado',
+    combinedDesc: 'Misiones + desafíos + sesiones + solo leveling combinados',
+    noDataYet: '¡Sin datos aún. Tus ejercicios aparecerán aquí!',
+    last7days: 'Últimos 7 días',
+    activityCalendar: 'Calendario de actividad',
+    activeDaysLast90: 'días activos en los últimos 90 días',
+    weeklyProgression: 'Progresión semanal',
+    last12weeks: 'Últimas 12 semanas',
+    xpByCategory: 'XP por categoría',
+    totalsSinceBeginning: 'Totales desde el inicio',
+    since: 'Desde',
+    noDataValidate: '¡Sin datos aún. Valida tus primeros objetivos!',
+    evolutionJournal: 'Diario de evolución',
+    summary: 'Resumen',
+    currentLevel: 'Nivel actual',
+    totalXpAccumulated: 'XP total acumulado',
+    bestStreak: 'Mejor racha',
+    objectivesInHistory: 'Objetivos en historial',
+    less: 'Menos',
+    more: 'Más',
+    objectives: 'Objetivos',
+    questEvolution: 'Evolución de Misiones',
+    evolveDesc: 'Haz tus misiones más difíciles para ganar más XP.',
+    evolveOncePerWeek: 'Puedes evolucionar una vez por semana.',
+    trialsInProgressTitle: 'Pruebas en curso',
+    trialsDesc: 'Completa los objetivos mejorados 3 días seguidos para confirmar la evolución.',
+    trialsFailWarning: '¡Si fallas un día: reversión + pérdida de 2x el XP!',
+    objectiveLabel: 'Objetivo',
+    before: 'antes',
+    todayObjectiveDone: '¡Objetivo del día alcanzado!',
+    todayLabel: 'Hoy',
+    nextEvolutionIn: 'Próxima evolución en',
+    alreadyEvolvedThisWeek: 'Ya evolucionaste tus misiones esta semana.',
+    comeBackIn: 'Vuelve',
+    tomorrow: 'mañana',
+    inDays: 'en',
+    trialsOngoing: 'Pruebas en curso',
+    finishTrialsFirst: 'Termina tus pruebas antes de evolucionar otras misiones.',
+    allQuestsDivine: '¡Todas tus misiones están en rango Divino!',
+    reachedTop: 'Has alcanzado la cima, guerrero.',
+    daily: 'Diario',
+    weekly: 'Semanal',
+    nextRank: 'Siguiente rango',
+    trialOf3days: 'prueba de 3 días',
+    evolveSelected: 'Evolucionar',
+    questSelected: 'misión(es) seleccionada(s)',
+    harderObjectives: '¡Los objetivos serán más difíciles — prueba de 3 días para confirmar!',
+    failWarning: '¡Atención: fallar = pérdida de 2x el XP de la misión!',
+    maxRankReached: 'Rango máximo alcanzado',
+    stakrCreateQuests: '¡Stakr, créame misiones!',
+    nextGenIn: 'Próxima generación en',
+    min: 'min',
+    secretQuests: 'Misiones Secretas',
+    unlocked: 'desbloqueadas',
+    unknownConditions: 'Condiciones de desbloqueo desconocidas...',
+    stakrChallenges: 'Desafíos de Stakr',
+    ongoing: 'En curso',
+    accomplished: 'Completados',
   },
 
   pt: {
@@ -1809,6 +2367,32 @@ const TRANSLATIONS = {
     personalRecords: 'Recordes Pessoais', epicTitles: 'Títulos Épicos',
     sendMessage: 'Enviar uma mensagem', vikingSince: 'Viking desde', daysActive: 'dias ativos',
     questPanelTitle: 'Missões Viking',
+    consecutiveDays: 'Dias seguidos', totalXpLabel: 'XP total', doneToday: 'Feito hoje',
+    day: 'Dia', weekTab: 'Semana', challenges: 'Desafios', solo: 'Solo',
+    season: 'Temporada', epics: 'Épicas', boss: 'Chefe', runesTab: 'Runas',
+    tree: 'Árvore', talents: 'Talentos', evolve: 'Evoluir', stats: 'Stats',
+    validate: 'Validar', addObjective: '+ Adicionar objetivo',
+    limitObjectives: 'Limite: objetivos pessoais',
+    add: 'Adicionar', objective: 'Objetivo', name: 'Nome', unit: 'Unidade',
+    xpReward: 'XP recompensa', physical: 'Físico', mental: 'Mental',
+    health: 'Saúde', social: 'Social', personal: 'Pessoal',
+    totalSince: 'desde o início', doubleBonus: 'BÔNUS x2 OBTIDO!',
+    prestigeRitual: 'Ritual de Prestígio',
+    dailyChallengesTitle: 'Desafios do Dia',
+    dailyChallengesDesc: 'Os deuses te desafiam. Aceite para ganhar XP — mas cuidado com o preço da falha.',
+    acceptChallenge: 'Aceitar desafio', pass: 'Passar', passed: 'Passado',
+    penaltyWarning: 'Penalidade em caso de falha',
+    notCompletedWarning: 'Se não completado antes da meia-noite',
+    challengeDone: 'Desafio completado — Os deuses estão orgulhosos',
+    noChallenges: 'Nenhum desafio disponível.',
+    sessions: 'Sessões', succeeded: 'Bem-sucedidos', xpEarned: 'XP ganho',
+    soloTitle: 'Solo Leveling', systemWatches: 'O Sistema te observa',
+    soloDesc: 'Inspirado em Solo Leveling. Todo dia: flexões, agachamentos, abdominais e corrida. As cotas aumentam a cada semana.',
+    soloFailWarning: 'O Sistema não tolera fraqueza.',
+    acceptPact: 'Aceitar o Pacto',
+    pushups: 'Flexões', squats: 'Agachamentos', abs: 'Abdominais', running: 'Corrida',
+    daysSucceeded: 'Dias bem-sucedidos', penalties: 'Penalidades',
+    objectiveReached: 'Objetivo alcançado',
     mapTitle: 'Mapa do Mundo',
     adminTitle: 'Administração', searchPlayer: 'Buscar jogador (nome, email, UID)...',
     globalMessage: 'Mensagem global', msgVisibleAll: 'Mensagem (visível para todos no próximo carregamento)',
@@ -1831,6 +2415,162 @@ const TRANSLATIONS = {
     confirm: 'Confirmar', delete: 'Excluir', back: 'Voltar', next: 'Próximo',
     yes: 'Sim', no: 'Não',
     jarlAnnouncement: 'Anúncio do Jarl',
+    body: 'Corpo', mind: 'Mente', wisdom: 'Sabedoria',
+    sessionDoneToday: 'Sessão completada hoje',
+    sessionDoneMsg: 'Os deuses estão orgulhosos, Viking. Volte amanhã para forjar ainda mais seu corpo. Os músculos crescem durante o descanso — durma bem e coma proteína.',
+    readyToEvolve: 'Pronto para evoluir?',
+    evolveToNext: 'Passe para o próximo nível',
+    moreIntense: 'Sessão mais longa e intensa, mas',
+    perSession: 'por sessão em vez de',
+    evolveToward: 'Evoluir para',
+    maxRank: 'Nível Máximo',
+    maxRankMsg: 'Você está no topo — Berserkr, o louco da guerra. Continue essas sessões para manter seu físico lendário.',
+    hideAlt: 'Ocultar alternativa',
+    noEquipAlt: 'Alternativa sem equipamento',
+    validated: 'Validado',
+    rest: 'Descanso',
+    setDone: 'Série terminada — próxima em',
+    skip: 'Pular',
+    stop: 'Parar',
+    work: 'Trabalho',
+    go: 'VAI!',
+    setFinished: 'Série terminada',
+    markValid: 'Marcar como válido',
+    startChrono: 'Iniciar cronômetro',
+    validateExercise: 'Validar exercício',
+    finishSession: 'Terminar a sessão',
+    completeAllExercises: 'Complete todos os exercícios',
+    accomplished: 'Concluído',
+    inProgress: 'Em andamento',
+    stayFocused: 'Fique focado — deixe o tempo fazer seu trabalho',
+    finishNow: 'Terminar agora',
+    cancelAction: 'Cancelar',
+    mindDoneMeditation: 'A mente está afiada. Volte amanhã para aprofundar mais — a calma se cultiva todo dia.',
+    mindDonePhilosophy: 'A sabedoria foi semeada. Deixe-a germinar hoje — amanhã, uma nova reflexão te espera.',
+    mindMaxRankMsg: 'Continue essas sessões para manter seu domínio interior.',
+    mindMoreDeep: 'Mais longo e profundo, mas',
+    vikingSpecs: 'Especializações Viking',
+    specsDesc: 'Em cada marco, escolha seu caminho. Corpo, Mente ou Vontade — cada escolha é definitiva.',
+    activeBoosts: 'Bônus ativos',
+    xpPhysique: 'XP Físico',
+    xpMental: 'XP Mental',
+    xpGlobal: 'XP Global',
+    penaltyReduction: 'Penalidades',
+    penaltyImmunity: 'Imunidade a penalidades',
+    streakGrace: 'Graça na sequência',
+    bonusRestDaysSpec: 'dia(s) de descanso/sem',
+    prBonusSpec: 'XP por recorde pessoal',
+    reachLevel: 'Alcance o nível',
+    toUnlockTalents: 'para desbloquear esses talentos.',
+    epicQuestsTitle: 'Missões Épicas',
+    epicQuestsDesc: 'Feitos de 30 a 90 dias. Cada etapa dá XP. Complete a missão para um título único.',
+    days: 'dias',
+    dayLabel: 'Dia',
+    daysRemaining: 'restantes',
+    completedIn: 'Completado em',
+    levelRequired: 'necessário',
+    steps: 'etapas',
+    finalReward: 'Recompensa final',
+    titleLabel: 'Título',
+    acceptQuest: 'Aceitar Missão',
+    abandon: 'Abandonar',
+    timeExpired: 'Tempo esgotado! A missão expirou.',
+    restart: 'Recomeçar',
+    runeCollection: 'Coleção de Runas',
+    yggdrasilTitle: 'Yggdrasil — Árvore da Vida',
+    skillsUnlocked: 'habilidades desbloqueadas',
+    lvl: 'Nív.',
+    questsSmall: 'missões',
+    completedLabel: 'COMPLETO',
+    accomplishedOn: 'Completado em',
+    pastSeasons: 'Temporadas passadas',
+    noBossThisWeek: 'Nenhum chefe esta semana. Volte na segunda!',
+    bossPhysique: 'Físico',
+    bossMental: 'Mental',
+    bossAssiduite: 'Constância',
+    bossPhysiqueDesc: 'XP ganhos em missões físicas esta semana',
+    bossMentalDesc: 'XP ganhos em missões mentais esta semana',
+    bossAssiduiteDesc: 'Missões completadas esta semana',
+    defeated: 'DERROTADO!',
+    bossSurvived: 'O chefe sobreviveu...',
+    bossDefeated: 'Derrotado!',
+    bossFailed: 'Falhado',
+    bossProgression: 'Progressão',
+    daysRemainingBoss: 'dia(s) restante(s)',
+    bossReward: 'Recompensa',
+    bossChangesMonday: 'O chefe muda toda segunda. Acumule pontos para derrotá-lo!',
+    nextBossMonday: 'Próximo chefe: próxima segunda',
+    downloadStats: 'Baixar minha ficha de stats',
+    warriorProfile: 'Perfil de Guerreiro',
+    allCombined: 'Tudo combinado: missões • desafios • sessões • solo leveling',
+    consolidatedTotals: 'Totais consolidados',
+    dailyQuests: 'Missões diárias',
+    weeklyQuests: 'Missões semanais',
+    challengesDone: 'Desafios completados',
+    failedLabel: 'falhados',
+    physicalSessionsLabel: 'Sessões físicas',
+    meditationsLabel: 'Meditações',
+    wisdomsLabel: 'Sabedorias',
+    soloDaysLabel: 'Solo — dias bem-sucedidos',
+    currentStreak: 'Sequência atual',
+    exercisesCumul: 'Exercícios — Total acumulado',
+    combinedDesc: 'Missões + desafios + sessões + solo leveling combinados',
+    noDataYet: 'Sem dados ainda. Seus exercícios aparecerão aqui!',
+    last7days: 'Últimos 7 dias',
+    activityCalendar: 'Calendário de atividade',
+    activeDaysLast90: 'dias ativos nos últimos 90 dias',
+    weeklyProgression: 'Progressão semanal',
+    last12weeks: 'Últimas 12 semanas',
+    xpByCategory: 'XP por categoria',
+    totalsSinceBeginning: 'Totais desde o início',
+    since: 'Desde',
+    noDataValidate: 'Sem dados ainda. Valide seus primeiros objetivos!',
+    evolutionJournal: 'Diário de evolução',
+    summary: 'Resumo',
+    currentLevel: 'Nível atual',
+    totalXpAccumulated: 'XP total acumulado',
+    bestStreak: 'Melhor sequência',
+    objectivesInHistory: 'Objetivos no histórico',
+    less: 'Menos',
+    more: 'Mais',
+    objectives: 'Objetivos',
+    questEvolution: 'Evolução de Missões',
+    evolveDesc: 'Torne suas missões mais difíceis para ganhar mais XP.',
+    evolveOncePerWeek: 'Você pode evoluir uma vez por semana.',
+    trialsInProgressTitle: 'Provações em andamento',
+    trialsDesc: 'Complete os objetivos melhorados 3 dias seguidos para confirmar a evolução.',
+    trialsFailWarning: 'Se falhar um dia: reversão + perda de 2x o XP!',
+    objectiveLabel: 'Objetivo',
+    before: 'antes',
+    todayObjectiveDone: 'Objetivo do dia alcançado!',
+    todayLabel: 'Hoje',
+    nextEvolutionIn: 'Próxima evolução em',
+    alreadyEvolvedThisWeek: 'Você já evoluiu suas missões esta semana.',
+    comeBackIn: 'Volte',
+    tomorrow: 'amanhã',
+    inDays: 'em',
+    trialsOngoing: 'Provações em andamento',
+    finishTrialsFirst: 'Termine suas provações antes de evoluir outras missões.',
+    allQuestsDivine: 'Todas suas missões estão no nível Divino!',
+    reachedTop: 'Você alcançou o topo, guerreiro.',
+    daily: 'Diário',
+    weekly: 'Semanal',
+    nextRank: 'Próximo nível',
+    trialOf3days: 'provação de 3 dias',
+    evolveSelected: 'Evoluir',
+    questSelected: 'missão(ões) selecionada(s)',
+    harderObjectives: 'Os objetivos serão mais difíceis — provação de 3 dias para confirmar!',
+    failWarning: 'Atenção: falhar = perda de 2x o XP da missão!',
+    maxRankReached: 'Nível máximo alcançado',
+    stakrCreateQuests: 'Stakr, crie missões para mim!',
+    nextGenIn: 'Próxima geração em',
+    min: 'min',
+    secretQuests: 'Missões Secretas',
+    unlocked: 'desbloqueadas',
+    unknownConditions: 'Condições de desbloqueio desconhecidas...',
+    stakrChallenges: 'Desafios do Stakr',
+    ongoing: 'Em andamento',
+    accomplished: 'Concluídos',
   }
 };
 
@@ -1838,6 +2578,10 @@ let currentLang = localStorage.getItem('stakr_lang') || 'fr';
 
 function t(key) {
   return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.fr[key] || key;
+}
+
+function getLocale() {
+  return { fr: 'fr-FR', en: 'en-US', es: 'es-ES', pt: 'pt-BR' }[currentLang] || 'fr-FR';
 }
 
 function setLanguage(lang) {
@@ -4719,9 +5463,9 @@ function renderSeasonPanel() {
         <span style="font-size:1.8rem">${season.icon}</span>
         <div>
           <div style="font-size:1rem;font-weight:700;color:${season.color};font-family:Cinzel,serif">${season.name}</div>
-          <div style="font-size:.65rem;color:var(--text-dim)">${season.theme} — ${completedCount}/${season.quests.length} quetes</div>
+          <div style="font-size:.65rem;color:var(--text-dim)">${season.theme} — ${completedCount}/${season.quests.length} ${t('questsSmall')}</div>
         </div>
-        ${allDone ? '<span style="font-size:.7rem;background:var(--gold);color:var(--bg);padding:2px 8px;border-radius:10px;font-weight:700">COMPLETE ✓</span>' : ''}
+        ${allDone ? `<span style="font-size:.7rem;background:var(--gold);color:var(--bg);padding:2px 8px;border-radius:10px;font-weight:700">${t('completedLabel')} ✓</span>` : ''}
       </div>
       <div style="height:4px;background:var(--wood-mid);border-radius:2px;overflow:hidden;margin-bottom:12px">
         <div style="height:100%;width:${(completedCount / season.quests.length) * 100}%;background:${season.color};border-radius:2px;transition:width .3s"></div>
@@ -4739,7 +5483,7 @@ function renderSeasonPanel() {
             </div>
             <span style="font-size:.65rem;color:var(--gold);font-weight:700">+${sq.xpReward} XP</span>
           </div>
-          ${done ? `<div style="font-size:.6rem;color:${season.color};text-align:center">Accompli le ${completedQuests[sq.id]}</div>` : `
+          ${done ? `<div style="font-size:.6rem;color:${season.color};text-align:center">${t('accomplishedOn')} ${completedQuests[sq.id]}</div>` : `
             <div style="display:flex;align-items:center;gap:8px">
               <div style="flex:1;height:5px;background:var(--wood-mid);border-radius:3px;overflow:hidden">
                 <div style="height:100%;width:${pct}%;background:${season.color};border-radius:3px"></div>
@@ -4757,7 +5501,7 @@ function renderSeasonPanel() {
   const hist = (q.season.history || []).slice().reverse();
   if (hist.length > 0) {
     html += `<div style="margin-top:8px">
-      <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:6px;font-family:Cinzel,serif">Saisons passees</div>
+      <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:6px;font-family:Cinzel,serif">${t('pastSeasons')}</div>
       ${hist.slice(0, 6).map(h => {
         const m = parseInt(h.key.split('-')[1]);
         const s = VIKING_SEASONS[m];
@@ -5554,8 +6298,8 @@ function renderDailyChallenges() {
   if (!container) return;
   const subTab = state.quests.defisSubTab || 'challenges';
   const navHtml = `<div class="defis-subtab-nav">
-    <button class="defis-subtab ${subTab === 'challenges' ? 'active' : ''}" onclick="switchDefisSubTab('challenges')">⚔ Defis</button>
-    <button class="defis-subtab ${subTab === 'workout' ? 'active' : ''}" onclick="switchDefisSubTab('workout')">💪 Seances</button>
+    <button class="defis-subtab ${subTab === 'challenges' ? 'active' : ''}" onclick="switchDefisSubTab('challenges')">⚔ ${t('challenges')}</button>
+    <button class="defis-subtab ${subTab === 'workout' ? 'active' : ''}" onclick="switchDefisSubTab('workout')">💪 ${t('sessions')}</button>
   </div>`;
 
   if (subTab === 'workout') {
@@ -5564,7 +6308,7 @@ function renderDailyChallenges() {
   }
 
   const dc = state.quests.dailyChallenges;
-  if (!dc || !dc.challenges) { container.innerHTML = navHtml + '<p style="color:var(--text-dim);text-align:center;padding:20px">Aucun defi disponible.</p>'; return; }
+  if (!dc || !dc.challenges) { container.innerHTML = navHtml + `<p style="color:var(--text-dim);text-align:center;padding:20px">${t('noChallenges')}</p>`; return; }
 
   // Compute stats
   const total = dc.challenges.length;
@@ -5573,12 +6317,12 @@ function renderDailyChallenges() {
   const totalXp = dc.challenges.filter(c => c.accepted && c.progress >= c.target).reduce((s, c) => s + c.xpReward, 0);
 
   let html = navHtml + `<div class="defis-intro">
-    <div class="defis-intro-title">⚔ Defis du Jour</div>
-    <div class="defis-intro-text">Les dieux te lancent des epreuves. Accepte-les pour gagner de l'XP — mais gare au prix de l'echec.</div>
+    <div class="defis-intro-title">⚔ ${t('dailyChallengesTitle')}</div>
+    <div class="defis-intro-text">${t('dailyChallengesDesc')}</div>
     <div class="defis-stats">
-      <div class="defis-stat"><div class="defis-stat-val">${accepted}/${total}</div><div class="defis-stat-lbl">Acceptes</div></div>
-      <div class="defis-stat"><div class="defis-stat-val">${completed}</div><div class="defis-stat-lbl">Reussis</div></div>
-      <div class="defis-stat"><div class="defis-stat-val">+${totalXp}</div><div class="defis-stat-lbl">XP gagne</div></div>
+      <div class="defis-stat"><div class="defis-stat-val">${accepted}/${total}</div><div class="defis-stat-lbl">${t('accepted')}</div></div>
+      <div class="defis-stat"><div class="defis-stat-val">${completed}</div><div class="defis-stat-lbl">${t('succeeded')}</div></div>
+      <div class="defis-stat"><div class="defis-stat-val">+${totalXp}</div><div class="defis-stat-lbl">${t('xpEarned')}</div></div>
     </div>
   </div>`;
 
@@ -5602,7 +6346,7 @@ function renderDailyChallenges() {
       const fillClass = pct >= 100 ? 'full' : pct >= 60 ? 'high' : pct >= 30 ? 'mid' : 'low';
 
       if (ch.declined && !ch.accepted) {
-        html += `<div class="challenge-card declined"><span style="font-size:1rem">${ch.icon}</span> <span style="text-decoration:line-through;flex:1">${ch.name}</span> <span style="font-size:.55rem">Passe</span></div>`;
+        html += `<div class="challenge-card declined"><span style="font-size:1rem">${ch.icon}</span> <span style="text-decoration:line-through;flex:1">${ch.name}</span> <span style="font-size:.55rem">${t('passed')}</span></div>`;
         return;
       }
 
@@ -5611,7 +6355,7 @@ function renderDailyChallenges() {
         <div class="challenge-icon-wrap">${ch.icon}</div>
         <div style="flex:1;min-width:0">
           <div class="challenge-name">${ch.name}</div>
-          <div class="challenge-target">Objectif : ${ch.target} ${ch.unit}</div>
+          <div class="challenge-target">${t('objective')} : ${ch.target} ${ch.unit}</div>
         </div>
         <div class="challenge-xp">+${ch.xpReward} XP</div>
       </div>`;
@@ -5621,10 +6365,10 @@ function renderDailyChallenges() {
 
       if (!ch.accepted) {
         html += `<div class="challenge-actions">
-          <button class="challenge-accept" onclick="acceptChallenge(${i})">⚔ Accepter le defi</button>
-          <button class="challenge-decline" onclick="declineChallenge(${i})">Passer</button>
+          <button class="challenge-accept" onclick="acceptChallenge(${i})">⚔ ${t('acceptChallenge')}</button>
+          <button class="challenge-decline" onclick="declineChallenge(${i})">${t('pass')}</button>
         </div>`;
-        html += `<div class="challenge-warning">⚠ Penalite en cas d'echec : <strong>-${ch.xpReward * 2} XP</strong></div>`;
+        html += `<div class="challenge-warning">⚠ ${t('penaltyWarning')} : <strong>-${ch.xpReward * 2} XP</strong></div>`;
       } else if (!isDone) {
         html += `<div class="quest-item-progress" style="margin-top:8px">
           <div class="quest-progress-bar"><div class="quest-progress-fill ${fillClass}" style="width:${pct}%"></div></div>
@@ -5633,11 +6377,11 @@ function renderDailyChallenges() {
         html += `<div class="quest-item-input">
           <input type="number" id="ch-input-${i}" min="0" step="any" placeholder="0" />
           <span class="unit">${ch.unit}</span>
-          <button onclick="logChallengeProgress(${i})">Valider</button>
+          <button onclick="logChallengeProgress(${i})">${t('validate')}</button>
         </div>`;
-        html += `<div class="challenge-warning">⚠ Si non complete avant minuit : <strong>-${ch.xpReward * 2} XP</strong></div>`;
+        html += `<div class="challenge-warning">⚠ ${t('notCompletedWarning')} : <strong>-${ch.xpReward * 2} XP</strong></div>`;
       } else {
-        html += `<div class="challenge-done-banner">✓ Defi accompli — Les dieux sont fiers</div>`;
+        html += `<div class="challenge-done-banner">✓ ${t('challengeDone')}</div>`;
       }
 
       html += `</div>`;
@@ -5704,17 +6448,17 @@ function renderWorkoutSessions() {
   const typeSwitcher = `<div class="session-type-switcher">
     <button class="session-type-btn ${activeType === 'physical' ? 'active' : ''}" onclick="switchSessionType('physical')">
       <div class="stb-icon">💪</div>
-      <div class="stb-label">Corps</div>
+      <div class="stb-label">${t('body')}</div>
       ${anyDone('physical') ? '<div class="stb-check">✓</div>' : ''}
     </button>
     <button class="session-type-btn ${activeType === 'meditation' ? 'active' : ''}" onclick="switchSessionType('meditation')">
       <div class="stb-icon">🧘</div>
-      <div class="stb-label">Esprit</div>
+      <div class="stb-label">${t('mind')}</div>
       ${anyDone('meditation') ? '<div class="stb-check">✓</div>' : ''}
     </button>
     <button class="session-type-btn ${activeType === 'philosophy' ? 'active' : ''}" onclick="switchSessionType('philosophy')">
       <div class="stb-icon">📜</div>
-      <div class="stb-label">Sagesse</div>
+      <div class="stb-label">${t('wisdom')}</div>
       ${anyDone('philosophy') ? '<div class="stb-check">✓</div>' : ''}
     </button>
   </div>`;
@@ -5758,7 +6502,7 @@ function renderWorkoutSessions() {
       <span class="workout-meta-chip">⏱ ${session.duration}</span>
       <span class="workout-meta-chip">⏸ ${session.rest}</span>
       <span class="workout-meta-chip xp">+${session.xpReward} XP</span>
-      <span class="workout-meta-chip">🏅 ${w.totalSessions} seances</span>
+      <span class="workout-meta-chip">🏅 ${w.totalSessions} ${t('sessions')}</span>
     </div>
     <div class="workout-intro-text">${session.intro}</div>
     <div class="workout-progress-row">
@@ -5769,22 +6513,22 @@ function renderWorkoutSessions() {
 
   if (w.completedToday && w.completedToday.physical && w.completedToday.physical[w.currentTier]) {
     html += `<div class="workout-complete-banner">
-      <div class="workout-complete-title">✓ Seance accomplie aujourd'hui</div>
-      <div class="workout-complete-text">Les dieux sont fiers, Viking. Reviens demain pour forger encore davantage ton corps. Les muscles grandissent pendant le repos — dors bien et mange proteine.</div>
+      <div class="workout-complete-title">✓ ${t('sessionDoneToday')}</div>
+      <div class="workout-complete-text">${t('sessionDoneMsg')}</div>
     </div>`;
     // Offer evolution only when viewing the currently max tier
     if (currentTierIdx === maxTierIdx) {
       if (currentTierIdx < WORKOUT_TIER_ORDER.length - 1) {
         const nextTier = WORKOUT_SESSIONS[WORKOUT_TIER_ORDER[currentTierIdx + 1]];
         html += `<div class="workout-evolve-section">
-          <div class="workout-evolve-title">⚡ Prêt a evoluer ?</div>
-          <div class="workout-evolve-text">Passe au rang suivant : <strong>${nextTier.icon} ${nextTier.name}</strong> — <em>${nextTier.subtitle}</em>. Seance plus longue et plus intense, mais <strong>+${nextTier.xpReward} XP</strong> par seance au lieu de +${session.xpReward}.</div>
-          <button class="workout-evolve-btn" onclick="evolveWorkoutTier()">Evoluer vers ${nextTier.name} ${nextTier.icon}</button>
+          <div class="workout-evolve-title">⚡ ${t('readyToEvolve')}</div>
+          <div class="workout-evolve-text">${t('evolveToNext')} : <strong>${nextTier.icon} ${nextTier.name}</strong> — <em>${nextTier.subtitle}</em>. ${t('moreIntense')} <strong>+${nextTier.xpReward} XP</strong> ${t('perSession')} +${session.xpReward}.</div>
+          <button class="workout-evolve-btn" onclick="evolveWorkoutTier()">${t('evolveToward')} ${nextTier.name} ${nextTier.icon}</button>
         </div>`;
       } else {
         html += `<div class="workout-evolve-section">
-          <div class="workout-evolve-title">👑 Rang Maximum</div>
-          <div class="workout-evolve-text">Tu es au sommet — Berserkr, le fou de guerre. Continue ces seances pour maintenir ton physique de legende.</div>
+          <div class="workout-evolve-title">👑 ${t('maxRank')}</div>
+          <div class="workout-evolve-text">${t('maxRankMsg')}</div>
         </div>`;
       }
     }
@@ -5807,7 +6551,7 @@ function renderWorkoutSessions() {
       <div class="workout-ex-desc">${ex.desc}</div>`;
     if (ex.alt) {
       html += `<button class="workout-alt-toggle ${altOpen ? 'open' : ''}" onclick="toggleWorkoutAlt('${ex.id}')">
-        💡 ${altOpen ? 'Masquer l\'alternative' : 'Alternative sans materiel'}
+        💡 ${altOpen ? t('hideAlt') : t('noEquipAlt')}
       </button>`;
       if (altOpen) {
         html += `<div class="workout-alt-panel">
@@ -5817,51 +6561,51 @@ function renderWorkoutSessions() {
       }
     }
     if (done) {
-      html += `<div class="workout-ex-done-mark">✓ Valide</div>`;
+      html += `<div class="workout-ex-done-mark">✓ ${t('validated')}</div>`;
     } else if (_workoutTimer.active && _workoutTimer.exIdx === i) {
       // Active timer UI for this exercise
-      const t = _workoutTimer;
-      if (t.phase === 'rest') {
+      const wt = _workoutTimer;
+      if (wt.phase === 'rest') {
         html += `<div class="workout-timer-panel rest">
-          <div class="workout-timer-phase">⏸ Repos</div>
-          <div class="workout-timer-set">Serie ${t.currentSet}/${t.totalSets} terminee — prochaine dans</div>
-          <div class="workout-timer-display" id="wtimer-seconds">${formatTimerDisplay(t.seconds)}</div>
+          <div class="workout-timer-phase">⏸ ${t('rest')}</div>
+          <div class="workout-timer-set">${t('setDone')} ${wt.currentSet}/${wt.totalSets}</div>
+          <div class="workout-timer-display" id="wtimer-seconds">${formatTimerDisplay(wt.seconds)}</div>
           <div class="workout-timer-controls">
-            <button class="workout-timer-btn" onclick="skipWorkoutRest()">⏭ Passer</button>
-            <button class="workout-timer-btn stop" onclick="stopWorkoutTimer()">✕ Arreter</button>
+            <button class="workout-timer-btn" onclick="skipWorkoutRest()">⏭ ${t('skip')}</button>
+            <button class="workout-timer-btn stop" onclick="stopWorkoutTimer()">✕ ${t('stop')}</button>
           </div>
         </div>`;
-      } else if (t.phase === 'work' && t.isTimeBased) {
+      } else if (wt.phase === 'work' && wt.isTimeBased) {
         html += `<div class="workout-timer-panel">
-          <div class="workout-timer-phase">⚡ Travail</div>
-          <div class="workout-timer-set">Serie ${t.currentSet}/${t.totalSets}</div>
-          <div class="workout-timer-display" id="wtimer-seconds">${formatTimerDisplay(t.seconds)}</div>
+          <div class="workout-timer-phase">⚡ ${t('work')}</div>
+          <div class="workout-timer-set">${t('setDone')} ${wt.currentSet}/${wt.totalSets}</div>
+          <div class="workout-timer-display" id="wtimer-seconds">${formatTimerDisplay(wt.seconds)}</div>
           <div class="workout-timer-controls">
-            <button class="workout-timer-btn stop" onclick="stopWorkoutTimer()">✕ Arreter</button>
+            <button class="workout-timer-btn stop" onclick="stopWorkoutTimer()">✕ ${t('stop')}</button>
           </div>
         </div>`;
-      } else if (t.phase === 'work' && !t.isTimeBased) {
+      } else if (wt.phase === 'work' && !wt.isTimeBased) {
         html += `<div class="workout-timer-panel rep-wait">
-          <div class="workout-timer-phase">⚡ Travail — ${ex.reps}</div>
-          <div class="workout-timer-set">Serie ${t.currentSet}/${t.totalSets}</div>
-          <div class="workout-timer-display">GO !</div>
+          <div class="workout-timer-phase">⚡ ${t('work')} — ${ex.reps}</div>
+          <div class="workout-timer-set">${t('setDone')} ${wt.currentSet}/${wt.totalSets}</div>
+          <div class="workout-timer-display">${t('go')}</div>
           <div class="workout-timer-controls">
-            <button class="workout-timer-btn primary" onclick="finishWorkoutSetManual()">✓ Serie terminee</button>
-            <button class="workout-timer-btn stop" onclick="stopWorkoutTimer()">✕ Arreter</button>
+            <button class="workout-timer-btn primary" onclick="finishWorkoutSetManual()">✓ ${t('setFinished')}</button>
+            <button class="workout-timer-btn stop" onclick="stopWorkoutTimer()">✕ ${t('stop')}</button>
           </div>
         </div>`;
       }
-      html += `<button class="workout-ex-validate" onclick="validateWorkoutExercise(${i})">Marquer comme valide</button>`;
+      html += `<button class="workout-ex-validate" onclick="validateWorkoutExercise(${i})">${t('markValid')}</button>`;
     } else {
-      html += `<button class="workout-ex-start" onclick="startWorkoutTimer(${i})">▶ Demarrer chrono (${ex.sets} × ${ex.reps})</button>`;
-      html += `<button class="workout-ex-validate" onclick="validateWorkoutExercise(${i})">Valider l'exercice</button>`;
+      html += `<button class="workout-ex-start" onclick="startWorkoutTimer(${i})">▶ ${t('startChrono')} (${ex.sets} × ${ex.reps})</button>`;
+      html += `<button class="workout-ex-validate" onclick="validateWorkoutExercise(${i})">${t('validateExercise')}</button>`;
     }
     html += `</div>`;
   });
 
   // Finish button
   html += `<button class="workout-finish-btn" ${allDone ? '' : 'disabled'} onclick="completeWorkoutSession()">
-    ${allDone ? `⚔ Terminer la seance (+${session.xpReward} XP)` : `Complete tous les exercices (${doneCount}/${total})`}
+    ${allDone ? `⚔ ${t('finishSession')} (+${session.xpReward} XP)` : `${t('completeAllExercises')} (${doneCount}/${total})`}
   </button>`;
 
   return html;
@@ -6026,7 +6770,7 @@ function renderMindSession(type) {
     <div class="workout-meta">
       <span class="workout-meta-chip">⏱ ${session.duration}</span>
       <span class="workout-meta-chip xp">+${session.xpReward} XP</span>
-      <span class="workout-meta-chip">🏅 ${totalDone} seances</span>
+      <span class="workout-meta-chip">🏅 ${totalDone} ${t('sessions')}</span>
     </div>
     <div class="workout-intro-text">${session.intro}</div>
     <div class="workout-progress-row">
@@ -6037,36 +6781,34 @@ function renderMindSession(type) {
 
   // Teaching card (philosophy only)
   if (type === 'philosophy' && session.teaching) {
-    const t = session.teaching;
-    const textHtml = t.text.split('\n').map(p => p.trim()).filter(Boolean).map(p => `<p>${p.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</p>`).join('');
+    const teach = session.teaching;
+    const textHtml = teach.text.split('\n').map(p => p.trim()).filter(Boolean).map(p => `<p>${p.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</p>`).join('');
     html += `<div class="philosophy-teaching">
-      <div class="philo-teaching-title">📜 ${t.title}</div>
-      <div class="philo-teaching-source">${t.source}</div>
+      <div class="philo-teaching-title">📜 ${teach.title}</div>
+      <div class="philo-teaching-source">${teach.source}</div>
       <div class="philo-teaching-text">${textHtml}</div>
-      <div class="philo-teaching-principle">⚔ ${t.principle}</div>
+      <div class="philo-teaching-principle">⚔ ${teach.principle}</div>
     </div>`;
   }
 
   if (completed) {
-    const banner = type === 'meditation'
-      ? "L'esprit est affute. Reviens demain pour creuser plus profond — le calme se cultive chaque jour."
-      : "La sagesse a ete semée. Laisse-la germer aujourd'hui — demain, une nouvelle reflexion t'attend.";
+    const banner = type === 'meditation' ? t('mindDoneMeditation') : t('mindDonePhilosophy');
     html += `<div class="workout-complete-banner">
-      <div class="workout-complete-title">✓ Seance accomplie aujourd'hui</div>
+      <div class="workout-complete-title">✓ ${t('sessionDoneToday')}</div>
       <div class="workout-complete-text">${banner}</div>
     </div>`;
     if (currentTierIdx === maxTierIdx) {
       if (currentTierIdx < cfg.order.length - 1) {
         const nextTier = cfg.sessions[cfg.order[currentTierIdx + 1]];
         html += `<div class="workout-evolve-section">
-          <div class="workout-evolve-title">⚡ Prêt a evoluer ?</div>
-          <div class="workout-evolve-text">Passe au rang suivant : <strong>${nextTier.icon} ${nextTier.name}</strong> — <em>${nextTier.subtitle}</em>. Plus long et plus profond, mais <strong>+${nextTier.xpReward} XP</strong> au lieu de +${session.xpReward}.</div>
-          <button class="workout-evolve-btn" onclick="evolveMindTier('${type}')">Evoluer vers ${nextTier.name} ${nextTier.icon}</button>
+          <div class="workout-evolve-title">⚡ ${t('readyToEvolve')}</div>
+          <div class="workout-evolve-text">${t('evolveToNext')} : <strong>${nextTier.icon} ${nextTier.name}</strong> — <em>${nextTier.subtitle}</em>. ${t('mindMoreDeep')} <strong>+${nextTier.xpReward} XP</strong> ${t('perSession')} +${session.xpReward}.</div>
+          <button class="workout-evolve-btn" onclick="evolveMindTier('${type}')">${t('evolveToward')} ${nextTier.name} ${nextTier.icon}</button>
         </div>`;
       } else {
         html += `<div class="workout-evolve-section">
-          <div class="workout-evolve-title">👑 Rang Maximum</div>
-          <div class="workout-evolve-text">Tu es au sommet — ${session.name}. Continue ces seances pour maintenir ta maitrise interieure.</div>
+          <div class="workout-evolve-title">👑 ${t('maxRank')}</div>
+          <div class="workout-evolve-text">${session.name}. ${t('mindMaxRankMsg')}</div>
         </div>`;
       }
     }
@@ -6088,30 +6830,30 @@ function renderMindSession(type) {
       </div>
       <div class="workout-ex-desc">${ex.desc}</div>`;
     if (done) {
-      html += `<div class="workout-ex-done-mark">✓ Accompli</div>`;
+      html += `<div class="workout-ex-done-mark">✓ ${t('accomplished')}</div>`;
     } else if (_mindTimer.active && _mindTimer.type === type && _mindTimer.exIdx === i) {
       html += `<div class="workout-timer-panel">
-        <div class="workout-timer-phase">⌛ En cours</div>
-        <div class="workout-timer-set">Reste concentre — laisse le temps faire son œuvre</div>
+        <div class="workout-timer-phase">⌛ ${t('inProgress')}</div>
+        <div class="workout-timer-set">${t('stayFocused')}</div>
         <div class="workout-timer-display" id="mindtimer-seconds">${formatTimerDisplay(_mindTimer.seconds)}</div>
         <div class="workout-timer-controls">
-          <button class="workout-timer-btn primary" onclick="finishMindTimer()">✓ Terminer maintenant</button>
-          <button class="workout-timer-btn stop" onclick="stopMindTimer()">✕ Annuler</button>
+          <button class="workout-timer-btn primary" onclick="finishMindTimer()">✓ ${t('finishNow')}</button>
+          <button class="workout-timer-btn stop" onclick="stopMindTimer()">✕ ${t('cancelAction')}</button>
         </div>
       </div>`;
     } else {
       const durSec = parseMindDurationSeconds(ex.duration);
       if (durSec) {
-        html += `<button class="workout-ex-start" onclick="startMindTimer('${type}',${i},${durSec})">▶ Demarrer chrono (${ex.duration})</button>`;
+        html += `<button class="workout-ex-start" onclick="startMindTimer('${type}',${i},${durSec})">▶ ${t('startChrono')} (${ex.duration})</button>`;
       }
-      html += `<button class="workout-ex-validate" onclick="validateMindExercise('${type}',${i})">Valider l'exercice</button>`;
+      html += `<button class="workout-ex-validate" onclick="validateMindExercise('${type}',${i})">${t('validateExercise')}</button>`;
     }
     html += `</div>`;
   });
 
   // Finish button
   html += `<button class="workout-finish-btn" ${allDone ? '' : 'disabled'} onclick="completeMindSession('${type}')">
-    ${allDone ? `⚔ Terminer la seance (+${session.xpReward} XP)` : `Complete tous les exercices (${doneCount}/${total})`}
+    ${allDone ? `⚔ ${t('finishSession')} (+${session.xpReward} XP)` : `${t('completeAllExercises')} (${doneCount}/${total})`}
   </button>`;
 
   html += `</div>`;
@@ -6428,9 +7170,9 @@ function checkSoloLeveling() {
   if (autoWeek > sl.currentWeek) {
     sl.currentWeek = autoWeek;
     if (autoWeek <= 10) {
-      const t = getSoloTargets(autoWeek);
-      addMessage('stakr', `KRAA ! Semaine ${autoWeek} du Solo Leveling — les quotas montent : **${t.pushups} pompes, ${t.squats} squats, ${t.abs} abdos, ${t.km} km**. Leve-toi, guerrier ! [MOOD:excite]`);
-      showToast(`Solo Leveling — Semaine ${autoWeek}`, `${t.pushups}p / ${t.squats}s / ${t.abs}a / ${t.km}km`);
+      const tgt = getSoloTargets(autoWeek);
+      addMessage('stakr', `KRAA ! Semaine ${autoWeek} du Solo Leveling — les quotas montent : **${tgt.pushups} pompes, ${tgt.squats} squats, ${tgt.abs} abdos, ${tgt.km} km**. Leve-toi, guerrier ! [MOOD:excite]`);
+      showToast(`Solo Leveling — Semaine ${autoWeek}`, `${tgt.pushups}p / ${tgt.squats}s / ${tgt.abs}a / ${tgt.km}km`);
     }
   }
 
@@ -6555,10 +7297,10 @@ function renderSoloLeveling() {
 
   if (!sl.startDate) {
     container.innerHTML = `<div class="solo-intro">
-      <div class="solo-title">💥 Solo Leveling</div>
-      <div class="solo-sub">Le Systeme t'observe</div>
-      <div class="solo-intro-text">Inspire de Solo Leveling. Chaque jour : pompes, squats, abdos, et course. Les quotas augmentent chaque semaine — de <strong>10 reps / 1 km</strong> la premiere semaine a <strong>100 reps / 10 km</strong> a la dixieme.<br><br>Si tu ne completes pas en 24h : <strong style="color:#e74c3c">-${SOLO_PENALTY_XP} XP</strong>. Le Systeme ne tolere pas la faiblesse.</div>
-      <button class="solo-start-btn" onclick="startSoloLeveling()">⚡ Accepter le Pacte</button>
+      <div class="solo-title">💥 ${t('soloTitle')}</div>
+      <div class="solo-sub">${t('systemWatches')}</div>
+      <div class="solo-intro-text">${t('soloDesc')}<br><br>${t('soloFailWarning')} <strong style="color:#e74c3c">-${SOLO_PENALTY_XP} XP</strong></div>
+      <button class="solo-start-btn" onclick="startSoloLeveling()">⚡ ${t('acceptPact')}</button>
     </div>`;
     return;
   }
@@ -6569,10 +7311,10 @@ function renderSoloLeveling() {
     return Object.entries(g).map(([k, v]) => `+${v} ${k.toUpperCase()}`).join(' • ');
   };
   const exercises = [
-    { key: 'pushups', name: 'Pompes', icon: '💪', unit: 'reps' },
-    { key: 'squats', name: 'Squats', icon: '🦵', unit: 'reps' },
-    { key: 'abs', name: 'Abdos', icon: '🔥', unit: 'reps' },
-    { key: 'km', name: 'Course', icon: '🏃', unit: 'km' }
+    { key: 'pushups', name: t('pushups'), icon: '💪', unit: 'reps' },
+    { key: 'squats', name: t('squats'), icon: '🦵', unit: 'reps' },
+    { key: 'abs', name: t('abs'), icon: '🔥', unit: 'reps' },
+    { key: 'km', name: t('running'), icon: '🏃', unit: 'km' }
   ];
   const doneCount = exercises.filter(e => sl[e.key] >= targets[e.key]).length;
   const allDone = doneCount === 4;
@@ -6585,15 +7327,15 @@ function renderSoloLeveling() {
     <div class="solo-header-top">
       <div class="solo-badge">💥</div>
       <div style="flex:1;min-width:0">
-        <div class="solo-title">Solo Leveling</div>
-        <div class="solo-sub">Semaine ${sl.currentWeek} / 10 — ${allDone ? '✓ Objectif atteint' : 'Le Systeme t\'observe'}</div>
+        <div class="solo-title">${t('soloTitle')}</div>
+        <div class="solo-sub">${t('weekTab')} ${sl.currentWeek} / 10 — ${allDone ? `✓ ${t('objectiveReached')}` : t('systemWatches')}</div>
       </div>
       <div class="solo-week-pill">S${sl.currentWeek}</div>
     </div>
     <div class="solo-stats-row">
-      <div class="solo-stat"><div class="solo-stat-val">${sl.completedDays || 0}</div><div class="solo-stat-lbl">Jours reussis</div></div>
-      <div class="solo-stat"><div class="solo-stat-val" style="color:#e74c3c">${sl.missedDays || 0}</div><div class="solo-stat-lbl">Penalites</div></div>
-      <div class="solo-stat"><div class="solo-stat-val">${doneCount}/4</div><div class="solo-stat-lbl">Aujourd'hui</div></div>
+      <div class="solo-stat"><div class="solo-stat-val">${sl.completedDays || 0}</div><div class="solo-stat-lbl">${t('daysSucceeded')}</div></div>
+      <div class="solo-stat"><div class="solo-stat-val" style="color:#e74c3c">${sl.missedDays || 0}</div><div class="solo-stat-lbl">${t('penalties')}</div></div>
+      <div class="solo-stat"><div class="solo-stat-val">${doneCount}/4</div><div class="solo-stat-lbl">${t('doneToday')}</div></div>
     </div>
     <div class="solo-overall-bar"><div class="solo-overall-fill" style="width:${overallPct}%"></div></div>
   </div>`;
@@ -6680,12 +7422,12 @@ function renderSoloLeveling() {
     <div class="solo-roadmap-title">📊 Progression hebdomadaire</div>
     <div class="solo-roadmap-grid">`;
   for (let w = 1; w <= 10; w++) {
-    const t = getSoloTargets(w);
+    const tgt = getSoloTargets(w);
     const isCurrent = w === sl.currentWeek;
     const isPast = w < sl.currentWeek;
     html += `<div class="solo-roadmap-cell ${isCurrent ? 'current' : ''} ${isPast ? 'past' : ''}">
       <div class="solo-rm-week">S${w}</div>
-      <div class="solo-rm-vals">${t.pushups} / ${t.km}km</div>
+      <div class="solo-rm-vals">${tgt.pushups} / ${tgt.km}km</div>
     </div>`;
   }
   html += `</div></div>`;
@@ -6968,9 +7710,9 @@ function renderQuests() {
   // Level bar
   const titleEl = $('#quest-level-title');
   if (q.prestige > 0) {
-    titleEl.innerHTML = `<span style="color:#ffd700">${prestigeStars}</span> Niveau ${q.level} — ${rank.name} <span style="font-size:.7em;color:#ffb84d">[${prestigeTitle}]</span>`;
+    titleEl.innerHTML = `<span style="color:#ffd700">${prestigeStars}</span> ${t('level')} ${q.level} — ${rank.name} <span style="font-size:.7em;color:#ffb84d">[${prestigeTitle}]</span>`;
   } else {
-    titleEl.textContent = `Niveau ${q.level} — ${rank.name}`;
+    titleEl.textContent = `${t('level')} ${q.level} — ${rank.name}`;
   }
   $('#quest-rank-subtitle').textContent = rank.subtitle;
   $('#quest-xp-fill').style.width = xpPct + '%';
@@ -6986,7 +7728,7 @@ function renderQuests() {
       prestigeBtn.onclick = prestigeUp;
       $('.quest-level-bar').appendChild(prestigeBtn);
     }
-    prestigeBtn.textContent = `🔥 Rituel de Prestige ${q.prestige + 1}/${MAX_PRESTIGE}`;
+    prestigeBtn.textContent = `🔥 ${t('prestigeRitual')} ${q.prestige + 1}/${MAX_PRESTIGE}`;
     prestigeBtn.style.display = 'block';
   } else if (prestigeBtn) {
     prestigeBtn.style.display = 'none';
@@ -7007,7 +7749,7 @@ function renderQuests() {
   const defisTab = document.querySelector('.quest-tab[data-qtab="defis"]');
   if (defisTab && dc && dc.challenges) {
     const pending = dc.challenges.filter(c => !c.accepted && !c.declined).length;
-    defisTab.innerHTML = pending > 0 ? `<span class="tab-icon">&#9888;</span>Defis <span style="background:var(--gold);color:#0e0a06;font-size:.5rem;padding:0 4px;border-radius:6px;font-weight:700">${pending}</span>` : '<span class="tab-icon">&#9888;</span>Defis';
+    defisTab.innerHTML = pending > 0 ? `<span class="tab-icon">&#9888;</span><span>${t('challenges')}</span> <span style="background:var(--gold);color:#0e0a06;font-size:.5rem;padding:0 4px;border-radius:6px;font-weight:700">${pending}</span>` : `<span class="tab-icon">&#9888;</span><span>${t('challenges')}</span>`;
   }
 
   // Refresh defis tab if visible
@@ -7019,7 +7761,7 @@ function renderQuestList(period) {
   const objectives = state.quests.objectives.filter(o => o.period === period);
   const categories = [...new Set(objectives.map(o => o.category))];
 
-  const CATEGORY_NAMES = { physique: 'Physique', mental: 'Mental', sante: 'Sante', social: 'Social', custom: 'Personnel' };
+  const CATEGORY_NAMES = { physique: t('physical'), mental: t('mental'), sante: t('health'), social: t('social'), custom: t('personal') };
 
   let html = '';
   categories.forEach(cat => {
@@ -7052,13 +7794,13 @@ function renderQuestList(period) {
             <div class="quest-progress-bar" style="background:rgba(212,175,55,.1)"><div class="quest-progress-fill" style="width:${doublePct}%;background:linear-gradient(90deg,var(--gold-dim),var(--gold))"></div></div>
             <span class="quest-progress-text" style="color:var(--gold-dim);font-size:.55rem">⚡ x2 : ${o.progress}/${o.target * 2}</span>
           </div>` : ''}
-          ${isDouble ? `<div style="font-size:.6rem;color:var(--gold);margin-top:2px;font-weight:700">⚡ BONUS x2 OBTENU !</div>` : ''}
-          ${lifetime > 0 ? `<div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">Total : <strong style="color:var(--gold-dim)">${ltDisplay}</strong> ${o.unit} depuis le debut</div>` : ''}
+          ${isDouble ? `<div style="font-size:.6rem;color:var(--gold);margin-top:2px;font-weight:700">⚡ ${t('doubleBonus')}</div>` : ''}
+          ${lifetime > 0 ? `<div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">Total : <strong style="color:var(--gold-dim)">${ltDisplay}</strong> ${o.unit} ${t('totalSince')}</div>` : ''}
           ${isDouble ? '' : `
           <div class="quest-item-input">
             <input type="number" id="qi-${o.id}" min="0" step="any" placeholder="0" />
             <span class="unit">${o.unit}</span>
-            <button onclick="logQuestProgress('${o.id}')">Valider</button>
+            <button onclick="logQuestProgress('${o.id}')">${t('validate')}</button>
           </div>`}
         </div>`;
     });
@@ -7067,23 +7809,23 @@ function renderQuestList(period) {
   // Add custom objective button
   const customCount = state.quests.objectives.filter(o => o.custom).length;
   const canAddCustom = customCount < 3;
-  html += `<button class="quest-add-btn" onclick="${canAddCustom ? `toggleAddQuest('${period}')` : ''}" ${canAddCustom ? '' : 'disabled style="opacity:.5;cursor:not-allowed"'}>${canAddCustom ? '+ Ajouter un objectif' : `Limite : ${customCount}/3 objectifs personnels`}</button>`;
+  html += `<button class="quest-add-btn" onclick="${canAddCustom ? `toggleAddQuest('${period}')` : ''}" ${canAddCustom ? '' : 'disabled style="opacity:.5;cursor:not-allowed"'}>${canAddCustom ? t('addObjective') : `${t('limitObjectives')} ${customCount}/3`}</button>`;
   html += `<div class="quest-add-form" id="quest-add-form-${period}">
-    <input type="text" id="qa-name-${period}" placeholder="Nom (ex: Abdos)"/>
+    <input type="text" id="qa-name-${period}" placeholder="${t('name')} (ex: Abdos)"/>
     <input type="text" id="qa-icon-${period}" placeholder="Emoji (ex: 🏃)" maxlength="4"/>
     <div style="display:flex;gap:6px">
-      <input type="number" id="qa-target-${period}" placeholder="Objectif (ex: 50)" min="1" style="flex:1"/>
-      <input type="text" id="qa-unit-${period}" placeholder="Unite (ex: reps)" style="flex:1"/>
+      <input type="number" id="qa-target-${period}" placeholder="${t('objective')} (ex: 50)" min="1" style="flex:1"/>
+      <input type="text" id="qa-unit-${period}" placeholder="${t('unit')} (ex: reps)" style="flex:1"/>
     </div>
     <select id="qa-cat-${period}">
-      <option value="physique">Physique</option>
-      <option value="mental">Mental</option>
-      <option value="sante">Sante</option>
-      <option value="social">Social</option>
-      <option value="custom">Personnel</option>
+      <option value="physique">${t('physical')}</option>
+      <option value="mental">${t('mental')}</option>
+      <option value="sante">${t('health')}</option>
+      <option value="social">${t('social')}</option>
+      <option value="custom">${t('personal')}</option>
     </select>
-    <input type="number" id="qa-xp-${period}" placeholder="XP recompense (ex: 30)" min="5" max="50"/>
-    <button class="btn-gold" onclick="addCustomQuest('${period}')" style="width:100%;margin-top:2px">Ajouter</button>
+    <input type="number" id="qa-xp-${period}" placeholder="${t('xpReward')} (ex: 30)" min="5" max="50"/>
+    <button class="btn-gold" onclick="addCustomQuest('${period}')" style="width:100%;margin-top:2px">${t('add')}</button>
   </div>`;
 
   container.innerHTML = html;
@@ -7357,15 +8099,15 @@ function renderQuestEvolution() {
   // Header
   html += `<div style="text-align:center;margin-bottom:10px">
     <div style="font-size:1.2rem;margin-bottom:4px">⚔️</div>
-    <div style="font-size:.85rem;color:var(--gold);font-weight:700;font-family:'Cinzel',serif">Evolution des Quetes</div>
-    <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px;line-height:1.4">Rends tes quetes plus difficiles pour gagner plus d'XP.<br>Tu peux evoluer une fois par semaine.</div>
+    <div style="font-size:.85rem;color:var(--gold);font-weight:700;font-family:'Cinzel',serif">${t('questEvolution')}</div>
+    <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px;line-height:1.4">${t('evolveDesc')}<br>${t('evolveOncePerWeek')}</div>
   </div>`;
 
   // ===== ACTIVE TRIALS SECTION =====
   if (trialsInProgress.length > 0) {
     html += `<div style="margin-bottom:12px">
-      <div class="quest-category" style="color:#ffa726">⚔️ Epreuves en cours</div>
-      <div style="font-size:.6rem;color:var(--text-dim);margin-bottom:8px;text-align:center;line-height:1.4">Complete les objectifs ameliores 3 jours de suite pour confirmer l'evolution.<br><span style="color:#ff5252">Si tu echoues un jour : revert + perte de 2x l'XP !</span></div>`;
+      <div class="quest-category" style="color:#ffa726">⚔️ ${t('trialsInProgressTitle')}</div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-bottom:8px;text-align:center;line-height:1.4">${t('trialsDesc')}<br><span style="color:#ff5252">${t('trialsFailWarning')}</span></div>`;
 
     trialsInProgress.forEach(o => {
       const trial = o.evolveTrial;
@@ -7380,12 +8122,12 @@ function renderQuestEvolution() {
           <span class="evolve-name">${o.name}</span>
           <span class="evolve-tier evolve-tier-${tier}">${EVOLVE_TIER_NAMES[tier]}</span>
         </div>
-        <div class="evolve-detail">Objectif : <strong>${o.target} ${o.unit}</strong> (avant : ${trial.prevTarget} ${o.unit})</div>
+        <div class="evolve-detail">${t('objectiveLabel')} : <strong>${o.target} ${o.unit}</strong> (${t('before')} : ${trial.prevTarget} ${o.unit})</div>
         <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
           <div style="flex:1;height:8px;background:rgba(255,167,38,.15);border-radius:4px;overflow:hidden">
             <div style="width:${pctTrial}%;height:100%;background:linear-gradient(90deg,#ff9800,#ffa726);border-radius:4px;transition:width .3s"></div>
           </div>
-          <span style="font-size:.65rem;font-weight:700;color:#ffa726">${daysOk}/3 jours</span>
+          <span style="font-size:.65rem;font-weight:700;color:#ffa726">${daysOk}/3 ${t('days')}</span>
         </div>
         <div style="display:flex;gap:4px;margin-top:6px;justify-content:center">
           ${[0,1,2].map(i => {
@@ -7398,7 +8140,7 @@ function renderQuestEvolution() {
           }).join('')}
         </div>
         <div style="text-align:center;margin-top:6px;font-size:.6rem;font-weight:600;color:${todayDone ? '#69f0ae' : 'var(--text-dim)'}">
-          ${todayDone ? '✓ Objectif du jour atteint !' : `Aujourd'hui : ${o.progress}/${o.target} ${o.unit}`}
+          ${todayDone ? `✓ ${t('todayObjectiveDone')}` : `${t('todayLabel')} : ${o.progress}/${o.target} ${o.unit}`}
         </div>
       </div>`;
     });
@@ -7410,14 +8152,14 @@ function renderQuestEvolution() {
   if (!canEvolve && !trialsActive) {
     html += `<div class="quest-evolve-cooldown">
       <div style="font-size:1.2rem;margin-bottom:4px">⏳</div>
-      <div style="font-size:.8rem;color:var(--gold);font-weight:600">Prochaine evolution dans ${daysLeft} jour${daysLeft > 1 ? 's' : ''}</div>
-      <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">Tu as deja evolue tes quetes cette semaine. Reviens ${daysLeft === 1 ? 'demain' : 'dans ' + daysLeft + ' jours'} !</div>
+      <div style="font-size:.8rem;color:var(--gold);font-weight:600">${t('nextEvolutionIn')} ${daysLeft} ${t('days')}</div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">${t('alreadyEvolvedThisWeek')} ${t('comeBackIn')} ${daysLeft === 1 ? t('tomorrow') : t('inDays') + ' ' + daysLeft + ' ' + t('days')} !</div>
     </div>`;
   } else if (trialsActive) {
     html += `<div class="quest-evolve-cooldown" style="border-color:#ffa726">
       <div style="font-size:1.2rem;margin-bottom:4px">⚔️</div>
-      <div style="font-size:.8rem;color:#ffa726;font-weight:600">Epreuves en cours</div>
-      <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">Termine tes epreuves avant de pouvoir evoluer d'autres quetes.</div>
+      <div style="font-size:.8rem;color:#ffa726;font-weight:600">${t('trialsOngoing')}</div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">${t('finishTrialsFirst')}</div>
     </div>`;
   }
 
@@ -7429,8 +8171,8 @@ function renderQuestEvolution() {
   if (evolvable.length === 0 && maxedOut.length > 0 && !trialsActive) {
     html += `<div style="text-align:center;padding:20px;color:var(--gold)">
       <div style="font-size:1.5rem;margin-bottom:8px">🏆</div>
-      <div style="font-size:.8rem;font-weight:700">Toutes tes quetes sont au rang Divin !</div>
-      <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">Tu as atteint le sommet, guerrier.</div>
+      <div style="font-size:.8rem;font-weight:700">${t('allQuestsDivine')}</div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">${t('reachedTop')}</div>
     </div>`;
   }
 
@@ -7456,14 +8198,14 @@ function renderQuestEvolution() {
             <span class="evolve-tier ${tier > 0 ? `evolve-tier-${tier}` : ''}" style="${tier === 0 ? 'background:var(--wood-mid);color:var(--text-dim)' : ''}">${EVOLVE_TIER_NAMES[tier]}</span>
             ${isSelected ? '<span style="font-size:1rem">✓</span>' : ''}
           </div>
-          <div class="evolve-detail">${o.period === 'daily' ? 'Quotidien' : 'Hebdomadaire'} — ${o.unit}</div>
+          <div class="evolve-detail">${o.period === 'daily' ? t('daily') : t('weekly')} — ${o.unit}</div>
           <div class="evolve-arrow">
-            <span>Objectif :</span> <span class="old">${currentTarget} ${o.unit}</span> <span class="arrow">→</span> <span class="new">${newTarget} ${o.unit}</span>
+            <span>${t('objectiveLabel')} :</span> <span class="old">${currentTarget} ${o.unit}</span> <span class="arrow">→</span> <span class="new">${newTarget} ${o.unit}</span>
           </div>
           <div class="evolve-arrow">
             <span>XP :</span> <span class="old">+${currentXp}</span> <span class="arrow">→</span> <span class="new">+${newXp} XP</span>
           </div>
-          <div style="font-size:.55rem;color:var(--text-dim);margin-top:2px">Rang suivant : <strong style="color:var(--gold)">${EVOLVE_TIER_NAMES[nextTier]}</strong>${o.period === 'daily' ? ' — epreuve de 3 jours' : ''}</div>
+          <div style="font-size:.55rem;color:var(--text-dim);margin-top:2px">${t('nextRank')} : <strong style="color:var(--gold)">${EVOLVE_TIER_NAMES[nextTier]}</strong>${o.period === 'daily' ? ` — ${t('trialOf3days')}` : ''}</div>
         </div>`;
       });
     });
@@ -7471,7 +8213,7 @@ function renderQuestEvolution() {
 
   // Maxed out quests
   if (maxedOut.length > 0) {
-    html += `<div class="quest-category">🏆 Rang maximum atteint</div>`;
+    html += `<div class="quest-category">🏆 ${t('maxRankReached')}</div>`;
     maxedOut.forEach(o => {
       html += `<div class="quest-evolve-card" style="opacity:.7;border-color:var(--gold-dim)">
         <div class="evolve-header">
@@ -7488,10 +8230,10 @@ function renderQuestEvolution() {
   const selectedCount = Object.values(_evolveSelected).filter(v => v).length;
   if (canSelect) {
     html += `<button class="quest-evolve-confirm" onclick="confirmQuestEvolution()" ${selectedCount === 0 ? 'disabled' : ''}>
-      ⚔️ Evoluer ${selectedCount} quete${selectedCount > 1 ? 's' : ''} selectionnee${selectedCount > 1 ? 's' : ''}
+      ⚔️ ${t('evolveSelected')} ${selectedCount} ${t('questSelected')}
     </button>`;
     if (selectedCount > 0) {
-      html += `<div style="text-align:center;font-size:.6rem;color:var(--text-dim);margin-top:6px">Les objectifs seront plus difficiles — epreuve de 3 jours pour confirmer !<br><span style="color:#ff5252">Attention : echouer = perte de 2x l'XP de la quete !</span></div>`;
+      html += `<div style="text-align:center;font-size:.6rem;color:var(--text-dim);margin-top:6px">${t('harderObjectives')}<br><span style="color:#ff5252">${t('failWarning')}</span></div>`;
     }
   }
 
@@ -8279,27 +9021,27 @@ function renderSpecializations() {
   let html = `
     <div style="text-align:center;margin-bottom:14px">
       <div style="font-size:1.2rem">★</div>
-      <div style="font-size:.9rem;font-weight:700;color:var(--gold);font-variant:small-caps;letter-spacing:1px">Specialisations Viking</div>
-      <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">A chaque palier, choisis ta voie. Corps, Esprit ou Volonte — chaque choix est definitif.</div>
+      <div style="font-size:.9rem;font-weight:700;color:var(--gold);font-variant:small-caps;letter-spacing:1px">${t('vikingSpecs')}</div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">${t('specsDesc')}</div>
       ${activeSpecs ? `<div class="spec-summary">${activeSpecs}</div>` : ''}
     </div>
   `;
 
   // Active boosts summary
   const boostLines = [];
-  if (specBoosts.physique > 0) boostLines.push(`💪 +${Math.round(specBoosts.physique * 100)}% XP Physique`);
-  if (specBoosts.mental > 0) boostLines.push(`🧘 +${Math.round(specBoosts.mental * 100)}% XP Mental`);
-  if (specBoosts.global > 0) boostLines.push(`✦ +${Math.round(specBoosts.global * 100)}% XP Global`);
-  if (specBoosts.streakMult > 1) boostLines.push(`🔥 Streak x${specBoosts.streakMult}`);
-  if (specBoosts.penaltyReduction > 0) boostLines.push(`🛡️ Penalites -${Math.round(specBoosts.penaltyReduction * 100)}%`);
-  if (specBoosts.penaltyImmune) boostLines.push(`⚖️ Immunite aux penalites`);
-  if (specBoosts.graceDays > 0) boostLines.push(`🕐 Grace de ${specBoosts.graceDays}j sur le streak`);
-  if (specBoosts.bonusRestDays > 0) boostLines.push(`🛌 +${specBoosts.bonusRestDays} jour(s) de repos/sem`);
-  if (specBoosts.prBonus > 0) boostLines.push(`🏆 +${specBoosts.prBonus} XP par record perso`);
+  if (specBoosts.physique > 0) boostLines.push(`💪 +${Math.round(specBoosts.physique * 100)}% ${t('xpPhysique')}`);
+  if (specBoosts.mental > 0) boostLines.push(`🧘 +${Math.round(specBoosts.mental * 100)}% ${t('xpMental')}`);
+  if (specBoosts.global > 0) boostLines.push(`✦ +${Math.round(specBoosts.global * 100)}% ${t('xpGlobal')}`);
+  if (specBoosts.streakMult > 1) boostLines.push(`🔥 ${t('streak')} x${specBoosts.streakMult}`);
+  if (specBoosts.penaltyReduction > 0) boostLines.push(`🛡️ ${t('penaltyReduction')} -${Math.round(specBoosts.penaltyReduction * 100)}%`);
+  if (specBoosts.penaltyImmune) boostLines.push(`⚖️ ${t('penaltyImmunity')}`);
+  if (specBoosts.graceDays > 0) boostLines.push(`🕐 ${t('streakGrace')} ${specBoosts.graceDays}j`);
+  if (specBoosts.bonusRestDays > 0) boostLines.push(`🛌 +${specBoosts.bonusRestDays} ${t('bonusRestDaysSpec')}`);
+  if (specBoosts.prBonus > 0) boostLines.push(`🏆 +${specBoosts.prBonus} ${t('prBonusSpec')}`);
 
   if (boostLines.length > 0) {
     html += `<div style="background:rgba(196,154,60,.06);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:14px">
-      <div style="font-size:.65rem;font-weight:700;color:var(--gold);margin-bottom:6px;font-variant:small-caps">Bonus actifs</div>
+      <div style="font-size:.65rem;font-weight:700;color:var(--gold);margin-bottom:6px;font-variant:small-caps">${t('activeBoosts')}</div>
       ${boostLines.map(l => `<div style="font-size:.6rem;color:var(--text);margin:2px 0">${l}</div>`).join('')}
     </div>`;
   }
@@ -8325,7 +9067,7 @@ function renderSpecializations() {
       });
       html += '</div>';
     } else {
-      html += `<div style="text-align:center;font-size:.65rem;color:var(--text-dim);padding:8px">Atteins le niveau ${milestone.level} pour debloquer ces talents.</div>`;
+      html += `<div style="text-align:center;font-size:.65rem;color:var(--text-dim);padding:8px">${t('reachLevel')} ${milestone.level} ${t('toUnlockTalents')}</div>`;
     }
 
     html += '</div>';
@@ -8567,8 +9309,8 @@ function renderEpicQuests() {
   let html = `
     <div style="text-align:center;margin-bottom:14px">
       <div style="font-size:1.2rem">🏆</div>
-      <div style="font-size:.9rem;font-weight:700;color:var(--gold);font-variant:small-caps;letter-spacing:1px">Quetes Epiques</div>
-      <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">Des exploits de 30 a 90 jours. Chaque etape franchie donne de l'XP. Termine la quete pour un titre unique.</div>
+      <div style="font-size:.9rem;font-weight:700;color:var(--gold);font-variant:small-caps;letter-spacing:1px">${t('epicQuestsTitle')}</div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">${t('epicQuestsDesc')}</div>
       ${titles.length > 0 ? `<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;justify-content:center">${titles.map(t => `<span class="spec-badge">🏆 ${t}</span>`).join('')}</div>` : ''}
     </div>
   `;
@@ -8591,11 +9333,11 @@ function renderEpicQuests() {
     html += `<div class="epic-card ${cardClass}">
       <div class="epic-title">${quest.icon} ${quest.name} ${isCompleted ? '✓' : isLocked ? '🔒' : ''}</div>
       <div class="epic-subtitle">${quest.subtitle}</div>
-      <div class="epic-duration">⏳ ${quest.duration} jours ${isActive ? `— Jour ${daysElapsed}/${quest.duration} (${daysLeft}j restants)` : isCompleted ? `— Complete en ${daysElapsed}j !` : ''} ${isLocked ? `— Niveau ${quest.levelMin} requis` : ''}</div>`;
+      <div class="epic-duration">⏳ ${quest.duration} ${t('days')} ${isActive ? `— ${t('dayLabel')} ${daysElapsed}/${quest.duration} (${daysLeft} ${t('daysRemaining')})` : isCompleted ? `— ${t('completedIn')} ${daysElapsed}j !` : ''} ${isLocked ? `— ${t('level')} ${quest.levelMin} ${t('levelRequired')}` : ''}</div>`;
 
     if (isActive || isCompleted) {
       html += `<div class="epic-progress-bar"><div class="epic-progress-fill" style="width:${progressPct}%"></div></div>
-      <div style="font-size:.55rem;color:var(--text-dim);margin-bottom:6px">${milestoneDone}/${quest.milestones.length} etapes — ${progressPct}%</div>`;
+      <div style="font-size:.55rem;color:var(--text-dim);margin-bottom:6px">${milestoneDone}/${quest.milestones.length} ${t('steps')} — ${progressPct}%</div>`;
     }
 
     // Milestones
@@ -8606,7 +9348,7 @@ function renderEpicQuests() {
       html += `<div class="epic-ms ${isDone ? 'done' : isCurrent ? 'current' : ''}">
         <div class="epic-ms-icon">${isDone ? '✅' : ms.icon}</div>
         <div class="epic-ms-info">
-          <div class="epic-ms-name">${ms.name} ${!isDone && !isLocked ? `(Jour ${ms.day})` : ''}</div>
+          <div class="epic-ms-name">${ms.name} ${!isDone && !isLocked ? `(${t('dayLabel')} ${ms.day})` : ''}</div>
           <div class="epic-ms-desc">${ms.desc}</div>
           <div class="epic-ms-reward">${ms.reward.label}</div>
         </div>
@@ -8616,18 +9358,18 @@ function renderEpicQuests() {
 
     // Final reward
     html += `<div class="epic-reward-box">
-      <div class="reward-title">🏆 Recompense finale</div>
-      <div class="reward-items">${quest.finalReward.label}${quest.finalReward.title ? ` — Titre : "${quest.finalReward.title}"` : ''}</div>
+      <div class="reward-title">🏆 ${t('finalReward')}</div>
+      <div class="reward-items">${quest.finalReward.label}${quest.finalReward.title ? ` — ${t('titleLabel')} : "${quest.finalReward.title}"` : ''}</div>
     </div>`;
 
     // Action buttons
     if (notStarted && !isLocked) {
-      html += `<button class="epic-btn" onclick="startEpicQuest('${quest.id}')">⚔️ Accepter la Quete</button>`;
+      html += `<button class="epic-btn" onclick="startEpicQuest('${quest.id}')">⚔️ ${t('acceptQuest')}</button>`;
     } else if (isActive) {
-      html += `<button class="epic-btn" style="background:rgba(229,57,53,.2);color:#e53935;border:1px solid rgba(229,57,53,.3)" onclick="abandonEpicQuest('${quest.id}')">Abandonner</button>`;
+      html += `<button class="epic-btn" style="background:rgba(229,57,53,.2);color:#e53935;border:1px solid rgba(229,57,53,.3)" onclick="abandonEpicQuest('${quest.id}')">${t('abandon')}</button>`;
     } else if (isExpired) {
-      html += `<div style="font-size:.6rem;color:#e53935;margin-top:6px">⏰ Temps ecoule ! La quete a expire.</div>
-      <button class="epic-btn" onclick="restartEpicQuest('${quest.id}')">🔄 Recommencer</button>`;
+      html += `<div style="font-size:.6rem;color:#e53935;margin-top:6px">⏰ ${t('timeExpired')}</div>
+      <button class="epic-btn" onclick="restartEpicQuest('${quest.id}')">🔄 ${t('restart')}</button>`;
     }
 
     html += '</div>';
@@ -8722,7 +9464,7 @@ function renderRuneCollection() {
   const count = owned.size;
 
   let html = `<div class="quest-weekly-summary">
-    <div class="summary-title">Collection de Runes — ${count}/${VIKING_RUNES.length}</div>
+    <div class="summary-title">${t('runeCollection')} — ${count}/${VIKING_RUNES.length}</div>
     <div class="quest-xp-bar" style="margin:8px 0"><div class="quest-xp-fill" style="width:${Math.round(count/VIKING_RUNES.length*100)}%"></div></div>
     <div class="rune-collection">`;
 
@@ -8823,8 +9565,8 @@ function renderSkillTree() {
   const summary = getSkillTreeSummary();
 
   let html = `<div class="ygg-header">
-    <div class="ygg-title">🌳 Yggdrasil — Arbre de Vie</div>
-    <div class="ygg-subtitle">${summary.unlocked}/${summary.total} competences debloquees</div>`;
+    <div class="ygg-title">🌳 ${t('yggdrasilTitle')}</div>
+    <div class="ygg-subtitle">${summary.unlocked}/${summary.total} ${t('skillsUnlocked')}</div>`;
   const boostList = Object.entries(summary.boosts).filter(([,v]) => v > 0);
   if (boostList.length > 0) {
     html += `<div class="ygg-boosts">${boostList.map(([k,v]) => `<span class="ygg-boost-tag">${k === 'global' ? '🌍' : k === 'physique' ? '⚡' : k === 'mental' ? '👁' : k === 'sante' ? '🌿' : '☀'} +${Math.round(v*100)}% ${k}</span>`).join(' ')}</div>`;
@@ -8859,7 +9601,7 @@ function renderSkillTree() {
       let reqs = [];
       if (u.lifetimeMin) { const cur = lt[u.lifetimeKey] || 0; reqs.push(`${u.lifetimeKey}: ${cur >= u.lifetimeMin ? '✓' : cur + '/' + u.lifetimeMin}`); }
       if (u.lifetimeMin2) { const cur = lt[u.lifetimeKey2] || 0; reqs.push(`${u.lifetimeKey2}: ${cur >= u.lifetimeMin2 ? '✓' : cur + '/' + u.lifetimeMin2}`); }
-      if (u.levelMin) reqs.push(`Niv. ${q.level >= u.levelMin ? '✓' : q.level + '/' + u.levelMin}`);
+      if (u.levelMin) reqs.push(`${t('lvl')} ${q.level >= u.levelMin ? '✓' : q.level + '/' + u.levelMin}`);
       if (u.streakMin) reqs.push(`Streak ${q.streak >= u.streakMin ? '✓' : q.streak + '/' + u.streakMin}`);
       if (u.runesMin) reqs.push(`Runes ${(q.runes||[]).length >= u.runesMin ? '✓' : (q.runes||[]).length + '/' + u.runesMin}`);
 
@@ -9245,7 +9987,7 @@ function checkBossVictory() {
 function renderBossSection() {
   const q = state.quests;
   const boss = q.boss;
-  if (!boss) return '<div style="font-size:.7rem;color:var(--text-dim);text-align:center;padding:20px">Aucun boss cette semaine. Reviens lundi !</div>';
+  if (!boss) return `<div style="font-size:.7rem;color:var(--text-dim);text-align:center;padding:20px">${t('noBossThisWeek')}</div>`;
 
   const progress = getWeeklyBossProgress();
   const pct = Math.min(100, Math.round((progress / boss.threshold) * 100));
@@ -9257,18 +9999,18 @@ function renderBossSection() {
   const day = now.getDay();
   const daysLeft = day === 0 ? 0 : 7 - day;
 
-  const typeLabel = { physique: 'Physique', mental: 'Mental', assiduite: 'Assiduite' };
+  const typeLabel = { physique: t('bossPhysique'), mental: t('bossMental'), assiduite: t('bossAssiduite') };
   const typeDesc = {
-    physique: 'XP gagnes via quetes physiques cette semaine',
-    mental: 'XP gagnes via quetes mentales cette semaine',
-    assiduite: 'Quetes completees cette semaine'
+    physique: t('bossPhysiqueDesc'),
+    mental: t('bossMentalDesc'),
+    assiduite: t('bossAssiduiteDesc')
   };
 
   let resultHtml = '';
   if (defeated) {
-    resultHtml = `<div class="boss-result victory">⚔️ VAINCU ! +${boss.xpReward} XP</div>`;
+    resultHtml = `<div class="boss-result victory">⚔️ ${t('defeated')} +${boss.xpReward} XP</div>`;
   } else if (lost) {
-    resultHtml = `<div class="boss-result defeat">💀 Le boss a survecu...</div>`;
+    resultHtml = `<div class="boss-result defeat">💀 ${t('bossSurvived')}</div>`;
   } else {
     resultHtml = `<div class="boss-result ongoing">${typeDesc[boss.type]} : <strong>${progress}</strong> / ${boss.threshold}</div>`;
   }
@@ -9285,7 +10027,7 @@ function renderBossSection() {
       </div>
       <div class="boss-hp-section">
         <div class="boss-hp-label">
-          <span>${defeated ? 'Vaincu !' : lost ? 'Echoue' : 'Progression'}</span>
+          <span>${defeated ? t('bossDefeated') : lost ? t('bossFailed') : t('bossProgression')}</span>
           <span>${pct}%</span>
         </div>
         <div class="boss-hp-bar">
@@ -9293,13 +10035,13 @@ function renderBossSection() {
         </div>
       </div>
       ${resultHtml}
-      ${!boss.resolved ? `<div class="boss-timer">⏳ ${daysLeft} jour${daysLeft > 1 ? 's' : ''} restant${daysLeft > 1 ? 's' : ''}</div>` : ''}
-      ${defeated ? `<div class="boss-reward">🏆 Recompense : +${boss.xpReward} XP${boss.runeDropped ? ' + 1 Rune' : ''}</div>` : ''}
+      ${!boss.resolved ? `<div class="boss-timer">⏳ ${daysLeft} ${t('daysRemainingBoss')}</div>` : ''}
+      ${defeated ? `<div class="boss-reward">🏆 ${t('bossReward')} : +${boss.xpReward} XP${boss.runeDropped ? ' + 1 Rune' : ''}</div>` : ''}
     </div>
     ${!boss.resolved ? `<div style="font-size:.6rem;color:var(--text-dim);text-align:center;margin-top:4px">
-      Le boss change chaque lundi. Accumule des points pour le vaincre !
+      ${t('bossChangesMonday')}
     </div>` : `<div style="font-size:.6rem;color:var(--text-dim);text-align:center;margin-top:4px">
-      Prochain boss : lundi prochain
+      ${t('nextBossMonday')}
     </div>`}`;
 }
 
@@ -9507,12 +10249,12 @@ function renderStakrQuests() {
   const cooldownMin = q.aiQuestCooldown ? Math.max(0, Math.ceil((3600000 - (Date.now() - q.aiQuestCooldown)) / 60000)) : 0;
 
   let html = `<button class="quest-ai-btn" id="ai-quest-gen-btn" onclick="generateAIQuests()" ${canGenerate ? '' : 'disabled'}>
-    ${canGenerate ? '\u2694 Stakr, cree-moi des quetes !' : `\u23F3 Prochaine generation dans ${cooldownMin} min`}
+    ${canGenerate ? `\u2694 ${t('stakrCreateQuests')}` : `\u23F3 ${t('nextGenIn')} ${cooldownMin} ${t('min')}`}
   </button>`;
 
   // Secret quests section
   const unlocked = new Set(q.secretsUnlocked || []);
-  html += `<div class="quest-category">Quetes Secretes — ${unlocked.size}/${SECRET_QUESTS.length} debloquees</div>`;
+  html += `<div class="quest-category">${t('secretQuests')} — ${unlocked.size}/${SECRET_QUESTS.length} ${t('unlocked')}</div>`;
   SECRET_QUESTS.forEach(sq => {
     const isUnlocked = unlocked.has(sq.id);
     const dc = DIFFICULTY_CONFIG[sq.difficulty];
@@ -9523,7 +10265,7 @@ function renderStakrQuests() {
         <span class="quest-difficulty ${dc.color}">${dc.label}</span>
         <span class="quest-item-xp">${isUnlocked ? '&#10003;' : ''} +${sq.xpReward} XP</span>
       </div>
-      <div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">${isUnlocked ? sq.description : 'Conditions de deblocage inconnues...'}</div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">${isUnlocked ? sq.description : t('unknownConditions')}</div>
     </div>`;
   });
 
@@ -9534,7 +10276,7 @@ function renderStakrQuests() {
     const done = aiQuests.filter(aq => aq.completed);
 
     if (active.length > 0) {
-      html += `<div class="quest-category">Defis de Stakr — En cours</div>`;
+      html += `<div class="quest-category">${t('stakrChallenges')} — ${t('ongoing')}</div>`;
       active.forEach(aq => {
         const pct = Math.min(100, Math.round((aq.progress / aq.target) * 100));
         const fillClass = pct >= 100 ? 'full' : pct >= 60 ? 'high' : pct >= 30 ? 'mid' : 'low';
@@ -9562,7 +10304,7 @@ function renderStakrQuests() {
     }
 
     if (done.length > 0) {
-      html += `<div class="quest-category">Accomplis (${done.length})</div>`;
+      html += `<div class="quest-category">${t('accomplished')} (${done.length})</div>`;
       done.slice(-10).reverse().forEach(aq => {
         const dc = DIFFICULTY_CONFIG[aq.difficulty] || DIFFICULTY_CONFIG.moyen;
         html += `<div class="quest-item completed">
@@ -9854,7 +10596,7 @@ function renderQuestStats() {
     const dayEntries = q.history.filter(h => h.date === dateStr && h.period === 'daily');
     const completed = dayEntries.filter(h => h.progress >= h.target).length;
     const total = dayEntries.length || q.objectives.filter(o => o.period === 'daily').length;
-    const dayName = d.toLocaleDateString('fr-FR', { weekday: 'short' });
+    const dayName = d.toLocaleDateString(getLocale(), { weekday: 'short' });
     last7.push({ dayName, dateStr, completed, total, pct: total > 0 ? Math.round((completed / total) * 100) : 0 });
   }
 
@@ -9862,7 +10604,7 @@ function renderQuestStats() {
   const { axes, raw, exerciseGroups } = combined;
   const catXp = combined.catXp;
 
-  const CATEGORY_NAMES = { physique: 'Physique', mental: 'Mental', sante: 'Sante', social: 'Social', custom: 'Personnel' };
+  const CATEGORY_NAMES = { physique: t('physical'), mental: t('mental'), sante: t('health'), social: t('social'), custom: t('personal') };
 
   // ===== SPIDER/RADAR CHART (inline SVG) =====
   const SVG_SIZE = 280;
@@ -9920,59 +10662,59 @@ function renderQuestStats() {
   `).join('');
 
   let html = `
-    <button onclick="downloadStatsCard()" style="width:100%;padding:12px;margin-bottom:12px;border:1px solid var(--gold-dim);border-radius:8px;background:linear-gradient(135deg,#3a2e14,#5a4520);color:var(--gold);font-size:.8rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:700;letter-spacing:.5px">⬇ Telecharger ma fiche de stats</button>
+    <button onclick="downloadStatsCard()" style="width:100%;padding:12px;margin-bottom:12px;border:1px solid var(--gold-dim);border-radius:8px;background:linear-gradient(135deg,#3a2e14,#5a4520);color:var(--gold);font-size:.8rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:700;letter-spacing:.5px">⬇ ${t('downloadStats')}</button>
 
     <div class="quest-weekly-summary">
-      <div class="summary-title">⚡ Profil de Guerrier</div>
-      <div style="font-size:.6rem;color:var(--text-dim);text-align:center;margin-bottom:4px">Tout combine : quetes • defis • seances • solo leveling</div>
+      <div class="summary-title">⚡ ${t('warriorProfile')}</div>
+      <div style="font-size:.6rem;color:var(--text-dim);text-align:center;margin-bottom:4px">${t('allCombined')}</div>
       ${radarSvg}
       <div style="margin-top:8px">${axisDetailHtml}</div>
     </div>
 
     <div class="quest-weekly-summary">
-      <div class="summary-title">🏛 Totaux consolides</div>
+      <div class="summary-title">🏛 ${t('consolidatedTotals')}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.7rem">
         <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
-          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Quetes quotidiennes</div>
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">${t('dailyQuests')}</div>
           <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.dailyDone}</div>
         </div>
         <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
-          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Quetes hebdo</div>
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">${t('weeklyQuests')}</div>
           <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.weeklyDone}</div>
         </div>
         <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
-          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Defis accomplis</div>
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">${t('challengesDone')}</div>
           <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.defisCompleted}</div>
-          <div style="color:var(--text-dim);font-size:.5rem">${raw.defisFailed} echoues</div>
+          <div style="color:var(--text-dim);font-size:.5rem">${raw.defisFailed} ${t('failedLabel')}</div>
         </div>
         <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
-          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Seances physiques</div>
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">${t('physicalSessionsLabel')}</div>
           <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.physicalSessions}</div>
         </div>
         <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
-          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Meditations</div>
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">${t('meditationsLabel')}</div>
           <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.medSessions}</div>
         </div>
         <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
-          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Sagesses</div>
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">${t('wisdomsLabel')}</div>
           <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.phiSessions}</div>
         </div>
         <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
-          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Solo — jours reussis</div>
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">${t('soloDaysLabel')}</div>
           <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.soloDays}</div>
           <div style="color:var(--text-dim);font-size:.5rem">S${raw.soloWeek}/10</div>
         </div>
         <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
-          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">Streak actuel</div>
+          <div style="color:var(--text-dim);font-size:.55rem;text-transform:uppercase;letter-spacing:.5px">${t('currentStreak')}</div>
           <div style="color:var(--gold);font-weight:700;font-size:1rem">${raw.streak} j</div>
-          <div style="color:var(--text-dim);font-size:.5rem">${raw.daysActive} jours actifs</div>
+          <div style="color:var(--text-dim);font-size:.5rem">${raw.daysActive} ${t('daysActive')}</div>
         </div>
       </div>
     </div>
 
     <div class="quest-weekly-summary">
-      <div class="summary-title">💪 Exercices — Cumul total</div>
-      <div style="font-size:.55rem;color:var(--text-dim);text-align:center;margin-bottom:6px">Quetes + defis + seances + solo leveling combines</div>
+      <div class="summary-title">💪 ${t('exercisesCumul')}</div>
+      <div style="font-size:.55rem;color:var(--text-dim);text-align:center;margin-bottom:6px">${t('combinedDesc')}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.7rem">
         ${Object.values(exerciseGroups).filter(g => g.total > 0).map(g => `
           <div style="background:var(--wood-mid);padding:8px;border-radius:6px;border:1px solid var(--border)">
@@ -9981,14 +10723,14 @@ function renderQuestStats() {
             <div style="color:var(--text-dim);font-size:.5rem">${g.unit}</div>
           </div>
         `).join('')}
-        ${Object.values(exerciseGroups).every(g => g.total === 0) ? '<div style="grid-column:1/-1;color:var(--text-dim);font-size:.65rem;text-align:center;padding:8px">Pas encore de donnees. Tes exercices apparaitront ici !</div>' : ''}
+        ${Object.values(exerciseGroups).every(g => g.total === 0) ? `<div style="grid-column:1/-1;color:var(--text-dim);font-size:.65rem;text-align:center;padding:8px">${t('noDataYet')}</div>` : ''}
       </div>
     </div>
   `;
 
   html += `
     <div class="quest-weekly-summary">
-      <div class="summary-title">7 derniers jours</div>
+      <div class="summary-title">${t('last7days')}</div>
       <div style="display:flex;gap:4px;align-items:flex-end;height:60px;margin:8px 0">
         ${last7.map(d => `
           <div style="flex:1;text-align:center">
@@ -10036,11 +10778,11 @@ function renderQuestStats() {
         return COLORS[4];
       };
 
-      const DAYS_FR = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+      const DAYS_SHORT = currentLang === 'en' ? ['M','T','W','T','F','S','S'] : currentLang === 'es' ? ['L','M','M','J','V','S','D'] : currentLang === 'pt' ? ['S','T','Q','Q','S','S','D'] : ['L','M','M','J','V','S','D'];
       let calSvg = '';
       // Day labels
       for (let d = 0; d < 7; d++) {
-        if (d % 2 === 0) calSvg += `<text x="${PAD - 4}" y="${d * (CELL + GAP) + CELL - 1}" text-anchor="end" font-size="8" fill="rgba(196,154,60,0.5)" font-family="Cinzel,serif">${DAYS_FR[d]}</text>`;
+        if (d % 2 === 0) calSvg += `<text x="${PAD - 4}" y="${d * (CELL + GAP) + CELL - 1}" text-anchor="end" font-size="8" fill="rgba(196,154,60,0.5)" font-family="Cinzel,serif">${DAYS_SHORT[d]}</text>`;
       }
       // Cells
       let totalActive = 0;
@@ -10065,19 +10807,19 @@ function renderQuestStats() {
         d.setDate(d.getDate() + w * 7);
         if (d.getMonth() !== lastMonth) {
           lastMonth = d.getMonth();
-          const monthName = d.toLocaleDateString('fr-FR', { month: 'short' });
+          const monthName = d.toLocaleDateString(getLocale(), { month: 'short' });
           calSvg += `<text x="${PAD + w * (CELL + GAP)}" y="${7 * (CELL + GAP) + 12}" font-size="8" fill="rgba(196,154,60,0.5)" font-family="Cinzel,serif">${monthName}</text>`;
         }
       }
 
       return `<div class="quest-weekly-summary">
-        <div class="summary-title">📅 Calendrier d'activite</div>
-        <div style="font-size:.55rem;color:var(--text-dim);text-align:center;margin-bottom:6px">${totalActive} jours actifs sur les 90 derniers jours</div>
+        <div class="summary-title">📅 ${t('activityCalendar')}</div>
+        <div style="font-size:.55rem;color:var(--text-dim);text-align:center;margin-bottom:6px">${totalActive} ${t('activeDaysLast90')}</div>
         <div style="overflow-x:auto;display:flex;justify-content:center">
           <svg width="${calW}" height="${calH}" viewBox="0 0 ${calW} ${calH}" xmlns="http://www.w3.org/2000/svg">${calSvg}</svg>
         </div>
         <div style="display:flex;gap:4px;align-items:center;justify-content:flex-end;margin-top:4px;font-size:.5rem;color:var(--text-dim)">
-          Moins ${COLORS.map(c => `<span style="display:inline-block;width:${CELL}px;height:${CELL}px;background:${c};border-radius:2px"></span>`).join('')} Plus
+          ${t('less')} ${COLORS.map(c => `<span style="display:inline-block;width:${CELL}px;height:${CELL}px;background:${c};border-radius:2px"></span>`).join('')} ${t('more')}
         </div>
       </div>`;
     })()}
@@ -10101,7 +10843,7 @@ function renderQuestStats() {
             if (h.progress >= h.target) { done++; const obj = (q.objectives || []).find(o => o.id === h.id); xp += obj ? obj.xpReward : 20; }
           }
         });
-        const label = weekStart.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+        const label = weekStart.toLocaleDateString(getLocale(), { day: 'numeric', month: 'short' });
         weekData.push({ label, xp, done });
       }
 
@@ -10141,8 +10883,8 @@ function renderQuestStats() {
       }
 
       return `<div class="quest-weekly-summary">
-        <div class="summary-title">📈 Progression hebdomadaire</div>
-        <div style="font-size:.55rem;color:var(--text-dim);text-align:center;margin-bottom:4px">12 dernieres semaines</div>
+        <div class="summary-title">📈 ${t('weeklyProgression')}</div>
+        <div style="font-size:.55rem;color:var(--text-dim);text-align:center;margin-bottom:4px">${t('last12weeks')}</div>
         <div style="display:flex;justify-content:center">
           <svg width="${CW}" height="${CH}" viewBox="0 0 ${CW} ${CH}" xmlns="http://www.w3.org/2000/svg">
             ${gridLines}
@@ -10156,13 +10898,13 @@ function renderQuestStats() {
         </div>
         <div style="display:flex;gap:12px;justify-content:center;margin-top:4px;font-size:.5rem;color:var(--text-dim)">
           <span><span style="display:inline-block;width:14px;height:3px;background:#c49a3c;vertical-align:middle;margin-right:3px;border-radius:1px"></span>XP (max ${maxXp})</span>
-          <span><span style="display:inline-block;width:14px;height:2px;border-top:1.5px dashed #5bb5a2;vertical-align:middle;margin-right:3px"></span>Objectifs (max ${maxDone})</span>
+          <span><span style="display:inline-block;width:14px;height:2px;border-top:1.5px dashed #5bb5a2;vertical-align:middle;margin-right:3px"></span>${t('objectives')} (max ${maxDone})</span>
         </div>
       </div>`;
     })()}
 
     <div class="quest-weekly-summary">
-      <div class="summary-title">XP par categorie</div>
+      <div class="summary-title">${t('xpByCategory')}</div>
       ${Object.entries(catXp).sort((a,b) => b[1] - a[1]).map(([cat, xp]) => `
         <div style="display:flex;align-items:center;gap:8px;margin:4px 0">
           <span style="font-size:.7rem;min-width:60px">${CATEGORY_NAMES[cat] || cat}</span>
@@ -10175,14 +10917,14 @@ function renderQuestStats() {
     </div>
 
     <div class="quest-weekly-summary">
-      <div class="summary-title">Totaux depuis le debut</div>
+      <div class="summary-title">${t('totalsSinceBeginning')}</div>
       ${(() => {
         const lt = q.lifetimeTotals || {};
         const allObjs = q.objectives || [];
         const daysActive = q.startDate ? Math.max(1, Math.ceil((new Date() - new Date(q.startDate)) / 86400000)) : 1;
         const entries = allObjs.filter(o => lt[o.id] > 0).sort((a,b) => (lt[b.id]||0) - (lt[a.id]||0));
-        if (entries.length === 0) return '<div style="font-size:.7rem;color:var(--text-dim)">Pas encore de donnees. Valide tes premiers objectifs !</div>';
-        return `<div style="font-size:.6rem;color:var(--text-dim);margin-bottom:8px">Depuis ${daysActive} jour${daysActive > 1 ? 's' : ''} (${q.startDate})</div>` +
+        if (entries.length === 0) return `<div style="font-size:.7rem;color:var(--text-dim)">${t('noDataValidate')}</div>`;
+        return `<div style="font-size:.6rem;color:var(--text-dim);margin-bottom:8px">${t('since')} ${daysActive} ${t('days')} (${q.startDate})</div>` +
           entries.map(o => {
             const total = lt[o.id];
             const display = total % 1 === 0 ? total : total.toFixed(1);
@@ -10203,7 +10945,7 @@ function renderQuestStats() {
       const journalEntries = q.journal?.entries || [];
       if (journalEntries.length === 0) return '';
       return `<div class="quest-weekly-summary">
-        <div class="summary-title">📖 Journal d'evolution</div>
+        <div class="summary-title">📖 ${t('evolutionJournal')}</div>
         ${renderJournalHistory()}
       </div>`;
     })()}
@@ -10213,7 +10955,7 @@ function renderQuestStats() {
       const entries = Object.entries(prs).sort((a, b) => (b[1].date || '').localeCompare(a[1].date || ''));
       if (entries.length === 0) return '';
       return `<div class="quest-weekly-summary">
-        <div class="summary-title">🏆 Records Personnels</div>
+        <div class="summary-title">🏆 ${t('personalRecords')}</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
           ${entries.map(([key, pr]) => {
             const val = typeof pr.value === 'number' && pr.value % 1 !== 0 ? pr.value.toFixed(1) : pr.value;
@@ -10229,12 +10971,12 @@ function renderQuestStats() {
     })()}
 
     <div class="quest-weekly-summary">
-      <div class="summary-title">Recapitulatif</div>
+      <div class="summary-title">${t('summary')}</div>
       <div style="font-size:.7rem;line-height:1.6">
-        Niveau actuel : <strong style="color:var(--gold)">${getRank(q.level).name}</strong> (niv. ${q.level})<br/>
-        XP total accumule : <strong style="color:var(--gold)">${q.totalXp}</strong><br/>
-        Meilleure serie : <strong style="color:var(--gold)">${q.streak} jours</strong><br/>
-        Objectifs en historique : <strong>${q.history.length}</strong>
+        ${t('currentLevel')} : <strong style="color:var(--gold)">${getRank(q.level).name}</strong> (${t('lvl')} ${q.level})<br/>
+        ${t('totalXpAccumulated')} : <strong style="color:var(--gold)">${q.totalXp}</strong><br/>
+        ${t('bestStreak')} : <strong style="color:var(--gold)">${q.streak} ${t('days')}</strong><br/>
+        ${t('objectivesInHistory')} : <strong>${q.history.length}</strong>
       </div>
     </div>
   `;
