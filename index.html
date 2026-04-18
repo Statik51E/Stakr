@@ -1043,6 +1043,28 @@ header button{flex-shrink:0}
 .route-run-btns{display:flex;gap:8px}
 .route-run-btns .route-run-btn{flex:1}
 @keyframes pulse{0%,100%{box-shadow:0 0 4px rgba(46,204,113,.6)}50%{box-shadow:0 0 16px rgba(46,204,113,1)}}
+/* Body tracker */
+.bt-section{margin:16px 0;padding:12px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px}
+.bt-section h4{font-size:.75rem;color:var(--gold);margin:0 0 10px;font-variant:small-caps;letter-spacing:1px}
+.bt-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.bt-input{flex:1;padding:6px 8px;background:var(--wood-dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.75rem;font-family:inherit}
+.bt-input:focus{border-color:var(--gold);outline:none}
+.bt-btn{padding:6px 12px;border:none;border-radius:6px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+.bt-btn-gold{background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06}
+.bt-today-card{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.bt-today-item{flex:1;min-width:70px;padding:6px;background:rgba(196,154,60,.06);border:1px solid var(--border);border-radius:8px;text-align:center}
+.bt-today-val{font-size:.9rem;color:var(--gold);font-weight:700}
+.bt-today-lbl{font-size:.55rem;color:var(--text-dim);margin-top:2px}
+.bt-chart{display:flex;align-items:flex-end;gap:3px;height:80px;margin:8px 0;padding:4px 0}
+.bt-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;height:100%}
+.bt-bar{width:100%;border-radius:3px 3px 0 0;transition:height .3s}
+.bt-bar-lbl{font-size:.45rem;color:var(--text-dim);margin-top:3px;white-space:nowrap}
+.bt-legend{display:flex;gap:12px;justify-content:center;margin-top:4px}
+.bt-legend-item{font-size:.55rem;color:var(--text-dim);display:flex;align-items:center;gap:3px}
+.bt-legend-dot{width:8px;height:8px;border-radius:2px}
+.bt-bmi{text-align:center;padding:8px;background:rgba(196,154,60,.06);border-radius:8px;margin-bottom:8px}
+.bt-bmi-val{font-size:1.2rem;font-weight:700}
+.bt-bmi-lbl{font-size:.6rem;color:var(--text-dim);margin-top:2px}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1734,6 +1756,22 @@ const TRANSLATIONS = {
     disciplineTip: 'Complete au moins <strong>1 quete</strong> par jour pour eviter la penalite.',
     disciplineRestTip: 'Tu peux activer <strong>2 jours de repos/semaine</strong> dans les Parametres.',
     disciplineOath: 'Je m\'engage a me battre aujourd\'hui',
+    // Body tracker
+    btTitle: 'Evolution physique',
+    btHeight: 'Taille',
+    btWeight: 'Poids',
+    btTodayCalories: 'Calories aujourd\'hui',
+    btCalEaten: 'Calories mangees',
+    btEaten: 'Mangees',
+    btBurned: 'Brulees',
+    btBalance: 'Balance',
+    btWeeklyEvolution: 'Evolution de la semaine',
+    btWeightEvolution: 'Evolution du poids',
+    btStable: 'Stable',
+    bmiUnder: 'Insuffisant',
+    bmiNormal: 'Normal',
+    bmiOver: 'Surpoids',
+    bmiObese: 'Obesite',
     // Companion
     companionLabel: 'Compagnon',
     // Misc
@@ -2065,6 +2103,21 @@ const TRANSLATIONS = {
     disciplineTip: 'Complete at least <strong>1 quest</strong> per day to avoid the penalty.',
     disciplineRestTip: 'You can activate <strong>2 rest days/week</strong> in Settings.',
     disciplineOath: 'I pledge to fight today',
+    btTitle: 'Physical evolution',
+    btHeight: 'Height',
+    btWeight: 'Weight',
+    btTodayCalories: 'Today\'s calories',
+    btCalEaten: 'Calories eaten',
+    btEaten: 'Eaten',
+    btBurned: 'Burned',
+    btBalance: 'Balance',
+    btWeeklyEvolution: 'Weekly evolution',
+    btWeightEvolution: 'Weight evolution',
+    btStable: 'Stable',
+    bmiUnder: 'Underweight',
+    bmiNormal: 'Normal',
+    bmiOver: 'Overweight',
+    bmiObese: 'Obese',
     companionLabel: 'Companion',
     ok: 'OK', cancel: 'Cancel', apply: 'Apply', close: 'Close', save: 'Save',
     confirm: 'Confirm', delete: 'Delete', back: 'Back', next: 'Next',
@@ -2381,6 +2434,21 @@ const TRANSLATIONS = {
     disciplineTip: 'Completa al menos <strong>1 misión</strong> por día para evitar la penalización.',
     disciplineRestTip: 'Puedes activar <strong>2 días de descanso/semana</strong> en Ajustes.',
     disciplineOath: 'Me comprometo a luchar hoy',
+    btTitle: 'Evolución física',
+    btHeight: 'Altura',
+    btWeight: 'Peso',
+    btTodayCalories: 'Calorías hoy',
+    btCalEaten: 'Calorías ingeridas',
+    btEaten: 'Ingeridas',
+    btBurned: 'Quemadas',
+    btBalance: 'Balance',
+    btWeeklyEvolution: 'Evolución semanal',
+    btWeightEvolution: 'Evolución del peso',
+    btStable: 'Estable',
+    bmiUnder: 'Bajo peso',
+    bmiNormal: 'Normal',
+    bmiOver: 'Sobrepeso',
+    bmiObese: 'Obesidad',
     companionLabel: 'Compañero',
     ok: 'OK', cancel: 'Cancelar', apply: 'Aplicar', close: 'Cerrar', save: 'Guardar',
     confirm: 'Confirmar', delete: 'Eliminar', back: 'Atrás', next: 'Siguiente',
@@ -2697,6 +2765,21 @@ const TRANSLATIONS = {
     disciplineTip: 'Complete pelo menos <strong>1 missão</strong> por dia para evitar a penalidade.',
     disciplineRestTip: 'Você pode ativar <strong>2 dias de descanso/semana</strong> nas Configurações.',
     disciplineOath: 'Me comprometo a lutar hoje',
+    btTitle: 'Evolução física',
+    btHeight: 'Altura',
+    btWeight: 'Peso',
+    btTodayCalories: 'Calorias hoje',
+    btCalEaten: 'Calorias ingeridas',
+    btEaten: 'Ingeridas',
+    btBurned: 'Queimadas',
+    btBalance: 'Balanço',
+    btWeeklyEvolution: 'Evolução semanal',
+    btWeightEvolution: 'Evolução do peso',
+    btStable: 'Estável',
+    bmiUnder: 'Abaixo do peso',
+    bmiNormal: 'Normal',
+    bmiOver: 'Sobrepeso',
+    bmiObese: 'Obesidade',
     companionLabel: 'Companheiro',
     ok: 'OK', cancel: 'Cancelar', apply: 'Aplicar', close: 'Fechar', save: 'Salvar',
     confirm: 'Confirmar', delete: 'Excluir', back: 'Voltar', next: 'Próximo',
@@ -6667,6 +6750,9 @@ function initQuests() {
   // Personal records
   if (!q.personalRecords) q.personalRecords = {};
 
+  // Body tracker — physical evolution
+  if (!q.bodyTracker) q.bodyTracker = { height: null, weightLog: [], calorieLog: [], burnedLog: [] };
+
   // Rest days (2 per week, disables penalties)
   if (!q.restDays) q.restDays = { enabled: false, weekDays: [], usedThisWeek: 0, weekKey: null, mode: 'all', categories: { quests: true, challenges: true, sessions: true, solo: true } };
   // Migration: add mode + categories for existing saves
@@ -8161,6 +8247,9 @@ function completeWorkoutSession() {
   if (w.history.length > 100) w.history = w.history.slice(-100);
 
   addQuestXp(session.xpReward, 'physique');
+  // Auto-track calories burned
+  const workoutCal = btEstimateWorkoutCalories(session);
+  if (workoutCal > 0) btAddBurnedCalories(workoutCal, session.name);
   showToast(`Seance ${session.name} accomplie !`, `+${session.xpReward} XP — ton corps forge une legende, Viking !`);
   addMessage('stakr', `KRAA ! Tu as termine la seance **${session.icon} ${session.name}** ! +${session.xpReward} XP ! Ton corps se transforme en physique de guerrier — les dieux observent avec fierte. [MOOD:excite]`);
 
@@ -8453,6 +8542,9 @@ function completeCustomSession() {
   if (w.history.length > 100) w.history = w.history.slice(-100);
 
   addQuestXp(session.xpReward, 'physique');
+  // Auto-track calories burned
+  const customCal = btEstimateWorkoutCalories(session);
+  if (customCal > 0) btAddBurnedCalories(customCal, session.name);
   showToast(t('customSessionDone'), `${session.name} — +${session.xpReward} XP`);
   addMessage('stakr', `KRAA ! Tu as termine ta seance **${session.name}** ! +${session.xpReward} XP ! Ton corps forge une legende, Viking ! [MOOD:excite]`);
   w.activeCustomId = null;
@@ -8460,6 +8552,253 @@ function completeCustomSession() {
   saveState();
   renderDailyChallenges();
   renderQuests();
+}
+
+// ===== BODY TRACKER — Physical evolution system =====
+
+function getBodyTracker() {
+  const q = state.quests;
+  if (!q.bodyTracker) q.bodyTracker = { height: null, weightLog: [], calorieLog: [], burnedLog: [] };
+  return q.bodyTracker;
+}
+
+function calcBMI(weightKg, heightCm) {
+  if (!weightKg || !heightCm) return null;
+  const hm = heightCm / 100;
+  return weightKg / (hm * hm);
+}
+
+function getBMICategory(bmi) {
+  if (!bmi) return { label: '--', color: 'var(--text-dim)' };
+  if (bmi < 18.5) return { label: t('bmiUnder'), color: '#3498db' };
+  if (bmi < 25) return { label: t('bmiNormal'), color: '#2ecc71' };
+  if (bmi < 30) return { label: t('bmiOver'), color: '#f39c12' };
+  return { label: t('bmiObese'), color: '#e74c3c' };
+}
+
+function btLogWeight(val) {
+  const bt = getBodyTracker();
+  const w = parseFloat(val);
+  if (isNaN(w) || w < 20 || w > 350) return;
+  const today = getTodayStr();
+  // Replace today's entry if exists
+  const idx = bt.weightLog.findIndex(e => e.date === today);
+  if (idx >= 0) bt.weightLog[idx].value = w;
+  else bt.weightLog.push({ date: today, value: w });
+  // Keep last 90 entries
+  if (bt.weightLog.length > 90) bt.weightLog = bt.weightLog.slice(-90);
+  saveState();
+  refreshBodyTracker();
+}
+
+function btSetHeight(val) {
+  const bt = getBodyTracker();
+  const h = parseFloat(val);
+  if (isNaN(h) || h < 100 || h > 250) return;
+  bt.height = h;
+  saveState();
+  refreshBodyTracker();
+}
+
+function btLogCaloriesEaten(val) {
+  const bt = getBodyTracker();
+  const c = parseInt(val);
+  if (isNaN(c) || c < 0 || c > 15000) return;
+  const today = getTodayStr();
+  const idx = bt.calorieLog.findIndex(e => e.date === today);
+  if (idx >= 0) bt.calorieLog[idx].value = c;
+  else bt.calorieLog.push({ date: today, value: c });
+  if (bt.calorieLog.length > 90) bt.calorieLog = bt.calorieLog.slice(-90);
+  saveState();
+  refreshBodyTracker();
+}
+
+function btAddBurnedCalories(amount, source) {
+  const bt = getBodyTracker();
+  const today = getTodayStr();
+  const idx = bt.burnedLog.findIndex(e => e.date === today);
+  if (idx >= 0) {
+    bt.burnedLog[idx].value += amount;
+    bt.burnedLog[idx].sources.push(source);
+  } else {
+    bt.burnedLog.push({ date: today, value: amount, sources: [source] });
+  }
+  if (bt.burnedLog.length > 90) bt.burnedLog = bt.burnedLog.slice(-90);
+  saveState();
+}
+
+function btGetTodayBurned() {
+  const bt = getBodyTracker();
+  const today = getTodayStr();
+  const entry = bt.burnedLog.find(e => e.date === today);
+  return entry ? entry.value : 0;
+}
+
+function btGetTodayEaten() {
+  const bt = getBodyTracker();
+  const today = getTodayStr();
+  const entry = bt.calorieLog.find(e => e.date === today);
+  return entry ? entry.value : 0;
+}
+
+function btGetLatestWeight() {
+  const bt = getBodyTracker();
+  if (!bt.weightLog.length) return null;
+  return bt.weightLog[bt.weightLog.length - 1].value;
+}
+
+// Calorie estimation for exercises (kcal per rep, rough averages for 70kg person)
+const EXERCISE_KCAL = {
+  pushups: 0.4, pompes: 0.4,
+  squats: 0.5,
+  abs: 0.3, abdos: 0.3, abdominaux: 0.3,
+  burpees: 1.0,
+  lunges: 0.5, fentes: 0.5,
+  plank: 0.15, gainage: 0.15,
+  pullups: 0.8, tractions: 0.8,
+  dips: 0.6,
+  jumping_jacks: 0.3,
+  default: 0.35
+};
+
+function btEstimateWorkoutCalories(session) {
+  let total = 0;
+  (session.exercises || []).forEach(ex => {
+    const name = (ex.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const reps = ex.reps || ex.target || 10;
+    let kcalPerRep = EXERCISE_KCAL.default;
+    for (const [key, val] of Object.entries(EXERCISE_KCAL)) {
+      if (key !== 'default' && name.includes(key)) { kcalPerRep = val; break; }
+    }
+    total += reps * kcalPerRep;
+  });
+  return Math.round(total);
+}
+
+function btGetWeeklyData() {
+  const bt = getBodyTracker();
+  const today = new Date();
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().slice(0, 10);
+    const dayName = d.toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : currentLang === 'es' ? 'es-ES' : currentLang === 'pt' ? 'pt-BR' : 'en-US', { weekday: 'short' });
+    const weight = bt.weightLog.find(e => e.date === dateStr);
+    const eaten = bt.calorieLog.find(e => e.date === dateStr);
+    const burned = bt.burnedLog.find(e => e.date === dateStr);
+    days.push({
+      date: dateStr,
+      day: dayName,
+      weight: weight ? weight.value : null,
+      eaten: eaten ? eaten.value : 0,
+      burned: burned ? burned.value : 0
+    });
+  }
+  return days;
+}
+
+function renderBodyTrackerSection() {
+  const bt = getBodyTracker();
+  const today = getTodayStr();
+  const latestWeight = btGetLatestWeight();
+  const bmi = calcBMI(latestWeight, bt.height);
+  const bmiCat = getBMICategory(bmi);
+  const todayEaten = btGetTodayEaten();
+  const todayBurned = btGetTodayBurned();
+  const weekData = btGetWeeklyData();
+
+  // Weight trend (last 7 days that have data)
+  const recentWeights = bt.weightLog.slice(-7);
+  let weightTrend = '';
+  if (recentWeights.length >= 2) {
+    const diff = recentWeights[recentWeights.length - 1].value - recentWeights[0].value;
+    if (diff > 0) weightTrend = `<span style="color:#e74c3c;font-size:.6rem">▲ +${diff.toFixed(1)} kg</span>`;
+    else if (diff < 0) weightTrend = `<span style="color:#2ecc71;font-size:.6rem">▼ ${diff.toFixed(1)} kg</span>`;
+    else weightTrend = `<span style="color:var(--text-dim);font-size:.6rem">= ${t('btStable')}</span>`;
+  }
+
+  let html = `<div class="bt-section">`;
+  html += `<h4>📊 ${t('btTitle')}</h4>`;
+
+  // Height + Weight inputs
+  html += `<div class="bt-row">
+    <input type="number" class="bt-input" id="bt-height" placeholder="${t('btHeight')} (cm)" value="${bt.height || ''}" min="100" max="250" style="max-width:120px" />
+    <input type="number" class="bt-input" id="bt-weight" placeholder="${t('btWeight')} (kg)" value="${latestWeight || ''}" min="20" max="350" step="0.1" />
+    <button class="bt-btn bt-btn-gold" onclick="btSetHeight(document.getElementById('bt-height').value);btLogWeight(document.getElementById('bt-weight').value)">✓</button>
+  </div>`;
+
+  // BMI display
+  if (bmi) {
+    html += `<div class="bt-bmi">
+      <div class="bt-bmi-val" style="color:${bmiCat.color}">${bmi.toFixed(1)}</div>
+      <div class="bt-bmi-lbl">IMC — ${bmiCat.label} ${weightTrend}</div>
+    </div>`;
+  }
+
+  // Today's calories
+  html += `<div style="font-size:.65rem;color:var(--gold);font-weight:600;margin:10px 0 6px">${t('btTodayCalories')}</div>`;
+  html += `<div class="bt-row">
+    <input type="number" class="bt-input" id="bt-cal-eaten" placeholder="${t('btCalEaten')} (kcal)" value="${todayEaten || ''}" min="0" max="15000" />
+    <button class="bt-btn bt-btn-gold" onclick="btLogCaloriesEaten(document.getElementById('bt-cal-eaten').value)">✓</button>
+  </div>`;
+
+  const balance = todayEaten - todayBurned;
+  const balColor = balance > 0 ? '#f39c12' : balance < 0 ? '#2ecc71' : 'var(--text-dim)';
+  html += `<div class="bt-today-card">
+    <div class="bt-today-item"><div class="bt-today-val">${todayEaten}</div><div class="bt-today-lbl">🍽 ${t('btEaten')}</div></div>
+    <div class="bt-today-item"><div class="bt-today-val">${todayBurned}</div><div class="bt-today-lbl">🔥 ${t('btBurned')}</div></div>
+    <div class="bt-today-item"><div class="bt-today-val" style="color:${balColor}">${balance > 0 ? '+' : ''}${balance}</div><div class="bt-today-lbl">⚖ ${t('btBalance')}</div></div>
+  </div>`;
+
+  // Weekly evolution chart
+  html += `<div style="font-size:.65rem;color:var(--gold);font-weight:600;margin:10px 0 6px">${t('btWeeklyEvolution')}</div>`;
+  const maxCal = Math.max(1, ...weekData.map(d => Math.max(d.eaten, d.burned)));
+  html += `<div class="bt-chart">`;
+  weekData.forEach(d => {
+    const eatenH = Math.round((d.eaten / maxCal) * 70);
+    const burnedH = Math.round((d.burned / maxCal) * 70);
+    const isToday = d.date === today;
+    html += `<div class="bt-bar-wrap">
+      <div style="display:flex;gap:1px;align-items:flex-end;height:100%;width:100%">
+        <div class="bt-bar" style="flex:1;height:${eatenH}px;background:${isToday ? '#f39c12' : 'rgba(243,156,18,.4)'}"></div>
+        <div class="bt-bar" style="flex:1;height:${burnedH}px;background:${isToday ? '#2ecc71' : 'rgba(46,204,113,.4)'}"></div>
+      </div>
+      <div class="bt-bar-lbl" style="${isToday ? 'color:var(--gold);font-weight:700' : ''}">${d.day}</div>
+    </div>`;
+  });
+  html += `</div>`;
+  html += `<div class="bt-legend">
+    <div class="bt-legend-item"><div class="bt-legend-dot" style="background:#f39c12"></div> ${t('btEaten')}</div>
+    <div class="bt-legend-item"><div class="bt-legend-dot" style="background:#2ecc71"></div> ${t('btBurned')}</div>
+  </div>`;
+
+  // Weight evolution (last 7 entries)
+  if (recentWeights.length >= 2) {
+    const maxW = Math.max(...recentWeights.map(e => e.value));
+    const minW = Math.min(...recentWeights.map(e => e.value));
+    const range = Math.max(0.5, maxW - minW);
+    html += `<div style="font-size:.65rem;color:var(--gold);font-weight:600;margin:14px 0 6px">${t('btWeightEvolution')}</div>`;
+    html += `<div style="display:flex;align-items:flex-end;gap:3px;height:60px">`;
+    recentWeights.forEach((e, i) => {
+      const h = Math.max(8, Math.round(((e.value - minW + 0.1) / (range + 0.2)) * 55));
+      const isLast = i === recentWeights.length - 1;
+      html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+        <div style="font-size:.5rem;color:${isLast ? 'var(--gold)' : 'var(--text-dim)'};margin-bottom:2px">${e.value}</div>
+        <div style="width:100%;height:${h}px;background:${isLast ? 'var(--gold)' : 'rgba(196,154,60,.3)'};border-radius:3px 3px 0 0"></div>
+        <div style="font-size:.4rem;color:var(--text-dim);margin-top:2px">${e.date.slice(5)}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function refreshBodyTracker() {
+  const container = document.getElementById('body-tracker-section');
+  if (container) container.innerHTML = renderBodyTrackerSection();
 }
 
 // ===== ROUTE PLANNER — Loop running route generator =====
@@ -8968,6 +9307,9 @@ function stopRunTracking() {
   const distKm = rt.distanceCovered / 1000;
   const cal = Math.round(distKm * 60);
 
+  // Auto-track calories burned from running
+  if (cal > 0) btAddBurnedCalories(cal, 'Course');
+
   rt.active = false;
   rt.paused = false;
 
@@ -9189,6 +9531,9 @@ function logSoloProgress(key) {
       ts: Date.now(), date: getTodayStr(), key: '_dayBonus', value: 1,
       gains: { ...SOLO_DAY_COMPLETE_BONUS }
     });
+    // Auto-track calories burned from solo leveling
+    const soloCal = Math.round(sl.pushups * 0.4 + sl.squats * 0.5 + sl.abs * 0.3 + sl.km * 60);
+    if (soloCal > 0) btAddBurnedCalories(soloCal, 'Solo Leveling');
     showToast('Solo Leveling accompli !', `Semaine ${sl.currentWeek} — +${soloXpReward} XP, +${SOLO_DAY_COMPLETE_BONUS.per} PER`);
     addMessage('stakr', `KRAA ! Tu as accompli ton quota Solo Leveling du jour ! Semaine ${sl.currentWeek} domptée. **+${soloXpReward} XP** ! Le Systeme t'octroie aussi **+${SOLO_DAY_COMPLETE_BONUS.per} Perception** et un bonus sur toutes les stats. [MOOD:excite]`);
   }
@@ -15479,6 +15824,8 @@ async function openPlayerProfile(uid) {
         <div style="font-size:.65rem;color:var(--gold);font-weight:700;margin:16px 0 6px;font-variant:small-caps;letter-spacing:1px">🏆 ${t('epicTitles')}</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center">${(profile.epicTitles || []).map(ti => `<span class="spec-badge">🏆 ${ti}</span>`).join('')}</div>
       ` : ''}
+
+      ${isMe ? `<div id="body-tracker-section">${renderBodyTrackerSection()}</div>` : ''}
 
       ${profile.companion ? `<div style="text-align:center;margin:14px 0 6px;font-size:.7rem;color:var(--text-dim)">${t('companionLabel')} : ${companionEmoji} ${companionData ? companionData.name : profile.companion}</div>` : ''}
 
