@@ -1625,6 +1625,17 @@ const TRANSLATIONS = {
     yes: 'Oui', no: 'Non',
     // Broadcast
     jarlAnnouncement: 'Annonce du Jarl',
+    // Default objective names
+    obj_pushups: 'Pompes', obj_walk: 'Marche', obj_meditation: 'Meditation',
+    obj_phonefree: 'Deconnexion', obj_reading: 'Lecture', obj_water: 'Hydratation',
+    obj_sleep: 'Sommeil', obj_stretching: 'Etirements', obj_gratitude: 'Gratitude',
+    obj_sport: 'Sport intense', obj_healthy_meal: 'Repas sain', obj_nature: 'Sortie nature',
+    obj_social: 'Moment social', obj_cold_shower: 'Douche froide', obj_no_junk: 'Zero malbouffe',
+    // Default objective units
+    unit_pompes: 'pompes', unit_km: 'km', unit_min: 'min', unit_min_sans_tel: 'min sans tel',
+    unit_litres: 'litres', unit_heures: 'heures', unit_choses: 'choses',
+    unit_seance: 'seance', unit_repas: 'repas', unit_sortie: 'sortie',
+    unit_moment: 'moment', unit_douche: 'douche', unit_jours: 'jours',
     // Workout sessions
     body: 'Corps', mind: 'Esprit', wisdom: 'Sagesse',
     sessionDoneToday: 'Seance accomplie aujourd\'hui',
@@ -1895,6 +1906,15 @@ const TRANSLATIONS = {
     confirm: 'Confirm', delete: 'Delete', back: 'Back', next: 'Next',
     yes: 'Yes', no: 'No',
     jarlAnnouncement: "Jarl's Announcement",
+    obj_pushups: 'Push-ups', obj_walk: 'Walking', obj_meditation: 'Meditation',
+    obj_phonefree: 'Screen-free', obj_reading: 'Reading', obj_water: 'Hydration',
+    obj_sleep: 'Sleep', obj_stretching: 'Stretching', obj_gratitude: 'Gratitude',
+    obj_sport: 'Intense sport', obj_healthy_meal: 'Healthy meal', obj_nature: 'Nature outing',
+    obj_social: 'Social moment', obj_cold_shower: 'Cold shower', obj_no_junk: 'Zero junk food',
+    unit_pompes: 'push-ups', unit_km: 'km', unit_min: 'min', unit_min_sans_tel: 'min screen-free',
+    unit_litres: 'liters', unit_heures: 'hours', unit_choses: 'things',
+    unit_seance: 'session', unit_repas: 'meals', unit_sortie: 'outing',
+    unit_moment: 'moment', unit_douche: 'shower', unit_jours: 'days',
     body: 'Body', mind: 'Mind', wisdom: 'Wisdom',
     sessionDoneToday: 'Session completed today',
     sessionDoneMsg: 'The gods are proud, Viking. Come back tomorrow to forge your body further. Muscles grow during rest — sleep well and eat protein.',
@@ -2155,6 +2175,15 @@ const TRANSLATIONS = {
     confirm: 'Confirmar', delete: 'Eliminar', back: 'Atrás', next: 'Siguiente',
     yes: 'Sí', no: 'No',
     jarlAnnouncement: 'Anuncio del Jarl',
+    obj_pushups: 'Flexiones', obj_walk: 'Caminata', obj_meditation: 'Meditación',
+    obj_phonefree: 'Desconexión', obj_reading: 'Lectura', obj_water: 'Hidratación',
+    obj_sleep: 'Sueño', obj_stretching: 'Estiramientos', obj_gratitude: 'Gratitud',
+    obj_sport: 'Deporte intenso', obj_healthy_meal: 'Comida sana', obj_nature: 'Salida naturaleza',
+    obj_social: 'Momento social', obj_cold_shower: 'Ducha fría', obj_no_junk: 'Cero comida basura',
+    unit_pompes: 'flexiones', unit_km: 'km', unit_min: 'min', unit_min_sans_tel: 'min sin móvil',
+    unit_litres: 'litros', unit_heures: 'horas', unit_choses: 'cosas',
+    unit_seance: 'sesión', unit_repas: 'comidas', unit_sortie: 'salida',
+    unit_moment: 'momento', unit_douche: 'ducha', unit_jours: 'días',
     body: 'Cuerpo', mind: 'Mente', wisdom: 'Sabiduría',
     sessionDoneToday: 'Sesión completada hoy',
     sessionDoneMsg: 'Los dioses están orgullosos, Viking. Vuelve mañana para forjar aún más tu cuerpo. Los músculos crecen durante el descanso — duerme bien y come proteína.',
@@ -2415,6 +2444,15 @@ const TRANSLATIONS = {
     confirm: 'Confirmar', delete: 'Excluir', back: 'Voltar', next: 'Próximo',
     yes: 'Sim', no: 'Não',
     jarlAnnouncement: 'Anúncio do Jarl',
+    obj_pushups: 'Flexões', obj_walk: 'Caminhada', obj_meditation: 'Meditação',
+    obj_phonefree: 'Desconexão', obj_reading: 'Leitura', obj_water: 'Hidratação',
+    obj_sleep: 'Sono', obj_stretching: 'Alongamentos', obj_gratitude: 'Gratidão',
+    obj_sport: 'Esporte intenso', obj_healthy_meal: 'Refeição saudável', obj_nature: 'Saída natureza',
+    obj_social: 'Momento social', obj_cold_shower: 'Banho frio', obj_no_junk: 'Zero besteira',
+    unit_pompes: 'flexões', unit_km: 'km', unit_min: 'min', unit_min_sans_tel: 'min sem celular',
+    unit_litres: 'litros', unit_heures: 'horas', unit_choses: 'coisas',
+    unit_seance: 'sessão', unit_repas: 'refeições', unit_sortie: 'saída',
+    unit_moment: 'momento', unit_douche: 'banho', unit_jours: 'dias',
     body: 'Corpo', mind: 'Mente', wisdom: 'Sabedoria',
     sessionDoneToday: 'Sessão completada hoje',
     sessionDoneMsg: 'Os deuses estão orgulhosos, Viking. Volte amanhã para forjar ainda mais seu corpo. Os músculos crescem durante o descanso — durma bem e coma proteína.',
@@ -2583,6 +2621,11 @@ function t(key) {
 function getLocale() {
   return { fr: 'fr-FR', en: 'en-US', es: 'es-ES', pt: 'pt-BR' }[currentLang] || 'fr-FR';
 }
+
+// Translate objective name/unit by ID (falls back to stored name if no translation)
+const UNIT_MAP = { 'pompes':'unit_pompes','km':'unit_km','min':'unit_min','min sans tel':'unit_min_sans_tel','litres':'unit_litres','heures':'unit_heures','choses':'unit_choses','seance':'unit_seance','repas':'unit_repas','sortie':'unit_sortie','moment':'unit_moment','douche':'unit_douche','jours':'unit_jours' };
+function tName(o) { return t('obj_' + o.id) !== 'obj_' + o.id ? t('obj_' + o.id) : o.name; }
+function tUnit(o) { return UNIT_MAP[o.unit] ? t(UNIT_MAP[o.unit]) : o.unit; }
 
 function setLanguage(lang) {
   if (!TRANSLATIONS[lang]) return;
@@ -7782,24 +7825,24 @@ function renderQuestList(period) {
         <div class="quest-item ${isDouble ? 'completed double' : isComplete ? 'completed' : ''}">
           <div class="quest-item-header">
             <span class="quest-item-icon">${o.icon}</span>
-            <span class="quest-item-name">${o.name}${eTierBadge}${trialBadge}</span>
+            <span class="quest-item-name">${tName(o)}${eTierBadge}${trialBadge}</span>
             <span class="quest-item-xp">${isDouble ? '⚡x2' : isComplete ? '&#10003;' : ''} +${o.xpReward} XP</span>
             ${o.custom ? `<button onclick="deleteCustomQuest('${o.id}')" style="background:none;border:none;color:#c0392b;font-size:.8rem;cursor:pointer;padding:2px 4px;margin-left:4px" title="Supprimer">✕</button>` : ''}
           </div>
           <div class="quest-item-progress">
             <div class="quest-progress-bar"><div class="quest-progress-fill ${fillClass}" style="width:${pct}%"></div></div>
-            <span class="quest-progress-text">${o.progress}/${o.target} ${o.unit}</span>
+            <span class="quest-progress-text">${o.progress}/${o.target} ${tUnit(o)}</span>
           </div>
           ${isComplete && !isDouble ? `<div class="quest-item-progress" style="margin-top:3px">
             <div class="quest-progress-bar" style="background:rgba(212,175,55,.1)"><div class="quest-progress-fill" style="width:${doublePct}%;background:linear-gradient(90deg,var(--gold-dim),var(--gold))"></div></div>
             <span class="quest-progress-text" style="color:var(--gold-dim);font-size:.55rem">⚡ x2 : ${o.progress}/${o.target * 2}</span>
           </div>` : ''}
           ${isDouble ? `<div style="font-size:.6rem;color:var(--gold);margin-top:2px;font-weight:700">⚡ ${t('doubleBonus')}</div>` : ''}
-          ${lifetime > 0 ? `<div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">Total : <strong style="color:var(--gold-dim)">${ltDisplay}</strong> ${o.unit} ${t('totalSince')}</div>` : ''}
+          ${lifetime > 0 ? `<div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">Total : <strong style="color:var(--gold-dim)">${ltDisplay}</strong> ${tUnit(o)} ${t('totalSince')}</div>` : ''}
           ${isDouble ? '' : `
           <div class="quest-item-input">
             <input type="number" id="qi-${o.id}" min="0" step="any" placeholder="0" />
-            <span class="unit">${o.unit}</span>
+            <span class="unit">${tUnit(o)}</span>
             <button onclick="logQuestProgress('${o.id}')">${t('validate')}</button>
           </div>`}
         </div>`;
@@ -8119,10 +8162,10 @@ function renderQuestEvolution() {
       html += `<div class="quest-evolve-card" style="border-color:#ffa726;background:rgba(255,167,38,.06)">
         <div class="evolve-header">
           <span class="evolve-icon">${o.icon}</span>
-          <span class="evolve-name">${o.name}</span>
+          <span class="evolve-name">${tName(o)}</span>
           <span class="evolve-tier evolve-tier-${tier}">${EVOLVE_TIER_NAMES[tier]}</span>
         </div>
-        <div class="evolve-detail">${t('objectiveLabel')} : <strong>${o.target} ${o.unit}</strong> (${t('before')} : ${trial.prevTarget} ${o.unit})</div>
+        <div class="evolve-detail">${t('objectiveLabel')} : <strong>${o.target} ${tUnit(o)}</strong> (${t('before')} : ${trial.prevTarget} ${tUnit(o)})</div>
         <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
           <div style="flex:1;height:8px;background:rgba(255,167,38,.15);border-radius:4px;overflow:hidden">
             <div style="width:${pctTrial}%;height:100%;background:linear-gradient(90deg,#ff9800,#ffa726);border-radius:4px;transition:width .3s"></div>
@@ -8194,7 +8237,7 @@ function renderQuestEvolution() {
         html += `<div class="quest-evolve-card ${isSelected ? 'selected' : ''}" onclick="${canSelect ? `_evolveSelected['${o.id}']=!_evolveSelected['${o.id}'];renderQuestEvolution()` : ''}" style="${canSelect ? 'cursor:pointer' : 'opacity:.6'}">
           <div class="evolve-header">
             <span class="evolve-icon">${o.icon}</span>
-            <span class="evolve-name">${o.name}</span>
+            <span class="evolve-name">${tName(o)}</span>
             <span class="evolve-tier ${tier > 0 ? `evolve-tier-${tier}` : ''}" style="${tier === 0 ? 'background:var(--wood-mid);color:var(--text-dim)' : ''}">${EVOLVE_TIER_NAMES[tier]}</span>
             ${isSelected ? '<span style="font-size:1rem">✓</span>' : ''}
           </div>
@@ -8218,7 +8261,7 @@ function renderQuestEvolution() {
       html += `<div class="quest-evolve-card" style="opacity:.7;border-color:var(--gold-dim)">
         <div class="evolve-header">
           <span class="evolve-icon">${o.icon}</span>
-          <span class="evolve-name">${o.name}</span>
+          <span class="evolve-name">${tName(o)}</span>
           <span class="evolve-tier evolve-tier-5">${EVOLVE_TIER_NAMES[5]}</span>
         </div>
         <div class="evolve-detail" style="color:var(--gold)">Objectif : ${o.target} ${o.unit} | +${o.xpReward} XP</div>
