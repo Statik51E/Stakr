@@ -8948,23 +8948,21 @@ function placeStartMarker(lat, lng) {
 }
 
 function generateLoopWaypoints(lat, lng, distKm, scaleFactor) {
-  // Generate waypoints in a rough loop around start point
-  // Roads are typically 40-60% longer than straight-line distance
-  // Use a conservative factor that undershoots slightly (better short than long)
+  // Generate waypoints in a clean loop (no crossing)
+  // Place points at cardinal + intercardinal directions for a natural shape
   const factor = scaleFactor || 0.38;
   const radiusKm = (distKm / (2 * Math.PI)) * factor;
-  const numPoints = distKm < 3 ? 4 : distKm < 10 ? 6 : 8;
+  // Fewer points = simpler loop = less chance of crossing
+  const numPoints = distKm < 3 ? 3 : distKm < 8 ? 4 : 5;
   const waypoints = [];
 
-  // Random rotation offset so routes vary
+  // Random rotation offset so routes vary between generations
   const rotOffset = Math.random() * 2 * Math.PI;
-  // Slight randomness in radius per point for organic shape
+  // Uniform radius — no random variation to prevent route crossing
   for (let i = 0; i < numPoints; i++) {
     const angle = rotOffset + (2 * Math.PI * i) / numPoints;
-    const rFactor = 0.85 + Math.random() * 0.3; // 0.85 to 1.15
-    const rKm = radiusKm * rFactor;
-    const dLat = (rKm / 111.32) * Math.cos(angle);
-    const dLng = (rKm / (111.32 * Math.cos(lat * Math.PI / 180))) * Math.sin(angle);
+    const dLat = (radiusKm / 111.32) * Math.cos(angle);
+    const dLng = (radiusKm / (111.32 * Math.cos(lat * Math.PI / 180))) * Math.sin(angle);
     waypoints.push([lat + dLat, lng + dLng]);
   }
 
@@ -9020,18 +9018,18 @@ async function fetchRoute(lat, lng, distKm, attempt, scaleFactor) {
   scaleFactor = scaleFactor || 0.38;
   const waypoints = generateLoopWaypoints(lat, lng, distKm, scaleFactor);
 
-  // Build OSRM request: start → waypoints → start (loop)
-  const coords = [[lng, lat], ...waypoints.map(w => [w[1], w[0]]), [lng, lat]];
+  // Use OSRM trip endpoint — solves round-trip optimization (no crossing)
+  const coords = [[lng, lat], ...waypoints.map(w => [w[1], w[0]])];
   const coordStr = coords.map(c => c.join(',')).join(';');
-  const url = `https://router.project-osrm.org/route/v1/foot/${coordStr}?overview=full&geometries=geojson&steps=false`;
+  const url = `https://router.project-osrm.org/trip/v1/foot/${coordStr}?overview=full&geometries=geojson&source=first&destination=last&roundtrip=true`;
 
   const resp = await fetch(url);
   if (!resp.ok) throw new Error('OSRM error');
   const data = await resp.json();
 
-  if (!data.routes || data.routes.length === 0) throw new Error('No route');
+  if (!data.trips || data.trips.length === 0) throw new Error('No route');
 
-  const route = data.routes[0];
+  const route = data.trips[0];
   const geojson = route.geometry;
   const distanceKm = route.distance / 1000;
   const durationMin = route.duration / 60;
@@ -9087,20 +9085,35 @@ async function fetchRoute(lat, lng, distKm, attempt, scaleFactor) {
 }
 
 function addRouteArrows(coordinates) {
-  // Add small direction arrows along the route
-  const step = Math.max(1, Math.floor(coordinates.length / 12));
-  for (let i = step; i < coordinates.length - 1; i += step) {
+  // Add direction arrows along the route — bigger and clearer
+  const numArrows = 10;
+  const step = Math.max(1, Math.floor(coordinates.length / numArrows));
+  for (let i = step; i < coordinates.length - step; i += step) {
     const curr = coordinates[i];
-    const next = coordinates[Math.min(i + 1, coordinates.length - 1)];
-    const angle = Math.atan2(next[1] - curr[1], next[0] - curr[0]) * 180 / Math.PI;
+    // Average direction over a few points for smoother angle
+    const lookAhead = Math.min(i + Math.max(3, Math.floor(step / 3)), coordinates.length - 1);
+    const next = coordinates[lookAhead];
+    const angle = Math.atan2(next[0] - curr[0], next[1] - curr[1]) * 180 / Math.PI;
     const icon = L.divIcon({
-      html: `<div style="transform:rotate(${angle - 90}deg);color:#c49a3c;font-size:12px;text-shadow:0 0 3px rgba(0,0,0,.8)">▲</div>`,
-      iconSize: [12, 12],
-      iconAnchor: [6, 6],
+      html: `<div style="transform:rotate(${angle}deg);color:#c49a3c;font-size:16px;font-weight:bold;text-shadow:0 0 4px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.5)">➤</div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
       className: ''
     });
     const arrow = L.marker([curr[1], curr[0]], { icon, interactive: false }).addTo(routeMap);
     routeArrows.push(arrow);
+  }
+
+  // Add START label at first coordinate
+  if (coordinates.length > 0) {
+    const startIcon = L.divIcon({
+      html: `<div style="background:#c49a3c;color:#0e0a06;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.5)">START</div>`,
+      iconSize: [40, 18],
+      iconAnchor: [20, 24],
+      className: ''
+    });
+    const startLabel = L.marker([coordinates[0][1], coordinates[0][0]], { icon: startIcon, interactive: false, zIndexOffset: 500 }).addTo(routeMap);
+    routeArrows.push(startLabel);
   }
 }
 
