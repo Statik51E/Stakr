@@ -1003,7 +1003,31 @@ header button{flex-shrink:0}
 #reward-particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;overflow:hidden}
 .gold-particle{position:absolute;top:-10px;width:8px;height:8px;background:var(--gold);border-radius:50%;animation:goldRain linear forwards;box-shadow:0 0 6px rgba(196,154,60,.6)}
 .flame-particle{position:absolute;width:12px;height:12px;border-radius:50%;animation:flameBurst .6s ease-out forwards;pointer-events:none}
+/* ===== ROUTE PLANNER ===== */
+.route-planner{padding:12px}
+.route-planner h3{font-size:.9rem;color:var(--gold);margin:0 0 10px;font-variant:small-caps}
+.route-map-container{width:100%;height:300px;border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-bottom:12px;position:relative;background:#1a1a2e}
+.route-map-container .leaflet-container{width:100%;height:100%;background:#1a1a2e}
+.route-controls{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.route-distance-row{display:flex;align-items:center;gap:10px}
+.route-distance-row label{font-size:.75rem;color:var(--text);white-space:nowrap}
+.route-distance-row input[type="range"]{flex:1;accent-color:var(--gold)}
+.route-distance-val{font-size:.85rem;color:var(--gold);font-weight:700;min-width:50px;text-align:center}
+.route-btn{padding:10px 16px;border:none;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.route-btn-primary{background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06}
+.route-btn-secondary{background:none;border:1px solid var(--border);color:var(--text)}
+.route-btn:disabled{opacity:.4;cursor:not-allowed}
+.route-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.route-stat{flex:1;min-width:80px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center}
+.route-stat-val{font-size:1rem;color:var(--gold);font-weight:700}
+.route-stat-lbl{font-size:.6rem;color:var(--text-dim);margin-top:2px}
+.route-loading{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px;color:var(--text-dim);font-size:.75rem}
+.route-loading::before{content:'';width:16px;height:16px;border:2px solid var(--gold-dim);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.route-error{background:rgba(229,115,115,.1);border:1px solid rgba(229,115,115,.3);border-radius:8px;padding:10px;font-size:.75rem;color:#e57373;text-align:center;margin-bottom:12px}
 </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 
@@ -1191,7 +1215,7 @@ header button{flex-shrink:0}
   </div>
   <div class="setting-group">
     <label>🛌 <span data-i18n="restDays">Jours de repos (2/semaine)</span></label>
-    <div style="font-size:.65rem;color:var(--text-dim);margin-bottom:6px" data-i18n="restDaysDesc" data-i18n-html="1">Active un jour de repos pour desactiver <strong>toutes</strong> les penalites (quetes, defis, seances, solo leveling). Maximum 2 par semaine.</div>
+    <div style="font-size:.65rem;color:var(--text-dim);margin-bottom:6px" data-i18n="restDaysDesc" data-i18n-html="1">Active un jour de repos pour desactiver les penalites. Choisis entre <strong>toutes les penalites</strong> ou <strong>par categorie</strong> (quetes, defis, seances, solo leveling). Maximum 2 par semaine.</div>
     <div id="rest-day-status"></div>
   </div>
   <div class="setting-group">
@@ -1565,7 +1589,7 @@ const TRANSLATIONS = {
     copy: 'Copier', sendTestNotif: 'Envoyer une notification test',
     soundsVibrations: 'Sons & vibrations', sounds: 'Sons', vibrations: 'Vibrations',
     restDays: 'Jours de repos (2/semaine)',
-    restDaysDesc: 'Active un jour de repos pour desactiver <strong>toutes</strong> les penalites (quetes, defis, seances, solo leveling). Maximum 2 par semaine.',
+    restDaysDesc: 'Active un jour de repos pour desactiver les penalites. Choisis entre <strong>toutes les penalites</strong> ou <strong>par categorie</strong> (quetes, defis, seances, solo leveling). Maximum 2 par semaine.',
     memory: 'Mémoire', clearMemory: 'Effacer la mémoire',
     exportBackup: 'Exporter sauvegarde (JSON)', importBackup: 'Importer sauvegarde',
     adminPanel: "Panneau d'administration",
@@ -1619,6 +1643,17 @@ const TRANSLATIONS = {
     challengeDone: 'Defi accompli — Les dieux sont fiers',
     noChallenges: 'Aucun defi disponible.',
     sessions: 'Seances', succeeded: 'Reussis', xpEarned: 'XP gagne',
+    // Route planner
+    routePlanner: 'Itineraire',
+    routePlannerTitle: 'Itineraire de course',
+    routePlannerDesc: 'Genere un parcours en boucle autour de ta position. Choisis la distance et lance la generation !',
+    routeDistance: 'Distance',
+    routeGenerate: 'Generer un itineraire',
+    routeRegenerate: 'Nouveau trace',
+    routeLoading: 'Calcul de l\'itineraire...',
+    routeNoGeo: 'La geolocalisation n\'est pas disponible sur ton appareil.',
+    routeGeoError: 'Impossible d\'obtenir ta position. Autorise la geolocalisation.',
+    routeError: 'Erreur lors du calcul de l\'itineraire. Reessaie.',
     // Solo Leveling
     soloTitle: 'Solo Leveling', systemWatches: 'Le Systeme t\'observe',
     soloDesc: 'Inspire de Solo Leveling. Chaque jour : pompes, squats, abdos, et course. Les quotas augmentent chaque semaine.',
@@ -1650,6 +1685,29 @@ const TRANSLATIONS = {
     // Rest days
     restDayActive: 'Jour de repos actif', restDayActivate: 'Activer jour de repos',
     restDayDeactivate: 'Desactiver', restDayUsed: 'utilise(s) cette semaine',
+    restDayNormal: 'Jour normal (penalites actives)',
+    restDayAlreadyActive: 'Aujourd\'hui est deja un jour de repos.',
+    restDayLimitReached: 'Limite atteinte',
+    restDayLimitMsg: 'Tu as deja utilise tes {max} jours de repos cette semaine.',
+    restDayActivated: 'Jour de repos active !',
+    restDayActivatedMsg: 'Le guerrier aussi doit se reposer. Aujourd\'hui est un **jour de repos** ({mode}). Il te reste **{remaining} jour(s) de repos** cette semaine. Recupere bien, Viking.',
+    restDayCancelled: 'Repos annule',
+    restDayCancelledMsg: 'Les penalites sont de retour aujourd\'hui.',
+    restDayModeAll: 'Toutes les penalites',
+    restDayModeCustom: 'Par categorie',
+    restCatQuests: 'Quetes',
+    restCatChallenges: 'Defis',
+    restCatSessions: 'Seances',
+    restCatSolo: 'Solo Leveling',
+    // Discipline popup
+    disciplineTitle: 'Discipline Viking',
+    disciplineDays: '{days} jour(s) d\'inactivite',
+    disciplineLevel: 'Niveau {level} — {rank} ({xp}/{needed} XP)',
+    disciplineMsg1: 'Chaque jour sans quete completee te <strong>coute de l\'XP</strong>. Plus tu es inactif, plus la penalite augmente.',
+    disciplineMsg2: 'Tu peux meme <strong>perdre des niveaux</strong>. Les dieux ne respectent que ceux qui se battent chaque jour.',
+    disciplineTip: 'Complete au moins <strong>1 quete</strong> par jour pour eviter la penalite.',
+    disciplineRestTip: 'Tu peux activer <strong>2 jours de repos/semaine</strong> dans les Parametres.',
+    disciplineOath: 'Je m\'engage a me battre aujourd\'hui',
     // Companion
     companionLabel: 'Compagnon',
     // Misc
@@ -1868,7 +1926,7 @@ const TRANSLATIONS = {
     copy: 'Copy', sendTestNotif: 'Send test notification',
     soundsVibrations: 'Sounds & vibrations', sounds: 'Sounds', vibrations: 'Vibrations',
     restDays: 'Rest days (2/week)',
-    restDaysDesc: 'Activate a rest day to disable <strong>all</strong> penalties (quests, challenges, sessions, solo leveling). Maximum 2 per week.',
+    restDaysDesc: 'Activate a rest day to disable penalties. Choose between <strong>all penalties</strong> or <strong>by category</strong> (quests, challenges, sessions, solo leveling). Maximum 2 per week.',
     memory: 'Memory', clearMemory: 'Clear memory',
     exportBackup: 'Export backup (JSON)', importBackup: 'Import backup',
     adminPanel: 'Admin panel',
@@ -1917,6 +1975,16 @@ const TRANSLATIONS = {
     challengeDone: 'Challenge completed — The gods are proud',
     noChallenges: 'No challenges available.',
     sessions: 'Sessions', succeeded: 'Succeeded', xpEarned: 'XP earned',
+    routePlanner: 'Route',
+    routePlannerTitle: 'Running Route',
+    routePlannerDesc: 'Generate a loop route around your position. Choose the distance and hit generate!',
+    routeDistance: 'Distance',
+    routeGenerate: 'Generate route',
+    routeRegenerate: 'New route',
+    routeLoading: 'Calculating route...',
+    routeNoGeo: 'Geolocation is not available on your device.',
+    routeGeoError: 'Unable to get your position. Please allow geolocation.',
+    routeError: 'Error calculating route. Please try again.',
     soloTitle: 'Solo Leveling', systemWatches: 'The System watches you',
     soloDesc: 'Inspired by Solo Leveling. Every day: push-ups, squats, abs, and running. Quotas increase each week.',
     soloFailWarning: 'The System does not tolerate weakness.',
@@ -1941,6 +2009,28 @@ const TRANSLATIONS = {
     customizeTitle: 'Customize',
     restDayActive: 'Rest day active', restDayActivate: 'Activate rest day',
     restDayDeactivate: 'Deactivate', restDayUsed: 'used this week',
+    restDayNormal: 'Normal day (penalties active)',
+    restDayAlreadyActive: 'Today is already a rest day.',
+    restDayLimitReached: 'Limit reached',
+    restDayLimitMsg: 'You have already used your {max} rest days this week.',
+    restDayActivated: 'Rest day activated!',
+    restDayActivatedMsg: 'Even a warrior must rest. Today is a **rest day** ({mode}). You have **{remaining} rest day(s)** left this week. Recover well, Viking.',
+    restDayCancelled: 'Rest cancelled',
+    restDayCancelledMsg: 'Penalties are back today.',
+    restDayModeAll: 'All penalties',
+    restDayModeCustom: 'By category',
+    restCatQuests: 'Quests',
+    restCatChallenges: 'Challenges',
+    restCatSessions: 'Sessions',
+    restCatSolo: 'Solo Leveling',
+    disciplineTitle: 'Viking Discipline',
+    disciplineDays: '{days} day(s) of inactivity',
+    disciplineLevel: 'Level {level} — {rank} ({xp}/{needed} XP)',
+    disciplineMsg1: 'Every day without a completed quest <strong>costs you XP</strong>. The longer you stay inactive, the higher the penalty.',
+    disciplineMsg2: 'You can even <strong>lose levels</strong>. The gods only respect those who fight every day.',
+    disciplineTip: 'Complete at least <strong>1 quest</strong> per day to avoid the penalty.',
+    disciplineRestTip: 'You can activate <strong>2 rest days/week</strong> in Settings.',
+    disciplineOath: 'I pledge to fight today',
     companionLabel: 'Companion',
     ok: 'OK', cancel: 'Cancel', apply: 'Apply', close: 'Close', save: 'Save',
     confirm: 'Confirm', delete: 'Delete', back: 'Back', next: 'Next',
@@ -2144,7 +2234,7 @@ const TRANSLATIONS = {
     copy: 'Copiar', sendTestNotif: 'Enviar notificación de prueba',
     soundsVibrations: 'Sonidos y vibraciones', sounds: 'Sonidos', vibrations: 'Vibraciones',
     restDays: 'Días de descanso (2/semana)',
-    restDaysDesc: 'Activa un día de descanso para desactivar <strong>todas</strong> las penalizaciones (misiones, desafíos, sesiones, solo leveling). Máximo 2 por semana.',
+    restDaysDesc: 'Activa un día de descanso para desactivar penalizaciones. Elige entre <strong>todas las penalizaciones</strong> o <strong>por categoría</strong> (misiones, desafíos, sesiones, solo leveling). Máximo 2 por semana.',
     memory: 'Memoria', clearMemory: 'Borrar memoria',
     exportBackup: 'Exportar copia (JSON)', importBackup: 'Importar copia',
     adminPanel: 'Panel de administración',
@@ -2193,6 +2283,16 @@ const TRANSLATIONS = {
     challengeDone: 'Desafío completado — Los dioses están orgullosos',
     noChallenges: 'Ningún desafío disponible.',
     sessions: 'Sesiones', succeeded: 'Exitosos', xpEarned: 'XP ganado',
+    routePlanner: 'Ruta',
+    routePlannerTitle: 'Ruta de carrera',
+    routePlannerDesc: 'Genera una ruta en bucle alrededor de tu posición. Elige la distancia y genera!',
+    routeDistance: 'Distancia',
+    routeGenerate: 'Generar ruta',
+    routeRegenerate: 'Nueva ruta',
+    routeLoading: 'Calculando ruta...',
+    routeNoGeo: 'La geolocalización no está disponible en tu dispositivo.',
+    routeGeoError: 'No se pudo obtener tu posición. Autoriza la geolocalización.',
+    routeError: 'Error al calcular la ruta. Inténtalo de nuevo.',
     soloTitle: 'Solo Leveling', systemWatches: 'El Sistema te observa',
     soloDesc: 'Inspirado en Solo Leveling. Cada día: flexiones, sentadillas, abdominales y carrera. Las cuotas aumentan cada semana.',
     soloFailWarning: 'El Sistema no tolera la debilidad.',
@@ -2217,6 +2317,28 @@ const TRANSLATIONS = {
     customizeTitle: 'Personalizar',
     restDayActive: 'Día de descanso activo', restDayActivate: 'Activar día de descanso',
     restDayDeactivate: 'Desactivar', restDayUsed: 'usado(s) esta semana',
+    restDayNormal: 'Día normal (penalizaciones activas)',
+    restDayAlreadyActive: 'Hoy ya es un día de descanso.',
+    restDayLimitReached: 'Límite alcanzado',
+    restDayLimitMsg: 'Ya has usado tus {max} días de descanso esta semana.',
+    restDayActivated: '¡Día de descanso activado!',
+    restDayActivatedMsg: 'El guerrero también debe descansar. Hoy es un **día de descanso** ({mode}). Te quedan **{remaining} día(s) de descanso** esta semana. Recupérate bien, Viking.',
+    restDayCancelled: 'Descanso cancelado',
+    restDayCancelledMsg: 'Las penalizaciones vuelven hoy.',
+    restDayModeAll: 'Todas las penalizaciones',
+    restDayModeCustom: 'Por categoría',
+    restCatQuests: 'Misiones',
+    restCatChallenges: 'Desafíos',
+    restCatSessions: 'Sesiones',
+    restCatSolo: 'Solo Leveling',
+    disciplineTitle: 'Disciplina Viking',
+    disciplineDays: '{days} día(s) de inactividad',
+    disciplineLevel: 'Nivel {level} — {rank} ({xp}/{needed} XP)',
+    disciplineMsg1: 'Cada día sin una misión completada te <strong>cuesta XP</strong>. Cuanto más inactivo, mayor la penalización.',
+    disciplineMsg2: 'Incluso puedes <strong>perder niveles</strong>. Los dioses solo respetan a los que luchan cada día.',
+    disciplineTip: 'Completa al menos <strong>1 misión</strong> por día para evitar la penalización.',
+    disciplineRestTip: 'Puedes activar <strong>2 días de descanso/semana</strong> en Ajustes.',
+    disciplineOath: 'Me comprometo a luchar hoy',
     companionLabel: 'Compañero',
     ok: 'OK', cancel: 'Cancelar', apply: 'Aplicar', close: 'Cerrar', save: 'Guardar',
     confirm: 'Confirmar', delete: 'Eliminar', back: 'Atrás', next: 'Siguiente',
@@ -2420,7 +2542,7 @@ const TRANSLATIONS = {
     copy: 'Copiar', sendTestNotif: 'Enviar notificação de teste',
     soundsVibrations: 'Sons e vibrações', sounds: 'Sons', vibrations: 'Vibrações',
     restDays: 'Dias de descanso (2/semana)',
-    restDaysDesc: 'Ative um dia de descanso para desativar <strong>todas</strong> as penalidades (missões, desafios, sessões, solo leveling). Máximo 2 por semana.',
+    restDaysDesc: 'Ative um dia de descanso para desativar penalidades. Escolha entre <strong>todas as penalidades</strong> ou <strong>por categoria</strong> (missões, desafios, sessões, solo leveling). Máximo 2 por semana.',
     memory: 'Memória', clearMemory: 'Limpar memória',
     exportBackup: 'Exportar backup (JSON)', importBackup: 'Importar backup',
     adminPanel: 'Painel de administração',
@@ -2469,6 +2591,16 @@ const TRANSLATIONS = {
     challengeDone: 'Desafio completado — Os deuses estão orgulhosos',
     noChallenges: 'Nenhum desafio disponível.',
     sessions: 'Sessões', succeeded: 'Bem-sucedidos', xpEarned: 'XP ganho',
+    routePlanner: 'Rota',
+    routePlannerTitle: 'Rota de corrida',
+    routePlannerDesc: 'Gere uma rota em loop ao redor da sua posição. Escolha a distância e gere!',
+    routeDistance: 'Distância',
+    routeGenerate: 'Gerar rota',
+    routeRegenerate: 'Nova rota',
+    routeLoading: 'Calculando rota...',
+    routeNoGeo: 'A geolocalização não está disponível no seu dispositivo.',
+    routeGeoError: 'Não foi possível obter sua posição. Autorize a geolocalização.',
+    routeError: 'Erro ao calcular a rota. Tente novamente.',
     soloTitle: 'Solo Leveling', systemWatches: 'O Sistema te observa',
     soloDesc: 'Inspirado em Solo Leveling. Todo dia: flexões, agachamentos, abdominais e corrida. As cotas aumentam a cada semana.',
     soloFailWarning: 'O Sistema não tolera fraqueza.',
@@ -2493,6 +2625,28 @@ const TRANSLATIONS = {
     customizeTitle: 'Personalizar',
     restDayActive: 'Dia de descanso ativo', restDayActivate: 'Ativar dia de descanso',
     restDayDeactivate: 'Desativar', restDayUsed: 'usado(s) esta semana',
+    restDayNormal: 'Dia normal (penalidades ativas)',
+    restDayAlreadyActive: 'Hoje já é um dia de descanso.',
+    restDayLimitReached: 'Limite atingido',
+    restDayLimitMsg: 'Você já usou seus {max} dias de descanso esta semana.',
+    restDayActivated: 'Dia de descanso ativado!',
+    restDayActivatedMsg: 'O guerreiro também deve descansar. Hoje é um **dia de descanso** ({mode}). Restam **{remaining} dia(s) de descanso** esta semana. Recupere-se bem, Viking.',
+    restDayCancelled: 'Descanso cancelado',
+    restDayCancelledMsg: 'As penalidades voltaram hoje.',
+    restDayModeAll: 'Todas as penalidades',
+    restDayModeCustom: 'Por categoria',
+    restCatQuests: 'Missões',
+    restCatChallenges: 'Desafios',
+    restCatSessions: 'Sessões',
+    restCatSolo: 'Solo Leveling',
+    disciplineTitle: 'Disciplina Viking',
+    disciplineDays: '{days} dia(s) de inatividade',
+    disciplineLevel: 'Nível {level} — {rank} ({xp}/{needed} XP)',
+    disciplineMsg1: 'Cada dia sem uma missão completada te <strong>custa XP</strong>. Quanto mais inativo, maior a penalidade.',
+    disciplineMsg2: 'Você pode até <strong>perder níveis</strong>. Os deuses só respeitam quem luta todos os dias.',
+    disciplineTip: 'Complete pelo menos <strong>1 missão</strong> por dia para evitar a penalidade.',
+    disciplineRestTip: 'Você pode ativar <strong>2 dias de descanso/semana</strong> nas Configurações.',
+    disciplineOath: 'Me comprometo a lutar hoje',
     companionLabel: 'Companheiro',
     ok: 'OK', cancel: 'Cancelar', apply: 'Aplicar', close: 'Fechar', save: 'Salvar',
     confirm: 'Confirmar', delete: 'Excluir', back: 'Voltar', next: 'Próximo',
@@ -6463,8 +6617,11 @@ function initQuests() {
   // Personal records
   if (!q.personalRecords) q.personalRecords = {};
 
-  // Rest days (2 per week, disables all penalties)
-  if (!q.restDays) q.restDays = { enabled: false, weekDays: [], usedThisWeek: 0, weekKey: null };
+  // Rest days (2 per week, disables penalties)
+  if (!q.restDays) q.restDays = { enabled: false, weekDays: [], usedThisWeek: 0, weekKey: null, mode: 'all', categories: { quests: true, challenges: true, sessions: true, solo: true } };
+  // Migration: add mode + categories for existing saves
+  if (!q.restDays.mode) q.restDays.mode = 'all';
+  if (!q.restDays.categories) q.restDays.categories = { quests: true, challenges: true, sessions: true, solo: true };
 
   // Specializations
   if (!q.specializations) q.specializations = { chosen: {} };
@@ -6554,6 +6711,8 @@ function initQuests() {
         showToast('Evolution confirmee !', `${o.icon} ${o.name} — rang ${EVOLVE_TIER_NAMES[o.evolveTier]} verrouille !`);
       }
     } else {
+      // Rest day — skip penalty, freeze trial progress (don't count the day)
+      if (isRestDayForCategory(o.lastReset, 'quests')) return;
       // FAILED — revert evolution, set cooldown, XP penalty (2x the quest XP reward)
       const trial = o.evolveTrial;
       const xpPenalty = o.xpReward * 2;
@@ -6682,9 +6841,18 @@ function isRestDay(dateStr) {
   return (q.restDays.weekDays || []).includes(today);
 }
 
+// Category-aware rest day check: 'quests', 'challenges', 'sessions', 'solo'
+function isRestDayForCategory(dateStr, category) {
+  if (!isRestDay(dateStr)) return false;
+  const rd = state.quests.restDays;
+  if (!rd.mode || rd.mode === 'all') return true;
+  // mode === 'custom' — check per-category
+  return rd.categories && rd.categories[category] === true;
+}
+
 function activateRestDay() {
   const q = state.quests;
-  if (!q.restDays) q.restDays = { enabled: true, weekDays: [], usedThisWeek: 0, weekKey: null };
+  if (!q.restDays) q.restDays = { enabled: true, weekDays: [], usedThisWeek: 0, weekKey: null, mode: 'all', categories: { quests: true, challenges: true, sessions: true, solo: true } };
   q.restDays.enabled = true;
   const today = getTodayStr();
   const currentWeekKey = getWeekKey(today);
@@ -6698,14 +6866,14 @@ function activateRestDay() {
 
   // Already a rest day today?
   if (q.restDays.weekDays.includes(today)) {
-    showToast('Deja en repos', 'Aujourd\'hui est deja un jour de repos.');
+    showToast(t('restDayActive'), t('restDayAlreadyActive'));
     return;
   }
 
   // Max 2 per week + bonus from specs
   const maxRestDays = 2 + (getSpecBoosts().bonusRestDays || 0);
   if (q.restDays.usedThisWeek >= maxRestDays) {
-    showToast('Limite atteinte', `Tu as deja utilise tes ${maxRestDays} jours de repos cette semaine.`);
+    showToast(t('restDayLimitReached'), t('restDayLimitMsg').replace('{max}', maxRestDays));
     return;
   }
 
@@ -6713,8 +6881,9 @@ function activateRestDay() {
   q.restDays.usedThisWeek++;
   saveState();
   const remaining = maxRestDays - q.restDays.usedThisWeek;
-  addMessage('stakr', `Le guerrier aussi doit se reposer. Aujourd'hui est un **jour de repos** — aucune penalite ne sera appliquee. Il te reste **${remaining} jour(s) de repos** cette semaine. Recupere bien, Viking. [MOOD:calme]`);
-  showToast('Jour de repos active !', `Aucune penalite aujourd'hui. ${remaining}/${maxRestDays} restants.`);
+  const modeLabel = q.restDays.mode === 'all' ? t('restDayModeAll') : t('restDayModeCustom');
+  addMessage('stakr', t('restDayActivatedMsg').replace('{remaining}', remaining).replace('{mode}', modeLabel) + ' [MOOD:calme]');
+  showToast(t('restDayActivated'), `${remaining}/${maxRestDays} ${t('restDayUsed')}`);
   renderRestDayStatus();
 }
 
@@ -6727,9 +6896,25 @@ function deactivateRestDay() {
     q.restDays.weekDays.splice(idx, 1);
     q.restDays.usedThisWeek = Math.max(0, (q.restDays.usedThisWeek || 1) - 1);
     saveState();
-    showToast('Repos annule', 'Les penalites sont de retour aujourd\'hui.');
+    showToast(t('restDayCancelled'), t('restDayCancelledMsg'));
     renderRestDayStatus();
   }
+}
+
+function toggleRestDayMode(mode) {
+  const q = state.quests;
+  if (!q.restDays) return;
+  q.restDays.mode = mode;
+  saveState();
+  renderRestDayStatus();
+}
+
+function toggleRestDayCategory(cat) {
+  const q = state.quests;
+  if (!q.restDays || !q.restDays.categories) return;
+  q.restDays.categories[cat] = !q.restDays.categories[cat];
+  saveState();
+  renderRestDayStatus();
 }
 
 function renderRestDayStatus() {
@@ -6748,20 +6933,47 @@ function renderRestDayStatus() {
   const isToday = (q.restDays.weekDays || []).includes(today);
   const used = q.restDays.usedThisWeek || 0;
   const maxRest = 2 + (getSpecBoosts().bonusRestDays || 0);
-  el.innerHTML = `
+  const mode = q.restDays.mode || 'all';
+  const cats = q.restDays.categories || { quests: true, challenges: true, sessions: true, solo: true };
+
+  let html = `
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
       <div>
-        <div style="font-size:.75rem;color:${isToday ? '#4caf50' : 'var(--text)'}">${isToday ? '🛌 Jour de repos actif' : '⚔️ Jour normal (penalites actives)'}</div>
-        <div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">${used}/${maxRest} jours utilises cette semaine</div>
+        <div style="font-size:.75rem;color:${isToday ? '#4caf50' : 'var(--text)'}">${isToday ? '🛌 ' + t('restDayActive') : '⚔️ ' + t('restDayNormal')}</div>
+        <div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">${used}/${maxRest} ${t('restDayUsed')}</div>
       </div>
       ${isToday
-        ? `<button class="btn-secondary" onclick="deactivateRestDay()" style="margin:0;padding:4px 10px;font-size:.7rem;white-space:nowrap">Annuler</button>`
+        ? `<button class="btn-secondary" onclick="deactivateRestDay()" style="margin:0;padding:4px 10px;font-size:.7rem;white-space:nowrap">${t('restDayDeactivate')}</button>`
         : used < maxRest
-          ? `<button class="btn-secondary" onclick="activateRestDay()" style="margin:0;padding:4px 10px;font-size:.7rem;white-space:nowrap">🛌 Repos</button>`
-          : `<span style="font-size:.6rem;color:var(--text-dim)">Limite atteinte</span>`
+          ? `<button class="btn-secondary" onclick="activateRestDay()" style="margin:0;padding:4px 10px;font-size:.7rem;white-space:nowrap">🛌 ${t('restDayActivate')}</button>`
+          : `<span style="font-size:.6rem;color:var(--text-dim)">${t('restDayLimitReached')}</span>`
       }
-    </div>
-  `;
+    </div>`;
+
+  // Mode selector
+  html += `
+    <div style="margin-top:8px;display:flex;gap:6px">
+      <button class="btn-secondary" onclick="toggleRestDayMode('all')" style="margin:0;padding:3px 8px;font-size:.65rem;${mode === 'all' ? 'background:var(--gold);color:#000;border-color:var(--gold)' : ''}">${t('restDayModeAll')}</button>
+      <button class="btn-secondary" onclick="toggleRestDayMode('custom')" style="margin:0;padding:3px 8px;font-size:.65rem;${mode === 'custom' ? 'background:var(--gold);color:#000;border-color:var(--gold)' : ''}">${t('restDayModeCustom')}</button>
+    </div>`;
+
+  // Category toggles (only visible in custom mode)
+  if (mode === 'custom') {
+    const catDefs = [
+      { key: 'quests', label: t('restCatQuests'), icon: '📜' },
+      { key: 'challenges', label: t('restCatChallenges'), icon: '⚔️' },
+      { key: 'sessions', label: t('restCatSessions'), icon: '🏋️' },
+      { key: 'solo', label: t('restCatSolo'), icon: '🗡️' }
+    ];
+    html += `<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">`;
+    catDefs.forEach(c => {
+      const active = cats[c.key];
+      html += `<button class="btn-secondary" onclick="toggleRestDayCategory('${c.key}')" style="margin:0;padding:3px 8px;font-size:.6rem;${active ? 'background:rgba(76,175,80,.25);border-color:#4caf50;color:#4caf50' : 'opacity:.5'}">${c.icon} ${c.label}</button>`;
+    });
+    html += `</div>`;
+  }
+
+  el.innerHTML = html;
 }
 
 function checkRestDaysWeekReset() {
@@ -6779,7 +6991,7 @@ function checkRestDaysWeekReset() {
 function checkVikingDiscipline(today) {
   const q = state.quests;
   if (!q.lastActiveDate) return; // First time — no penalty
-  if (isRestDay(today)) return; // Rest day — no penalty
+  if (isRestDayForCategory(today, 'quests')) return; // Rest day — no penalty
   if (checkAdminPenaltiesDisabled()) return; // Admin: penalties disabled
   const specB = getSpecBoosts();
   if (specB.penaltyImmune) return; // Spec: immune to penalties
@@ -6890,22 +7102,22 @@ function showDisciplinePopup(days, xpLost) {
     <div class="disc-overlay">
       <div class="disc-modal">
         <div style="font-size:2.5rem;text-align:center;margin-bottom:8px">⚠️</div>
-        <h2 style="color:#e57373;text-align:center;font-size:1rem;margin:0 0 12px;font-variant:small-caps">Discipline Viking</h2>
+        <h2 style="color:#e57373;text-align:center;font-size:1rem;margin:0 0 12px;font-variant:small-caps">${t('disciplineTitle')}</h2>
         <div style="background:rgba(229,115,115,.1);border:1px solid rgba(229,115,115,.3);border-radius:8px;padding:12px;margin-bottom:12px">
-          <div style="font-size:.85rem;color:#e57373;font-weight:700;text-align:center">${days} jour${days > 1 ? 's' : ''} d'inactivite</div>
+          <div style="font-size:.85rem;color:#e57373;font-weight:700;text-align:center">${t('disciplineDays').replace('{days}', days)}</div>
           <div style="font-size:1.2rem;color:#e57373;font-weight:700;text-align:center;margin:6px 0">-${xpLost} XP</div>
-          <div style="font-size:.7rem;color:var(--text-dim);text-align:center">Niveau ${q.level} — ${rank.name} (${q.xp}/${getXpForLevel(q.level)} XP)</div>
+          <div style="font-size:.7rem;color:var(--text-dim);text-align:center">${t('disciplineLevel').replace('{level}', q.level).replace('{rank}', rank.name).replace('{xp}', q.xp).replace('{needed}', getXpForLevel(q.level))}</div>
         </div>
         <div style="font-size:.75rem;color:var(--text);line-height:1.5;margin-bottom:12px">
-          <p style="margin:0 0 8px">Chaque jour sans quete completee te <strong>coute de l'XP</strong>. Plus tu es inactif, plus la penalite augmente.</p>
-          <p style="margin:0">Tu peux meme <strong>perdre des niveaux</strong>. Les dieux ne respectent que ceux qui se battent chaque jour.</p>
+          <p style="margin:0 0 8px">${t('disciplineMsg1')}</p>
+          <p style="margin:0">${t('disciplineMsg2')}</p>
         </div>
         <div style="font-size:.7rem;color:var(--gold-dim);text-align:center;margin-bottom:12px;padding:8px;background:rgba(196,154,60,.08);border-radius:6px">
-          Complete au moins <strong>1 quete</strong> par jour pour eviter la penalite.<br>
-          <span style="font-size:.6rem">💡 Tu peux activer <strong>2 jours de repos/semaine</strong> dans les Parametres.</span>
+          ${t('disciplineTip')}<br>
+          <span style="font-size:.6rem">💡 ${t('disciplineRestTip')}</span>
         </div>
-        <button onclick="closeDisciplinePopup();takeDailyOath()" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:8px;color:#0e0a06;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:6px">⚔️ Je m'engage a me battre aujourd'hui</button>
-        <button onclick="closeDisciplinePopup()" style="width:100%;padding:8px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:.7rem;cursor:pointer;font-family:inherit">Fermer</button>
+        <button onclick="closeDisciplinePopup();takeDailyOath()" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:8px;color:#0e0a06;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:6px">⚔️ ${t('disciplineOath')}</button>
+        <button onclick="closeDisciplinePopup()" style="width:100%;padding:8px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:.7rem;cursor:pointer;font-family:inherit">${t('close')}</button>
       </div>
     </div>`;
   document.body.appendChild(popup);
@@ -6995,7 +7207,7 @@ function checkDailyChallenges() {
 
   // Check penalties for yesterday's accepted-but-incomplete challenges
   if (dc.date && dc.date !== today && dc.penaltyChecked !== today) {
-    const yesterdayWasRest = isRestDay(dc.date);
+    const yesterdayWasRest = isRestDayForCategory(dc.date, 'challenges');
     const dcSpecB = getSpecBoosts();
     if (!yesterdayWasRest && !dcSpecB.penaltyImmune && !checkAdminPenaltiesDisabled()) {
       dc.challenges.forEach(ch => {
@@ -7104,7 +7316,14 @@ function renderDailyChallenges() {
   const navHtml = `<div class="defis-subtab-nav">
     <button class="defis-subtab ${subTab === 'challenges' ? 'active' : ''}" onclick="switchDefisSubTab('challenges')">⚔ ${t('challenges')}</button>
     <button class="defis-subtab ${subTab === 'workout' ? 'active' : ''}" onclick="switchDefisSubTab('workout')">💪 ${t('sessions')}</button>
+    <button class="defis-subtab ${subTab === 'route' ? 'active' : ''}" onclick="switchDefisSubTab('route')">🏃 ${t('routePlanner')}</button>
   </div>`;
+
+  if (subTab === 'route') {
+    container.innerHTML = navHtml + renderRoutePlanner();
+    setTimeout(() => initRouteMap(), 100);
+    return;
+  }
 
   if (subTab === 'workout') {
     container.innerHTML = navHtml + renderWorkoutSessions();
@@ -8193,6 +8412,283 @@ function completeCustomSession() {
   renderQuests();
 }
 
+// ===== ROUTE PLANNER — Loop running route generator =====
+let routeMap = null;
+let routeLayer = null;
+let routeMarkerStart = null;
+let routeArrows = [];
+let routeState = { lat: null, lng: null, distance: 5, loading: false, error: null, stats: null };
+
+function renderRoutePlanner() {
+  const rs = routeState;
+  let html = `<div class="route-planner">`;
+  html += `<h3>🏃 ${t('routePlannerTitle')}</h3>`;
+  html += `<p style="font-size:.7rem;color:var(--text-dim);margin:0 0 12px">${t('routePlannerDesc')}</p>`;
+
+  // Distance slider
+  html += `<div class="route-controls">
+    <div class="route-distance-row">
+      <label>${t('routeDistance')} :</label>
+      <input type="range" min="1" max="30" step="0.5" value="${rs.distance}" oninput="updateRouteDistance(this.value)" />
+      <div class="route-distance-val">${rs.distance} km</div>
+    </div>
+  </div>`;
+
+  // Map container
+  html += `<div class="route-map-container"><div id="route-map"></div></div>`;
+
+  // Action buttons
+  html += `<div style="display:flex;gap:8px;margin-bottom:12px">
+    <button class="route-btn route-btn-primary" onclick="generateRoute()" ${rs.loading ? 'disabled' : ''}>📍 ${t('routeGenerate')}</button>
+    <button class="route-btn route-btn-secondary" onclick="regenerateRoute()" ${!rs.stats || rs.loading ? 'disabled' : ''}>🔄 ${t('routeRegenerate')}</button>
+  </div>`;
+
+  // Loading
+  if (rs.loading) {
+    html += `<div class="route-loading">${t('routeLoading')}</div>`;
+  }
+
+  // Error
+  if (rs.error) {
+    html += `<div class="route-error">⚠️ ${rs.error}</div>`;
+  }
+
+  // Stats
+  if (rs.stats) {
+    const pace = rs.stats.duration / rs.stats.distance;
+    const paceMin = Math.floor(pace);
+    const paceSec = Math.round((pace - paceMin) * 60);
+    html += `<div class="route-stats">
+      <div class="route-stat"><div class="route-stat-val">${rs.stats.distance.toFixed(2)}</div><div class="route-stat-lbl">km</div></div>
+      <div class="route-stat"><div class="route-stat-val">${Math.round(rs.stats.duration)}</div><div class="route-stat-lbl">min (~${paceMin}:${String(paceSec).padStart(2,'0')}/km)</div></div>
+      <div class="route-stat"><div class="route-stat-val">${Math.round(rs.stats.calories)}</div><div class="route-stat-lbl">kcal</div></div>
+    </div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function updateRouteDistance(val) {
+  routeState.distance = parseFloat(val);
+  const valEl = document.querySelector('.route-distance-val');
+  if (valEl) valEl.textContent = val + ' km';
+}
+
+function initRouteMap() {
+  const mapEl = document.getElementById('route-map');
+  if (!mapEl) return;
+
+  // Cleanup previous map
+  if (routeMap) { routeMap.remove(); routeMap = null; }
+
+  routeMap = L.map('route-map', { zoomControl: true, attributionControl: false }).setView([48.8566, 2.3522], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 19
+  }).addTo(routeMap);
+
+  // Try to get user location immediately
+  if (routeState.lat && routeState.lng) {
+    routeMap.setView([routeState.lat, routeState.lng], 14);
+    placeStartMarker(routeState.lat, routeState.lng);
+  } else {
+    getUserLocation();
+  }
+}
+
+function getUserLocation() {
+  if (!navigator.geolocation) {
+    routeState.error = t('routeNoGeo');
+    renderDailyChallenges();
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      routeState.lat = pos.coords.latitude;
+      routeState.lng = pos.coords.longitude;
+      routeState.error = null;
+      if (routeMap) {
+        routeMap.setView([routeState.lat, routeState.lng], 14);
+        placeStartMarker(routeState.lat, routeState.lng);
+      }
+    },
+    (err) => {
+      routeState.error = t('routeGeoError');
+      if (routeMap) routeMap.setView([48.8566, 2.3522], 13);
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+function placeStartMarker(lat, lng) {
+  if (routeMarkerStart) routeMap.removeLayer(routeMarkerStart);
+  const icon = L.divIcon({
+    html: '<div style="background:var(--gold);width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 8px rgba(196,154,60,.8)"></div>',
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+    className: ''
+  });
+  routeMarkerStart = L.marker([lat, lng], { icon }).addTo(routeMap);
+}
+
+function generateLoopWaypoints(lat, lng, distKm) {
+  // Generate waypoints in a rough loop around start point
+  // Radius is adjusted so road routing ≈ target distance
+  // Roads are ~30-50% longer than straight lines, so use factor ~0.55
+  const radiusKm = (distKm / (2 * Math.PI)) * 0.55;
+  const numPoints = distKm < 3 ? 4 : distKm < 10 ? 6 : 8;
+  const waypoints = [];
+
+  // Random rotation offset so routes vary
+  const rotOffset = Math.random() * 2 * Math.PI;
+  // Slight randomness in radius per point for organic shape
+  for (let i = 0; i < numPoints; i++) {
+    const angle = rotOffset + (2 * Math.PI * i) / numPoints;
+    const rFactor = 0.8 + Math.random() * 0.4; // 0.8 to 1.2
+    const rKm = radiusKm * rFactor;
+    const dLat = (rKm / 111.32) * Math.cos(angle);
+    const dLng = (rKm / (111.32 * Math.cos(lat * Math.PI / 180))) * Math.sin(angle);
+    waypoints.push([lat + dLat, lng + dLng]);
+  }
+
+  return waypoints;
+}
+
+async function generateRoute() {
+  if (routeState.loading) return;
+
+  // Get location if not yet available
+  if (!routeState.lat || !routeState.lng) {
+    routeState.error = null;
+    routeState.loading = true;
+    renderDailyChallenges();
+    try {
+      await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => { routeState.lat = pos.coords.latitude; routeState.lng = pos.coords.longitude; resolve(); },
+          (err) => reject(err),
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      });
+    } catch (e) {
+      routeState.loading = false;
+      routeState.error = t('routeGeoError');
+      renderDailyChallenges();
+      return;
+    }
+  }
+
+  routeState.loading = true;
+  routeState.error = null;
+  routeState.stats = null;
+  renderDailyChallenges();
+  setTimeout(() => initRouteMap(), 100);
+
+  try {
+    await fetchRoute(routeState.lat, routeState.lng, routeState.distance);
+  } catch (e) {
+    routeState.error = t('routeError');
+    routeState.loading = false;
+    renderDailyChallenges();
+    setTimeout(() => initRouteMap(), 100);
+  }
+}
+
+function regenerateRoute() {
+  generateRoute();
+}
+
+async function fetchRoute(lat, lng, distKm) {
+  const waypoints = generateLoopWaypoints(lat, lng, distKm);
+
+  // Build OSRM request: start → waypoints → start (loop)
+  const coords = [[lng, lat], ...waypoints.map(w => [w[1], w[0]]), [lng, lat]];
+  const coordStr = coords.map(c => c.join(',')).join(';');
+  const url = `https://router.project-osrm.org/route/v1/foot/${coordStr}?overview=full&geometries=geojson&steps=false`;
+
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error('OSRM error');
+  const data = await resp.json();
+
+  if (!data.routes || data.routes.length === 0) throw new Error('No route');
+
+  const route = data.routes[0];
+  const geojson = route.geometry;
+  const distanceKm = route.distance / 1000;
+  const durationMin = route.duration / 60;
+
+  // Estimate calories (avg ~60 kcal/km running)
+  const calories = distanceKm * 60;
+
+  // Draw on map — clear previous
+  if (routeLayer) routeMap.removeLayer(routeLayer);
+  routeArrows.forEach(a => routeMap.removeLayer(a));
+  routeArrows = [];
+  routeLayer = L.geoJSON(geojson, {
+    style: { color: '#c49a3c', weight: 4, opacity: 0.9, dashArray: null }
+  }).addTo(routeMap);
+
+  // Fit map to route
+  routeMap.fitBounds(routeLayer.getBounds(), { padding: [30, 30] });
+  placeStartMarker(lat, lng);
+
+  // Direction arrows along route
+  addRouteArrows(geojson.coordinates);
+
+  routeState.stats = { distance: distanceKm, duration: durationMin, calories };
+  routeState.loading = false;
+  routeState.error = null;
+
+  // Re-render stats only (keep map alive)
+  const container = $('#quest-defis-tab');
+  if (container) {
+    const statsEl = container.querySelector('.route-stats');
+    const loadingEl = container.querySelector('.route-loading');
+    const errorEl = container.querySelector('.route-error');
+    if (loadingEl) loadingEl.remove();
+    if (errorEl) errorEl.remove();
+
+    // Insert stats
+    const btnRow = container.querySelector('.route-planner > div:nth-last-child(1)');
+    if (!statsEl && routeState.stats) {
+      const pace = routeState.stats.duration / routeState.stats.distance;
+      const paceMin = Math.floor(pace);
+      const paceSec = Math.round((pace - paceMin) * 60);
+      const statsHtml = `<div class="route-stats">
+        <div class="route-stat"><div class="route-stat-val">${routeState.stats.distance.toFixed(2)}</div><div class="route-stat-lbl">km</div></div>
+        <div class="route-stat"><div class="route-stat-val">${Math.round(routeState.stats.duration)}</div><div class="route-stat-lbl">min (~${paceMin}:${String(paceSec).padStart(2,'0')}/km)</div></div>
+        <div class="route-stat"><div class="route-stat-val">${Math.round(routeState.stats.calories)}</div><div class="route-stat-lbl">kcal</div></div>
+      </div>`;
+      const div = document.createElement('div');
+      div.innerHTML = statsHtml;
+      container.querySelector('.route-planner').appendChild(div.firstElementChild);
+    }
+
+    // Enable regenerate button
+    const regenBtn = container.querySelectorAll('.route-btn')[1];
+    if (regenBtn) regenBtn.disabled = false;
+  }
+}
+
+function addRouteArrows(coordinates) {
+  // Add small direction arrows along the route
+  const step = Math.max(1, Math.floor(coordinates.length / 12));
+  for (let i = step; i < coordinates.length - 1; i += step) {
+    const curr = coordinates[i];
+    const next = coordinates[Math.min(i + 1, coordinates.length - 1)];
+    const angle = Math.atan2(next[1] - curr[1], next[0] - curr[0]) * 180 / Math.PI;
+    const icon = L.divIcon({
+      html: `<div style="transform:rotate(${angle - 90}deg);color:#c49a3c;font-size:12px;text-shadow:0 0 3px rgba(0,0,0,.8)">▲</div>`,
+      iconSize: [12, 12],
+      iconAnchor: [6, 6],
+      className: ''
+    });
+    const arrow = L.marker([curr[1], curr[0]], { icon, interactive: false }).addTo(routeMap);
+    routeArrows.push(arrow);
+  }
+}
+
 // ===== SOLO LEVELING SYSTEM =====
 // Inspired by Solo Leveling anime. Progressive weekly quota (10 -> 100 reps, 1 -> 10 km).
 // Must complete daily or lose 300 XP.
@@ -8264,7 +8760,7 @@ function checkSoloLeveling() {
 
   // Check penalty for previous day
   if (sl.dayDate && sl.dayDate !== today && sl.lastPenaltyCheck !== today) {
-    const prevDayWasRest = isRestDay(sl.dayDate);
+    const prevDayWasRest = isRestDayForCategory(sl.dayDate, 'solo');
     const soloSpecB = getSpecBoosts();
     const prevTargets = getSoloTargets(sl.currentWeek);
     const done = sl.pushups >= prevTargets.pushups && sl.squats >= prevTargets.squats && sl.abs >= prevTargets.abs && sl.km >= prevTargets.km;
