@@ -8827,7 +8827,7 @@ function renderRoutePlanner() {
 
   // Map container with expand button
   html += `<div class="route-map-container" id="route-map-wrap">
-    <div id="route-map"></div>
+    <div id="route-map" style="width:100%;height:100%"></div>
     ${rs.stats ? `<button onclick="toggleRouteFullscreen()" style="position:absolute;top:8px;right:8px;z-index:1001;width:32px;height:32px;border-radius:6px;background:rgba(14,10,6,.8);border:1px solid var(--border);color:var(--text);font-size:.9rem;cursor:pointer;backdrop-filter:blur(6px)">⛶</button>` : ''}
   </div>`;
 
@@ -8876,6 +8876,8 @@ function initRouteMap() {
 
   // Cleanup previous map
   if (routeMap) { routeMap.remove(); routeMap = null; }
+  routeLayer = null;
+  routeArrows = [];
 
   routeMap = L.map('route-map', { zoomControl: true, attributionControl: false }).setView([48.8566, 2.3522], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -8889,6 +8891,19 @@ function initRouteMap() {
     placeStartMarker(routeState.lat, routeState.lng);
   } else {
     getUserLocation();
+  }
+
+  // Re-draw previous route if exists
+  if (routeState._lastGeojson && routeState.stats) {
+    setTimeout(() => {
+      if (!routeMap) return;
+      routeLayer = L.geoJSON(routeState._lastGeojson, {
+        style: { color: '#c49a3c', weight: 4, opacity: 0.9 }
+      }).addTo(routeMap);
+      routeMap.fitBounds(routeLayer.getBounds(), { padding: [30, 30] });
+      if (routeState.lat && routeState.lng) placeStartMarker(routeState.lat, routeState.lng);
+      addRouteArrows(routeState._lastGeojson.coordinates);
+    }, 200);
   }
 }
 
@@ -9034,36 +9049,26 @@ async function fetchRoute(lat, lng, distKm) {
   routeState.stats = { distance: distanceKm, duration: durationMin, calories };
   routeState.loading = false;
   routeState.error = null;
+  // Store geometry so we can redraw after re-render
+  routeState._lastGeojson = geojson;
 
-  // Re-render stats only (keep map alive)
-  const container = $('#quest-defis-tab');
-  if (container) {
-    const statsEl = container.querySelector('.route-stats');
-    const loadingEl = container.querySelector('.route-loading');
-    const errorEl = container.querySelector('.route-error');
-    if (loadingEl) loadingEl.remove();
-    if (errorEl) errorEl.remove();
-
-    // Insert stats
-    const btnRow = container.querySelector('.route-planner > div:nth-last-child(1)');
-    if (!statsEl && routeState.stats) {
-      const pace = routeState.stats.duration / routeState.stats.distance;
-      const paceMin = Math.floor(pace);
-      const paceSec = Math.round((pace - paceMin) * 60);
-      const statsHtml = `<div class="route-stats">
-        <div class="route-stat"><div class="route-stat-val">${routeState.stats.distance.toFixed(2)}</div><div class="route-stat-lbl">km</div></div>
-        <div class="route-stat"><div class="route-stat-val">${Math.round(routeState.stats.duration)}</div><div class="route-stat-lbl">min (~${paceMin}:${String(paceSec).padStart(2,'0')}/km)</div></div>
-        <div class="route-stat"><div class="route-stat-val">${Math.round(routeState.stats.calories)}</div><div class="route-stat-lbl">kcal</div></div>
-      </div>`;
-      const div = document.createElement('div');
-      div.innerHTML = statsHtml;
-      container.querySelector('.route-planner').appendChild(div.firstElementChild);
+  // Full re-render to show expand/start buttons + stats, then re-attach map
+  renderDailyChallenges();
+  // initRouteMap is called by renderDailyChallenges via setTimeout
+  // But we need to re-draw the route on the new map instance
+  setTimeout(() => {
+    if (routeMap && routeState._lastGeojson) {
+      if (routeLayer) routeMap.removeLayer(routeLayer);
+      routeArrows.forEach(a => routeMap.removeLayer(a));
+      routeArrows = [];
+      routeLayer = L.geoJSON(routeState._lastGeojson, {
+        style: { color: '#c49a3c', weight: 4, opacity: 0.9 }
+      }).addTo(routeMap);
+      routeMap.fitBounds(routeLayer.getBounds(), { padding: [30, 30] });
+      placeStartMarker(lat, lng);
+      addRouteArrows(routeState._lastGeojson.coordinates);
     }
-
-    // Enable regenerate button
-    const regenBtn = container.querySelectorAll('.route-btn')[1];
-    if (regenBtn) regenBtn.disabled = false;
-  }
+  }, 300);
 }
 
 function addRouteArrows(coordinates) {
