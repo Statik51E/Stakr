@@ -361,6 +361,39 @@ header button{flex-shrink:0}
 .philo-teaching-text p{margin:0 0 8px}
 .philo-teaching-text p:last-child{margin-bottom:0}
 .philo-teaching-text strong{color:#ffd76a;font-weight:700}
+.custom-empty{text-align:center;padding:30px 16px}
+.custom-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.custom-title{font-size:.85rem;font-weight:700;color:var(--gold);font-family:'Cinzel',serif}
+.custom-create-btn{background:linear-gradient(135deg,rgba(196,154,60,.2),rgba(0,0,0,.3));border:1px solid var(--gold-dim);border-radius:8px;color:var(--gold);font-size:.65rem;font-weight:700;padding:8px 14px;cursor:pointer;font-family:inherit}
+.custom-card{background:linear-gradient(160deg,rgba(196,154,60,.06),var(--wood-dark));border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.custom-card.done{border-color:rgba(105,240,174,.3);opacity:.7}
+.custom-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.custom-card-name{font-size:.78rem;font-weight:700;color:var(--text)}
+.custom-card-xp{font-size:.65rem;color:var(--gold);font-weight:700}
+.custom-card-info{font-size:.6rem;color:var(--text-dim);margin-bottom:8px}
+.custom-card-actions{display:flex;gap:6px;align-items:center}
+.custom-start-btn{flex:1;padding:7px;background:linear-gradient(135deg,rgba(196,154,60,.25),rgba(0,0,0,.35));border:1px solid var(--gold-dim);border-radius:8px;color:var(--gold);font-size:.65rem;font-weight:700;cursor:pointer;font-family:inherit}
+.custom-delete-btn{background:none;border:1px solid rgba(229,57,53,.3);border-radius:8px;color:#e53935;font-size:.7rem;padding:6px 10px;cursor:pointer}
+.custom-done-badge{font-size:.6rem;color:#69f0ae;font-weight:700}
+.custom-form{padding:4px 0}
+.custom-form-title{font-size:.85rem;font-weight:700;color:var(--gold);font-family:'Cinzel',serif;margin-bottom:12px;text-align:center}
+.custom-form-subtitle{font-size:.7rem;color:var(--text);font-weight:700;margin:12px 0 8px}
+.custom-form-field{margin-bottom:8px}
+.custom-form-field label{display:block;font-size:.6rem;color:var(--text-dim);margin-bottom:3px}
+.custom-form-field input{width:100%;box-sizing:border-box;padding:8px 10px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.72rem;font-family:inherit}
+.custom-form-exercise{background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:6px}
+.cfe-row{display:flex;gap:6px;margin-bottom:4px}
+.cfe-row:last-child{margin-bottom:0}
+.cfe-name{flex:1;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.68rem;font-family:inherit}
+.cfe-reps{width:80px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;color:var(--gold);font-size:.68rem;font-family:inherit;text-align:center}
+.cfe-desc{flex:1;padding:6px 8px;background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:6px;color:var(--text-dim);font-size:.62rem;font-family:inherit}
+.cfe-remove{background:none;border:1px solid rgba(229,57,53,.3);border-radius:6px;color:#e53935;font-size:.7rem;padding:4px 8px;cursor:pointer;flex-shrink:0}
+.custom-add-ex-btn{width:100%;padding:8px;background:rgba(196,154,60,.08);border:1px dashed var(--gold-dim);border-radius:8px;color:var(--gold);font-size:.65rem;cursor:pointer;font-family:inherit;margin:8px 0}
+.custom-xp-preview{text-align:center;font-size:.7rem;color:var(--text);margin:10px 0}
+.custom-xp-preview strong{color:var(--gold)}
+.custom-form-actions{display:flex;gap:8px;margin-top:12px}
+.custom-save-btn{flex:1;padding:10px;background:linear-gradient(135deg,rgba(196,154,60,.3),rgba(0,0,0,.35));border:1px solid var(--gold);border-radius:8px;color:var(--gold);font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit}
+.custom-cancel-btn{padding:10px 16px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:.72rem;cursor:pointer;font-family:inherit}
 .philo-teaching-principle{font-size:.7rem;color:#daa520;font-weight:700;font-style:italic;padding:8px 12px;background:rgba(0,0,0,.4);border-left:2px solid #daa520;border-radius:4px;letter-spacing:.3px}
 .workout-ex-start{width:100%;background:linear-gradient(135deg,#3a2e14,#5a4520);color:var(--gold);border:1px solid var(--gold-dim);border-radius:8px;padding:10px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;letter-spacing:.5px;margin-bottom:6px}
 .workout-ex-start:hover{background:linear-gradient(135deg,#5a4520,#7a5a28);filter:brightness(1.15);transform:translateY(-1px)}
@@ -1637,7 +1670,14 @@ const TRANSLATIONS = {
     unit_seance: 'seance', unit_repas: 'repas', unit_sortie: 'sortie',
     unit_moment: 'moment', unit_douche: 'douche', unit_jours: 'jours',
     // Workout sessions
-    body: 'Corps', mind: 'Esprit', wisdom: 'Sagesse',
+    body: 'Corps', mind: 'Esprit', wisdom: 'Sagesse', customSession: 'Perso',
+    createSession: 'Creer une seance', sessionName: 'Nom de la seance', exerciseName: 'Nom de l\'exercice',
+    exerciseDesc: 'Description (optionnel)', reps: 'Reps/Duree', addExercise: 'Ajouter un exercice',
+    saveSession: 'Sauvegarder', cancel: 'Annuler', deleteSession: 'Supprimer',
+    startSession: 'Commencer', noCustomSessions: 'Aucune seance personnalisee. Cree ta premiere seance !',
+    customXpCalc: 'XP auto-calcule selon la difficulte (max 1000)',
+    myCustomSessions: 'Mes seances', exercises: 'exercices',
+    customSessionDone: 'Seance accomplie !', estimatedXP: 'XP estime',
     sessionDoneToday: 'Seance accomplie aujourd\'hui',
     sessionDoneMsg: 'Les dieux sont fiers, Viking. Reviens demain pour forger encore davantage ton corps. Les muscles grandissent pendant le repos — dors bien et mange proteine.',
     readyToEvolve: 'Prêt a evoluer ?',
@@ -1915,7 +1955,14 @@ const TRANSLATIONS = {
     unit_litres: 'liters', unit_heures: 'hours', unit_choses: 'things',
     unit_seance: 'session', unit_repas: 'meals', unit_sortie: 'outing',
     unit_moment: 'moment', unit_douche: 'shower', unit_jours: 'days',
-    body: 'Body', mind: 'Mind', wisdom: 'Wisdom',
+    body: 'Body', mind: 'Mind', wisdom: 'Wisdom', customSession: 'Custom',
+    createSession: 'Create a session', sessionName: 'Session name', exerciseName: 'Exercise name',
+    exerciseDesc: 'Description (optional)', reps: 'Reps/Duration', addExercise: 'Add exercise',
+    saveSession: 'Save', cancel: 'Cancel', deleteSession: 'Delete',
+    startSession: 'Start', noCustomSessions: 'No custom sessions yet. Create your first one!',
+    customXpCalc: 'XP auto-calculated by difficulty (max 1000)',
+    myCustomSessions: 'My sessions', exercises: 'exercises',
+    customSessionDone: 'Session completed!', estimatedXP: 'Estimated XP',
     sessionDoneToday: 'Session completed today',
     sessionDoneMsg: 'The gods are proud, Viking. Come back tomorrow to forge your body further. Muscles grow during rest — sleep well and eat protein.',
     readyToEvolve: 'Ready to evolve?',
@@ -2184,7 +2231,14 @@ const TRANSLATIONS = {
     unit_litres: 'litros', unit_heures: 'horas', unit_choses: 'cosas',
     unit_seance: 'sesión', unit_repas: 'comidas', unit_sortie: 'salida',
     unit_moment: 'momento', unit_douche: 'ducha', unit_jours: 'días',
-    body: 'Cuerpo', mind: 'Mente', wisdom: 'Sabiduría',
+    body: 'Cuerpo', mind: 'Mente', wisdom: 'Sabiduría', customSession: 'Perso',
+    createSession: 'Crear una sesión', sessionName: 'Nombre de la sesión', exerciseName: 'Nombre del ejercicio',
+    exerciseDesc: 'Descripción (opcional)', reps: 'Reps/Duración', addExercise: 'Agregar ejercicio',
+    saveSession: 'Guardar', cancel: 'Cancelar', deleteSession: 'Eliminar',
+    startSession: 'Empezar', noCustomSessions: '¡No hay sesiones personalizadas. Crea la primera!',
+    customXpCalc: 'XP auto-calculado por dificultad (máx 1000)',
+    myCustomSessions: 'Mis sesiones', exercises: 'ejercicios',
+    customSessionDone: '¡Sesión completada!', estimatedXP: 'XP estimado',
     sessionDoneToday: 'Sesión completada hoy',
     sessionDoneMsg: 'Los dioses están orgullosos, Viking. Vuelve mañana para forjar aún más tu cuerpo. Los músculos crecen durante el descanso — duerme bien y come proteína.',
     readyToEvolve: '¿Listo para evolucionar?',
@@ -2453,7 +2507,14 @@ const TRANSLATIONS = {
     unit_litres: 'litros', unit_heures: 'horas', unit_choses: 'coisas',
     unit_seance: 'sessão', unit_repas: 'refeições', unit_sortie: 'saída',
     unit_moment: 'momento', unit_douche: 'banho', unit_jours: 'dias',
-    body: 'Corpo', mind: 'Mente', wisdom: 'Sabedoria',
+    body: 'Corpo', mind: 'Mente', wisdom: 'Sabedoria', customSession: 'Perso',
+    createSession: 'Criar uma sessão', sessionName: 'Nome da sessão', exerciseName: 'Nome do exercício',
+    exerciseDesc: 'Descrição (opcional)', reps: 'Reps/Duração', addExercise: 'Adicionar exercício',
+    saveSession: 'Salvar', cancel: 'Cancelar', deleteSession: 'Excluir',
+    startSession: 'Começar', noCustomSessions: 'Nenhuma sessão personalizada. Crie a primeira!',
+    customXpCalc: 'XP calculado automaticamente pela dificuldade (máx 1000)',
+    myCustomSessions: 'Minhas sessões', exercises: 'exercícios',
+    customSessionDone: 'Sessão concluída!', estimatedXP: 'XP estimado',
     sessionDoneToday: 'Sessão completada hoje',
     sessionDoneMsg: 'Os deuses estão orgulhosos, Viking. Volte amanhã para forjar ainda mais seu corpo. Os músculos crescem durante o descanso — durma bem e coma proteína.',
     readyToEvolve: 'Pronto para evoluir?',
@@ -7153,6 +7214,9 @@ function ensureWorkoutSessionState() {
   const session = getCurrentWorkoutSession();
   const medSession = MEDITATION_SESSIONS[w.medTier] || MEDITATION_SESSIONS.calm;
   const phiSession = PHILOSOPHY_SESSIONS[w.phiTier] || PHILOSOPHY_SESSIONS.novice;
+  // Init custom sessions
+  if (!w.customSessions) w.customSessions = [];
+  if (!w.customCompletedToday) w.customCompletedToday = {};
   // Reset progress for ALL three types on new day
   if (w.sessionDate !== today) {
     w.sessionDate = today;
@@ -7160,6 +7224,8 @@ function ensureWorkoutSessionState() {
     w.medProgress = new Array(medSession.exercises.length).fill(false);
     w.phiProgress = new Array(phiSession.exercises.length).fill(false);
     w.completedToday = makeEmptyCompletedToday();
+    w.customCompletedToday = {};
+    w.customProgress = [];
   } else {
     if (!Array.isArray(w.progress) || w.progress.length !== session.exercises.length) {
       w.progress = new Array(session.exercises.length).fill(false);
@@ -7204,10 +7270,16 @@ function renderWorkoutSessions() {
       <div class="stb-label">${t('wisdom')}</div>
       ${anyDone('philosophy') ? '<div class="stb-check">✓</div>' : ''}
     </button>
+    <button class="session-type-btn ${activeType === 'custom' ? 'active' : ''}" onclick="switchSessionType('custom')">
+      <div class="stb-icon">🔧</div>
+      <div class="stb-label">${t('customSession')}</div>
+      ${Object.values(w.customCompletedToday || {}).some(Boolean) ? '<div class="stb-check">✓</div>' : ''}
+    </button>
   </div>`;
 
   if (activeType === 'meditation') return typeSwitcher + renderMindSession('meditation');
   if (activeType === 'philosophy') return typeSwitcher + renderMindSession('philosophy');
+  if (activeType === 'custom') return typeSwitcher + renderCustomSession();
 
   const session = getCurrentWorkoutSession();
   const doneCount = w.progress.filter(Boolean).length;
@@ -7371,7 +7443,7 @@ function toggleWorkoutAlt(exId) {
 
 // ===== MIND SESSIONS (meditation + philosophy) =====
 function switchSessionType(type) {
-  if (!['physical','meditation','philosophy'].includes(type)) return;
+  if (!['physical','meditation','philosophy','custom'].includes(type)) return;
   const w = state.quests.workout;
   w.sessionType = type;
   saveState();
@@ -7848,6 +7920,277 @@ function evolveWorkoutTier() {
   showToast('Evolution !', `Tu passes au rang ${nextSession.name} ${nextSession.icon} — les dieux approuvent !`);
   addMessage('stakr', `Par Odin ! Tu choisis la voie du **${nextSession.name}** — ${nextSession.subtitle}. Les seances deviendront plus rudes, mais ton corps deviendra une forge de guerre. A demain pour la premiere seance du nouveau rang ! [MOOD:excite]`);
   renderDailyChallenges();
+}
+
+// ===== CUSTOM WORKOUT SESSIONS =====
+function calculateCustomXP(exercises) {
+  if (!exercises || exercises.length === 0) return 0;
+  const totalReps = exercises.reduce((sum, ex) => sum + (parseInt(ex.reps) || 0), 0);
+  return Math.min(1000, exercises.length * 40 + totalReps * 2);
+}
+
+function renderCustomSession() {
+  const w = state.quests.workout;
+  if (!w.customSessions) w.customSessions = [];
+  if (!w.customCompletedToday) w.customCompletedToday = {};
+
+  // If showing creation form
+  if (w._showCustomForm) return renderCustomSessionForm();
+
+  // If an active session is selected
+  if (w.activeCustomId) {
+    const session = w.customSessions.find(s => s.id === w.activeCustomId);
+    if (session) return renderActiveCustomSession(session);
+    w.activeCustomId = null;
+  }
+
+  // Session list
+  if (w.customSessions.length === 0) {
+    return `<div class="custom-empty">
+      <div style="font-size:2rem;margin-bottom:10px">🔧</div>
+      <div style="font-size:.75rem;color:var(--text-dim);margin-bottom:14px">${t('noCustomSessions')}</div>
+      <button class="custom-create-btn" onclick="showCustomSessionForm()">+ ${t('createSession')}</button>
+    </div>`;
+  }
+
+  let html = `<div class="custom-header">
+    <div class="custom-title">${t('myCustomSessions')}</div>
+    <button class="custom-create-btn" onclick="showCustomSessionForm()">+ ${t('createSession')}</button>
+  </div>`;
+
+  w.customSessions.forEach(session => {
+    const done = w.customCompletedToday[session.id];
+    html += `<div class="custom-card ${done ? 'done' : ''}">
+      <div class="custom-card-header">
+        <div class="custom-card-name">${session.name}</div>
+        <div class="custom-card-xp">+${session.xpReward} XP</div>
+      </div>
+      <div class="custom-card-info">${session.exercises.length} ${t('exercises')}</div>
+      <div class="custom-card-actions">
+        ${done ? `<span class="custom-done-badge">✓ ${t('customSessionDone')}</span>` :
+          `<button class="custom-start-btn" onclick="selectCustomSession('${session.id}')">${t('startSession')}</button>`}
+        <button class="custom-delete-btn" onclick="deleteCustomSession('${session.id}')">🗑</button>
+      </div>
+    </div>`;
+  });
+
+  return html;
+}
+
+function renderCustomSessionForm() {
+  const w = state.quests.workout;
+  const exercises = w._formExercises || [{ name: '', desc: '', reps: '' }];
+
+  let html = `<div class="custom-form">
+    <div class="custom-form-title">${t('createSession')}</div>
+    <div class="custom-form-field">
+      <label>${t('sessionName')}</label>
+      <input type="text" id="custom-session-name" placeholder="${t('sessionName')}" maxlength="40" />
+    </div>
+    <div class="custom-form-subtitle">${t('exercises')} :</div>`;
+
+  exercises.forEach((ex, i) => {
+    html += `<div class="custom-form-exercise" id="cfe-${i}">
+      <div class="cfe-row">
+        <input type="text" class="cfe-name" placeholder="${t('exerciseName')}" value="${ex.name}" maxlength="40" onchange="updateCustomFormExercise(${i},'name',this.value)" />
+        <input type="text" class="cfe-reps" placeholder="${t('reps')}" value="${ex.reps}" maxlength="15" onchange="updateCustomFormExercise(${i},'reps',this.value)" />
+      </div>
+      <div class="cfe-row">
+        <input type="text" class="cfe-desc" placeholder="${t('exerciseDesc')}" value="${ex.desc}" maxlength="100" onchange="updateCustomFormExercise(${i},'desc',this.value)" />
+        ${exercises.length > 1 ? `<button class="cfe-remove" onclick="removeCustomFormExercise(${i})">✕</button>` : ''}
+      </div>
+    </div>`;
+  });
+
+  // XP preview
+  const previewExercises = exercises.filter(e => e.name.trim());
+  const previewXP = calculateCustomXP(previewExercises);
+
+  html += `<button class="custom-add-ex-btn" onclick="addCustomFormExercise()">+ ${t('addExercise')}</button>
+    <div class="custom-xp-preview">${t('estimatedXP')} : <strong>${previewXP} XP</strong> <span style="font-size:.55rem;color:var(--text-dim)">(max 1000)</span></div>
+    <div class="custom-form-actions">
+      <button class="custom-save-btn" onclick="saveCustomSession()">${t('saveSession')}</button>
+      <button class="custom-cancel-btn" onclick="cancelCustomSessionForm()">${t('cancel')}</button>
+    </div>
+  </div>`;
+
+  return html;
+}
+
+function renderActiveCustomSession(session) {
+  const w = state.quests.workout;
+  if (!Array.isArray(w.customProgress) || w.customProgress.length !== session.exercises.length) {
+    w.customProgress = new Array(session.exercises.length).fill(false);
+  }
+  const doneCount = w.customProgress.filter(Boolean).length;
+  const total = session.exercises.length;
+  const pct = Math.round((doneCount / total) * 100);
+  const allDone = doneCount === total;
+  const alreadyCompleted = w.customCompletedToday[session.id];
+
+  let html = `<div class="workout-intro" style="margin-top:12px">
+    <div class="workout-header-row">
+      <div class="workout-tier-badge">🔧</div>
+      <div class="workout-tier-info">
+        <div class="workout-tier-name">${session.name}</div>
+        <div class="workout-tier-sub">${session.exercises.length} ${t('exercises')} — +${session.xpReward} XP</div>
+      </div>
+      <button style="background:none;border:none;color:var(--text-dim);font-size:.8rem;cursor:pointer" onclick="deselectCustomSession()">✕</button>
+    </div>
+    <div class="workout-progress-row">
+      <div class="workout-progress-bar"><div class="workout-progress-fill" style="width:${pct}%"></div></div>
+      <span class="workout-progress-text">${doneCount}/${total}</span>
+    </div>
+  </div>`;
+
+  if (alreadyCompleted) {
+    html += `<div class="workout-complete-banner">
+      <div class="workout-complete-title">✓ ${t('customSessionDone')}</div>
+    </div>`;
+    return html;
+  }
+
+  session.exercises.forEach((ex, idx) => {
+    const done = w.customProgress[idx];
+    html += `<div class="workout-exercise ${done ? 'done' : ''}" onclick="validateCustomExercise(${idx})">
+      <div class="workout-ex-header">
+        <span class="workout-ex-check">${done ? '✅' : '⬜'}</span>
+        <div class="workout-ex-info">
+          <div class="workout-ex-name">${ex.name}</div>
+          <div class="workout-ex-detail">${ex.reps}</div>
+          ${ex.desc ? `<div class="workout-ex-desc">${ex.desc}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  });
+
+  if (allDone) {
+    html += `<button class="workout-finish-btn" onclick="completeCustomSession()" style="margin-top:12px">✓ ${t('finishSession')}</button>`;
+  }
+
+  return html;
+}
+
+function showCustomSessionForm() {
+  const w = state.quests.workout;
+  w._showCustomForm = true;
+  w._formExercises = [{ name: '', desc: '', reps: '' }];
+  renderDailyChallenges();
+}
+
+function cancelCustomSessionForm() {
+  const w = state.quests.workout;
+  w._showCustomForm = false;
+  w._formExercises = null;
+  renderDailyChallenges();
+}
+
+function addCustomFormExercise() {
+  const w = state.quests.workout;
+  if (!w._formExercises) w._formExercises = [];
+  if (w._formExercises.length >= 15) return;
+  w._formExercises.push({ name: '', desc: '', reps: '' });
+  renderDailyChallenges();
+}
+
+function removeCustomFormExercise(idx) {
+  const w = state.quests.workout;
+  if (!w._formExercises || w._formExercises.length <= 1) return;
+  w._formExercises.splice(idx, 1);
+  renderDailyChallenges();
+}
+
+function updateCustomFormExercise(idx, field, value) {
+  const w = state.quests.workout;
+  if (!w._formExercises || !w._formExercises[idx]) return;
+  w._formExercises[idx][field] = value;
+}
+
+function saveCustomSession() {
+  const w = state.quests.workout;
+  const nameEl = document.getElementById('custom-session-name');
+  const name = nameEl ? nameEl.value.trim() : '';
+  if (!name) { showToast(tc('Erreur'), tc('Donne un nom a ton objectif.')); return; }
+
+  // Collect exercises from form state
+  const exercises = (w._formExercises || []).filter(e => e.name.trim());
+  if (exercises.length === 0) { showToast(tc('Erreur'), 'Ajoute au moins un exercice.'); return; }
+
+  const xpReward = calculateCustomXP(exercises);
+  const session = {
+    id: 'cs_' + Date.now(),
+    name,
+    exercises: exercises.map(e => ({ name: e.name.trim(), desc: e.desc.trim(), reps: e.reps.trim() || '10' })),
+    xpReward,
+    createdAt: Date.now()
+  };
+
+  if (!w.customSessions) w.customSessions = [];
+  w.customSessions.push(session);
+  w._showCustomForm = false;
+  w._formExercises = null;
+  saveState();
+  showToast(tc('Objectif ajoute'), `${session.name} — +${xpReward} XP`);
+  renderDailyChallenges();
+}
+
+function deleteCustomSession(id) {
+  const w = state.quests.workout;
+  const session = (w.customSessions || []).find(s => s.id === id);
+  if (!session) return;
+  if (!confirm(`${tc('Supprimer')} "${session.name}" ?`)) return;
+  w.customSessions = w.customSessions.filter(s => s.id !== id);
+  if (w.activeCustomId === id) { w.activeCustomId = null; w.customProgress = []; }
+  saveState();
+  renderDailyChallenges();
+}
+
+function selectCustomSession(id) {
+  const w = state.quests.workout;
+  const session = (w.customSessions || []).find(s => s.id === id);
+  if (!session) return;
+  w.activeCustomId = id;
+  w.customProgress = new Array(session.exercises.length).fill(false);
+  saveState();
+  renderDailyChallenges();
+}
+
+function deselectCustomSession() {
+  const w = state.quests.workout;
+  w.activeCustomId = null;
+  w.customProgress = [];
+  renderDailyChallenges();
+}
+
+function validateCustomExercise(idx) {
+  const w = state.quests.workout;
+  if (!Array.isArray(w.customProgress)) return;
+  w.customProgress[idx] = !w.customProgress[idx];
+  saveState();
+  renderDailyChallenges();
+}
+
+function completeCustomSession() {
+  const w = state.quests.workout;
+  const session = (w.customSessions || []).find(s => s.id === w.activeCustomId);
+  if (!session) return;
+  if (!w.customProgress.every(Boolean)) return;
+  if (w.customCompletedToday[session.id]) return;
+
+  w.customCompletedToday[session.id] = true;
+  w.totalSessions = (w.totalSessions || 0) + 1;
+  if (!w.history) w.history = [];
+  w.history.push({ date: getTodayStr(), type: 'custom', tier: session.name, xp: session.xpReward });
+  if (w.history.length > 100) w.history = w.history.slice(-100);
+
+  addQuestXp(session.xpReward, 'physique');
+  showToast(t('customSessionDone'), `${session.name} — +${session.xpReward} XP`);
+  addMessage('stakr', `KRAA ! Tu as termine ta seance **${session.name}** ! +${session.xpReward} XP ! Ton corps forge une legende, Viking ! [MOOD:excite]`);
+  w.activeCustomId = null;
+  w.customProgress = [];
+  saveState();
+  renderDailyChallenges();
+  renderQuests();
 }
 
 // ===== SOLO LEVELING SYSTEM =====
