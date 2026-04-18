@@ -2627,6 +2627,706 @@ const UNIT_MAP = { 'pompes':'unit_pompes','km':'unit_km','min':'unit_min','min s
 function tName(o) { return t('obj_' + o.id) !== 'obj_' + o.id ? t('obj_' + o.id) : o.name; }
 function tUnit(o) { return UNIT_MAP[o.unit] ? t(UNIT_MAP[o.unit]) : o.unit; }
 
+// ===== CONTENT TRANSLATION (game data: skills, runes, quests, etc.) =====
+// French text is the key — returns translated version for current language, or French as fallback
+const CONTENT_TR = {
+  en: {
+    // === YGGDRASIL SKILL TREE ===
+    // Branches
+    'Branche de Thor': 'Branch of Thor', 'Force & Endurance': 'Strength & Endurance',
+    'Branche d\'Odin': 'Branch of Odin', 'Sagesse & Discipline': 'Wisdom & Discipline',
+    'Branche de Freya': 'Branch of Freya', 'Vitalite & Guerison': 'Vitality & Healing',
+    'Branche de Baldur': 'Branch of Baldur', 'Lien & Communaute': 'Bond & Community',
+    // Physique nodes
+    'Force du Thrall': 'Thrall\'s Strength', 'Tes muscles s\'eveillent': 'Your muscles awaken',
+    'Poigne du Karl': 'Karl\'s Grip', 'Tes bras sont d\'acier': 'Your arms are steel',
+    'Endurance du Berserkr': 'Berserkr\'s Endurance', 'Tu cours comme un loup': 'You run like a wolf',
+    'Corps du Hersir': 'Hersir\'s Body', 'Forge dans le feu et la glace': 'Forged in fire and ice',
+    'Avatar de Thor': 'Avatar of Thor', 'Tu es la foudre incarnee': 'You are lightning incarnate',
+    // Mental nodes
+    'Eveil de l\'Esprit': 'Spirit Awakening', 'La meditation ouvre tes sens': 'Meditation opens your senses',
+    'Oeil du Sage': 'Eye of the Sage', 'Les livres revelent leurs secrets': 'Books reveal their secrets',
+    'Discipline du Drengr': 'Drengr\'s Discipline', 'Ton esprit est une forteresse': 'Your mind is a fortress',
+    'Memoire de Mimir': 'Mimir\'s Memory', 'Tu retiens tout ce que tu lis': 'You remember everything you read',
+    'Sagesse d\'Odin': 'Odin\'s Wisdom', 'Tu vois au-dela du voile': 'You see beyond the veil',
+    // Sante nodes
+    'Source d\'Urd': 'Urd\'s Spring', 'L\'eau pure coule en toi': 'Pure water flows through you',
+    'Sommeil du Juste': 'Sleep of the Righteous', 'Tes nuits reparent ton corps': 'Your nights heal your body',
+    'Sang de Glace': 'Ice Blood', 'Le froid est ton allie': 'Cold is your ally',
+    'Festin de Freya': 'Freya\'s Feast', 'Ton corps est un temple': 'Your body is a temple',
+    'Immortalite d\'Idunn': 'Idunn\'s Immortality', 'Les pommes d\'or coulent dans tes veines': 'Golden apples flow through your veins',
+    // Social nodes
+    'Premier Lien': 'First Bond', 'Tu tends la main': 'You reach out',
+    'Voix du Skald': 'Voice of the Skald', 'Tes mots portent loin': 'Your words carry far',
+    'Charisme du Jarl': 'Jarl\'s Charisma', 'On te suit naturellement': 'People follow you naturally',
+    'Cercle du Thing': 'Circle of the Thing', 'Tu rassembles les gens': 'You bring people together',
+    'Lumiere de Baldur': 'Baldur\'s Light', 'Ta presence illumine les autres': 'Your presence lights up others',
+    // Skill labels
+    '+5% XP Physique': '+5% Physical XP', '+10% XP Physique': '+10% Physical XP',
+    '+5% XP Mental': '+5% Mental XP', '+10% XP Mental': '+10% Mental XP',
+    '+5% XP Sante': '+5% Health XP', '+10% XP Sante': '+10% Health XP',
+    '+5% XP Social': '+5% Social XP', '+10% XP Social': '+10% Social XP',
+    '+5% XP Global': '+5% Global XP',
+    'Debloque: Gainage': 'Unlocks: Plank', 'Debloque: Defi Guerrier': 'Unlocks: Warrior Challenge',
+    'Debloque: Visualisation': 'Unlocks: Visualization', 'Debloque: Etude profonde': 'Unlocks: Deep Study',
+    'Debloque: Repas Viking': 'Unlocks: Viking Meal', 'Bouclier de Streak (1x/sem)': 'Streak Shield (1x/week)',
+    'Debloque: Acte de bonte': 'Unlocks: Act of Kindness', 'Debloque: Mentorat': 'Unlocks: Mentoring',
+    // Quest templates from skill tree
+    'Gainage': 'Plank', 'Defi Guerrier': 'Warrior Challenge', 'Visualisation': 'Visualization',
+    'Etude profonde': 'Deep Study', 'Repas Viking': 'Viking Meal', 'Acte de bonte': 'Act of Kindness',
+    'Mentorat': 'Mentoring',
+
+    // === SPECIALIZATIONS ===
+    'Voie du Guerrier — Niveau 10': 'Way of the Warrior — Level 10',
+    'Tu as prouve ta valeur. Choisis ta premiere specialisation.': 'You have proven your worth. Choose your first specialization.',
+    'Furie du Berserkr': 'Berserkr\'s Fury',
+    'La rage brule en toi. Chaque seance physique est plus intense.': 'Rage burns in you. Every physical session is more intense.',
+    '+15% XP sur les seances physiques et le Solo Leveling': '+15% XP on physical sessions and Solo Leveling',
+    '+15% XP sur les quetes mentales et la meditation': '+15% XP on mental quests and meditation',
+    'Les mots sont tes armes. Sagesse et discipline te guident.': 'Words are your weapons. Wisdom and discipline guide you.',
+    'Instinct du Loup': 'Wolf Instinct',
+    'Ni repos, ni abandon. Ta constance est ta plus grande force.': 'No rest, no surrender. Consistency is your greatest strength.',
+    'Bonus de streak double (+20% par jour au lieu de +10%, max +100%)': 'Double streak bonus (+20%/day instead of +10%, max +100%)',
+    'Epreuve du Hirdman — Niveau 20': 'Trial of the Hirdman — Level 20',
+    'Le chemin se divise. Approfondis ta specialisation.': 'The path splits. Deepen your specialization.',
+    'Ne du Tonnerre': 'Thunderborn',
+    'La foudre coule dans tes veines. Les defis physiques te forgent.': 'Lightning flows through your veins. Physical challenges forge you.',
+    '+20% XP sur les defis quotidiens physiques + penalites reduites de 50%': '+20% XP on daily physical challenges + 50% reduced penalties',
+    'Maitre des Runes': 'Rune Master',
+    'Les runes te parlent. Chaque connaissance accelere ta progression.': 'Runes speak to you. Every knowledge speeds your progress.',
+    '+10% XP global + bonus XP par rune possedee (+2% par rune)': '+10% global XP + XP bonus per rune owned (+2% per rune)',
+    'Volonte de Fer': 'Iron Will',
+    'Rien ne t\'arrete. Les penalites glissent sur toi comme la pluie.': 'Nothing stops you. Penalties slide off like rain.',
+    'Toutes les penalites reduites de 60% + 1 jour de repos bonus/semaine': 'All penalties reduced by 60% + 1 bonus rest day/week',
+    'Sagesse du Hersir — Niveau 30': 'Wisdom of the Hersir — Level 30',
+    'Tu es un chef. Tes choix definissent ton heritage.': 'You are a leader. Your choices define your legacy.',
+    'Forge de Guerre': 'War Forge',
+    'Ton corps est une arme vivante. Les records tombent plus vite.': 'Your body is a living weapon. Records fall faster.',
+    '+25% XP seances + les records personnels donnent un bonus de +50 XP': '+25% XP sessions + personal records give +50 XP bonus',
+    'Oeil d\'Odin': 'Odin\'s Eye',
+    'Tu vois tout, tu comprends tout. La sagesse accelere toute progression.': 'You see everything, you understand everything. Wisdom accelerates all progress.',
+    '+15% XP global permanent': '+15% permanent global XP',
+    'Flamme Eternelle': 'Eternal Flame',
+    'Ta flamme ne s\'eteint jamais. Le streak est ta plus grande arme.': 'Your flame never dies. The streak is your greatest weapon.',
+    'Le streak ne se perd plus apres 1 jour d\'inactivite (grace de 24h)': 'Streak no longer lost after 1 day of inactivity (24h grace)',
+    'Ascension du Konungr — Niveau 40': 'Rise of the Konungr — Level 40',
+    'Tu approches des dieux. Choisis ton pouvoir ultime.': 'You approach the gods. Choose your ultimate power.',
+    'La foudre incarnee. Tout effort physique est amplifie au maximum.': 'Lightning incarnate. Every physical effort is amplified to the maximum.',
+    '+30% XP sur tout ce qui est physique + seances donnent +50% XP': '+30% XP on everything physical + sessions give +50% XP',
+    'Avatar d\'Odin': 'Avatar of Odin',
+    'Tu as sacrifie un oeil pour la sagesse. Tout savoir t\'enrichit.': 'You sacrificed an eye for wisdom. All knowledge enriches you.',
+    '+25% XP global sur toutes les sources': '+25% global XP on all sources',
+    'Avatar de Tyr': 'Avatar of Tyr',
+    'Le dieu de la justice et du sacrifice. Ta discipline est legendaire.': 'The god of justice and sacrifice. Your discipline is legendary.',
+    'Penalites nulles + streak bonus triple + 2 jours de repos bonus': 'No penalties + triple streak bonus + 2 bonus rest days',
+
+    // === EPIC QUESTS ===
+    'Le Raid de Lindisfarne': 'The Lindisfarne Raid',
+    'Reproduis l\'exploit des premiers Vikings. 60 jours de discipline absolue.': 'Replicate the feat of the first Vikings. 60 days of absolute discipline.',
+    'Preparer le Drakkar': 'Prepare the Drakkar', '7 jours de streak consecutifs': '7 consecutive streak days',
+    'Traverser la Mer du Nord': 'Cross the North Sea', '20 seances physiques completees': '20 physical sessions completed',
+    'Apercevoir les Cotes': 'Sight the Coast', '30 jours de streak + 5000 XP gagnes': '30 days streak + 5000 XP earned',
+    'Debarquer a l\'Aube': 'Land at Dawn', '50 defis quotidiens completes': '50 daily challenges completed',
+    'Piller le Monastere': 'Raid the Monastery', '60 jours de streak + niveau 10+': '60 days streak + level 10+',
+    'Pilleur de Lindisfarne': 'Raider of Lindisfarne',
+    '2000 XP + Titre exclusif': '2000 XP + Exclusive Title',
+    'La Forge du Berserkr': 'The Berserkr\'s Forge',
+    '90 jours pour transformer ton corps en arme vivante.': '90 days to transform your body into a living weapon.',
+    'Chauffer la Forge': 'Heat the Forge', '10 seances physiques + 500 pompes totales': '10 physical sessions + 500 total pushups',
+    'Marteler le Metal': 'Hammer the Metal', '25 jours de Solo Leveling completes': '25 Solo Leveling days completed',
+    'Tremper dans la Glace': 'Quench in Ice', '10 douches froides + 30 seances physiques': '10 cold showers + 30 physical sessions',
+    'Aiguiser la Lame': 'Sharpen the Blade', '2000 pompes + 2000 squats + 50km': '2000 pushups + 2000 squats + 50km',
+    'Le Corps est l\'Arme': 'The Body is the Weapon', '60 seances physiques + Solo Leveling semaine 5+': '60 physical sessions + Solo Leveling week 5+',
+    'Berserkr Eternel': 'Eternal Berserkr',
+    '3000 XP + Titre exclusif': '3000 XP + Exclusive Title',
+    'Le Sacrifice d\'Odin': 'Odin\'s Sacrifice',
+    '45 jours de sagesse et de discipline mentale.': '45 days of wisdom and mental discipline.',
+    'S\'accrocher a l\'Arbre': 'Cling to the Tree', '7 jours de meditation consecutive (3 min/jour)': '7 consecutive meditation days (3 min/day)',
+    'Voir les Runes': 'See the Runes', '3 runes collectees + 150 min de lecture': '3 runes collected + 150 min of reading',
+    'Comprendre le Cosmos': 'Understand the Cosmos', '30 reflexions stoiques + 10 seances meditation': '30 stoic reflections + 10 meditation sessions',
+    'L\'Oeil Sacrifie': 'The Sacrificed Eye', '45 jours streak + 5 competences Arbre de Vie': '45 days streak + 5 Tree of Life skills',
+    'Oeil d\'Odin': 'Odin\'s Eye',
+    '1500 XP + Titre exclusif': '1500 XP + Exclusive Title',
+    'Preparation au Ragnarok': 'Ragnarok Preparation',
+    '90 jours pour devenir un Einherjar digne du Valhalla.': '90 days to become an Einherjar worthy of Valhalla.',
+    'L\'Appel des Valkyries': 'The Valkyries\' Call', 'Streak 10j + 3000 XP gagnes': '10-day streak + 3000 XP earned',
+    'Forger Mjolnir': 'Forge Mjolnir', '30 seances + 20 defis completes': '30 sessions + 20 challenges completed',
+    'Dompter Fenrir': 'Tame Fenrir', 'Solo Leveling semaine 6+ + 45j streak': 'Solo Leveling week 6+ + 45-day streak',
+    'Naviguer sur Naglfar': 'Sail on Naglfar', '6 royaumes debloques + 10000 XP gagnes': '6 realms unlocked + 10000 XP earned',
+    'Le Crepuscule des Dieux': 'Twilight of the Gods', '90j streak + niveau 25+ + 12 runes + Solo S8+': '90-day streak + level 25+ + 12 runes + Solo W8+',
+    'Einherjar du Ragnarok': 'Einherjar of Ragnarok',
+    '5000 XP + Titre legendaire': '5000 XP + Legendary Title',
+    'La Voie du Viking': 'The Viking Way',
+    '30 jours pour poser les fondations d\'un guerrier.': '30 days to lay a warrior\'s foundations.',
+    'Premier Pas': 'First Step', '3 jours de streak': '3 streak days',
+    'Premiere Semaine': 'First Week', '7j streak + 5 seances completees': '7-day streak + 5 sessions completed',
+    'Le Sang du Guerrier': 'The Warrior\'s Blood', '10 defis completes + 100 pompes': '10 challenges completed + 100 pushups',
+    'Forgeron de Soi': 'Self-Smith', '30j streak + niveau 5+ + 1 rune': '30-day streak + level 5+ + 1 rune',
+    'Viking Authentique': 'True Viking',
+    '1000 XP + Titre exclusif': '1000 XP + Exclusive Title',
+
+    // === VIKING RUNES ===
+    'Richesse': 'Wealth', 'Premiere rune du Futhark — prosperite et abondance': 'First rune of the Futhark — prosperity and abundance', 'Premiere quete completee': 'First quest completed',
+    'Force': 'Strength', 'L\'aurochs sauvage — force brute et endurance': 'The wild aurochs — raw strength and endurance', '50 pompes au total': '50 total pushups',
+    'Geant': 'Giant', 'Le marteau de Thor — protection et puissance': 'Thor\'s hammer — protection and power', 'Atteindre le niveau 3': 'Reach level 3',
+    'Dieu': 'God', 'Le souffle d\'Odin — sagesse et communication': 'Odin\'s breath — wisdom and communication', '10 seances de meditation': '10 meditation sessions',
+    'Voyage': 'Journey', 'Le chariot — mouvement et progression': 'The chariot — movement and progression', '30 km de marche au total': '30 km of walking total',
+    'Torche': 'Torch', 'La flamme de la connaissance — creativite et vision': 'The flame of knowledge — creativity and vision', '5 heures de lecture au total': '5 hours of reading total',
+    'Don': 'Gift', 'Le don sacre — generosité et echange': 'The sacred gift — generosity and exchange', '10 moments sociaux': '10 social moments',
+    'Joie': 'Joy', 'La banniere de joie — bonheur et harmonie': 'The banner of joy — happiness and harmony', 'Streak de 7 jours': '7-day streak',
+    'Grele': 'Hail', 'La tempete purificatrice — transformation et renouveau': 'The purifying storm — transformation and renewal', '10 douches froides': '10 cold showers',
+    'Besoin': 'Need', 'Le feu de la necessite — resilience et survie': 'The fire of necessity — resilience and survival', '20 jours sans malbouffe': '20 days without junk food',
+    'Glace': 'Ice', 'La glace immobile — patience et concentration': 'The still ice — patience and concentration', '30 seances de deconnexion': '30 disconnect sessions',
+    'Recolte': 'Harvest', 'Le cycle des saisons — recompense du travail': 'The cycle of seasons — reward of labor', 'Completer toutes les quetes quotidiennes 5 fois': 'Complete all daily quests 5 times',
+    'If': 'Yew', 'L\'arbre Yggdrasil — eternite et connexion': 'The Yggdrasil tree — eternity and connection', 'Streak de 21 jours': '21-day streak',
+    'Destin': 'Destiny', 'Le calice du destin — mystere et chance': 'The chalice of destiny — mystery and luck', 'Debloquer une quete secrete': 'Unlock a secret quest',
+    'Protection': 'Protection', 'Les bois de l\'elan — protection et defense': 'The elk\'s antlers — protection and defense', 'Atteindre le niveau 5': 'Reach level 5',
+    'Soleil': 'Sun', 'Le soleil victorieux — succes et vitalite': 'The victorious sun — success and vitality', '1000 XP total': '1000 total XP',
+    'Tyr': 'Tyr', 'L\'epee de Tyr — justice et honneur': 'Tyr\'s sword — justice and honor', 'Completer 5 quetes de Stakr': 'Complete 5 Stakr quests',
+    'Bouleau': 'Birch', 'Le bouleau sacre — croissance et renaissance': 'The sacred birch — growth and rebirth', 'Atteindre le niveau 7': 'Reach level 7',
+    'Cheval': 'Horse', 'Le cheval d\'Odin — mouvement et partenariat': 'Odin\'s horse — movement and partnership', '100 km de marche au total': '100 km of walking total',
+    'Homme': 'Human', 'L\'humanite — connaissance de soi': 'Humanity — self-knowledge', '50 entrees de gratitude': '50 gratitude entries',
+    'Eau': 'Water', 'Le lac sacre — intuition et flux': 'The sacred lake — intuition and flow', '100 litres d\'eau au total': '100 liters of water total',
+    'Ing': 'Ing', 'Le dieu de la fertilite — accomplissement': 'The god of fertility — accomplishment', 'Atteindre le niveau 9': 'Reach level 9',
+    'Jour': 'Day', 'L\'aube nouvelle — eveil et clarte': 'The new dawn — awakening and clarity', 'Streak de 30 jours': '30-day streak',
+    'Heritage': 'Heritage', 'Le domaine ancestral — heritage et racines': 'The ancestral domain — heritage and roots', 'Atteindre le niveau 10 — Einherjar': 'Reach level 10 — Einherjar',
+
+    // === SECRET QUESTS ===
+    'L\'Aube du Viking': 'Viking Dawn', 'Valider une quete avant 6h du matin': 'Complete a quest before 6 AM',
+    'Centurion du Nord': 'Northern Centurion', 'Faire 100 pompes en un jour': 'Do 100 pushups in one day',
+    'Semaine d\'Odin': 'Odin\'s Week', 'Completer tous les objectifs quotidiens 7 jours de suite': 'Complete all daily objectives 7 days in a row',
+    'Marathon de Midgard': 'Midgard Marathon', 'Marcher 42 km au total': 'Walk 42 km total',
+    'Sage de Mimir': 'Sage of Mimir', 'Lire 10 heures au total': 'Read 10 hours total',
+    'Source d\'Urd': 'Urd\'s Spring', 'Boire 50 litres au total': 'Drink 50 liters total',
+    'Hibou de Huginn': 'Huginn\'s Owl', 'Valider une quete apres minuit': 'Complete a quest after midnight',
+    'Graveur de Runes': 'Rune Carver', 'Collecter 5 runes': 'Collect 5 runes',
+    'Collecter 12 runes': 'Collect 12 runes',
+    'Volva Eternelle': 'Eternal Volva', 'Collecter les 24 runes du Futhark': 'Collect all 24 Futhark runes',
+    'Forgeron d\'Habitudes': 'Habit Smith', '30 jours de suite sans faillir': '30 days straight without failing',
+    'Tresor de Fafnir': 'Fafnir\'s Treasure', 'Accumuler 1000 XP total': 'Accumulate 1000 total XP',
+    'Hoard du Dragon': 'Dragon\'s Hoard', 'Accumuler 5000 XP total': 'Accumulate 5000 total XP',
+
+    // === DIFFICULTY LABELS ===
+    'Facile': 'Easy', 'Moyen': 'Medium', 'Difficile': 'Hard', 'LEGENDAIRE': 'LEGENDARY',
+    'facile': 'easy', 'moyen': 'medium', 'difficile': 'hard', 'legendaire': 'legendary',
+
+    // === CATEGORY NAMES ===
+    'Physique': 'Physical', 'Mental': 'Mental', 'Sante': 'Health', 'Social': 'Social', 'Personnel': 'Custom',
+
+    // === TAG NAMES (daily wisdom) ===
+    'Stoicisme': 'Stoicism', 'Sagesse Viking': 'Viking Wisdom', 'Discipline': 'Discipline',
+
+    // === TOAST & UI MESSAGES ===
+    'Limite atteinte': 'Limit reached',
+    'Tu ne peux avoir que 3 objectifs personnels. Supprime-en un d\'abord !': 'You can only have 3 custom objectives. Delete one first!',
+    'Erreur': 'Error',
+    'Donne un nom a ton objectif.': 'Give your objective a name.',
+    'Objectif ajoute': 'Objective added', 'Objectif supprime': 'Objective removed',
+    'jour': 'day', 'semaine': 'week', 'sem': 'wk',
+    'fois': 'times', 'defi': 'challenge', 'session': 'session', 'repas': 'meal',
+    'Niveau insuffisant': 'Level too low',
+    'Deja en cours': 'Already active',
+    'Cette quete est deja active ou completee.': 'This quest is already active or completed.',
+    'Export reussi': 'Export successful',
+    'Rune debloquee !': 'Rune unlocked!',
+    'Quete Secrete !': 'Secret Quest!',
+    'STAKR TRANSCENDE !': 'STAKR TRANSCENDED!',
+    'Meditation': 'Meditation', 'Sagesse': 'Wisdom',
+    'Stakr reflechit...': 'Stakr is thinking...',
+    'Stakr, cree-moi des quetes !': 'Stakr, create quests for me!',
+    'Competence debloquee !': 'Skill unlocked!',
+    'par': 'per', 'Supprimer': 'Delete',
+    'Tu dois etre niveau': 'You must be level',
+    'Etape epique !': 'Epic milestone!',
+    'QUETE EPIQUE TERMINEE !': 'EPIC QUEST COMPLETED!',
+    'Deja choisi': 'Already chosen',
+    'Tu as deja fait ton choix pour ce palier.': 'You already made your choice for this tier.',
+    'Specialisation choisie !': 'Specialization chosen!',
+    // === BOSS POOL ===
+    'Jormungandr le Devorant': 'Jormungandr the Devourer', 'Le serpent-monde resserre son etreinte — seule ta force brute peut briser ses anneaux.': 'The world serpent tightens its grip — only your raw strength can shatter its coils.',
+    'Fenrir Dechaine': 'Fenrir Unchained', 'Le loup cosmique a brise ses chaines. Tes muscles sont ton seul bouclier.': 'The cosmic wolf has broken its chains. Your muscles are your only shield.',
+    'Surtr le Geant de Feu': 'Surtr the Fire Giant', 'Le seigneur de Muspelheim avance. Ton endurance sera mise a l\'epreuve.': 'The lord of Muspelheim advances. Your endurance will be tested.',
+    'Nidhogg le Rongeur': 'Nidhogg the Gnawer', 'Le dragon qui devore les racines d\'Yggdrasil. Frappe-le de toute ta puissance.': 'The dragon that devours Yggdrasil\'s roots. Strike it with all your might.',
+    'Hrungnir Coeur-de-Pierre': 'Hrungnir Stone-Heart', 'Le geant au coeur de roc. Seul un corps forge dans le fer peut le fissurer.': 'The giant with a heart of stone. Only a body forged in iron can crack it.',
+    'Garm le Chien Sanglant': 'Garm the Blood Hound', 'Le gardien de Helheim hurle a la lune. Ta vigueur est ta seule arme.': 'The guardian of Helheim howls at the moon. Your vigor is your only weapon.',
+    'Thiazi l\'Aigle des Tempetes': 'Thiazi the Storm Eagle', 'Ses ailes declenchent des ouragans. Tiens bon, guerrier, et frappe fort.': 'Its wings unleash hurricanes. Stand firm, warrior, and strike hard.',
+    'Fafnir le Dragon d\'Or': 'Fafnir the Golden Dragon', 'Le nain devenu dragon par la cupidite. Ecrase-le sous le poids de ton effort.': 'The dwarf turned dragon by greed. Crush it under the weight of your effort.',
+    'Le Murmure de Loki': 'Loki\'s Whisper', 'Le dieu de la ruse s\'infiltre dans ton esprit. Seule ta discipline peut le repousser.': 'The god of trickery infiltrates your mind. Only your discipline can repel him.',
+    'L\'Ombre de Hel': 'Hel\'s Shadow', 'La deesse des morts projette le doute. Medite, lis, et son emprise faiblira.': 'The goddess of the dead casts doubt. Meditate, read, and her grip will weaken.',
+    'Le Kraken des Abysses': 'The Kraken of the Abyss', 'La creature remonte des profondeurs de ton subconscient. Concentre-toi pour la vaincre.': 'The creature rises from the depths of your subconscious. Focus to defeat it.',
+    'Les Draugr de l\'Oubli': 'The Draugr of Oblivion', 'Des morts-vivants qui effacent ta memoire. Nourris ton esprit pour les repousser.': 'Undead that erase your memory. Feed your mind to repel them.',
+    'Angrboda la Sorciere': 'Angrboda the Witch', 'La mere des monstres tisse un voile de confusion. Ta sagesse est ton epee.': 'The mother of monsters weaves a veil of confusion. Your wisdom is your sword.',
+    'Ratatoskr le Semeur de Chaos': 'Ratatoskr the Chaos Sower', 'L\'ecureuil d\'Yggdrasil repand mensonges et distractions. Reste concentre.': 'Yggdrasil\'s squirrel spreads lies and distractions. Stay focused.',
+    'Le Wyrm de Niflheim': 'The Wyrm of Niflheim', 'Un brouillard glacial envahit ton esprit. Seule la clarte mentale le dissipera.': 'An icy fog invades your mind. Only mental clarity will dispel it.',
+    'Skoll Devoreur de Soleil': 'Skoll Sun-Devourer', 'Le loup qui poursuit le soleil menace d\'eteindre ta lumiere interieure.': 'The wolf that chases the sun threatens to extinguish your inner light.',
+    'Le Ragnarok Silencieux': 'The Silent Ragnarok', 'La fin du monde commence par l\'abandon. Prouve que ta regularite est indestructible.': 'The end of the world begins with giving up. Prove your consistency is unbreakable.',
+    'Le Fimbulvetr Eternel': 'The Eternal Fimbulwinter', 'L\'hiver sans fin teste ta perseverance. Chaque quete accomplie est un feu qui brule.': 'The endless winter tests your perseverance. Every completed quest is a burning fire.',
+    'L\'Hydre de la Paresse': 'The Hydra of Laziness', 'Chaque tete repoussee te rend plus fort. Complete tes quetes pour la terrasser.': 'Each head pushed back makes you stronger. Complete your quests to defeat it.',
+    'Le Maelstrom du Neant': 'The Maelstrom of Nothingness', 'Un tourbillon qui aspire ta motivation. Seule la constance peut t\'en sortir.': 'A whirlpool that drains your motivation. Only consistency can save you.',
+    'Grendel le Destructeur': 'Grendel the Destroyer', 'Le monstre frappe chaque nuit. Ta routine quotidienne est ta forteresse.': 'The monster strikes every night. Your daily routine is your fortress.',
+    'Les Nornes Corrompues': 'The Corrupted Norns', 'Le destin lui-meme est corrompu. Retisse-le fil par fil, quete par quete.': 'Fate itself is corrupted. Reweave it thread by thread, quest by quest.',
+    'Aegir le Noyeur': 'Aegir the Drowner', 'Le geant des mers veut te submerger. Nage a contre-courant, jour apres jour.': 'The sea giant wants to drown you. Swim against the current, day after day.',
+    'Le Jotunn de l\'Inertie': 'The Jotunn of Inertia', 'Un geant de glace qui fige tout. Seul le mouvement constant peut le faire fondre.': 'An ice giant that freezes everything. Only constant movement can melt it.',
+    'physique': 'physical', 'mental': 'mental', 'assiduite': 'consistency',
+  },
+  es: {
+    // === YGGDRASIL SKILL TREE ===
+    'Branche de Thor': 'Rama de Thor', 'Force & Endurance': 'Fuerza y Resistencia',
+    'Branche d\'Odin': 'Rama de Odín', 'Sagesse & Discipline': 'Sabiduría y Disciplina',
+    'Branche de Freya': 'Rama de Freya', 'Vitalite & Guerison': 'Vitalidad y Sanación',
+    'Branche de Baldur': 'Rama de Baldur', 'Lien & Communaute': 'Vínculo y Comunidad',
+    'Force du Thrall': 'Fuerza del Thrall', 'Tes muscles s\'eveillent': 'Tus músculos despiertan',
+    'Poigne du Karl': 'Agarre del Karl', 'Tes bras sont d\'acier': 'Tus brazos son de acero',
+    'Endurance du Berserkr': 'Resistencia del Berserkr', 'Tu cours comme un loup': 'Corres como un lobo',
+    'Corps du Hersir': 'Cuerpo del Hersir', 'Forge dans le feu et la glace': 'Forjado en fuego y hielo',
+    'Avatar de Thor': 'Avatar de Thor', 'Tu es la foudre incarnee': 'Eres el rayo encarnado',
+    'Eveil de l\'Esprit': 'Despertar del Espíritu', 'La meditation ouvre tes sens': 'La meditación abre tus sentidos',
+    'Oeil du Sage': 'Ojo del Sabio', 'Les livres revelent leurs secrets': 'Los libros revelan sus secretos',
+    'Discipline du Drengr': 'Disciplina del Drengr', 'Ton esprit est une forteresse': 'Tu mente es una fortaleza',
+    'Memoire de Mimir': 'Memoria de Mimir', 'Tu retiens tout ce que tu lis': 'Recuerdas todo lo que lees',
+    'Sagesse d\'Odin': 'Sabiduría de Odín', 'Tu vois au-dela du voile': 'Ves más allá del velo',
+    'Source d\'Urd': 'Fuente de Urd', 'L\'eau pure coule en toi': 'El agua pura fluye en ti',
+    'Sommeil du Juste': 'Sueño del Justo', 'Tes nuits reparent ton corps': 'Tus noches reparan tu cuerpo',
+    'Sang de Glace': 'Sangre de Hielo', 'Le froid est ton allie': 'El frío es tu aliado',
+    'Festin de Freya': 'Festín de Freya', 'Ton corps est un temple': 'Tu cuerpo es un templo',
+    'Immortalite d\'Idunn': 'Inmortalidad de Idunn', 'Les pommes d\'or coulent dans tes veines': 'Las manzanas doradas corren por tus venas',
+    'Premier Lien': 'Primer Vínculo', 'Tu tends la main': 'Extiendes la mano',
+    'Voix du Skald': 'Voz del Skald', 'Tes mots portent loin': 'Tus palabras llegan lejos',
+    'Charisme du Jarl': 'Carisma del Jarl', 'On te suit naturellement': 'Te siguen naturalmente',
+    'Cercle du Thing': 'Círculo del Thing', 'Tu rassembles les gens': 'Reúnes a la gente',
+    'Lumiere de Baldur': 'Luz de Baldur', 'Ta presence illumine les autres': 'Tu presencia ilumina a los demás',
+    '+5% XP Physique': '+5% XP Físico', '+10% XP Physique': '+10% XP Físico',
+    '+5% XP Mental': '+5% XP Mental', '+10% XP Mental': '+10% XP Mental',
+    '+5% XP Sante': '+5% XP Salud', '+10% XP Sante': '+10% XP Salud',
+    '+5% XP Social': '+5% XP Social', '+10% XP Social': '+10% XP Social',
+    '+5% XP Global': '+5% XP Global',
+    'Debloque: Gainage': 'Desbloquea: Plancha', 'Debloque: Defi Guerrier': 'Desbloquea: Desafío Guerrero',
+    'Debloque: Visualisation': 'Desbloquea: Visualización', 'Debloque: Etude profonde': 'Desbloquea: Estudio Profundo',
+    'Debloque: Repas Viking': 'Desbloquea: Comida Vikinga', 'Bouclier de Streak (1x/sem)': 'Escudo de Racha (1x/sem)',
+    'Debloque: Acte de bonte': 'Desbloquea: Acto de Bondad', 'Debloque: Mentorat': 'Desbloquea: Mentoría',
+    'Gainage': 'Plancha', 'Defi Guerrier': 'Desafío Guerrero', 'Visualisation': 'Visualización',
+    'Etude profonde': 'Estudio Profundo', 'Repas Viking': 'Comida Vikinga', 'Acte de bonte': 'Acto de Bondad',
+    'Mentorat': 'Mentoría',
+
+    // === SPECIALIZATIONS ===
+    'Voie du Guerrier — Niveau 10': 'Camino del Guerrero — Nivel 10',
+    'Tu as prouve ta valeur. Choisis ta premiere specialisation.': 'Has demostrado tu valía. Elige tu primera especialización.',
+    'Furie du Berserkr': 'Furia del Berserkr',
+    'La rage brule en toi. Chaque seance physique est plus intense.': 'La rabia arde en ti. Cada sesión física es más intensa.',
+    '+15% XP sur les seances physiques et le Solo Leveling': '+15% XP en sesiones físicas y Solo Leveling',
+    '+15% XP sur les quetes mentales et la meditation': '+15% XP en misiones mentales y meditación',
+    'Les mots sont tes armes. Sagesse et discipline te guident.': 'Las palabras son tus armas. Sabiduría y disciplina te guían.',
+    'Instinct du Loup': 'Instinto del Lobo',
+    'Ni repos, ni abandon. Ta constance est ta plus grande force.': 'Sin descanso, sin rendición. Tu constancia es tu mayor fuerza.',
+    'Bonus de streak double (+20% par jour au lieu de +10%, max +100%)': 'Bonus de racha doble (+20%/día en vez de +10%, máx +100%)',
+    'Epreuve du Hirdman — Niveau 20': 'Prueba del Hirdman — Nivel 20',
+    'Le chemin se divise. Approfondis ta specialisation.': 'El camino se divide. Profundiza tu especialización.',
+    'Ne du Tonnerre': 'Nacido del Trueno',
+    'La foudre coule dans tes veines. Les defis physiques te forgent.': 'El rayo corre por tus venas. Los desafíos físicos te forjan.',
+    '+20% XP sur les defis quotidiens physiques + penalites reduites de 50%': '+20% XP en desafíos diarios físicos + penalizaciones reducidas 50%',
+    'Maitre des Runes': 'Maestro de Runas',
+    'Les runes te parlent. Chaque connaissance accelere ta progression.': 'Las runas te hablan. Cada conocimiento acelera tu progreso.',
+    '+10% XP global + bonus XP par rune possedee (+2% par rune)': '+10% XP global + bonus XP por runa poseída (+2% por runa)',
+    'Volonte de Fer': 'Voluntad de Hierro',
+    'Rien ne t\'arrete. Les penalites glissent sur toi comme la pluie.': 'Nada te detiene. Las penalizaciones resbalan como la lluvia.',
+    'Toutes les penalites reduites de 60% + 1 jour de repos bonus/semaine': 'Todas las penalizaciones reducidas 60% + 1 día de descanso bonus/semana',
+    'Sagesse du Hersir — Niveau 30': 'Sabiduría del Hersir — Nivel 30',
+    'Tu es un chef. Tes choix definissent ton heritage.': 'Eres un líder. Tus decisiones definen tu legado.',
+    'Forge de Guerre': 'Forja de Guerra',
+    'Ton corps est une arme vivante. Les records tombent plus vite.': 'Tu cuerpo es un arma viva. Los récords caen más rápido.',
+    '+25% XP seances + les records personnels donnent un bonus de +50 XP': '+25% XP sesiones + los récords personales dan +50 XP bonus',
+    'Oeil d\'Odin': 'Ojo de Odín',
+    'Tu vois tout, tu comprends tout. La sagesse accelere toute progression.': 'Lo ves todo, lo entiendes todo. La sabiduría acelera todo progreso.',
+    '+15% XP global permanent': '+15% XP global permanente',
+    'Flamme Eternelle': 'Llama Eterna',
+    'Ta flamme ne s\'eteint jamais. Le streak est ta plus grande arme.': 'Tu llama nunca se apaga. La racha es tu mejor arma.',
+    'Le streak ne se perd plus apres 1 jour d\'inactivite (grace de 24h)': 'La racha ya no se pierde tras 1 día de inactividad (gracia de 24h)',
+    'Ascension du Konungr — Niveau 40': 'Ascenso del Konungr — Nivel 40',
+    'Tu approches des dieux. Choisis ton pouvoir ultime.': 'Te acercas a los dioses. Elige tu poder definitivo.',
+    'La foudre incarnee. Tout effort physique est amplifie au maximum.': 'El rayo encarnado. Todo esfuerzo físico amplificado al máximo.',
+    '+30% XP sur tout ce qui est physique + seances donnent +50% XP': '+30% XP en todo lo físico + sesiones dan +50% XP',
+    'Avatar d\'Odin': 'Avatar de Odín',
+    'Tu as sacrifie un oeil pour la sagesse. Tout savoir t\'enrichit.': 'Sacrificaste un ojo por la sabiduría. Todo saber te enriquece.',
+    '+25% XP global sur toutes les sources': '+25% XP global en todas las fuentes',
+    'Avatar de Tyr': 'Avatar de Tyr',
+    'Le dieu de la justice et du sacrifice. Ta discipline est legendaire.': 'El dios de la justicia y el sacrificio. Tu disciplina es legendaria.',
+    'Penalites nulles + streak bonus triple + 2 jours de repos bonus': 'Sin penalizaciones + racha triple + 2 días de descanso bonus',
+
+    // === EPIC QUESTS ===
+    'Le Raid de Lindisfarne': 'La Incursión de Lindisfarne',
+    'Reproduis l\'exploit des premiers Vikings. 60 jours de discipline absolue.': 'Reproduce la hazaña de los primeros vikingos. 60 días de disciplina absoluta.',
+    'Preparer le Drakkar': 'Preparar el Drakkar', '7 jours de streak consecutifs': '7 días de racha consecutivos',
+    'Traverser la Mer du Nord': 'Cruzar el Mar del Norte', '20 seances physiques completees': '20 sesiones físicas completadas',
+    'Apercevoir les Cotes': 'Avistar la Costa', '30 jours de streak + 5000 XP gagnes': '30 días de racha + 5000 XP ganados',
+    'Debarquer a l\'Aube': 'Desembarcar al Amanecer', '50 defis quotidiens completes': '50 desafíos diarios completados',
+    'Piller le Monastere': 'Saquear el Monasterio', '60 jours de streak + niveau 10+': '60 días de racha + nivel 10+',
+    'Pilleur de Lindisfarne': 'Saqueador de Lindisfarne',
+    '2000 XP + Titre exclusif': '2000 XP + Título exclusivo',
+    'La Forge du Berserkr': 'La Forja del Berserkr',
+    '90 jours pour transformer ton corps en arme vivante.': '90 días para transformar tu cuerpo en un arma viva.',
+    'Chauffer la Forge': 'Calentar la Forja', '10 seances physiques + 500 pompes totales': '10 sesiones físicas + 500 flexiones totales',
+    'Marteler le Metal': 'Martillar el Metal', '25 jours de Solo Leveling completes': '25 días de Solo Leveling completados',
+    'Tremper dans la Glace': 'Templar en Hielo', '10 douches froides + 30 seances physiques': '10 duchas frías + 30 sesiones físicas',
+    'Aiguiser la Lame': 'Afilar la Hoja', '2000 pompes + 2000 squats + 50km': '2000 flexiones + 2000 sentadillas + 50km',
+    'Le Corps est l\'Arme': 'El Cuerpo es el Arma', '60 seances physiques + Solo Leveling semaine 5+': '60 sesiones físicas + Solo Leveling semana 5+',
+    'Berserkr Eternel': 'Berserkr Eterno',
+    '3000 XP + Titre exclusif': '3000 XP + Título exclusivo',
+    'Le Sacrifice d\'Odin': 'El Sacrificio de Odín',
+    '45 jours de sagesse et de discipline mentale.': '45 días de sabiduría y disciplina mental.',
+    'S\'accrocher a l\'Arbre': 'Aferrarse al Árbol', '7 jours de meditation consecutive (3 min/jour)': '7 días de meditación consecutiva (3 min/día)',
+    'Voir les Runes': 'Ver las Runas', '3 runes collectees + 150 min de lecture': '3 runas colectadas + 150 min de lectura',
+    'Comprendre le Cosmos': 'Comprender el Cosmos', '30 reflexions stoiques + 10 seances meditation': '30 reflexiones estoicas + 10 sesiones de meditación',
+    'L\'Oeil Sacrifie': 'El Ojo Sacrificado', '45 jours streak + 5 competences Arbre de Vie': '45 días de racha + 5 habilidades del Árbol de Vida',
+    '1500 XP + Titre exclusif': '1500 XP + Título exclusivo',
+    'Preparation au Ragnarok': 'Preparación para el Ragnarok',
+    '90 jours pour devenir un Einherjar digne du Valhalla.': '90 días para convertirse en un Einherjar digno del Valhalla.',
+    'L\'Appel des Valkyries': 'La Llamada de las Valquirias', 'Streak 10j + 3000 XP gagnes': 'Racha 10 días + 3000 XP ganados',
+    'Forger Mjolnir': 'Forjar Mjolnir', '30 seances + 20 defis completes': '30 sesiones + 20 desafíos completados',
+    'Dompter Fenrir': 'Domar a Fenrir', 'Solo Leveling semaine 6+ + 45j streak': 'Solo Leveling semana 6+ + racha 45 días',
+    'Naviguer sur Naglfar': 'Navegar en Naglfar', '6 royaumes debloques + 10000 XP gagnes': '6 reinos desbloqueados + 10000 XP ganados',
+    'Le Crepuscule des Dieux': 'El Crepúsculo de los Dioses', '90j streak + niveau 25+ + 12 runes + Solo S8+': 'Racha 90 días + nivel 25+ + 12 runas + Solo S8+',
+    'Einherjar du Ragnarok': 'Einherjar del Ragnarok',
+    '5000 XP + Titre legendaire': '5000 XP + Título legendario',
+    'La Voie du Viking': 'El Camino del Vikingo',
+    '30 jours pour poser les fondations d\'un guerrier.': '30 días para sentar las bases de un guerrero.',
+    'Premier Pas': 'Primer Paso', '3 jours de streak': '3 días de racha',
+    'Premiere Semaine': 'Primera Semana', '7j streak + 5 seances completees': 'Racha 7 días + 5 sesiones completadas',
+    'Le Sang du Guerrier': 'La Sangre del Guerrero', '10 defis completes + 100 pompes': '10 desafíos completados + 100 flexiones',
+    'Forgeron de Soi': 'Herrero de Sí Mismo', '30j streak + niveau 5+ + 1 rune': 'Racha 30 días + nivel 5+ + 1 runa',
+    'Viking Authentique': 'Vikingo Auténtico',
+    '1000 XP + Titre exclusif': '1000 XP + Título exclusivo',
+
+    // === VIKING RUNES ===
+    'Richesse': 'Riqueza', 'Premiere rune du Futhark — prosperite et abondance': 'Primera runa del Futhark — prosperidad y abundancia', 'Premiere quete completee': 'Primera misión completada',
+    'Force': 'Fuerza', 'L\'aurochs sauvage — force brute et endurance': 'El uro salvaje — fuerza bruta y resistencia', '50 pompes au total': '50 flexiones en total',
+    'Geant': 'Gigante', 'Le marteau de Thor — protection et puissance': 'El martillo de Thor — protección y poder', 'Atteindre le niveau 3': 'Alcanzar el nivel 3',
+    'Dieu': 'Dios', 'Le souffle d\'Odin — sagesse et communication': 'El aliento de Odín — sabiduría y comunicación', '10 seances de meditation': '10 sesiones de meditación',
+    'Voyage': 'Viaje', 'Le chariot — mouvement et progression': 'El carro — movimiento y progresión', '30 km de marche au total': '30 km de caminata en total',
+    'Torche': 'Antorcha', 'La flamme de la connaissance — creativite et vision': 'La llama del conocimiento — creatividad y visión', '5 heures de lecture au total': '5 horas de lectura en total',
+    'Don': 'Don', 'Le don sacre — generosité et echange': 'El don sagrado — generosidad e intercambio', '10 moments sociaux': '10 momentos sociales',
+    'Joie': 'Alegría', 'La banniere de joie — bonheur et harmonie': 'El estandarte de alegría — felicidad y armonía', 'Streak de 7 jours': 'Racha de 7 días',
+    'Grele': 'Granizo', 'La tempete purificatrice — transformation et renouveau': 'La tormenta purificadora — transformación y renovación', '10 douches froides': '10 duchas frías',
+    'Besoin': 'Necesidad', 'Le feu de la necessite — resilience et survie': 'El fuego de la necesidad — resiliencia y supervivencia', '20 jours sans malbouffe': '20 días sin comida chatarra',
+    'Glace': 'Hielo', 'La glace immobile — patience et concentration': 'El hielo inmóvil — paciencia y concentración', '30 seances de deconnexion': '30 sesiones de desconexión',
+    'Recolte': 'Cosecha', 'Le cycle des saisons — recompense du travail': 'El ciclo de las estaciones — recompensa del trabajo', 'Completer toutes les quetes quotidiennes 5 fois': 'Completar todas las misiones diarias 5 veces',
+    'If': 'Tejo', 'L\'arbre Yggdrasil — eternite et connexion': 'El árbol Yggdrasil — eternidad y conexión', 'Streak de 21 jours': 'Racha de 21 días',
+    'Destin': 'Destino', 'Le calice du destin — mystere et chance': 'El cáliz del destino — misterio y suerte', 'Debloquer une quete secrete': 'Desbloquear una misión secreta',
+    'Protection': 'Protección', 'Les bois de l\'elan — protection et defense': 'Las astas del alce — protección y defensa', 'Atteindre le niveau 5': 'Alcanzar el nivel 5',
+    'Soleil': 'Sol', 'Le soleil victorieux — succes et vitalite': 'El sol victorioso — éxito y vitalidad', '1000 XP total': '1000 XP total',
+    'Tyr': 'Tyr', 'L\'epee de Tyr — justice et honneur': 'La espada de Tyr — justicia y honor', 'Completer 5 quetes de Stakr': 'Completar 5 misiones de Stakr',
+    'Bouleau': 'Abedul', 'Le bouleau sacre — croissance et renaissance': 'El abedul sagrado — crecimiento y renacimiento', 'Atteindre le niveau 7': 'Alcanzar el nivel 7',
+    'Cheval': 'Caballo', 'Le cheval d\'Odin — mouvement et partenariat': 'El caballo de Odín — movimiento y compañerismo', '100 km de marche au total': '100 km de caminata en total',
+    'Homme': 'Humano', 'L\'humanite — connaissance de soi': 'La humanidad — autoconocimiento', '50 entrees de gratitude': '50 entradas de gratitud',
+    'Eau': 'Agua', 'Le lac sacre — intuition et flux': 'El lago sagrado — intuición y flujo', '100 litres d\'eau au total': '100 litros de agua en total',
+    'Ing': 'Ing', 'Le dieu de la fertilite — accomplissement': 'El dios de la fertilidad — logro', 'Atteindre le niveau 9': 'Alcanzar el nivel 9',
+    'Jour': 'Día', 'L\'aube nouvelle — eveil et clarte': 'El nuevo amanecer — despertar y claridad', 'Streak de 30 jours': 'Racha de 30 días',
+    'Heritage': 'Herencia', 'Le domaine ancestral — heritage et racines': 'El dominio ancestral — herencia y raíces', 'Atteindre le niveau 10 — Einherjar': 'Alcanzar el nivel 10 — Einherjar',
+
+    // === SECRET QUESTS ===
+    'L\'Aube du Viking': 'El Amanecer Vikingo', 'Valider une quete avant 6h du matin': 'Completar una misión antes de las 6 AM',
+    'Centurion du Nord': 'Centurión del Norte', 'Faire 100 pompes en un jour': 'Hacer 100 flexiones en un día',
+    'Semaine d\'Odin': 'Semana de Odín', 'Completer tous les objectifs quotidiens 7 jours de suite': 'Completar todos los objetivos diarios 7 días seguidos',
+    'Marathon de Midgard': 'Maratón de Midgard', 'Marcher 42 km au total': 'Caminar 42 km en total',
+    'Sage de Mimir': 'Sabio de Mimir', 'Lire 10 heures au total': 'Leer 10 horas en total',
+    'Boire 50 litres au total': 'Beber 50 litros en total',
+    'Hibou de Huginn': 'Búho de Huginn', 'Valider une quete apres minuit': 'Completar una misión después de medianoche',
+    'Graveur de Runes': 'Grabador de Runas', 'Collecter 5 runes': 'Colectar 5 runas',
+    'Collecter 12 runes': 'Colectar 12 runas',
+    'Volva Eternelle': 'Völva Eterna', 'Collecter les 24 runes du Futhark': 'Colectar las 24 runas del Futhark',
+    'Forgeron d\'Habitudes': 'Herrero de Hábitos', '30 jours de suite sans faillir': '30 días seguidos sin fallar',
+    'Tresor de Fafnir': 'Tesoro de Fafnir', 'Accumuler 1000 XP total': 'Acumular 1000 XP total',
+    'Hoard du Dragon': 'Tesoro del Dragón', 'Accumuler 5000 XP total': 'Acumular 5000 XP total',
+
+    // === DIFFICULTY / CATEGORIES / TAGS / MISC ===
+    'Facile': 'Fácil', 'Moyen': 'Medio', 'Difficile': 'Difícil', 'LEGENDAIRE': 'LEGENDARIO',
+    'facile': 'fácil', 'moyen': 'medio', 'difficile': 'difícil', 'legendaire': 'legendario',
+    'Physique': 'Físico', 'Mental': 'Mental', 'Sante': 'Salud', 'Social': 'Social', 'Personnel': 'Personal',
+    'Stoicisme': 'Estoicismo', 'Sagesse Viking': 'Sabiduría Vikinga', 'Discipline': 'Disciplina',
+    'Limite atteinte': 'Límite alcanzado',
+    'Tu ne peux avoir que 3 objectifs personnels. Supprime-en un d\'abord !': 'Solo puedes tener 3 objetivos personales. ¡Elimina uno primero!',
+    'Erreur': 'Error',
+    'Donne un nom a ton objectif.': 'Dale un nombre a tu objetivo.',
+    'Objectif ajoute': 'Objetivo añadido', 'Objectif supprime': 'Objetivo eliminado',
+    'jour': 'día', 'semaine': 'semana', 'sem': 'sem',
+    'fois': 'veces', 'defi': 'desafío', 'session': 'sesión', 'repas': 'comida',
+    'Niveau insuffisant': 'Nivel insuficiente',
+    'Deja en cours': 'Ya en progreso',
+    'Cette quete est deja active ou completee.': 'Esta misión ya está activa o completada.',
+    'Export reussi': 'Exportación exitosa',
+    'Rune debloquee !': '¡Runa desbloqueada!',
+    'Quete Secrete !': '¡Misión Secreta!',
+    'STAKR TRANSCENDE !': '¡STAKR TRASCENDIÓ!',
+    'Meditation': 'Meditación', 'Sagesse': 'Sabiduría',
+    'Stakr reflechit...': 'Stakr está pensando...',
+    'Stakr, cree-moi des quetes !': '¡Stakr, créame misiones!',
+    'Competence debloquee !': '¡Habilidad desbloqueada!',
+    'par': 'por', 'Supprimer': 'Eliminar',
+    'Tu dois etre niveau': 'Debes ser nivel',
+    'Etape epique !': '¡Hito épico!',
+    'QUETE EPIQUE TERMINEE !': '¡MISIÓN ÉPICA COMPLETADA!',
+    'Deja choisi': 'Ya elegido',
+    'Tu as deja fait ton choix pour ce palier.': 'Ya hiciste tu elección para este nivel.',
+    'Specialisation choisie !': '¡Especialización elegida!',
+    // === BOSS POOL ===
+    'Jormungandr le Devorant': 'Jormungandr el Devorador', 'Le serpent-monde resserre son etreinte — seule ta force brute peut briser ses anneaux.': 'La serpiente mundial aprieta su abrazo — solo tu fuerza bruta puede romper sus anillos.',
+    'Fenrir Dechaine': 'Fenrir Desencadenado', 'Le loup cosmique a brise ses chaines. Tes muscles sont ton seul bouclier.': 'El lobo cósmico rompió sus cadenas. Tus músculos son tu único escudo.',
+    'Surtr le Geant de Feu': 'Surtr el Gigante de Fuego', 'Le seigneur de Muspelheim avance. Ton endurance sera mise a l\'epreuve.': 'El señor de Muspelheim avanza. Tu resistencia será puesta a prueba.',
+    'Nidhogg le Rongeur': 'Nidhogg el Roedor', 'Le dragon qui devore les racines d\'Yggdrasil. Frappe-le de toute ta puissance.': 'El dragón que devora las raíces de Yggdrasil. Golpéalo con toda tu fuerza.',
+    'Hrungnir Coeur-de-Pierre': 'Hrungnir Corazón de Piedra', 'Le geant au coeur de roc. Seul un corps forge dans le fer peut le fissurer.': 'El gigante con corazón de roca. Solo un cuerpo forjado en hierro puede agrietarlo.',
+    'Garm le Chien Sanglant': 'Garm el Perro Sangriento', 'Le gardien de Helheim hurle a la lune. Ta vigueur est ta seule arme.': 'El guardián de Helheim aúlla a la luna. Tu vigor es tu única arma.',
+    'Thiazi l\'Aigle des Tempetes': 'Thiazi el Águila de las Tormentas', 'Ses ailes declenchent des ouragans. Tiens bon, guerrier, et frappe fort.': 'Sus alas desatan huracanes. Resiste, guerrero, y golpea fuerte.',
+    'Fafnir le Dragon d\'Or': 'Fafnir el Dragón Dorado', 'Le nain devenu dragon par la cupidite. Ecrase-le sous le poids de ton effort.': 'El enano convertido en dragón por la codicia. Aplástalo con el peso de tu esfuerzo.',
+    'Le Murmure de Loki': 'El Susurro de Loki', 'Le dieu de la ruse s\'infiltre dans ton esprit. Seule ta discipline peut le repousser.': 'El dios del engaño se infiltra en tu mente. Solo tu disciplina puede rechazarlo.',
+    'L\'Ombre de Hel': 'La Sombra de Hel', 'La deesse des morts projette le doute. Medite, lis, et son emprise faiblira.': 'La diosa de los muertos proyecta la duda. Medita, lee, y su dominio se debilitará.',
+    'Le Kraken des Abysses': 'El Kraken del Abismo', 'La creature remonte des profondeurs de ton subconscient. Concentre-toi pour la vaincre.': 'La criatura asciende de las profundidades de tu subconsciente. Concéntrate para vencerla.',
+    'Les Draugr de l\'Oubli': 'Los Draugr del Olvido', 'Des morts-vivants qui effacent ta memoire. Nourris ton esprit pour les repousser.': 'Muertos vivientes que borran tu memoria. Alimenta tu mente para rechazarlos.',
+    'Angrboda la Sorciere': 'Angrboda la Hechicera', 'La mere des monstres tisse un voile de confusion. Ta sagesse est ton epee.': 'La madre de los monstruos teje un velo de confusión. Tu sabiduría es tu espada.',
+    'Ratatoskr le Semeur de Chaos': 'Ratatoskr el Sembrador de Caos', 'L\'ecureuil d\'Yggdrasil repand mensonges et distractions. Reste concentre.': 'La ardilla de Yggdrasil esparce mentiras y distracciones. Mantente concentrado.',
+    'Le Wyrm de Niflheim': 'El Wyrm de Niflheim', 'Un brouillard glacial envahit ton esprit. Seule la clarte mentale le dissipera.': 'Una niebla gélida invade tu mente. Solo la claridad mental la disipará.',
+    'Skoll Devoreur de Soleil': 'Skoll Devorador del Sol', 'Le loup qui poursuit le soleil menace d\'eteindre ta lumiere interieure.': 'El lobo que persigue al sol amenaza con apagar tu luz interior.',
+    'Le Ragnarok Silencieux': 'El Ragnarok Silencioso', 'La fin du monde commence par l\'abandon. Prouve que ta regularite est indestructible.': 'El fin del mundo empieza por la rendición. Demuestra que tu constancia es indestructible.',
+    'Le Fimbulvetr Eternel': 'El Fimbulvetr Eterno', 'L\'hiver sans fin teste ta perseverance. Chaque quete accomplie est un feu qui brule.': 'El invierno sin fin prueba tu perseverancia. Cada misión cumplida es un fuego que arde.',
+    'L\'Hydre de la Paresse': 'La Hidra de la Pereza', 'Chaque tete repoussee te rend plus fort. Complete tes quetes pour la terrasser.': 'Cada cabeza rechazada te hace más fuerte. Completa tus misiones para derrotarla.',
+    'Le Maelstrom du Neant': 'El Maelstrom de la Nada', 'Un tourbillon qui aspire ta motivation. Seule la constance peut t\'en sortir.': 'Un torbellino que absorbe tu motivación. Solo la constancia puede salvarte.',
+    'Grendel le Destructeur': 'Grendel el Destructor', 'Le monstre frappe chaque nuit. Ta routine quotidienne est ta forteresse.': 'El monstruo golpea cada noche. Tu rutina diaria es tu fortaleza.',
+    'Les Nornes Corrompues': 'Las Nornas Corrompidas', 'Le destin lui-meme est corrompu. Retisse-le fil par fil, quete par quete.': 'El destino mismo está corrompido. Retéjelo hilo por hilo, misión por misión.',
+    'Aegir le Noyeur': 'Aegir el Ahogador', 'Le geant des mers veut te submerger. Nage a contre-courant, jour apres jour.': 'El gigante del mar quiere sumergirte. Nada contra corriente, día tras día.',
+    'Le Jotunn de l\'Inertie': 'El Jotunn de la Inercia', 'Un geant de glace qui fige tout. Seul le mouvement constant peut le faire fondre.': 'Un gigante de hielo que congela todo. Solo el movimiento constante puede derretirlo.',
+    'physique': 'físico', 'mental': 'mental', 'assiduite': 'constancia',
+  },
+  pt: {
+    // === YGGDRASIL SKILL TREE ===
+    'Branche de Thor': 'Ramo de Thor', 'Force & Endurance': 'Força e Resistência',
+    'Branche d\'Odin': 'Ramo de Odin', 'Sagesse & Discipline': 'Sabedoria e Disciplina',
+    'Branche de Freya': 'Ramo de Freya', 'Vitalite & Guerison': 'Vitalidade e Cura',
+    'Branche de Baldur': 'Ramo de Baldur', 'Lien & Communaute': 'Vínculo e Comunidade',
+    'Force du Thrall': 'Força do Thrall', 'Tes muscles s\'eveillent': 'Seus músculos despertam',
+    'Poigne du Karl': 'Punho do Karl', 'Tes bras sont d\'acier': 'Seus braços são de aço',
+    'Endurance du Berserkr': 'Resistência do Berserkr', 'Tu cours comme un loup': 'Você corre como um lobo',
+    'Corps du Hersir': 'Corpo do Hersir', 'Forge dans le feu et la glace': 'Forjado no fogo e no gelo',
+    'Avatar de Thor': 'Avatar de Thor', 'Tu es la foudre incarnee': 'Você é o raio encarnado',
+    'Eveil de l\'Esprit': 'Despertar do Espírito', 'La meditation ouvre tes sens': 'A meditação abre seus sentidos',
+    'Oeil du Sage': 'Olho do Sábio', 'Les livres revelent leurs secrets': 'Os livros revelam seus segredos',
+    'Discipline du Drengr': 'Disciplina do Drengr', 'Ton esprit est une forteresse': 'Sua mente é uma fortaleza',
+    'Memoire de Mimir': 'Memória de Mimir', 'Tu retiens tout ce que tu lis': 'Você lembra tudo o que lê',
+    'Sagesse d\'Odin': 'Sabedoria de Odin', 'Tu vois au-dela du voile': 'Você vê além do véu',
+    'Source d\'Urd': 'Fonte de Urd', 'L\'eau pure coule en toi': 'A água pura flui em você',
+    'Sommeil du Juste': 'Sono do Justo', 'Tes nuits reparent ton corps': 'Suas noites reparam seu corpo',
+    'Sang de Glace': 'Sangue de Gelo', 'Le froid est ton allie': 'O frio é seu aliado',
+    'Festin de Freya': 'Festim de Freya', 'Ton corps est un temple': 'Seu corpo é um templo',
+    'Immortalite d\'Idunn': 'Imortalidade de Idunn', 'Les pommes d\'or coulent dans tes veines': 'As maçãs douradas correm em suas veias',
+    'Premier Lien': 'Primeiro Vínculo', 'Tu tends la main': 'Você estende a mão',
+    'Voix du Skald': 'Voz do Skald', 'Tes mots portent loin': 'Suas palavras ecoam longe',
+    'Charisme du Jarl': 'Carisma do Jarl', 'On te suit naturellement': 'As pessoas te seguem naturalmente',
+    'Cercle du Thing': 'Círculo do Thing', 'Tu rassembles les gens': 'Você reúne as pessoas',
+    'Lumiere de Baldur': 'Luz de Baldur', 'Ta presence illumine les autres': 'Sua presença ilumina os outros',
+    '+5% XP Physique': '+5% XP Físico', '+10% XP Physique': '+10% XP Físico',
+    '+5% XP Mental': '+5% XP Mental', '+10% XP Mental': '+10% XP Mental',
+    '+5% XP Sante': '+5% XP Saúde', '+10% XP Sante': '+10% XP Saúde',
+    '+5% XP Social': '+5% XP Social', '+10% XP Social': '+10% XP Social',
+    '+5% XP Global': '+5% XP Global',
+    'Debloque: Gainage': 'Desbloqueia: Prancha', 'Debloque: Defi Guerrier': 'Desbloqueia: Desafio Guerreiro',
+    'Debloque: Visualisation': 'Desbloqueia: Visualização', 'Debloque: Etude profonde': 'Desbloqueia: Estudo Profundo',
+    'Debloque: Repas Viking': 'Desbloqueia: Refeição Viking', 'Bouclier de Streak (1x/sem)': 'Escudo de Sequência (1x/sem)',
+    'Debloque: Acte de bonte': 'Desbloqueia: Ato de Bondade', 'Debloque: Mentorat': 'Desbloqueia: Mentoria',
+    'Gainage': 'Prancha', 'Defi Guerrier': 'Desafio Guerreiro', 'Visualisation': 'Visualização',
+    'Etude profonde': 'Estudo Profundo', 'Repas Viking': 'Refeição Viking', 'Acte de bonte': 'Ato de Bondade',
+    'Mentorat': 'Mentoria',
+
+    // === SPECIALIZATIONS ===
+    'Voie du Guerrier — Niveau 10': 'Caminho do Guerreiro — Nível 10',
+    'Tu as prouve ta valeur. Choisis ta premiere specialisation.': 'Você provou seu valor. Escolha sua primeira especialização.',
+    'Furie du Berserkr': 'Fúria do Berserkr',
+    'La rage brule en toi. Chaque seance physique est plus intense.': 'A raiva arde em você. Cada sessão física é mais intensa.',
+    '+15% XP sur les seances physiques et le Solo Leveling': '+15% XP em sessões físicas e Solo Leveling',
+    '+15% XP sur les quetes mentales et la meditation': '+15% XP em missões mentais e meditação',
+    'Les mots sont tes armes. Sagesse et discipline te guident.': 'As palavras são suas armas. Sabedoria e disciplina te guiam.',
+    'Instinct du Loup': 'Instinto do Lobo',
+    'Ni repos, ni abandon. Ta constance est ta plus grande force.': 'Sem descanso, sem desistência. Sua constância é sua maior força.',
+    'Bonus de streak double (+20% par jour au lieu de +10%, max +100%)': 'Bônus de sequência dobrado (+20%/dia em vez de +10%, máx +100%)',
+    'Epreuve du Hirdman — Niveau 20': 'Provação do Hirdman — Nível 20',
+    'Le chemin se divise. Approfondis ta specialisation.': 'O caminho se divide. Aprofunde sua especialização.',
+    'Ne du Tonnerre': 'Nascido do Trovão',
+    'La foudre coule dans tes veines. Les defis physiques te forgent.': 'O raio corre em suas veias. Os desafios físicos te forjam.',
+    '+20% XP sur les defis quotidiens physiques + penalites reduites de 50%': '+20% XP em desafios diários físicos + penalidades reduzidas 50%',
+    'Maitre des Runes': 'Mestre das Runas',
+    'Les runes te parlent. Chaque connaissance accelere ta progression.': 'As runas falam com você. Cada conhecimento acelera seu progresso.',
+    '+10% XP global + bonus XP par rune possedee (+2% par rune)': '+10% XP global + bônus XP por runa possuída (+2% por runa)',
+    'Volonte de Fer': 'Vontade de Ferro',
+    'Rien ne t\'arrete. Les penalites glissent sur toi comme la pluie.': 'Nada te para. As penalidades escorrem como chuva.',
+    'Toutes les penalites reduites de 60% + 1 jour de repos bonus/semaine': 'Todas as penalidades reduzidas 60% + 1 dia de descanso bônus/semana',
+    'Sagesse du Hersir — Niveau 30': 'Sabedoria do Hersir — Nível 30',
+    'Tu es un chef. Tes choix definissent ton heritage.': 'Você é um líder. Suas escolhas definem seu legado.',
+    'Forge de Guerre': 'Forja de Guerra',
+    'Ton corps est une arme vivante. Les records tombent plus vite.': 'Seu corpo é uma arma viva. Os recordes caem mais rápido.',
+    '+25% XP seances + les records personnels donnent un bonus de +50 XP': '+25% XP sessões + recordes pessoais dão bônus de +50 XP',
+    'Oeil d\'Odin': 'Olho de Odin',
+    'Tu vois tout, tu comprends tout. La sagesse accelere toute progression.': 'Você vê tudo, entende tudo. A sabedoria acelera todo progresso.',
+    '+15% XP global permanent': '+15% XP global permanente',
+    'Flamme Eternelle': 'Chama Eterna',
+    'Ta flamme ne s\'eteint jamais. Le streak est ta plus grande arme.': 'Sua chama nunca se apaga. A sequência é sua maior arma.',
+    'Le streak ne se perd plus apres 1 jour d\'inactivite (grace de 24h)': 'A sequência não se perde mais após 1 dia de inatividade (graça de 24h)',
+    'Ascension du Konungr — Niveau 40': 'Ascensão do Konungr — Nível 40',
+    'Tu approches des dieux. Choisis ton pouvoir ultime.': 'Você se aproxima dos deuses. Escolha seu poder supremo.',
+    'La foudre incarnee. Tout effort physique est amplifie au maximum.': 'O raio encarnado. Todo esforço físico amplificado ao máximo.',
+    '+30% XP sur tout ce qui est physique + seances donnent +50% XP': '+30% XP em tudo que é físico + sessões dão +50% XP',
+    'Avatar d\'Odin': 'Avatar de Odin',
+    'Tu as sacrifie un oeil pour la sagesse. Tout savoir t\'enrichit.': 'Você sacrificou um olho pela sabedoria. Todo saber te enriquece.',
+    '+25% XP global sur toutes les sources': '+25% XP global em todas as fontes',
+    'Avatar de Tyr': 'Avatar de Tyr',
+    'Le dieu de la justice et du sacrifice. Ta discipline est legendaire.': 'O deus da justiça e do sacrifício. Sua disciplina é lendária.',
+    'Penalites nulles + streak bonus triple + 2 jours de repos bonus': 'Sem penalidades + bônus de sequência triplo + 2 dias de descanso bônus',
+
+    // === EPIC QUESTS ===
+    'Le Raid de Lindisfarne': 'A Invasão de Lindisfarne',
+    'Reproduis l\'exploit des premiers Vikings. 60 jours de discipline absolue.': 'Reproduza o feito dos primeiros Vikings. 60 dias de disciplina absoluta.',
+    'Preparer le Drakkar': 'Preparar o Drakkar', '7 jours de streak consecutifs': '7 dias de sequência consecutivos',
+    'Traverser la Mer du Nord': 'Cruzar o Mar do Norte', '20 seances physiques completees': '20 sessões físicas completadas',
+    'Apercevoir les Cotes': 'Avistar a Costa', '30 jours de streak + 5000 XP gagnes': '30 dias de sequência + 5000 XP ganhos',
+    'Debarquer a l\'Aube': 'Desembarcar ao Amanhecer', '50 defis quotidiens completes': '50 desafios diários completados',
+    'Piller le Monastere': 'Saquear o Mosteiro', '60 jours de streak + niveau 10+': '60 dias de sequência + nível 10+',
+    'Pilleur de Lindisfarne': 'Saqueador de Lindisfarne',
+    '2000 XP + Titre exclusif': '2000 XP + Título exclusivo',
+    'La Forge du Berserkr': 'A Forja do Berserkr',
+    '90 jours pour transformer ton corps en arme vivante.': '90 dias para transformar seu corpo em uma arma viva.',
+    'Chauffer la Forge': 'Aquecer a Forja', '10 seances physiques + 500 pompes totales': '10 sessões físicas + 500 flexões totais',
+    'Marteler le Metal': 'Martelar o Metal', '25 jours de Solo Leveling completes': '25 dias de Solo Leveling completados',
+    'Tremper dans la Glace': 'Temperar no Gelo', '10 douches froides + 30 seances physiques': '10 banhos frios + 30 sessões físicas',
+    'Aiguiser la Lame': 'Afiar a Lâmina', '2000 pompes + 2000 squats + 50km': '2000 flexões + 2000 agachamentos + 50km',
+    'Le Corps est l\'Arme': 'O Corpo é a Arma', '60 seances physiques + Solo Leveling semaine 5+': '60 sessões físicas + Solo Leveling semana 5+',
+    'Berserkr Eternel': 'Berserkr Eterno',
+    '3000 XP + Titre exclusif': '3000 XP + Título exclusivo',
+    'Le Sacrifice d\'Odin': 'O Sacrifício de Odin',
+    '45 jours de sagesse et de discipline mentale.': '45 dias de sabedoria e disciplina mental.',
+    'S\'accrocher a l\'Arbre': 'Agarrar-se à Árvore', '7 jours de meditation consecutive (3 min/jour)': '7 dias de meditação consecutiva (3 min/dia)',
+    'Voir les Runes': 'Ver as Runas', '3 runes collectees + 150 min de lecture': '3 runas coletadas + 150 min de leitura',
+    'Comprendre le Cosmos': 'Compreender o Cosmos', '30 reflexions stoiques + 10 seances meditation': '30 reflexões estoicas + 10 sessões de meditação',
+    'L\'Oeil Sacrifie': 'O Olho Sacrificado', '45 jours streak + 5 competences Arbre de Vie': '45 dias de sequência + 5 habilidades da Árvore da Vida',
+    '1500 XP + Titre exclusif': '1500 XP + Título exclusivo',
+    'Preparation au Ragnarok': 'Preparação para o Ragnarok',
+    '90 jours pour devenir un Einherjar digne du Valhalla.': '90 dias para se tornar um Einherjar digno do Valhalla.',
+    'L\'Appel des Valkyries': 'O Chamado das Valquírias', 'Streak 10j + 3000 XP gagnes': 'Sequência 10 dias + 3000 XP ganhos',
+    'Forger Mjolnir': 'Forjar Mjolnir', '30 seances + 20 defis completes': '30 sessões + 20 desafios completados',
+    'Dompter Fenrir': 'Domar Fenrir', 'Solo Leveling semaine 6+ + 45j streak': 'Solo Leveling semana 6+ + sequência 45 dias',
+    'Naviguer sur Naglfar': 'Navegar em Naglfar', '6 royaumes debloques + 10000 XP gagnes': '6 reinos desbloqueados + 10000 XP ganhos',
+    'Le Crepuscule des Dieux': 'O Crepúsculo dos Deuses', '90j streak + niveau 25+ + 12 runes + Solo S8+': 'Sequência 90 dias + nível 25+ + 12 runas + Solo S8+',
+    'Einherjar du Ragnarok': 'Einherjar do Ragnarok',
+    '5000 XP + Titre legendaire': '5000 XP + Título lendário',
+    'La Voie du Viking': 'O Caminho do Viking',
+    '30 jours pour poser les fondations d\'un guerrier.': '30 dias para lançar as fundações de um guerreiro.',
+    'Premier Pas': 'Primeiro Passo', '3 jours de streak': '3 dias de sequência',
+    'Premiere Semaine': 'Primeira Semana', '7j streak + 5 seances completees': 'Sequência 7 dias + 5 sessões completadas',
+    'Le Sang du Guerrier': 'O Sangue do Guerreiro', '10 defis completes + 100 pompes': '10 desafios completados + 100 flexões',
+    'Forgeron de Soi': 'Ferreiro de Si Mesmo', '30j streak + niveau 5+ + 1 rune': 'Sequência 30 dias + nível 5+ + 1 runa',
+    'Viking Authentique': 'Viking Autêntico',
+    '1000 XP + Titre exclusif': '1000 XP + Título exclusivo',
+
+    // === VIKING RUNES ===
+    'Richesse': 'Riqueza', 'Premiere rune du Futhark — prosperite et abondance': 'Primeira runa do Futhark — prosperidade e abundância', 'Premiere quete completee': 'Primeira missão completada',
+    'Force': 'Força', 'L\'aurochs sauvage — force brute et endurance': 'O auroque selvagem — força bruta e resistência', '50 pompes au total': '50 flexões no total',
+    'Geant': 'Gigante', 'Le marteau de Thor — protection et puissance': 'O martelo de Thor — proteção e poder', 'Atteindre le niveau 3': 'Alcançar o nível 3',
+    'Dieu': 'Deus', 'Le souffle d\'Odin — sagesse et communication': 'O sopro de Odin — sabedoria e comunicação', '10 seances de meditation': '10 sessões de meditação',
+    'Voyage': 'Viagem', 'Le chariot — mouvement et progression': 'A carruagem — movimento e progressão', '30 km de marche au total': '30 km de caminhada no total',
+    'Torche': 'Tocha', 'La flamme de la connaissance — creativite et vision': 'A chama do conhecimento — criatividade e visão', '5 heures de lecture au total': '5 horas de leitura no total',
+    'Don': 'Dom', 'Le don sacre — generosité et echange': 'O dom sagrado — generosidade e troca', '10 moments sociaux': '10 momentos sociais',
+    'Joie': 'Alegria', 'La banniere de joie — bonheur et harmonie': 'O estandarte de alegria — felicidade e harmonia', 'Streak de 7 jours': 'Sequência de 7 dias',
+    'Grele': 'Granizo', 'La tempete purificatrice — transformation et renouveau': 'A tempestade purificadora — transformação e renovação', '10 douches froides': '10 banhos frios',
+    'Besoin': 'Necessidade', 'Le feu de la necessite — resilience et survie': 'O fogo da necessidade — resiliência e sobrevivência', '20 jours sans malbouffe': '20 dias sem besteira',
+    'Glace': 'Gelo', 'La glace immobile — patience et concentration': 'O gelo imóvel — paciência e concentração', '30 seances de deconnexion': '30 sessões de desconexão',
+    'Recolte': 'Colheita', 'Le cycle des saisons — recompense du travail': 'O ciclo das estações — recompensa do trabalho', 'Completer toutes les quetes quotidiennes 5 fois': 'Completar todas as missões diárias 5 vezes',
+    'If': 'Teixo', 'L\'arbre Yggdrasil — eternite et connexion': 'A árvore Yggdrasil — eternidade e conexão', 'Streak de 21 jours': 'Sequência de 21 dias',
+    'Destin': 'Destino', 'Le calice du destin — mystere et chance': 'O cálice do destino — mistério e sorte', 'Debloquer une quete secrete': 'Desbloquear uma missão secreta',
+    'Protection': 'Proteção', 'Les bois de l\'elan — protection et defense': 'Os chifres do alce — proteção e defesa', 'Atteindre le niveau 5': 'Alcançar o nível 5',
+    'Soleil': 'Sol', 'Le soleil victorieux — succes et vitalite': 'O sol vitorioso — sucesso e vitalidade', '1000 XP total': '1000 XP total',
+    'Tyr': 'Tyr', 'L\'epee de Tyr — justice et honneur': 'A espada de Tyr — justiça e honra', 'Completer 5 quetes de Stakr': 'Completar 5 missões do Stakr',
+    'Bouleau': 'Bétula', 'Le bouleau sacre — croissance et renaissance': 'A bétula sagrada — crescimento e renascimento', 'Atteindre le niveau 7': 'Alcançar o nível 7',
+    'Cheval': 'Cavalo', 'Le cheval d\'Odin — mouvement et partenariat': 'O cavalo de Odin — movimento e parceria', '100 km de marche au total': '100 km de caminhada no total',
+    'Homme': 'Humano', 'L\'humanite — connaissance de soi': 'A humanidade — autoconhecimento', '50 entrees de gratitude': '50 entradas de gratidão',
+    'Eau': 'Água', 'Le lac sacre — intuition et flux': 'O lago sagrado — intuição e fluxo', '100 litres d\'eau au total': '100 litros de água no total',
+    'Ing': 'Ing', 'Le dieu de la fertilite — accomplissement': 'O deus da fertilidade — realização', 'Atteindre le niveau 9': 'Alcançar o nível 9',
+    'Jour': 'Dia', 'L\'aube nouvelle — eveil et clarte': 'O novo amanhecer — despertar e clareza', 'Streak de 30 jours': 'Sequência de 30 dias',
+    'Heritage': 'Herança', 'Le domaine ancestral — heritage et racines': 'O domínio ancestral — herança e raízes', 'Atteindre le niveau 10 — Einherjar': 'Alcançar o nível 10 — Einherjar',
+
+    // === SECRET QUESTS ===
+    'L\'Aube du Viking': 'O Amanhecer Viking', 'Valider une quete avant 6h du matin': 'Completar uma missão antes das 6h da manhã',
+    'Centurion du Nord': 'Centurião do Norte', 'Faire 100 pompes en un jour': 'Fazer 100 flexões em um dia',
+    'Semaine d\'Odin': 'Semana de Odin', 'Completer tous les objectifs quotidiens 7 jours de suite': 'Completar todos os objetivos diários 7 dias seguidos',
+    'Marathon de Midgard': 'Maratona de Midgard', 'Marcher 42 km au total': 'Caminhar 42 km no total',
+    'Sage de Mimir': 'Sábio de Mimir', 'Lire 10 heures au total': 'Ler 10 horas no total',
+    'Boire 50 litres au total': 'Beber 50 litros no total',
+    'Hibou de Huginn': 'Coruja de Huginn', 'Valider une quete apres minuit': 'Completar uma missão após meia-noite',
+    'Graveur de Runes': 'Gravador de Runas', 'Collecter 5 runes': 'Coletar 5 runas',
+    'Collecter 12 runes': 'Coletar 12 runas',
+    'Volva Eternelle': 'Völva Eterna', 'Collecter les 24 runes du Futhark': 'Coletar as 24 runas do Futhark',
+    'Forgeron d\'Habitudes': 'Ferreiro de Hábitos', '30 jours de suite sans faillir': '30 dias seguidos sem falhar',
+    'Tresor de Fafnir': 'Tesouro de Fafnir', 'Accumuler 1000 XP total': 'Acumular 1000 XP total',
+    'Hoard du Dragon': 'Tesouro do Dragão', 'Accumuler 5000 XP total': 'Acumular 5000 XP total',
+
+    // === DIFFICULTY / CATEGORIES / TAGS / MISC ===
+    'Facile': 'Fácil', 'Moyen': 'Médio', 'Difficile': 'Difícil', 'LEGENDAIRE': 'LENDÁRIO',
+    'facile': 'fácil', 'moyen': 'médio', 'difficile': 'difícil', 'legendaire': 'lendário',
+    'Physique': 'Físico', 'Mental': 'Mental', 'Sante': 'Saúde', 'Social': 'Social', 'Personnel': 'Personalizado',
+    'Stoicisme': 'Estoicismo', 'Sagesse Viking': 'Sabedoria Viking', 'Discipline': 'Disciplina',
+    'Limite atteinte': 'Limite atingido',
+    'Tu ne peux avoir que 3 objectifs personnels. Supprime-en un d\'abord !': 'Você pode ter apenas 3 objetivos personalizados. Exclua um primeiro!',
+    'Erreur': 'Erro',
+    'Donne un nom a ton objectif.': 'Dê um nome ao seu objetivo.',
+    'Objectif ajoute': 'Objetivo adicionado', 'Objectif supprime': 'Objetivo removido',
+    'jour': 'dia', 'semaine': 'semana', 'sem': 'sem',
+    'fois': 'vezes', 'defi': 'desafio', 'session': 'sessão', 'repas': 'refeição',
+    'Niveau insuffisant': 'Nível insuficiente',
+    'Deja en cours': 'Já em progresso',
+    'Cette quete est deja active ou completee.': 'Esta missão já está ativa ou completada.',
+    'Export reussi': 'Exportação bem-sucedida',
+    'Rune debloquee !': 'Runa desbloqueada!',
+    'Quete Secrete !': 'Missão Secreta!',
+    'STAKR TRANSCENDE !': 'STAKR TRANSCENDEU!',
+    'Meditation': 'Meditação', 'Sagesse': 'Sabedoria',
+    'Stakr reflechit...': 'Stakr está pensando...',
+    'Stakr, cree-moi des quetes !': 'Stakr, crie missões para mim!',
+    'Competence debloquee !': 'Habilidade desbloqueada!',
+    'par': 'por', 'Supprimer': 'Excluir',
+    'Tu dois etre niveau': 'Você precisa ser nível',
+    'Etape epique !': 'Marco épico!',
+    'QUETE EPIQUE TERMINEE !': 'MISSÃO ÉPICA COMPLETADA!',
+    'Deja choisi': 'Já escolhido',
+    'Tu as deja fait ton choix pour ce palier.': 'Você já fez sua escolha para este nível.',
+    'Specialisation choisie !': 'Especialização escolhida!',
+    // === BOSS POOL ===
+    'Jormungandr le Devorant': 'Jormungandr o Devorador', 'Le serpent-monde resserre son etreinte — seule ta force brute peut briser ses anneaux.': 'A serpente mundial aperta seu abraço — só sua força bruta pode quebrar seus anéis.',
+    'Fenrir Dechaine': 'Fenrir Desacorrentado', 'Le loup cosmique a brise ses chaines. Tes muscles sont ton seul bouclier.': 'O lobo cósmico quebrou suas correntes. Seus músculos são seu único escudo.',
+    'Surtr le Geant de Feu': 'Surtr o Gigante de Fogo', 'Le seigneur de Muspelheim avance. Ton endurance sera mise a l\'epreuve.': 'O senhor de Muspelheim avança. Sua resistência será testada.',
+    'Nidhogg le Rongeur': 'Nidhogg o Roedor', 'Le dragon qui devore les racines d\'Yggdrasil. Frappe-le de toute ta puissance.': 'O dragão que devora as raízes de Yggdrasil. Golpeie-o com toda sua força.',
+    'Hrungnir Coeur-de-Pierre': 'Hrungnir Coração de Pedra', 'Le geant au coeur de roc. Seul un corps forge dans le fer peut le fissurer.': 'O gigante com coração de rocha. Só um corpo forjado em ferro pode rachá-lo.',
+    'Garm le Chien Sanglant': 'Garm o Cão Sangrento', 'Le gardien de Helheim hurle a la lune. Ta vigueur est ta seule arme.': 'O guardião de Helheim uiva para a lua. Seu vigor é sua única arma.',
+    'Thiazi l\'Aigle des Tempetes': 'Thiazi a Águia das Tempestades', 'Ses ailes declenchent des ouragans. Tiens bon, guerrier, et frappe fort.': 'Suas asas desencadeiam furacões. Aguente firme, guerreiro, e golpeie forte.',
+    'Fafnir le Dragon d\'Or': 'Fafnir o Dragão Dourado', 'Le nain devenu dragon par la cupidite. Ecrase-le sous le poids de ton effort.': 'O anão que virou dragão pela ganância. Esmague-o com o peso do seu esforço.',
+    'Le Murmure de Loki': 'O Sussurro de Loki', 'Le dieu de la ruse s\'infiltre dans ton esprit. Seule ta discipline peut le repousser.': 'O deus da astúcia se infiltra em sua mente. Só sua disciplina pode repeli-lo.',
+    'L\'Ombre de Hel': 'A Sombra de Hel', 'La deesse des morts projette le doute. Medite, lis, et son emprise faiblira.': 'A deusa dos mortos projeta dúvida. Medite, leia, e seu domínio enfraquecerá.',
+    'Le Kraken des Abysses': 'O Kraken do Abismo', 'La creature remonte des profondeurs de ton subconscient. Concentre-toi pour la vaincre.': 'A criatura ascende das profundezas do seu subconsciente. Concentre-se para vencê-la.',
+    'Les Draugr de l\'Oubli': 'Os Draugr do Esquecimento', 'Des morts-vivants qui effacent ta memoire. Nourris ton esprit pour les repousser.': 'Mortos-vivos que apagam sua memória. Alimente sua mente para repeli-los.',
+    'Angrboda la Sorciere': 'Angrboda a Feiticeira', 'La mere des monstres tisse un voile de confusion. Ta sagesse est ton epee.': 'A mãe dos monstros tece um véu de confusão. Sua sabedoria é sua espada.',
+    'Ratatoskr le Semeur de Chaos': 'Ratatoskr o Semeador de Caos', 'L\'ecureuil d\'Yggdrasil repand mensonges et distractions. Reste concentre.': 'O esquilo de Yggdrasil espalha mentiras e distrações. Mantenha o foco.',
+    'Le Wyrm de Niflheim': 'O Wyrm de Niflheim', 'Un brouillard glacial envahit ton esprit. Seule la clarte mentale le dissipera.': 'Uma névoa gélida invade sua mente. Só a clareza mental a dissipará.',
+    'Skoll Devoreur de Soleil': 'Skoll Devorador do Sol', 'Le loup qui poursuit le soleil menace d\'eteindre ta lumiere interieure.': 'O lobo que persegue o sol ameaça apagar sua luz interior.',
+    'Le Ragnarok Silencieux': 'O Ragnarok Silencioso', 'La fin du monde commence par l\'abandon. Prouve que ta regularite est indestructible.': 'O fim do mundo começa pela desistência. Prove que sua constância é indestrutível.',
+    'Le Fimbulvetr Eternel': 'O Fimbulvetr Eterno', 'L\'hiver sans fin teste ta perseverance. Chaque quete accomplie est un feu qui brule.': 'O inverno sem fim testa sua perseverança. Cada missão cumprida é um fogo que arde.',
+    'L\'Hydre de la Paresse': 'A Hidra da Preguiça', 'Chaque tete repoussee te rend plus fort. Complete tes quetes pour la terrasser.': 'Cada cabeça repelida te torna mais forte. Complete suas missões para derrotá-la.',
+    'Le Maelstrom du Neant': 'O Maelstrom do Nada', 'Un tourbillon qui aspire ta motivation. Seule la constance peut t\'en sortir.': 'Um turbilhão que suga sua motivação. Só a constância pode te salvar.',
+    'Grendel le Destructeur': 'Grendel o Destruidor', 'Le monstre frappe chaque nuit. Ta routine quotidienne est ta forteresse.': 'O monstro ataca toda noite. Sua rotina diária é sua fortaleza.',
+    'Les Nornes Corrompues': 'As Nornas Corrompidas', 'Le destin lui-meme est corrompu. Retisse-le fil par fil, quete par quete.': 'O destino em si está corrompido. Reteca-o fio por fio, missão por missão.',
+    'Aegir le Noyeur': 'Aegir o Afogador', 'Le geant des mers veut te submerger. Nage a contre-courant, jour apres jour.': 'O gigante dos mares quer te submergir. Nade contra a corrente, dia após dia.',
+    'Le Jotunn de l\'Inertie': 'O Jotunn da Inércia', 'Un geant de glace qui fige tout. Seul le mouvement constant peut le faire fondre.': 'Um gigante de gelo que congela tudo. Só o movimento constante pode derretê-lo.',
+    'physique': 'físico', 'mental': 'mental', 'assiduite': 'consistência',
+  }
+};
+
+// Translate game content — French text is the key
+function tc(text) {
+  if (currentLang === 'fr' || !text) return text;
+  return CONTENT_TR[currentLang]?.[text] || text;
+}
+
 function setLanguage(lang) {
   if (!TRANSLATIONS[lang]) return;
   currentLang = lang;
@@ -7881,16 +8581,16 @@ function toggleAddQuest(period) {
 
 function addCustomQuest(period) {
   const customCount = state.quests.objectives.filter(o => o.custom).length;
-  if (customCount >= 3) { showToast('Limite atteinte', 'Tu ne peux avoir que 3 objectifs personnels. Supprime-en un d\'abord !'); return; }
+  if (customCount >= 3) { showToast(tc('Limite atteinte'), tc('Tu ne peux avoir que 3 objectifs personnels. Supprime-en un d\'abord !')); return; }
 
   const name = $(`#qa-name-${period}`).value.trim();
   const icon = $(`#qa-icon-${period}`).value.trim() || '\u2694';
   const target = parseInt($(`#qa-target-${period}`).value) || 10;
-  const unit = $(`#qa-unit-${period}`).value.trim() || 'fois';
+  const unit = $(`#qa-unit-${period}`).value.trim() || tc('fois');
   const category = $(`#qa-cat-${period}`).value;
   const xpReward = Math.min(50, parseInt($(`#qa-xp-${period}`).value) || 30);
 
-  if (!name) { showToast('Erreur', 'Donne un nom a ton objectif.'); return; }
+  if (!name) { showToast(tc('Erreur'), tc('Donne un nom a ton objectif.')); return; }
 
   const id = 'custom_' + Date.now();
   state.quests.objectives.push({
@@ -7898,17 +8598,17 @@ function addCustomQuest(period) {
   });
   saveState();
   renderQuests();
-  showToast('Objectif ajoute', `${icon} ${name} — ${target} ${unit} par ${period === 'daily' ? 'jour' : 'semaine'}`);
+  showToast(tc('Objectif ajoute'), `${icon} ${name} — ${target} ${unit} ${tc('par')} ${period === 'daily' ? tc('jour') : tc('semaine')}`);
 }
 
 function deleteCustomQuest(id) {
   const obj = state.quests.objectives.find(o => o.id === id);
   if (!obj || !obj.custom) return;
-  if (!confirm(`Supprimer "${obj.icon} ${obj.name}" ?`)) return;
+  if (!confirm(`${tc('Supprimer')} "${obj.icon} ${obj.name}" ?`)) return;
   state.quests.objectives = state.quests.objectives.filter(o => o.id !== id);
   saveState();
   renderQuests();
-  showToast('Objectif supprime', `${obj.icon} ${obj.name}`);
+  showToast(tc('Objectif supprime'), `${obj.icon} ${obj.name}`);
 }
 
 function logQuestProgress(id) {
@@ -8220,7 +8920,7 @@ function renderQuestEvolution() {
   }
 
   if (evolvable.length > 0) {
-    const CATEGORY_NAMES = { physique: 'Physique', mental: 'Mental', sante: 'Sante', social: 'Social' };
+    const CATEGORY_NAMES = { physique: t('physical'), mental: t('mental'), sante: t('health'), social: t('social') };
     const categories = [...new Set(evolvable.map(o => o.category))];
 
     categories.forEach(cat => {
@@ -8449,7 +9149,7 @@ function checkDailyWisdom() {
   saveState();
 
   const tagIcons = { stoic: '🏛️', viking: '⚔️', discipline: '🔥' };
-  const tagNames = { stoic: 'Stoicisme', viking: 'Sagesse Viking', discipline: 'Discipline' };
+  const tagNames = { stoic: tc('Stoicisme'), viking: tc('Sagesse Viking'), discipline: tc('Discipline') };
   const icon = tagIcons[w.tag] || '📜';
   const tagName = tagNames[w.tag] || 'Sagesse';
 
@@ -9026,11 +9726,11 @@ function chooseSpecialization(milestoneLevel, specId) {
   const q = state.quests;
   if (!q.specializations) q.specializations = { chosen: {} };
   if (q.specializations.chosen[milestoneLevel]) {
-    showToast('Deja choisi', 'Tu as deja fait ton choix pour ce palier.');
+    showToast(tc('Deja choisi'), tc('Tu as deja fait ton choix pour ce palier.'));
     return;
   }
   if (q.level < milestoneLevel) {
-    showToast('Niveau insuffisant', `Tu dois atteindre le niveau ${milestoneLevel}.`);
+    showToast(tc('Niveau insuffisant'), `${tc('Tu dois etre niveau')} ${milestoneLevel}.`);
     return;
   }
 
@@ -9041,8 +9741,8 @@ function chooseSpecialization(milestoneLevel, specId) {
   q.specializations.chosen[milestoneLevel] = specId;
   saveState();
 
-  addMessage('stakr', `KRAA ! Tu as choisi la voie **${spec.name}** ${spec.icon} ! *${spec.desc}* Effet : **${spec.effect}**. Les Nornes tissent ton destin, guerrier ! [MOOD:excite]`);
-  showToast('Specialisation choisie !', `${spec.icon} ${spec.name}`);
+  addMessage('stakr', `KRAA ! Tu as choisi la voie **${tc(spec.name)}** ${spec.icon} ! *${tc(spec.desc)}* Effet : **${tc(spec.effect)}**. Les Nornes tissent ton destin, guerrier ! [MOOD:excite]`);
+  showToast(tc('Specialisation choisie !'), `${spec.icon} ${tc(spec.name)}`);
   playSfx('levelup'); haptic([50, 30, 80]); spawnGoldRain(25); goldFlash();
   renderSpecializations();
 }
@@ -9058,7 +9758,7 @@ function renderSpecializations() {
   // Active bonuses summary
   const activeSpecs = Object.entries(chosen).map(([lvl, specId]) => {
     const spec = SPEC_MILESTONES.flatMap(m => m.choices).find(c => c.id === specId);
-    return spec ? `<div class="spec-badge">${spec.icon} ${spec.name}</div>` : '';
+    return spec ? `<div class="spec-badge">${spec.icon} ${tc(spec.name)}</div>` : '';
   }).filter(Boolean).join('');
 
   let html = `
@@ -9094,8 +9794,8 @@ function renderSpecializations() {
     const chosenId = chosen[milestone.level];
 
     html += `<div class="spec-milestone ${isUnlocked ? 'unlocked' : 'locked'}">
-      <div class="spec-milestone-title">${milestone.title} ${isUnlocked ? '✓' : '🔒'}</div>
-      <div style="font-size:.6rem;color:var(--text-dim);margin-bottom:8px">${milestone.desc}</div>`;
+      <div class="spec-milestone-title">${tc(milestone.title)} ${isUnlocked ? '✓' : '🔒'}</div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-bottom:8px">${tc(milestone.desc)}</div>`;
 
     if (isUnlocked) {
       html += '<div class="spec-choices">';
@@ -9103,9 +9803,9 @@ function renderSpecializations() {
         const isChosen = chosenId === choice.id;
         const isOther = chosenId && !isChosen;
         html += `<div class="spec-card ${isChosen ? 'chosen' : ''}" ${!chosenId && isUnlocked ? `onclick="chooseSpecialization(${milestone.level},'${choice.id}')"` : ''} style="${isOther ? 'opacity:.4;cursor:default' : ''}">
-          <div class="spec-card-name">${choice.icon} ${choice.name}</div>
-          <div class="spec-card-desc">${choice.desc}</div>
-          <div class="spec-card-effect">${choice.effect}</div>
+          <div class="spec-card-name">${choice.icon} ${tc(choice.name)}</div>
+          <div class="spec-card-desc">${tc(choice.desc)}</div>
+          <div class="spec-card-effect">${tc(choice.effect)}</div>
         </div>`;
       });
       html += '</div>';
@@ -9234,8 +9934,8 @@ function startEpicQuest(questId) {
   if (!q.epicQuests) q.epicQuests = {};
   const quest = EPIC_QUESTS.find(eq => eq.id === questId);
   if (!quest) return;
-  if (q.level < quest.levelMin) { showToast('Niveau insuffisant', `Tu dois etre niveau ${quest.levelMin}+.`); return; }
-  if (q.epicQuests[questId]) { showToast('Deja en cours', 'Cette quete est deja active ou completee.'); return; }
+  if (q.level < quest.levelMin) { showToast(tc('Niveau insuffisant'), `${tc('Tu dois etre niveau')} ${quest.levelMin}+.`); return; }
+  if (q.epicQuests[questId]) { showToast(tc('Deja en cours'), tc('Cette quete est deja active ou completee.')); return; }
 
   // Snapshot starting stats to measure progress from now
   q.epicQuests[questId] = {
@@ -9290,8 +9990,8 @@ function checkEpicQuestProgress() {
         eq.milestonesCompleted.push(idx);
         // Award milestone XP
         if (ms.reward.xp) addQuestXp(ms.reward.xp);
-        addMessage('stakr', `⚡ Quete epique **${quest.name}** — etape accomplie : **${ms.icon} ${ms.name}** ! ${ms.reward.label} ! Continue, Viking ! [MOOD:excite]`);
-        showToast('Etape epique !', `${ms.icon} ${ms.name} — ${ms.reward.label}`);
+        addMessage('stakr', `⚡ Quete epique **${tc(quest.name)}** — etape accomplie : **${ms.icon} ${tc(ms.name)}** ! ${ms.reward.label} ! Continue, Viking ! [MOOD:excite]`);
+        showToast(tc('Etape epique !'), `${ms.icon} ${tc(ms.name)} — ${ms.reward.label}`);
         playSfx('clink'); haptic([30, 20, 50]);
       }
     });
@@ -9307,8 +10007,8 @@ function checkEpicQuestProgress() {
       if (quest.finalReward.title && !q.epicTitles.includes(quest.finalReward.title)) {
         q.epicTitles.push(quest.finalReward.title);
       }
-      addMessage('stakr', `KRAA ! ⚡🏆⚡ QUETE EPIQUE ACCOMPLIE : **${quest.icon} ${quest.name}** ! Tu as obtenu le titre **${quest.finalReward.title}** et **${quest.finalReward.xp} XP** ! Les sagas chanteront ton nom a travers les ages ! [MOOD:excite]`);
-      showToast('QUETE EPIQUE TERMINEE !', `${quest.icon} ${quest.name} — ${quest.finalReward.label}`);
+      addMessage('stakr', `KRAA ! ⚡🏆⚡ QUETE EPIQUE ACCOMPLIE : **${quest.icon} ${tc(quest.name)}** ! Tu as obtenu le titre **${tc(quest.finalReward.title)}** et **${quest.finalReward.xp} XP** ! Les sagas chanteront ton nom a travers les ages ! [MOOD:excite]`);
+      showToast(tc('QUETE EPIQUE TERMINEE !'), `${quest.icon} ${tc(quest.name)} — ${tc(quest.finalReward.label)}`);
       playSfx('levelup'); haptic([80, 40, 80, 40, 120]); spawnGoldRain(60); screenShake(); goldFlash();
     }
 
@@ -9354,7 +10054,7 @@ function renderEpicQuests() {
       <div style="font-size:1.2rem">🏆</div>
       <div style="font-size:.9rem;font-weight:700;color:var(--gold);font-variant:small-caps;letter-spacing:1px">${t('epicQuestsTitle')}</div>
       <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">${t('epicQuestsDesc')}</div>
-      ${titles.length > 0 ? `<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;justify-content:center">${titles.map(t => `<span class="spec-badge">🏆 ${t}</span>`).join('')}</div>` : ''}
+      ${titles.length > 0 ? `<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;justify-content:center">${titles.map(ti => `<span class="spec-badge">🏆 ${tc(ti)}</span>`).join('')}</div>` : ''}
     </div>
   `;
 
@@ -9374,8 +10074,8 @@ function renderEpicQuests() {
     const cardClass = isCompleted ? 'completed' : isActive ? 'active' : isLocked ? 'locked' : '';
 
     html += `<div class="epic-card ${cardClass}">
-      <div class="epic-title">${quest.icon} ${quest.name} ${isCompleted ? '✓' : isLocked ? '🔒' : ''}</div>
-      <div class="epic-subtitle">${quest.subtitle}</div>
+      <div class="epic-title">${quest.icon} ${tc(quest.name)} ${isCompleted ? '✓' : isLocked ? '🔒' : ''}</div>
+      <div class="epic-subtitle">${tc(quest.subtitle)}</div>
       <div class="epic-duration">⏳ ${quest.duration} ${t('days')} ${isActive ? `— ${t('dayLabel')} ${daysElapsed}/${quest.duration} (${daysLeft} ${t('daysRemaining')})` : isCompleted ? `— ${t('completedIn')} ${daysElapsed}j !` : ''} ${isLocked ? `— ${t('level')} ${quest.levelMin} ${t('levelRequired')}` : ''}</div>`;
 
     if (isActive || isCompleted) {
@@ -9391,8 +10091,8 @@ function renderEpicQuests() {
       html += `<div class="epic-ms ${isDone ? 'done' : isCurrent ? 'current' : ''}">
         <div class="epic-ms-icon">${isDone ? '✅' : ms.icon}</div>
         <div class="epic-ms-info">
-          <div class="epic-ms-name">${ms.name} ${!isDone && !isLocked ? `(${t('dayLabel')} ${ms.day})` : ''}</div>
-          <div class="epic-ms-desc">${ms.desc}</div>
+          <div class="epic-ms-name">${tc(ms.name)} ${!isDone && !isLocked ? `(${t('dayLabel')} ${ms.day})` : ''}</div>
+          <div class="epic-ms-desc">${tc(ms.desc)}</div>
           <div class="epic-ms-reward">${ms.reward.label}</div>
         </div>
       </div>`;
@@ -9402,7 +10102,7 @@ function renderEpicQuests() {
     // Final reward
     html += `<div class="epic-reward-box">
       <div class="reward-title">🏆 ${t('finalReward')}</div>
-      <div class="reward-items">${quest.finalReward.label}${quest.finalReward.title ? ` — ${t('titleLabel')} : "${quest.finalReward.title}"` : ''}</div>
+      <div class="reward-items">${tc(quest.finalReward.label)}${quest.finalReward.title ? ` — ${t('titleLabel')} : "${tc(quest.finalReward.title)}"` : ''}</div>
     </div>`;
 
     // Action buttons
@@ -9493,8 +10193,8 @@ function checkRuneUnlocks() {
     newRunes.forEach(id => {
       const rune = VIKING_RUNES.find(r => r.id === id);
       if (rune) {
-        addMessage('stakr', `KRAA ! Tu as obtenu la rune **${rune.symbol} ${rune.name}** — *${rune.meaning}* ! ${rune.description}. Collectionne-les toutes, guerrier ! [MOOD:excite]`);
-        showToast(`Rune debloquee !`, `${rune.symbol} ${rune.name} — ${rune.meaning}`);
+        addMessage('stakr', `KRAA ! Tu as obtenu la rune **${rune.symbol} ${rune.name}** — *${tc(rune.meaning)}* ! ${tc(rune.description)}. Collectionne-les toutes, guerrier ! [MOOD:excite]`);
+        showToast(tc('Rune debloquee !'), `${rune.symbol} ${rune.name} — ${tc(rune.meaning)}`);
       }
     });
     saveState();
@@ -9515,7 +10215,7 @@ function renderRuneCollection() {
     const isOwned = owned.has(r.id);
     html += `<div class="rune-slot ${isOwned ? 'owned' : 'locked'}">
       ${isOwned ? r.symbol : '?'}
-      <div class="rune-tooltip">${isOwned ? `<strong>${r.name}</strong> — ${r.meaning}<br/>${r.description}` : `??? — ${r.condition}`}</div>
+      <div class="rune-tooltip">${isOwned ? `<strong>${r.name}</strong> — ${tc(r.meaning)}<br/>${tc(r.description)}` : `??? — ${tc(r.condition)}`}</div>
     </div>`;
   });
 
@@ -9552,8 +10252,8 @@ function checkSkillTreeUnlocks() {
     newNodes.forEach(({ node, branchKey }) => {
       applySkillReward(node);
       const branch = YGGDRASIL_TREE[branchKey];
-      addMessage('stakr', `KRAA ! L'Arbre de Vie grandit ! **${node.name}** debloque sur la ${branch.name} ! *${node.desc}*. ${node.reward.label} ! Yggdrasil se fortifie ! [MOOD:excite]`);
-      showToast('Competence debloquee !', `${branch.icon} ${node.name} — ${node.reward.label}`);
+      addMessage('stakr', `KRAA ! L'Arbre de Vie grandit ! **${tc(node.name)}** debloque sur la ${tc(branch.name)} ! *${tc(node.desc)}*. ${tc(node.reward.label)} ! Yggdrasil se fortifie ! [MOOD:excite]`);
+      showToast(tc('Competence debloquee !'), `${branch.icon} ${tc(node.name)} — ${tc(node.reward.label)}`);
     });
     saveState();
   }
@@ -9612,7 +10312,7 @@ function renderSkillTree() {
     <div class="ygg-subtitle">${summary.unlocked}/${summary.total} ${t('skillsUnlocked')}</div>`;
   const boostList = Object.entries(summary.boosts).filter(([,v]) => v > 0);
   if (boostList.length > 0) {
-    html += `<div class="ygg-boosts">${boostList.map(([k,v]) => `<span class="ygg-boost-tag">${k === 'global' ? '🌍' : k === 'physique' ? '⚡' : k === 'mental' ? '👁' : k === 'sante' ? '🌿' : '☀'} +${Math.round(v*100)}% ${k}</span>`).join(' ')}</div>`;
+    html += `<div class="ygg-boosts">${boostList.map(([k,v]) => `<span class="ygg-boost-tag">${k === 'global' ? '🌍' : k === 'physique' ? '⚡' : k === 'mental' ? '👁' : k === 'sante' ? '🌿' : '☀'} +${Math.round(v*100)}% ${tc(k.charAt(0).toUpperCase()+k.slice(1))}</span>`).join(' ')}</div>`;
   }
   html += `</div>`;
 
@@ -9621,8 +10321,8 @@ function renderSkillTree() {
     html += `<div class="ygg-branch" style="--branch-color:${branch.color}">
       <div class="ygg-branch-header" onclick="this.parentElement.classList.toggle('collapsed')">
         <span class="ygg-branch-icon">${branch.icon}</span>
-        <span class="ygg-branch-name">${branch.name}</span>
-        <span class="ygg-branch-sub">${branch.subtitle}</span>
+        <span class="ygg-branch-name">${tc(branch.name)}</span>
+        <span class="ygg-branch-sub">${tc(branch.subtitle)}</span>
         <span class="ygg-branch-progress">${branchUnlocked}/${branch.nodes.length}</span>
       </div>
       <div class="ygg-nodes">`;
@@ -9652,9 +10352,9 @@ function renderSkillTree() {
         <div class="ygg-node ${nodeClass}">
           <div class="ygg-node-tier">T${node.tier}</div>
           <div class="ygg-node-info">
-            <div class="ygg-node-name">${node.name}</div>
-            <div class="ygg-node-desc">${node.desc}</div>
-            <div class="ygg-node-reward">${node.reward.label}</div>
+            <div class="ygg-node-name">${tc(node.name)}</div>
+            <div class="ygg-node-desc">${tc(node.desc)}</div>
+            <div class="ygg-node-reward">${tc(node.reward.label)}</div>
             ${!isUnlocked ? `<div class="ygg-node-reqs">${reqs.join(' · ')}</div>` : ''}
           </div>
           ${isUnlocked ? '<div class="ygg-node-check">✓</div>' : ''}
@@ -9910,7 +10610,7 @@ function initWeeklyBoss() {
     q.boss.resolved = true;
     q.boss.result = 'defeat';
     const msg = BOSS_DEFEAT_MSGS[Math.floor(Math.random() * BOSS_DEFEAT_MSGS.length)]
-      .replace('{boss}', q.boss.name);
+      .replace('{boss}', tc(q.boss.name));
     addMessage('stakr', msg);
   }
 
@@ -9940,7 +10640,7 @@ function initWeeklyBoss() {
   saveState();
 
   // Announce boss
-  addMessage('stakr', `⚔️ **BOSS DE LA SEMAINE** ⚔️\n\n${pool.icon} **${pick.name}** apparait !\n\n_${pick.desc}_\n\nType : **${type}** — Seuil a atteindre : **${threshold}** points\n\nAccumule de l'XP en ${type === 'physique' ? 'completant tes quetes physiques' : type === 'mental' ? 'nourrissant ton esprit' : 'completant un maximum de quetes'} cette semaine pour le vaincre ! [MOOD:angry]`);
+  addMessage('stakr', `⚔️ **BOSS DE LA SEMAINE** ⚔️\n\n${pool.icon} **${tc(pick.name)}** apparait !\n\n_${tc(pick.desc)}_\n\nType : **${tc(type)}** — Seuil a atteindre : **${threshold}** points\n\nAccumule de l'XP en ${type === 'physique' ? 'completant tes quetes physiques' : type === 'mental' ? 'nourrissant ton esprit' : 'completant un maximum de quetes'} cette semaine pour le vaincre ! [MOOD:angry]`);
 }
 
 function getWeeklyBossProgress() {
@@ -10008,7 +10708,7 @@ function checkBossVictory() {
   if (!q.worldMap.feathers) q.worldMap.feathers = [...q.worldMap.unlockedRegions];
     q.worldMap.bossVictories = (q.worldMap.bossVictories || 0) + 1;
     const msg = BOSS_VICTORY_MSGS[Math.floor(Math.random() * BOSS_VICTORY_MSGS.length)]
-      .replace('{boss}', boss.name)
+      .replace('{boss}', tc(boss.name))
       .replace('{xp}', boss.xpReward);
     addMessage('stakr', msg);
     addQuestXp(boss.xpReward);
@@ -10064,8 +10764,8 @@ function renderBossSection() {
       <div class="boss-header">
         <span class="boss-icon">${boss.icon}</span>
         <div class="boss-info">
-          <div class="boss-name">${boss.name}</div>
-          <div class="boss-desc">${boss.desc}</div>
+          <div class="boss-name">${tc(boss.name)}</div>
+          <div class="boss-desc">${tc(boss.desc)}</div>
         </div>
       </div>
       <div class="boss-hp-section">
@@ -10140,9 +10840,9 @@ function checkSecretQuests() {
 
   if (newSecrets.length > 0) {
     newSecrets.forEach(sq => {
-      const diffLabel = { facile: 'Facile', moyen: 'Moyen', difficile: 'Difficile', legendaire: 'LEGENDAIRE' }[sq.difficulty];
-      addMessage('stakr', `KRAA ! **QUETE SECRETE DEBLOQUEE !** ${sq.icon} **${sq.name}** (${diffLabel}) — *${sq.description}* ! +${sq.xpReward} XP ! Les dieux t'observent, guerrier ! [MOOD:excite]`);
-      showToast('Quete Secrete !', `${sq.icon} ${sq.name} — +${sq.xpReward} XP`);
+      const diffLabel = tc({ facile: 'Facile', moyen: 'Moyen', difficile: 'Difficile', legendaire: 'LEGENDAIRE' }[sq.difficulty]);
+      addMessage('stakr', `KRAA ! **QUETE SECRETE DEBLOQUEE !** ${sq.icon} **${tc(sq.name)}** (${diffLabel}) — *${tc(sq.description)}* ! +${sq.xpReward} XP ! Les dieux t'observent, guerrier ! [MOOD:excite]`);
+      showToast(tc('Quete Secrete !'), `${sq.icon} ${tc(sq.name)} — +${sq.xpReward} XP`);
     });
     checkRuneUnlocks();
     saveState();
@@ -10304,11 +11004,11 @@ function renderStakrQuests() {
     html += `<div class="quest-item ${isUnlocked ? 'completed secret' : 'secret-locked'}">
       <div class="quest-item-header">
         <span class="quest-item-icon">${isUnlocked ? sq.icon : '?'}</span>
-        <span class="quest-item-name">${isUnlocked ? sq.name : '???'}</span>
-        <span class="quest-difficulty ${dc.color}">${dc.label}</span>
+        <span class="quest-item-name">${isUnlocked ? tc(sq.name) : '???'}</span>
+        <span class="quest-difficulty ${dc.color}">${tc(dc.label)}</span>
         <span class="quest-item-xp">${isUnlocked ? '&#10003;' : ''} +${sq.xpReward} XP</span>
       </div>
-      <div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">${isUnlocked ? sq.description : t('unknownConditions')}</div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">${isUnlocked ? tc(sq.description) : t('unknownConditions')}</div>
     </div>`;
   });
 
@@ -10329,7 +11029,7 @@ function renderStakrQuests() {
             <div class="quest-item-header">
               <span class="quest-item-icon">${aq.icon}</span>
               <span class="quest-item-name">${aq.name}</span>
-              <span class="quest-difficulty ${dc.color}">${dc.label}</span>
+              <span class="quest-difficulty ${dc.color}">${tc(dc.label)}</span>
               <span class="quest-item-xp">+${aq.xpReward} XP</span>
             </div>
             ${aq.description ? `<div style="font-size:.6rem;color:var(--text-dim);margin-bottom:4px;font-style:italic">${aq.description}</div>` : ''}
@@ -10340,7 +11040,7 @@ function renderStakrQuests() {
             <div class="quest-item-input">
               <input type="number" id="qi-${aq.id}" min="0" step="any" placeholder="0" />
               <span class="unit">${aq.unit}</span>
-              <button onclick="logAIQuestProgress('${aq.id}')">Valider</button>
+              <button onclick="logAIQuestProgress('${aq.id}')">${t('validate')}</button>
             </div>
           </div>`;
       });
@@ -10354,7 +11054,7 @@ function renderStakrQuests() {
           <div class="quest-item-header">
             <span class="quest-item-icon">${aq.icon}</span>
             <span class="quest-item-name">${aq.name}</span>
-            <span class="quest-difficulty ${dc.color}">${dc.label}</span>
+            <span class="quest-difficulty ${dc.color}">${tc(dc.label)}</span>
             <span class="quest-item-xp">&#10003; +${aq.xpReward} XP</span>
           </div>
         </div>`;
@@ -10978,7 +11678,7 @@ function renderQuestStats() {
               <span style="font-size:.7rem;flex:1">${o.name}</span>
               <span style="font-size:.8rem;color:var(--gold);font-weight:700">${display}</span>
               <span style="font-size:.6rem;color:var(--text-dim);min-width:50px">${o.unit}</span>
-              <span style="font-size:.55rem;color:var(--text-dim)">~${avgDisplay}/${o.period === 'weekly' ? 'sem' : 'jour'}</span>
+              <span style="font-size:.55rem;color:var(--text-dim)">~${avgDisplay}/${o.period === 'weekly' ? tc('sem') : tc('jour')}</span>
             </div>`;
           }).join('');
       })()}
@@ -13157,7 +13857,7 @@ async function downloadStatsCard() {
     drawDivider(curY, '— XP par categorie —');
     const catEntries = Object.entries(combined.catXp).sort((a, b) => b[1] - a[1]);
     const maxCatXp = catEntries.length > 0 ? catEntries[0][1] : 1;
-    const CAT_NAMES = { physique: 'Physique', mental: 'Mental', sante: 'Sante', social: 'Social', custom: 'Personnel' };
+    const CAT_NAMES = { physique: t('physical'), mental: t('mental'), sante: t('health'), social: t('social'), custom: t('personal') };
     const barStartY = curY + 20;
     catEntries.forEach(([cat, xp], i) => {
       const y = barStartY + i * 36;
