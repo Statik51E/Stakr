@@ -8009,6 +8009,9 @@ function logSoloProgress(key) {
   const allDone = sl.pushups >= targets.pushups && sl.squats >= targets.squats && sl.abs >= targets.abs && sl.km >= targets.km;
   if (allDone && !sl._completedToast) {
     sl._completedToast = true;
+    // XP reward: 500 base + 100 per additional week (500/600/700/.../1400)
+    const soloXpReward = 500 + (sl.currentWeek - 1) * 100;
+    addQuestXp(soloXpReward);
     // Bonus stats for full completion
     Object.keys(SOLO_DAY_COMPLETE_BONUS).forEach(k => {
       sl.stats[k] = +((sl.stats[k] || 0) + SOLO_DAY_COMPLETE_BONUS[k]).toFixed(2);
@@ -8017,8 +8020,8 @@ function logSoloProgress(key) {
       ts: Date.now(), date: getTodayStr(), key: '_dayBonus', value: 1,
       gains: { ...SOLO_DAY_COMPLETE_BONUS }
     });
-    showToast('Solo Leveling accompli !', `Semaine ${sl.currentWeek} — +${SOLO_DAY_COMPLETE_BONUS.per} PER, +4 autres stats.`);
-    addMessage('stakr', `KRAA ! Tu as accompli ton quota Solo Leveling du jour ! Semaine ${sl.currentWeek} domptée. Le Systeme t'octroie **+${SOLO_DAY_COMPLETE_BONUS.per} Perception** et un bonus sur toutes les stats. [MOOD:excite]`);
+    showToast('Solo Leveling accompli !', `Semaine ${sl.currentWeek} — +${soloXpReward} XP, +${SOLO_DAY_COMPLETE_BONUS.per} PER`);
+    addMessage('stakr', `KRAA ! Tu as accompli ton quota Solo Leveling du jour ! Semaine ${sl.currentWeek} domptée. **+${soloXpReward} XP** ! Le Systeme t'octroie aussi **+${SOLO_DAY_COMPLETE_BONUS.per} Perception** et un bonus sur toutes les stats. [MOOD:excite]`);
   }
 
   // Rank-up detection
@@ -8071,7 +8074,7 @@ function renderSoloLeveling() {
       <div class="solo-badge">💥</div>
       <div style="flex:1;min-width:0">
         <div class="solo-title">${t('soloTitle')}</div>
-        <div class="solo-sub">${t('weekTab')} ${sl.currentWeek} / 10 — ${allDone ? `✓ ${t('objectiveReached')}` : t('systemWatches')}</div>
+        <div class="solo-sub">${t('weekTab')} ${sl.currentWeek} / 10 — ${allDone ? `✓ ${t('objectiveReached')}` : t('systemWatches')} — +${500 + (sl.currentWeek - 1) * 100} XP</div>
       </div>
       <div class="solo-week-pill">S${sl.currentWeek}</div>
     </div>
