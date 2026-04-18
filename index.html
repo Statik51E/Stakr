@@ -8874,8 +8874,13 @@ function initRouteMap() {
   const mapEl = document.getElementById('route-map');
   if (!mapEl) return;
 
-  // Cleanup previous map
-  if (routeMap) { routeMap.remove(); routeMap = null; }
+  // Cleanup previous map + tracking layers
+  if (routeMap) {
+    if (routeTracking.trailLayer) { routeMap.removeLayer(routeTracking.trailLayer); routeTracking.trailLayer = null; }
+    if (routeTracking.runnerMarker) { routeMap.removeLayer(routeTracking.runnerMarker); routeTracking.runnerMarker = null; }
+    routeMap.remove();
+    routeMap = null;
+  }
   routeLayer = null;
   routeArrows = [];
 
@@ -8942,11 +8947,12 @@ function placeStartMarker(lat, lng) {
   routeMarkerStart = L.marker([lat, lng], { icon }).addTo(routeMap);
 }
 
-function generateLoopWaypoints(lat, lng, distKm) {
+function generateLoopWaypoints(lat, lng, distKm, scaleFactor) {
   // Generate waypoints in a rough loop around start point
-  // Radius is adjusted so road routing ≈ target distance
-  // Roads are ~30-50% longer than straight lines, so use factor ~0.55
-  const radiusKm = (distKm / (2 * Math.PI)) * 0.55;
+  // Roads are typically 40-60% longer than straight-line distance
+  // Use a conservative factor that undershoots slightly (better short than long)
+  const factor = scaleFactor || 0.38;
+  const radiusKm = (distKm / (2 * Math.PI)) * factor;
   const numPoints = distKm < 3 ? 4 : distKm < 10 ? 6 : 8;
   const waypoints = [];
 
@@ -8955,7 +8961,7 @@ function generateLoopWaypoints(lat, lng, distKm) {
   // Slight randomness in radius per point for organic shape
   for (let i = 0; i < numPoints; i++) {
     const angle = rotOffset + (2 * Math.PI * i) / numPoints;
-    const rFactor = 0.8 + Math.random() * 0.4; // 0.8 to 1.2
+    const rFactor = 0.85 + Math.random() * 0.3; // 0.85 to 1.15
     const rKm = radiusKm * rFactor;
     const dLat = (rKm / 111.32) * Math.cos(angle);
     const dLng = (rKm / (111.32 * Math.cos(lat * Math.PI / 180))) * Math.sin(angle);
@@ -9009,8 +9015,10 @@ function regenerateRoute() {
   generateRoute();
 }
 
-async function fetchRoute(lat, lng, distKm) {
-  const waypoints = generateLoopWaypoints(lat, lng, distKm);
+async function fetchRoute(lat, lng, distKm, attempt, scaleFactor) {
+  attempt = attempt || 1;
+  scaleFactor = scaleFactor || 0.38;
+  const waypoints = generateLoopWaypoints(lat, lng, distKm, scaleFactor);
 
   // Build OSRM request: start → waypoints → start (loop)
   const coords = [[lng, lat], ...waypoints.map(w => [w[1], w[0]]), [lng, lat]];
@@ -9027,6 +9035,13 @@ async function fetchRoute(lat, lng, distKm) {
   const geojson = route.geometry;
   const distanceKm = route.distance / 1000;
   const durationMin = route.duration / 60;
+
+  // If distance is >15% off target, retry with corrected scale (max 3 attempts)
+  const ratio = distanceKm / distKm;
+  if (attempt < 3 && (ratio > 1.15 || ratio < 0.85)) {
+    const correctedScale = scaleFactor / ratio;
+    return fetchRoute(lat, lng, distKm, attempt + 1, correctedScale);
+  }
 
   // Estimate calories (avg ~60 kcal/km running)
   const calories = distanceKm * 60;
@@ -9222,6 +9237,9 @@ function startRunTracking() {
   // Open fullscreen automatically
   if (!routeTracking.fullscreen) toggleRouteFullscreen();
 
+  // Zoom to user's position
+  if (routeMap) routeMap.setView(startPos, 17, { animate: true });
+
   // Start watching position
   rt.watchId = navigator.geolocation.watchPosition(
     (pos) => onRunPosition(pos),
@@ -9242,7 +9260,7 @@ function onRunPosition(pos) {
   const acc = pos.coords.accuracy;
 
   // Ignore very inaccurate readings
-  if (acc > 50) return;
+  if (acc > 40) return;
 
   const newPos = [lat, lng];
 
@@ -9250,10 +9268,13 @@ function onRunPosition(pos) {
   if (rt.positions.length > 0) {
     const last = rt.positions[rt.positions.length - 1];
     const d = haversineDistance(last[0], last[1], lat, lng);
-    // Ignore tiny jumps (GPS noise) and impossibly large jumps
-    if (d > 2 && d < 200) {
-      rt.distanceCovered += d;
+    // Ignore tiny jumps (GPS noise <3m) and impossibly large jumps (>150m at once)
+    if (d < 3 || d > 150) {
+      // Still update marker position for small GPS drift, but don't add to trail/distance
+      if (rt.runnerMarker) rt.runnerMarker.setLatLng(newPos);
+      return;
     }
+    rt.distanceCovered += d;
   }
 
   rt.positions.push(newPos);
@@ -9261,7 +9282,7 @@ function onRunPosition(pos) {
   // Update runner marker
   if (rt.runnerMarker) rt.runnerMarker.setLatLng(newPos);
 
-  // Update trail
+  // Update trail — only add when there's real movement
   if (rt.trailLayer) rt.trailLayer.addLatLng(newPos);
 
   // Center map on runner
