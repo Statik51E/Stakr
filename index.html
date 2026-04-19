@@ -803,6 +803,28 @@ header button{flex-shrink:0}
 .admin-log-entry{padding:3px 0;border-bottom:1px solid rgba(255,255,255,.03)}
 .admin-log-entry .log-time{color:rgba(229,57,53,.6)}
 .admin-log-entry .log-action{color:var(--text)}
+.admin-tabs{display:flex;gap:0;margin-bottom:12px;border-radius:10px;overflow:hidden;border:1px solid rgba(229,57,53,.3)}
+.admin-tab{flex:1;padding:8px 4px;background:rgba(229,57,53,.05);color:var(--text-dim);font-size:.6rem;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .2s;text-align:center}
+.admin-tab.active{background:rgba(229,57,53,.2);color:#e53935}
+.admin-tab:not(:last-child){border-right:1px solid rgba(229,57,53,.2)}
+.admin-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.admin-stat-card{background:rgba(229,57,53,.06);border:1px solid rgba(229,57,53,.15);border-radius:8px;padding:8px;text-align:center}
+.admin-stat-val{font-size:1.1rem;font-weight:700;color:#e53935}
+.admin-stat-lbl{font-size:.5rem;color:var(--text-dim);margin-top:2px}
+.admin-filter-bar{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.admin-filter-btn{padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:rgba(255,255,255,.03);color:var(--text-dim);font-size:.55rem;cursor:pointer;font-family:inherit;transition:all .2s}
+.admin-filter-btn.active{border-color:#e53935;color:#e53935;background:rgba(229,57,53,.1)}
+.admin-event-card{background:rgba(229,57,53,.06);border:1px solid rgba(229,57,53,.2);border-radius:10px;padding:10px;margin-bottom:8px}
+.admin-event-title{font-size:.75rem;color:#e53935;font-weight:700}
+.admin-event-meta{font-size:.55rem;color:var(--text-dim);margin-top:2px}
+.admin-event-bar{height:6px;background:rgba(255,255,255,.1);border-radius:3px;margin-top:6px;overflow:hidden}
+.admin-event-fill{height:100%;background:linear-gradient(90deg,#e53935,#ff9800);border-radius:3px;transition:width .3s}
+.admin-feed-item{display:flex;align-items:flex-start;gap:8px;padding:8px;border:1px solid var(--border);border-radius:8px;margin-bottom:4px;font-size:.65rem}
+.admin-feed-item .feed-text{flex:1;min-width:0;color:var(--text)}
+.admin-feed-item .feed-meta{font-size:.5rem;color:var(--text-dim)}
+.muscle-zone-tag{display:inline-block;padding:2px 6px;border-radius:4px;font-size:.5rem;font-weight:600;margin:1px;background:rgba(229,57,53,.1);color:#e57373;border:1px solid rgba(229,57,53,.15)}
+.muscle-zone-tag.primary{background:rgba(244,67,54,.2);color:#ef5350;border-color:rgba(244,67,54,.3)}
+.muscle-zone-tag.secondary{background:rgba(255,152,0,.1);color:#ffb74d;border-color:rgba(255,152,0,.2)}
 .lang-option.active{border-color:var(--gold) !important;background:linear-gradient(135deg,var(--gold-dim),var(--gold)) !important;color:#0e0a06 !important}
 /* ===== MONDE / CARTE ===== */
 .monde-header{text-align:center;padding:10px 0 8px;margin-bottom:8px}
@@ -1567,27 +1589,14 @@ header button{flex-shrink:0}
     <button onclick="toggleAdminPanel()" style="background:none;border:none;color:#e53935;font-size:1.2rem;cursor:pointer;padding:4px">←</button>
     <h2 data-i18n="adminTitle">🔒 Administration</h2>
   </div>
-  <div class="admin-body">
-    <input type="text" class="admin-search" id="admin-search" placeholder="Rechercher un joueur (nom, email, UID)..." oninput="filterAdminUsers()"/>
-    <div id="admin-user-list"></div>
-    <div id="admin-selected-actions" style="display:none"></div>
-    <div id="admin-broadcast-section" style="margin-top:16px">
-      <div class="admin-actions">
-        <h3 data-i18n="globalMessage">📢 Message global</h3>
-        <div class="admin-action-group">
-          <label data-i18n="msgVisibleAll">Message (visible par tous au prochain chargement)</label>
-          <textarea id="admin-broadcast-msg" rows="3" placeholder="Annonce du Jarl..."></textarea>
-        </div>
-        <button class="admin-btn admin-btn-warn" onclick="adminBroadcast()" data-i18n="sendToAll">📢 Envoyer a tous</button>
-      </div>
-    </div>
-    <div id="admin-logs" style="margin-top:16px">
-      <div class="admin-actions">
-        <h3 data-i18n="actionHistory">📋 Historique des actions</h3>
-        <div id="admin-log-list" class="admin-log"></div>
-      </div>
-    </div>
+  <div class="admin-tabs">
+    <button class="admin-tab active" onclick="switchAdminTab('dashboard')">📊 Dashboard</button>
+    <button class="admin-tab" onclick="switchAdminTab('players')">👥 Joueurs</button>
+    <button class="admin-tab" onclick="switchAdminTab('events')">🎯 Evenements</button>
+    <button class="admin-tab" onclick="switchAdminTab('moderation')">🛡 Moderation</button>
+    <button class="admin-tab" onclick="switchAdminTab('config')">⚙ Config</button>
   </div>
+  <div class="admin-body" id="admin-body"></div>
 </div>
 
 <!-- PROFILE VIEWER -->
@@ -6532,6 +6541,55 @@ const WORKOUT_SESSIONS = {
 };
 const WORKOUT_TIER_ORDER = ['beginner', 'intermediate', 'advanced', 'elite'];
 
+// Muscle zone mapping for exercises — maps exercise keywords to muscle groups with primary/secondary
+const MUSCLE_ZONES = {
+  pompes: { primary: ['Pectoraux', 'Triceps'], secondary: ['Epaules', 'Gainage'] },
+  pushups: { primary: ['Pectoraux', 'Triceps'], secondary: ['Epaules', 'Gainage'] },
+  pushup: { primary: ['Pectoraux', 'Triceps'], secondary: ['Epaules', 'Gainage'] },
+  diamant: { primary: ['Triceps', 'Pectoraux int.'], secondary: ['Epaules'] },
+  diamond: { primary: ['Triceps', 'Inner chest'], secondary: ['Shoulders'] },
+  larges: { primary: ['Pectoraux ext.'], secondary: ['Epaules', 'Triceps'] },
+  wide: { primary: ['Outer chest'], secondary: ['Shoulders', 'Triceps'] },
+  pike: { primary: ['Epaules', 'Deltoides'], secondary: ['Triceps'] },
+  archer: { primary: ['Pectoraux', 'Epaule'], secondary: ['Triceps', 'Gainage'] },
+  hindu: { primary: ['Epaules', 'Pectoraux', 'Dos'], secondary: ['Triceps', 'Gainage'] },
+  pseudo: { primary: ['Epaules ant.', 'Deltoides'], secondary: ['Pectoraux', 'Gainage'] },
+  incline: { primary: ['Haut pectoraux'], secondary: ['Epaules', 'Triceps'] },
+  tractions: { primary: ['Dos', 'Grand dorsal'], secondary: ['Biceps', 'Avant-bras'] },
+  traction: { primary: ['Dos', 'Grand dorsal'], secondary: ['Biceps', 'Avant-bras'] },
+  pullup: { primary: ['Dos', 'Grand dorsal'], secondary: ['Biceps', 'Avant-bras'] },
+  chin: { primary: ['Biceps', 'Dos'], secondary: ['Avant-bras'] },
+  rowing: { primary: ['Dos', 'Trapezes'], secondary: ['Biceps', 'Rhomboides'] },
+  row: { primary: ['Dos', 'Trapezes'], secondary: ['Biceps', 'Rhomboides'] },
+  dips: { primary: ['Triceps', 'Pectoraux bas'], secondary: ['Epaules ant.'] },
+  dip: { primary: ['Triceps', 'Pectoraux bas'], secondary: ['Epaules ant.'] },
+  curl: { primary: ['Biceps'], secondary: ['Avant-bras'] },
+  plank: { primary: ['Gainage', 'Abdominaux'], secondary: ['Epaules', 'Dos'] },
+  gainage: { primary: ['Gainage', 'Abdominaux'], secondary: ['Epaules', 'Dos'] },
+  planche: { primary: ['Gainage', 'Abdominaux'], secondary: ['Epaules', 'Dos'] },
+  lsit: { primary: ['Abdominaux', 'Quadriceps'], secondary: ['Epaules', 'Triceps'] },
+  superman: { primary: ['Lombaires', 'Dos'], secondary: ['Fessiers'] },
+  muscle_up: { primary: ['Dos', 'Pectoraux', 'Triceps'], secondary: ['Epaules', 'Gainage'] },
+  muscleup: { primary: ['Dos', 'Pectoraux', 'Triceps'], secondary: ['Epaules', 'Gainage'] },
+  squat: { primary: ['Quadriceps', 'Fessiers'], secondary: ['Ischio-jambiers', 'Mollets'] },
+  fente: { primary: ['Quadriceps', 'Fessiers'], secondary: ['Ischio-jambiers'] },
+  lunge: { primary: ['Quadriceps', 'Fessiers'], secondary: ['Ischio-jambiers'] },
+  burpee: { primary: ['Corps entier'], secondary: ['Cardio'] },
+  jumping: { primary: ['Cardio', 'Mollets'], secondary: ['Quadriceps'] },
+  etirement: { primary: ['Souplesse'], secondary: ['Recuperation'] },
+  stretch: { primary: ['Souplesse'], secondary: ['Recuperation'] },
+  echauffement: { primary: ['Corps entier'], secondary: ['Cardio'] },
+  warmup: { primary: ['Corps entier'], secondary: ['Cardio'] },
+};
+
+function getMuscleZones(exerciseName) {
+  const name = (exerciseName || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  for (const [key, zones] of Object.entries(MUSCLE_ZONES)) {
+    if (name.includes(key)) return zones;
+  }
+  return null;
+}
+
 // Build a fresh per-tier completedToday object (every tier defaults to false).
 // Called at call-time (after all tier-order consts are defined), so direct refs are safe.
 function makeEmptyCompletedToday() {
@@ -8031,6 +8089,7 @@ function renderWorkoutSessions() {
   session.exercises.forEach((ex, i) => {
     const done = w.progress[i];
     const altOpen = (w.altOpen || {})[ex.id];
+    const zones = getMuscleZones(ex.name) || getMuscleZones(ex.id);
     html += `<div class="workout-exercise ${done ? 'done' : ''}">
       <div class="workout-ex-header">
         <div class="workout-ex-icon">${ex.icon}</div>
@@ -8040,6 +8099,10 @@ function renderWorkoutSessions() {
         </div>
         <div class="workout-ex-sets">${ex.sets} × ${ex.reps}</div>
       </div>
+      ${zones ? `<div style="margin:4px 0 2px;display:flex;flex-wrap:wrap;gap:2px">
+        ${zones.primary.map(z => '<span class="muscle-zone-tag primary">' + z + '</span>').join('')}
+        ${zones.secondary.map(z => '<span class="muscle-zone-tag secondary">' + z + '</span>').join('')}
+      </div>` : ''}
       <div class="workout-ex-desc">${ex.desc}</div>`;
     if (ex.alt) {
       html += `<button class="workout-alt-toggle ${altOpen ? 'open' : ''}" onclick="toggleWorkoutAlt('${ex.id}')">
@@ -8732,12 +8795,14 @@ function renderActiveCustomSession(session) {
 
   session.exercises.forEach((ex, idx) => {
     const done = w.customProgress[idx];
+    const cZones = getMuscleZones(ex.name);
     html += `<div class="workout-exercise ${done ? 'done' : ''}" onclick="validateCustomExercise(${idx})">
       <div class="workout-ex-header">
         <span class="workout-ex-check">${done ? '✅' : '⬜'}</span>
         <div class="workout-ex-info">
           <div class="workout-ex-name">${ex.name}</div>
           <div class="workout-ex-detail">${ex.reps}</div>
+          ${cZones ? `<div style="margin:3px 0;display:flex;flex-wrap:wrap;gap:2px">${cZones.primary.map(z => '<span class="muscle-zone-tag primary">'+z+'</span>').join('')}${cZones.secondary.map(z => '<span class="muscle-zone-tag secondary">'+z+'</span>').join('')}</div>` : ''}
           ${ex.desc ? `<div class="workout-ex-desc">${ex.desc}</div>` : ''}
         </div>
       </div>
@@ -15581,6 +15646,10 @@ const ADMIN_UIDS = new Set(['u26jZP61pEZvv25dXgVlfwQALIf1']);
 let adminUsers = [];
 let adminLogs = [];
 let adminSelectedUid = null;
+let adminCurrentTab = 'dashboard';
+let adminFeedItems = [];
+let adminEvents = [];
+let adminUserFilter = { sort: 'xp', status: 'all', page: 0 };
 
 async function loadAdminConfig() {
   if (!db) return;
@@ -15592,7 +15661,6 @@ async function loadAdminConfig() {
       adminLogs = data.logs || [];
     }
   } catch(e) { console.warn('Admin config load:', e); }
-  // Show/hide admin buttons (header + settings)
   const btn = document.getElementById('admin-btn');
   const settingsEntry = document.getElementById('admin-settings-entry');
   if (btn) btn.style.display = isAdmin() ? 'inline-flex' : 'none';
@@ -15633,41 +15701,164 @@ function toggleAdminPanel() {
   overlay.classList.toggle('open', opening);
   if (opening) {
     loadAdminUsers();
-    renderAdminLogs();
+    switchAdminTab('dashboard');
   }
 }
 
+function switchAdminTab(tab) {
+  adminCurrentTab = tab;
+  document.querySelectorAll('.admin-tab').forEach((t, i) => {
+    const tabs = ['dashboard','players','events','moderation','config'];
+    t.classList.toggle('active', tabs[i] === tab);
+  });
+  renderAdminTab();
+}
+
+function renderAdminTab() {
+  const body = document.getElementById('admin-body');
+  if (!body) return;
+  switch(adminCurrentTab) {
+    case 'dashboard': renderAdminDashboard(body); break;
+    case 'players': renderAdminPlayers(body); break;
+    case 'events': renderAdminEvents(body); break;
+    case 'moderation': renderAdminModeration(body); break;
+    case 'config': renderAdminConfig(body); break;
+  }
+}
+
+// ===== DASHBOARD TAB =====
+function renderAdminDashboard(body) {
+  const total = adminUsers.length;
+  const now = new Date();
+  const oneDayAgo = new Date(now - 86400000).toISOString();
+  const sevenDaysAgo = new Date(now - 7*86400000).toISOString();
+  const active24h = adminUsers.filter(u => u.lastActive > oneDayAgo).length;
+  const active7d = adminUsers.filter(u => u.lastActive > sevenDaysAgo).length;
+  const totalXp = adminUsers.reduce((s,u) => s + (u.totalXp||0), 0);
+  const avgLevel = total ? (adminUsers.reduce((s,u) => s + (u.level||1), 0) / total).toFixed(1) : 0;
+  const avgStreak = total ? (adminUsers.reduce((s,u) => s + (u.streak||0), 0) / total).toFixed(1) : 0;
+  const banned = adminUsers.filter(u => u.banned).length;
+  const topLevel = adminUsers.reduce((m,u) => Math.max(m, u.level||1), 0);
+  const topStreak = adminUsers.reduce((m,u) => Math.max(m, u.streak||0), 0);
+  const topXp = adminUsers.reduce((m,u) => Math.max(m, u.totalXp||0), 0);
+
+  body.innerHTML = `
+    <div class="admin-stat-grid">
+      <div class="admin-stat-card"><div class="admin-stat-val">${total}</div><div class="admin-stat-lbl">Joueurs total</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-val" style="color:#4caf50">${active24h}</div><div class="admin-stat-lbl">Actifs 24h</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-val" style="color:#2196f3">${active7d}</div><div class="admin-stat-lbl">Actifs 7 jours</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-val" style="color:#ff9800">${(totalXp/1000).toFixed(1)}k</div><div class="admin-stat-lbl">XP total</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-val">${avgLevel}</div><div class="admin-stat-lbl">Niveau moyen</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-val">${avgStreak}</div><div class="admin-stat-lbl">Streak moyen</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-val" style="color:#9c27b0">${topLevel}</div><div class="admin-stat-lbl">Meilleur niveau</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-val" style="color:#ff5722">${topStreak}</div><div class="admin-stat-lbl">Meilleur streak</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-val" style="color:#e53935">${banned}</div><div class="admin-stat-lbl">Bannis</div></div>
+    </div>
+
+    <div class="admin-actions">
+      <h3>🏆 Top 5 joueurs</h3>
+      ${adminUsers.slice(0,5).map((u,i) => `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.7rem">
+        <span style="color:#e53935;font-weight:700;width:18px">#${i+1}</span>
+        ${u.avatar ? '<img src="'+u.avatar+'" style="width:24px;height:24px;border-radius:50%"/>' : '<span>👤</span>'}
+        <span style="flex:1;color:var(--text)">${u.name||'Viking'}</span>
+        <span style="color:var(--text-dim)">Niv.${u.level||1}</span>
+        <span style="color:#ff9800;font-weight:600">${u.totalXp||0} XP</span>
+      </div>`).join('')}
+    </div>
+
+    <div class="admin-actions" style="margin-top:12px">
+      <h3>📋 Dernieres actions</h3>
+      <div style="max-height:200px;overflow-y:auto">
+        ${adminLogs.length === 0 ? '<div style="color:var(--text-dim);font-size:.65rem;padding:8px">Aucune action.</div>' :
+          adminLogs.slice(0,20).map(l => {
+            const d = new Date(l.at);
+            const ts = d.getDate()+'/'+(d.getMonth()+1)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+            return '<div style="font-size:.6rem;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="color:var(--text-dim)">'+ts+'</span> <span style="color:#e53935">'+((l.byName)||'?')+'</span> — '+l.action+'</div>';
+          }).join('')}
+      </div>
+    </div>`;
+}
+
+// ===== PLAYERS TAB =====
 async function loadAdminUsers() {
   if (!db) return;
   try {
-    const snap = await db.collection('users').orderBy('totalXp', 'desc').limit(200).get();
+    const snap = await db.collection('users').orderBy('totalXp', 'desc').limit(500).get();
     adminUsers = [];
     snap.forEach(doc => adminUsers.push({ id: doc.id, ...doc.data() }));
-    renderAdminUserList();
   } catch(e) { console.error('Admin load users:', e); }
 }
 
-function filterAdminUsers() {
-  const q = (document.getElementById('admin-search')?.value || '').toLowerCase();
-  renderAdminUserList(q);
-}
+function renderAdminPlayers(body) {
+  const f = adminUserFilter;
+  let filtered = [...adminUsers];
 
-function renderAdminUserList(filter = '') {
-  const list = document.getElementById('admin-user-list');
-  if (!list) return;
-  let filtered = adminUsers;
-  if (filter) filtered = adminUsers.filter(u => (u.name||'').toLowerCase().includes(filter) || (u.id||'').toLowerCase().includes(filter));
-  list.innerHTML = filtered.slice(0, 50).map(u => `<div class="admin-user-row ${u.id === adminSelectedUid ? 'selected' : ''}" onclick="selectAdminUser('${u.id}')">
-    ${u.avatar ? `<img src="${u.avatar}" style="width:28px;height:28px;border-radius:50%;margin-right:8px"/>` : '<span style="margin-right:8px">👤</span>'}
-    <div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${u.name || 'Viking'} <span style="color:var(--text-dim);font-weight:400">Niv.${u.level||1}</span></div>
-    <div style="font-size:.6rem;color:var(--text-dim)">${u.id.slice(0,12)}... — ${u.totalXp||0} XP${u.banned ? ' 🚫 BANNI' : ''}${u.customTitle ? ' — 🏆 '+u.customTitle : ''}</div></div>
-  </div>`).join('');
+  // Status filter
+  if (f.status === 'banned') filtered = filtered.filter(u => u.banned);
+  else if (f.status === 'active') {
+    const cutoff = new Date(Date.now() - 7*86400000).toISOString();
+    filtered = filtered.filter(u => u.lastActive > cutoff);
+  } else if (f.status === 'inactive') {
+    const cutoff = new Date(Date.now() - 7*86400000).toISOString();
+    filtered = filtered.filter(u => !u.lastActive || u.lastActive <= cutoff);
+  }
+
+  // Sort
+  if (f.sort === 'xp') filtered.sort((a,b) => (b.totalXp||0) - (a.totalXp||0));
+  else if (f.sort === 'level') filtered.sort((a,b) => (b.level||1) - (a.level||1));
+  else if (f.sort === 'streak') filtered.sort((a,b) => (b.streak||0) - (a.streak||0));
+  else if (f.sort === 'recent') filtered.sort((a,b) => (b.lastActive||'').localeCompare(a.lastActive||''));
+  else if (f.sort === 'name') filtered.sort((a,b) => (a.name||'').localeCompare(b.name||''));
+
+  const searchQ = (document.getElementById('admin-search')?.value || '').toLowerCase();
+  if (searchQ) filtered = filtered.filter(u => (u.name||'').toLowerCase().includes(searchQ) || u.id.toLowerCase().includes(searchQ));
+
+  const pageSize = 30;
+  const totalPages = Math.ceil(filtered.length / pageSize);
+  const page = Math.min(f.page, totalPages - 1);
+  const paged = filtered.slice(page * pageSize, (page+1) * pageSize);
+
+  body.innerHTML = `
+    <input type="text" class="admin-search" id="admin-search" placeholder="Rechercher (nom, UID)..." oninput="renderAdminPlayers(document.getElementById('admin-body'))" value="${searchQ}"/>
+
+    <div class="admin-filter-bar">
+      <span style="font-size:.55rem;color:var(--text-dim);padding:4px 0">Tri:</span>
+      ${['xp','level','streak','recent','name'].map(s =>
+        '<button class="admin-filter-btn '+(f.sort===s?'active':'')+'" onclick="adminUserFilter.sort=\''+s+'\';adminUserFilter.page=0;renderAdminPlayers(document.getElementById(\'admin-body\'))">'
+        +{xp:'XP',level:'Niveau',streak:'Streak',recent:'Recent',name:'Nom'}[s]+'</button>'
+      ).join('')}
+    </div>
+    <div class="admin-filter-bar">
+      <span style="font-size:.55rem;color:var(--text-dim);padding:4px 0">Statut:</span>
+      ${['all','active','inactive','banned'].map(s =>
+        '<button class="admin-filter-btn '+(f.status===s?'active':'')+'" onclick="adminUserFilter.status=\''+s+'\';adminUserFilter.page=0;renderAdminPlayers(document.getElementById(\'admin-body\'))">'
+        +{all:'Tous',active:'Actifs',inactive:'Inactifs',banned:'Bannis'}[s]+'</button>'
+      ).join('')}
+    </div>
+
+    <div style="font-size:.55rem;color:var(--text-dim);margin-bottom:6px">${filtered.length} joueur(s) — page ${page+1}/${Math.max(1,totalPages)}</div>
+
+    <div id="admin-user-list">
+      ${paged.map(u => '<div class="admin-user-row '+(u.id===adminSelectedUid?'selected':'')+'" onclick="selectAdminUser(\''+u.id+'\')">'
+        + (u.avatar ? '<img src="'+u.avatar+'" style="width:28px;height:28px;border-radius:50%;margin-right:8px"/>' : '<span style="margin-right:8px">👤</span>')
+        + '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(u.name||'Viking')+' <span style="color:var(--text-dim);font-weight:400">Niv.'+(u.level||1)+'</span></div>'
+        + '<div style="font-size:.6rem;color:var(--text-dim)">'+u.id.slice(0,12)+'... — '+(u.totalXp||0)+' XP — 🔥'+(u.streak||0)+(u.banned?' 🚫 BANNI':'')+(u.customTitle?' — 🏆 '+u.customTitle:'')+'</div></div>'
+        + '</div>').join('')}
+    </div>
+
+    ${totalPages > 1 ? '<div style="display:flex;gap:4px;justify-content:center;margin:8px 0">'
+      + (page > 0 ? '<button class="admin-btn admin-btn-primary" onclick="adminUserFilter.page--;renderAdminPlayers(document.getElementById(\'admin-body\'))">← Prec</button>' : '')
+      + (page < totalPages-1 ? '<button class="admin-btn admin-btn-primary" onclick="adminUserFilter.page++;renderAdminPlayers(document.getElementById(\'admin-body\'))">Suiv →</button>' : '')
+      + '</div>' : ''}
+
+    <div id="admin-selected-actions" style="${adminSelectedUid ? '' : 'display:none'}"></div>`;
+
+  if (adminSelectedUid) renderAdminActions();
 }
 
 function selectAdminUser(uid) {
   adminSelectedUid = uid;
-  renderAdminUserList((document.getElementById('admin-search')?.value || '').toLowerCase());
-  renderAdminActions();
+  renderAdminPlayers(document.getElementById('admin-body'));
 }
 
 function renderAdminActions() {
@@ -15676,56 +15867,242 @@ function renderAdminActions() {
   const u = adminUsers.find(u => u.id === adminSelectedUid);
   if (!u) { section.style.display = 'none'; return; }
   section.style.display = 'block';
+  const lastAct = u.lastActive ? new Date(u.lastActive).toLocaleDateString('fr-FR') + ' ' + new Date(u.lastActive).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : 'Jamais';
   section.innerHTML = `
     <div class="admin-actions">
       <h3>⚔ ${u.name || 'Viking'} <span style="font-size:.6rem;color:var(--text-dim)">${u.id.slice(0,16)}...</span></h3>
-      <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:8px">Niv.${u.level||1} — ${u.totalXp||0} XP — Streak ${u.streak||0}${u.banned ? ' — 🚫 BANNI' : ''}${u.penaltiesDisabled ? ' — ⏸ Penalites OFF' : ''}${u.customTitle ? ' — 🏆 '+u.customTitle : ''}</div>
+      <div style="font-size:.65rem;color:var(--text-dim);margin-bottom:4px">Niv.${u.level||1} — ${u.totalXp||0} XP — 🔥 Streak ${u.streak||0} — 💎 ${u.runes||0} runes</div>
+      <div style="font-size:.6rem;color:var(--text-dim);margin-bottom:8px">Derniere activite: ${lastAct}${u.banned ? ' — 🚫 BANNI' : ''}${u.penaltiesDisabled ? ' — ⏸ Penalites OFF' : ''}${u.customTitle ? ' — 🏆 '+u.customTitle : ''}</div>
 
       <div class="admin-action-group">
         <label>💰 XP</label>
-        <div style="display:flex;gap:6px"><input type="number" id="admin-xp-amount" value="100" style="flex:1;background:#1a1030;border:1px solid #333;color:#fff;border-radius:4px;padding:4px 8px;font-size:.75rem"/>
+        <div style="display:flex;gap:6px"><input type="number" id="admin-xp-amount" value="100" style="flex:1"/>
         <button class="admin-btn admin-btn-ok" onclick="adminGiveXp()">+ Donner</button>
         <button class="admin-btn admin-btn-danger" onclick="adminRemoveXp()">- Retirer</button></div>
       </div>
 
       <div class="admin-action-group">
         <label>📊 Niveau</label>
-        <div style="display:flex;gap:6px"><input type="number" id="admin-level-val" value="${u.level||1}" min="1" max="100" style="flex:1;background:#1a1030;border:1px solid #333;color:#fff;border-radius:4px;padding:4px 8px;font-size:.75rem"/>
+        <div style="display:flex;gap:6px"><input type="number" id="admin-level-val" value="${u.level||1}" min="1" max="100" style="flex:1"/>
         <button class="admin-btn admin-btn-ok" onclick="adminSetLevel()">Appliquer</button></div>
       </div>
 
       <div class="admin-action-group">
         <label>🔥 Streak</label>
-        <div style="display:flex;gap:6px"><input type="number" id="admin-streak-val" value="${u.streak||0}" min="0" style="flex:1;background:#1a1030;border:1px solid #333;color:#fff;border-radius:4px;padding:4px 8px;font-size:.75rem"/>
+        <div style="display:flex;gap:6px"><input type="number" id="admin-streak-val" value="${u.streak||0}" min="0" style="flex:1"/>
         <button class="admin-btn admin-btn-ok" onclick="adminSetStreak()">Appliquer</button></div>
       </div>
 
       <div class="admin-action-group">
         <label>💎 Runes</label>
-        <div style="display:flex;gap:6px"><input type="number" id="admin-runes-val" value="${u.runes||0}" min="0" style="flex:1;background:#1a1030;border:1px solid #333;color:#fff;border-radius:4px;padding:4px 8px;font-size:.75rem"/>
+        <div style="display:flex;gap:6px"><input type="number" id="admin-runes-val" value="${u.runes||0}" min="0" style="flex:1"/>
         <button class="admin-btn admin-btn-ok" onclick="adminSetRunes()">Appliquer</button></div>
       </div>
 
       <div class="admin-action-group">
-        <label>🏆 Titre personnalise (visible dans le classement)</label>
-        <div style="display:flex;gap:6px"><input type="text" id="admin-title-val" value="${u.customTitle||''}" placeholder="Ex: Champion du Valhalla" maxlength="40" style="flex:1;background:#1a1030;border:1px solid #333;color:#fff;border-radius:4px;padding:4px 8px;font-size:.75rem"/>
-        <button class="admin-btn admin-btn-ok" onclick="adminSetTitle()">Appliquer</button>
-        <button class="admin-btn admin-btn-danger" onclick="adminRemoveTitle()">Retirer</button></div>
+        <label>🏆 Titre personnalise</label>
+        <div style="display:flex;gap:6px"><input type="text" id="admin-title-val" value="${u.customTitle||''}" placeholder="Ex: Champion du Valhalla" maxlength="40" style="flex:1"/>
+        <button class="admin-btn admin-btn-ok" onclick="adminSetTitle()">OK</button>
+        <button class="admin-btn admin-btn-danger" onclick="adminRemoveTitle()">✕</button></div>
       </div>
 
       <div class="admin-action-group">
         <label>🔑 Cles API (JSON array)</label>
-        <div style="display:flex;gap:6px"><textarea id="admin-api-keys" rows="2" placeholder='["sk-...","sk-..."]' style="flex:1;background:#1a1030;border:1px solid #333;color:#fff;border-radius:4px;padding:4px 8px;font-size:.7rem;font-family:monospace;resize:none"></textarea>
-        <button class="admin-btn admin-btn-ok" onclick="adminSetApiKeys()">Appliquer</button></div>
+        <div style="display:flex;gap:6px"><textarea id="admin-api-keys" rows="2" placeholder='["sk-..."]' style="flex:1;font-family:monospace;resize:none"></textarea>
+        <button class="admin-btn admin-btn-ok" onclick="adminSetApiKeys()">OK</button></div>
+      </div>
+
+      <div class="admin-action-group">
+        <label>✉ Envoyer un message prive</label>
+        <div style="display:flex;gap:6px"><input type="text" id="admin-dm-msg" placeholder="Message au joueur..." maxlength="500" style="flex:1"/>
+        <button class="admin-btn admin-btn-primary" onclick="adminSendDM()">Envoyer</button></div>
       </div>
 
       <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
         <button class="admin-btn ${u.penaltiesDisabled ? 'admin-btn-ok' : 'admin-btn-warn'}" onclick="adminTogglePenalties()">${u.penaltiesDisabled ? '▶ Reactiver penalites' : '⏸ Desactiver penalites'}</button>
         <button class="admin-btn ${u.banned ? 'admin-btn-ok' : 'admin-btn-danger'}" onclick="adminBanUser()">${u.banned ? '✅ Debannir' : '🚫 Bannir'}</button>
+        <button class="admin-btn admin-btn-danger" onclick="adminResetUser()" style="font-size:.6rem">🗑 Reset complet</button>
+        <button class="admin-btn admin-btn-primary" onclick="adminViewProfile()">👁 Voir profil</button>
       </div>
     </div>`;
 }
 
+// ===== EVENTS TAB =====
+function renderAdminEvents(body) {
+  body.innerHTML = `
+    <div class="admin-actions">
+      <h3>🎯 Creer un evenement global</h3>
+      <div class="admin-action-group">
+        <label>Nom de l'evenement</label>
+        <input type="text" id="admin-event-name" placeholder="Ex: Weekend Double XP" maxlength="60"/>
+      </div>
+      <div class="admin-action-group">
+        <label>Description</label>
+        <textarea id="admin-event-desc" rows="2" placeholder="Details de l'evenement..."></textarea>
+      </div>
+      <div class="admin-action-group">
+        <label>Type</label>
+        <select id="admin-event-type">
+          <option value="double_xp">⚡ Double XP</option>
+          <option value="community_challenge">🏆 Defi communautaire</option>
+          <option value="bonus_runes">💎 Bonus Runes</option>
+          <option value="custom">🎲 Personnalise</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div class="admin-action-group" style="flex:1">
+          <label>Debut</label>
+          <input type="datetime-local" id="admin-event-start"/>
+        </div>
+        <div class="admin-action-group" style="flex:1">
+          <label>Fin</label>
+          <input type="datetime-local" id="admin-event-end"/>
+        </div>
+      </div>
+      <div class="admin-action-group">
+        <label>Objectif (pour defi communautaire, ex: 10000)</label>
+        <input type="number" id="admin-event-goal" placeholder="Objectif total" min="0"/>
+      </div>
+      <button class="admin-btn admin-btn-primary" onclick="adminCreateEvent()" style="width:100%;margin-top:4px">🚀 Lancer l'evenement</button>
+    </div>
+
+    <div class="admin-actions" style="margin-top:12px">
+      <h3>📅 Evenements actifs</h3>
+      <div id="admin-events-list"><div style="color:var(--text-dim);font-size:.65rem">Chargement...</div></div>
+    </div>
+
+    <div class="admin-actions" style="margin-top:12px">
+      <h3>🎁 Codes promo</h3>
+      <div class="admin-action-group">
+        <label>Code</label>
+        <input type="text" id="admin-promo-code" placeholder="Ex: VIKING2026" maxlength="20" style="text-transform:uppercase"/>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div class="admin-action-group" style="flex:1">
+          <label>Recompense XP</label>
+          <input type="number" id="admin-promo-xp" value="500" min="0"/>
+        </div>
+        <div class="admin-action-group" style="flex:1">
+          <label>Runes</label>
+          <input type="number" id="admin-promo-runes" value="0" min="0"/>
+        </div>
+      </div>
+      <div class="admin-action-group">
+        <label>Utilisations max (0 = illimite)</label>
+        <input type="number" id="admin-promo-max" value="100" min="0"/>
+      </div>
+      <button class="admin-btn admin-btn-warn" onclick="adminCreatePromoCode()" style="width:100%;margin-top:4px">🎫 Creer le code</button>
+      <div id="admin-promo-list" style="margin-top:8px"></div>
+    </div>
+
+    <div class="admin-actions" style="margin-top:12px">
+      <h3>🎁 Distribution de masse</h3>
+      <div style="display:flex;gap:8px">
+        <div class="admin-action-group" style="flex:1">
+          <label>XP a tous les actifs (7j)</label>
+          <input type="number" id="admin-mass-xp" value="100" min="0"/>
+        </div>
+        <div class="admin-action-group" style="flex:1">
+          <label>Runes a tous</label>
+          <input type="number" id="admin-mass-runes" value="0" min="0"/>
+        </div>
+      </div>
+      <button class="admin-btn admin-btn-warn" onclick="adminMassReward()">🎁 Distribuer aux actifs</button>
+    </div>`;
+
+  loadAdminEvents();
+  loadAdminPromoCodes();
+}
+
+// ===== MODERATION TAB =====
+function renderAdminModeration(body) {
+  body.innerHTML = `
+    <div class="admin-actions">
+      <h3>📢 Message global (broadcast)</h3>
+      <div class="admin-action-group">
+        <label>Message visible par tous au prochain chargement</label>
+        <textarea id="admin-broadcast-msg" rows="3" placeholder="Annonce du Jarl..."></textarea>
+      </div>
+      <button class="admin-btn admin-btn-warn" onclick="adminBroadcast()" style="width:100%">📢 Envoyer a tous</button>
+    </div>
+
+    <div class="admin-actions" style="margin-top:12px">
+      <h3>📰 Feed d'activite recent</h3>
+      <div id="admin-feed-list"><div style="color:var(--text-dim);font-size:.65rem">Chargement...</div></div>
+    </div>
+
+    <div class="admin-actions" style="margin-top:12px">
+      <h3>📋 Historique des actions admin</h3>
+      <div id="admin-log-list" style="max-height:250px;overflow-y:auto">
+        ${adminLogs.length === 0 ? '<div style="color:var(--text-dim);font-size:.65rem;padding:8px">Aucune action.</div>' :
+          adminLogs.slice(0,50).map(l => {
+            const d = new Date(l.at);
+            const ts = d.getDate()+'/'+(d.getMonth()+1)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+            return '<div style="font-size:.6rem;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="color:var(--text-dim)">'+ts+'</span> <span style="color:#e53935">'+(l.byName||'?')+'</span> — '+l.action+'</div>';
+          }).join('')}
+      </div>
+    </div>`;
+
+  loadAdminFeed();
+}
+
+// ===== CONFIG TAB =====
+function renderAdminConfig(body) {
+  body.innerHTML = `
+    <div class="admin-actions">
+      <h3>🔧 Mode maintenance</h3>
+      <div class="admin-action-group">
+        <label>Message de maintenance (vide = desactive)</label>
+        <textarea id="admin-maint-msg" rows="2" placeholder="L'app est en maintenance..."></textarea>
+      </div>
+      <button class="admin-btn admin-btn-danger" onclick="adminSetMaintenance(true)" style="margin-right:4px">🛑 Activer maintenance</button>
+      <button class="admin-btn admin-btn-ok" onclick="adminSetMaintenance(false)">✅ Desactiver</button>
+    </div>
+
+    <div class="admin-actions" style="margin-top:12px">
+      <h3>⚙ Configuration globale</h3>
+      <div class="admin-action-group">
+        <label>Multiplicateur XP global (1 = normal, 2 = double)</label>
+        <div style="display:flex;gap:6px"><input type="number" id="admin-xp-mult" value="1" min="0.5" max="10" step="0.5" style="flex:1"/>
+        <button class="admin-btn admin-btn-ok" onclick="adminSetXpMultiplier()">Appliquer</button></div>
+      </div>
+      <div class="admin-action-group">
+        <label>Multiplicateur Runes (1 = normal)</label>
+        <div style="display:flex;gap:6px"><input type="number" id="admin-rune-mult" value="1" min="0.5" max="10" step="0.5" style="flex:1"/>
+        <button class="admin-btn admin-btn-ok" onclick="adminSetRuneMultiplier()">Appliquer</button></div>
+      </div>
+    </div>
+
+    <div class="admin-actions" style="margin-top:12px">
+      <h3>📣 Notification push</h3>
+      <div class="admin-action-group">
+        <label>Titre</label>
+        <input type="text" id="admin-push-title" placeholder="Stakr 🪶" maxlength="60"/>
+      </div>
+      <div class="admin-action-group">
+        <label>Message</label>
+        <textarea id="admin-push-msg" rows="2" placeholder="Le Valhalla t'appelle !"></textarea>
+      </div>
+      <div class="admin-action-group">
+        <label>Cible</label>
+        <select id="admin-push-target">
+          <option value="all">Tous les joueurs</option>
+          <option value="selected">Joueur selectionne uniquement</option>
+        </select>
+      </div>
+      <button class="admin-btn admin-btn-primary" onclick="adminSendPush()" style="width:100%;margin-top:4px">📣 Envoyer la notification</button>
+    </div>
+
+    <div class="admin-actions" style="margin-top:12px">
+      <h3>🗑 Actions dangereuses</h3>
+      <button class="admin-btn admin-btn-danger" onclick="adminClearFeed()">🗑 Vider le feed d'activite</button>
+      <button class="admin-btn admin-btn-danger" onclick="adminClearLogs()" style="margin-left:4px">🗑 Vider les logs admin</button>
+    </div>`;
+
+  loadAdminGlobalConfig();
+}
+
+// ===== ADMIN ACTIONS =====
 async function adminGiveXp() {
   if (!adminSelectedUid || !db) return;
   const amount = parseInt(document.getElementById('admin-xp-amount')?.value) || 0;
@@ -15734,7 +16111,6 @@ async function adminGiveXp() {
     await db.collection('users').doc(adminSelectedUid).update({
       totalXp: firebase.firestore.FieldValue.increment(amount)
     });
-    // Also update private quest data
     const qdoc = await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').get();
     if (qdoc.exists) {
       await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').update({
@@ -15742,8 +16118,8 @@ async function adminGiveXp() {
         totalXp: firebase.firestore.FieldValue.increment(amount)
       });
     }
-    adminLog(`+${amount} XP → ${adminSelectedUid.slice(0,8)}`);
-    showToast('Admin', `+${amount} XP attribues`);
+    adminLog('+' + amount + ' XP → ' + adminSelectedUid.slice(0,8));
+    showToast('Admin', '+' + amount + ' XP attribues');
     await loadAdminUsers();
     selectAdminUser(adminSelectedUid);
   } catch(e) { showToast('Erreur', e.message); }
@@ -15764,8 +16140,8 @@ async function adminRemoveXp() {
         totalXp: firebase.firestore.FieldValue.increment(-amount)
       });
     }
-    adminLog(`-${amount} XP → ${adminSelectedUid.slice(0,8)}`);
-    showToast('Admin', `-${amount} XP retires`);
+    adminLog('-' + amount + ' XP → ' + adminSelectedUid.slice(0,8));
+    showToast('Admin', '-' + amount + ' XP retires');
     await loadAdminUsers();
     selectAdminUser(adminSelectedUid);
   } catch(e) { showToast('Erreur', e.message); }
@@ -15780,8 +16156,8 @@ async function adminSetLevel() {
     if (qdoc.exists) {
       await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').update({ level: lvl });
     }
-    adminLog(`Niveau → ${lvl} pour ${adminSelectedUid.slice(0,8)}`);
-    showToast('Admin', `Niveau mis a ${lvl}`);
+    adminLog('Niveau → ' + lvl + ' pour ' + adminSelectedUid.slice(0,8));
+    showToast('Admin', 'Niveau mis a ' + lvl);
     await loadAdminUsers();
     selectAdminUser(adminSelectedUid);
   } catch(e) { showToast('Erreur', e.message); }
@@ -15796,8 +16172,8 @@ async function adminSetStreak() {
     if (qdoc.exists) {
       await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').update({ streak: val });
     }
-    adminLog(`Streak → ${val} pour ${adminSelectedUid.slice(0,8)}`);
-    showToast('Admin', `Streak mis a ${val}`);
+    adminLog('Streak → ' + val + ' pour ' + adminSelectedUid.slice(0,8));
+    showToast('Admin', 'Streak mis a ' + val);
     await loadAdminUsers();
     selectAdminUser(adminSelectedUid);
   } catch(e) { showToast('Erreur', e.message); }
@@ -15809,8 +16185,8 @@ async function adminSetTitle() {
   if (!title) return;
   try {
     await db.collection('users').doc(adminSelectedUid).update({ customTitle: title });
-    adminLog(`Titre "${title}" → ${adminSelectedUid.slice(0,8)}`);
-    showToast('Admin', `Titre "${title}" attribue`);
+    adminLog('Titre "' + title + '" → ' + adminSelectedUid.slice(0,8));
+    showToast('Admin', 'Titre "' + title + '" attribue');
     await loadAdminUsers();
     selectAdminUser(adminSelectedUid);
   } catch(e) { showToast('Erreur', e.message); }
@@ -15820,7 +16196,7 @@ async function adminRemoveTitle() {
   if (!adminSelectedUid || !db) return;
   try {
     await db.collection('users').doc(adminSelectedUid).update({ customTitle: firebase.firestore.FieldValue.delete() });
-    adminLog(`Titre retire → ${adminSelectedUid.slice(0,8)}`);
+    adminLog('Titre retire → ' + adminSelectedUid.slice(0,8));
     showToast('Admin', 'Titre retire');
     await loadAdminUsers();
     selectAdminUser(adminSelectedUid);
@@ -15832,8 +16208,8 @@ async function adminSetRunes() {
   const val = parseInt(document.getElementById('admin-runes-val')?.value) || 0;
   try {
     await db.collection('users').doc(adminSelectedUid).update({ runes: val });
-    adminLog(`Runes → ${val} pour ${adminSelectedUid.slice(0,8)}`);
-    showToast('Admin', `Runes mis a ${val}`);
+    adminLog('Runes → ' + val + ' pour ' + adminSelectedUid.slice(0,8));
+    showToast('Admin', 'Runes mis a ' + val);
     await loadAdminUsers();
     selectAdminUser(adminSelectedUid);
   } catch(e) { showToast('Erreur', e.message); }
@@ -15845,13 +16221,12 @@ async function adminTogglePenalties() {
   const newVal = !(u?.penaltiesDisabled);
   try {
     await db.collection('users').doc(adminSelectedUid).update({ penaltiesDisabled: newVal });
-    // Also update private quests data so the user's app reads it
     const qdoc = await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').get();
     if (qdoc.exists) {
       await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').update({ penaltiesDisabled: newVal });
     }
-    adminLog(`Penalites ${newVal ? 'OFF' : 'ON'} → ${adminSelectedUid.slice(0,8)}`);
-    showToast('Admin', `Penalites ${newVal ? 'desactivees' : 'reactivees'}`);
+    adminLog('Penalites ' + (newVal ? 'OFF' : 'ON') + ' → ' + adminSelectedUid.slice(0,8));
+    showToast('Admin', 'Penalites ' + (newVal ? 'desactivees' : 'reactivees'));
     await loadAdminUsers();
     selectAdminUser(adminSelectedUid);
   } catch(e) { showToast('Erreur', e.message); }
@@ -15861,12 +16236,12 @@ async function adminSetApiKeys() {
   if (!adminSelectedUid || !db) return;
   const raw = (document.getElementById('admin-api-keys')?.value || '').trim();
   let keys;
-  try { keys = JSON.parse(raw); } catch { showToast('Erreur', 'JSON invalide — format: ["sk-..."]'); return; }
+  try { keys = JSON.parse(raw); } catch { showToast('Erreur', 'JSON invalide'); return; }
   if (!Array.isArray(keys)) { showToast('Erreur', 'Doit etre un tableau JSON'); return; }
   try {
     await db.collection('users').doc(adminSelectedUid).collection('data').doc('config').set({ apiKeys: keys }, { merge: true });
-    adminLog(`API keys (${keys.length}) → ${adminSelectedUid.slice(0,8)}`);
-    showToast('Admin', `${keys.length} cle(s) API configuree(s)`);
+    adminLog('API keys (' + keys.length + ') → ' + adminSelectedUid.slice(0,8));
+    showToast('Admin', keys.length + ' cle(s) API configuree(s)');
   } catch(e) { showToast('Erreur', e.message); }
 }
 
@@ -15876,13 +16251,247 @@ async function adminBanUser() {
   const newVal = !(u?.banned);
   try {
     await db.collection('users').doc(adminSelectedUid).update({ banned: newVal });
-    adminLog(`${newVal ? 'BANNI' : 'DEBANNI'} → ${adminSelectedUid.slice(0,8)}`);
+    adminLog((newVal ? 'BANNI' : 'DEBANNI') + ' → ' + adminSelectedUid.slice(0,8));
     showToast('Admin', newVal ? '🚫 Utilisateur banni' : '✅ Utilisateur debanni');
     await loadAdminUsers();
     selectAdminUser(adminSelectedUid);
   } catch(e) { showToast('Erreur', e.message); }
 }
 
+async function adminResetUser() {
+  if (!adminSelectedUid || !db) return;
+  const u = adminUsers.find(u => u.id === adminSelectedUid);
+  if (!confirm('⚠ Reset COMPLET de ' + (u?.name||'ce joueur') + ' ?\nNiveau, XP, streak, quetes — TOUT sera remis a zero.')) return;
+  try {
+    await db.collection('users').doc(adminSelectedUid).update({ level: 1, totalXp: 0, streak: 0, runes: 0, customTitle: firebase.firestore.FieldValue.delete() });
+    await db.collection('users').doc(adminSelectedUid).collection('data').doc('quests').delete();
+    adminLog('RESET COMPLET → ' + adminSelectedUid.slice(0,8));
+    showToast('Admin', 'Joueur reset');
+    await loadAdminUsers();
+    selectAdminUser(adminSelectedUid);
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+function adminViewProfile() {
+  if (!adminSelectedUid) return;
+  toggleAdminPanel();
+  if (typeof viewProfile === 'function') viewProfile(adminSelectedUid);
+}
+
+async function adminSendDM() {
+  if (!adminSelectedUid || !db || !currentUser) return;
+  const msg = (document.getElementById('admin-dm-msg')?.value || '').trim();
+  if (!msg) return;
+  try {
+    const convoId = [currentUser.uid, adminSelectedUid].sort().join('_');
+    await db.collection('conversations').doc(convoId).set({
+      participants: [currentUser.uid, adminSelectedUid],
+      lastMessage: msg,
+      lastAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    await db.collection('conversations').doc(convoId).collection('messages').add({
+      from: currentUser.uid,
+      text: '🔒 [ADMIN] ' + msg,
+      at: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    adminLog('DM → ' + adminSelectedUid.slice(0,8) + ': "' + msg.slice(0,30) + '"');
+    showToast('Admin', 'Message envoye');
+    document.getElementById('admin-dm-msg').value = '';
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+// ===== EVENTS FUNCTIONS =====
+async function adminCreateEvent() {
+  if (!db || !isAdmin()) return;
+  const name = (document.getElementById('admin-event-name')?.value || '').trim();
+  const desc = (document.getElementById('admin-event-desc')?.value || '').trim();
+  const type = document.getElementById('admin-event-type')?.value || 'custom';
+  const start = document.getElementById('admin-event-start')?.value;
+  const end = document.getElementById('admin-event-end')?.value;
+  const goal = parseInt(document.getElementById('admin-event-goal')?.value) || 0;
+  if (!name || !start || !end) { showToast('Erreur', 'Nom, debut et fin requis'); return; }
+  try {
+    await db.collection('events').add({
+      name, desc, type, start, end, goal, progress: 0,
+      active: true, createdBy: currentUser.uid,
+      createdAt: new Date().toISOString()
+    });
+    adminLog('Event cree: "' + name + '"');
+    showToast('Admin', 'Evenement "' + name + '" cree !');
+    loadAdminEvents();
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function loadAdminEvents() {
+  if (!db) return;
+  const el = document.getElementById('admin-events-list');
+  if (!el) return;
+  try {
+    const snap = await db.collection('events').orderBy('createdAt', 'desc').limit(20).get();
+    if (snap.empty) { el.innerHTML = '<div style="color:var(--text-dim);font-size:.65rem">Aucun evenement.</div>'; return; }
+    let html = '';
+    snap.forEach(doc => {
+      const e = doc.data();
+      const now = new Date().toISOString();
+      const isActive = e.active && e.start <= now && e.end >= now;
+      const isPast = e.end < now;
+      const pct = e.goal > 0 ? Math.min(100, Math.round((e.progress||0) / e.goal * 100)) : 0;
+      html += '<div class="admin-event-card">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center">'
+        + '<div class="admin-event-title">' + (isActive ? '🟢 ' : isPast ? '⚫ ' : '🟡 ') + e.name + '</div>'
+        + '<button class="admin-btn admin-btn-danger" onclick="adminDeleteEvent(\'' + doc.id + '\')" style="padding:2px 8px;font-size:.55rem">✕</button>'
+        + '</div>'
+        + '<div class="admin-event-meta">' + e.type + ' — ' + new Date(e.start).toLocaleDateString('fr-FR') + ' → ' + new Date(e.end).toLocaleDateString('fr-FR') + '</div>'
+        + (e.desc ? '<div style="font-size:.6rem;color:var(--text);margin-top:4px">' + e.desc + '</div>' : '')
+        + (e.goal > 0 ? '<div class="admin-event-bar"><div class="admin-event-fill" style="width:'+pct+'%"></div></div><div style="font-size:.5rem;color:var(--text-dim);margin-top:2px">'+(e.progress||0)+' / '+e.goal+' ('+pct+'%)</div>' : '')
+        + '</div>';
+    });
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:#e53935;font-size:.65rem">Erreur: '+e.message+'</div>'; }
+}
+
+async function adminDeleteEvent(id) {
+  if (!db || !confirm('Supprimer cet evenement ?')) return;
+  try {
+    await db.collection('events').doc(id).delete();
+    adminLog('Event supprime: ' + id.slice(0,8));
+    showToast('Admin', 'Evenement supprime');
+    loadAdminEvents();
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+// ===== PROMO CODES =====
+async function adminCreatePromoCode() {
+  if (!db || !isAdmin()) return;
+  const code = (document.getElementById('admin-promo-code')?.value || '').trim().toUpperCase();
+  const xp = parseInt(document.getElementById('admin-promo-xp')?.value) || 0;
+  const runes = parseInt(document.getElementById('admin-promo-runes')?.value) || 0;
+  const maxUses = parseInt(document.getElementById('admin-promo-max')?.value) || 0;
+  if (!code) { showToast('Erreur', 'Code requis'); return; }
+  try {
+    await db.collection('promoCodes').doc(code).set({
+      xp, runes, maxUses, uses: 0, usedBy: [],
+      createdAt: new Date().toISOString(), createdBy: currentUser.uid
+    });
+    adminLog('Code promo cree: ' + code + ' (+' + xp + 'XP, +' + runes + '💎)');
+    showToast('Admin', 'Code "' + code + '" cree');
+    loadAdminPromoCodes();
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function loadAdminPromoCodes() {
+  if (!db) return;
+  const el = document.getElementById('admin-promo-list');
+  if (!el) return;
+  try {
+    const snap = await db.collection('promoCodes').orderBy('createdAt', 'desc').limit(20).get();
+    if (snap.empty) { el.innerHTML = '<div style="color:var(--text-dim);font-size:.6rem;margin-top:4px">Aucun code actif.</div>'; return; }
+    let html = '<div style="margin-top:6px">';
+    snap.forEach(doc => {
+      const c = doc.data();
+      html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px;border:1px solid var(--border);border-radius:6px;margin-bottom:4px;font-size:.6rem">'
+        + '<span style="color:#ff9800;font-weight:700">' + doc.id + '</span>'
+        + '<span style="color:var(--text-dim)">+' + c.xp + 'XP +' + c.runes + '💎 — ' + c.uses + '/' + (c.maxUses||'∞') + ' utilise(s)</span>'
+        + '<button onclick="adminDeletePromo(\'' + doc.id + '\')" style="background:none;border:none;color:#e53935;cursor:pointer;font-size:.7rem">✕</button>'
+        + '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = ''; }
+}
+
+async function adminDeletePromo(code) {
+  if (!db || !confirm('Supprimer le code ' + code + ' ?')) return;
+  try {
+    await db.collection('promoCodes').doc(code).delete();
+    adminLog('Code promo supprime: ' + code);
+    showToast('Admin', 'Code supprime');
+    loadAdminPromoCodes();
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+// ===== MASS REWARD =====
+async function adminMassReward() {
+  if (!db || !isAdmin()) return;
+  const xp = parseInt(document.getElementById('admin-mass-xp')?.value) || 0;
+  const runes = parseInt(document.getElementById('admin-mass-runes')?.value) || 0;
+  if (xp <= 0 && runes <= 0) { showToast('Erreur', 'XP ou Runes requis'); return; }
+  const cutoff = new Date(Date.now() - 7*86400000).toISOString();
+  const activeUsers = adminUsers.filter(u => u.lastActive > cutoff && !u.banned);
+  if (!confirm('Distribuer +' + xp + ' XP et +' + runes + ' runes a ' + activeUsers.length + ' joueurs actifs ?')) return;
+  try {
+    const batch = db.batch();
+    activeUsers.forEach(u => {
+      const ref = db.collection('users').doc(u.id);
+      const upd = {};
+      if (xp > 0) upd.totalXp = firebase.firestore.FieldValue.increment(xp);
+      if (runes > 0) upd.runes = firebase.firestore.FieldValue.increment(runes);
+      batch.update(ref, upd);
+    });
+    await batch.commit();
+    adminLog('Mass reward: +' + xp + 'XP +' + runes + '💎 → ' + activeUsers.length + ' joueurs');
+    showToast('Admin', 'Distribue a ' + activeUsers.length + ' joueurs');
+    await loadAdminUsers();
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+// ===== FEED MODERATION =====
+async function loadAdminFeed() {
+  if (!db) return;
+  const el = document.getElementById('admin-feed-list');
+  if (!el) return;
+  try {
+    const snap = await db.collection('activityFeed').orderBy('at', 'desc').limit(30).get();
+    if (snap.empty) { el.innerHTML = '<div style="color:var(--text-dim);font-size:.65rem">Aucun post.</div>'; return; }
+    let html = '';
+    snap.forEach(doc => {
+      const item = doc.data();
+      const d = item.at ? new Date(item.at.toDate ? item.at.toDate() : item.at) : new Date();
+      const ts = d.getDate() + '/' + (d.getMonth()+1) + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+      html += '<div class="admin-feed-item">'
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="font-size:.65rem;color:var(--text)"><strong style="color:#e53935">' + (item.name||'?') + '</strong> — ' + (item.text||'').slice(0,100) + '</div>'
+        + '<div class="feed-meta">' + ts + ' — ' + (item.type||'?') + '</div>'
+        + '</div>'
+        + '<button onclick="adminDeleteFeedItem(\'' + doc.id + '\')" class="admin-btn admin-btn-danger" style="padding:2px 6px;font-size:.5rem">🗑</button>'
+        + '</div>';
+    });
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = '<div style="color:#e53935;font-size:.65rem">Erreur: '+e.message+'</div>'; }
+}
+
+async function adminDeleteFeedItem(id) {
+  if (!db) return;
+  try {
+    await db.collection('activityFeed').doc(id).delete();
+    adminLog('Feed supprime: ' + id.slice(0,8));
+    showToast('Admin', 'Post supprime');
+    loadAdminFeed();
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function adminClearFeed() {
+  if (!db || !confirm('⚠ Vider TOUT le feed d\'activite ?')) return;
+  try {
+    const snap = await db.collection('activityFeed').limit(500).get();
+    const batch = db.batch();
+    snap.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+    adminLog('Feed entierement vide');
+    showToast('Admin', 'Feed vide');
+    loadAdminFeed();
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function adminClearLogs() {
+  if (!confirm('⚠ Vider les logs admin ?')) return;
+  adminLogs = [];
+  await saveAdminConfig();
+  showToast('Admin', 'Logs vides');
+  renderAdminTab();
+}
+
+// ===== BROADCAST =====
 async function adminBroadcast() {
   if (!db || !isAdmin()) return;
   const msg = (document.getElementById('admin-broadcast-msg')?.value || '').trim();
@@ -15893,23 +16502,119 @@ async function adminBroadcast() {
       from: state.pseudo || currentUser?.displayName || 'Admin',
       at: new Date().toISOString()
     });
-    adminLog(`Broadcast: "${msg.slice(0,40)}..."`);
+    adminLog('Broadcast: "' + msg.slice(0,40) + '..."');
     showToast('Admin', 'Message global envoye');
     document.getElementById('admin-broadcast-msg').value = '';
   } catch(e) { showToast('Erreur', e.message); }
 }
 
-function renderAdminLogs() {
-  const el = document.getElementById('admin-log-list');
-  if (!el) return;
-  if (adminLogs.length === 0) { el.innerHTML = '<div style="color:var(--text-dim);font-size:.65rem;padding:8px">Aucune action enregistree.</div>'; return; }
-  el.innerHTML = adminLogs.slice(0, 50).map(l => {
-    const d = new Date(l.at);
-    const ts = `${d.getDate()}/${d.getMonth()+1} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-    return `<div style="font-size:.65rem;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="color:var(--text-dim)">${ts}</span> <span style="color:#e53935">${l.byName||'?'}</span> — ${l.action}</div>`;
-  }).join('');
+// ===== MAINTENANCE =====
+async function adminSetMaintenance(enable) {
+  if (!db || !isAdmin()) return;
+  const msg = enable ? (document.getElementById('admin-maint-msg')?.value || 'Maintenance en cours...').trim() : '';
+  try {
+    await db.collection('config').doc('maintenance').set({
+      active: enable,
+      message: msg,
+      at: new Date().toISOString()
+    });
+    adminLog('Maintenance ' + (enable ? 'ACTIVEE' : 'DESACTIVEE'));
+    showToast('Admin', enable ? '🛑 Maintenance activee' : '✅ Maintenance desactivee');
+  } catch(e) { showToast('Erreur', e.message); }
 }
 
+async function checkMaintenance() {
+  if (!db) return false;
+  try {
+    const doc = await db.collection('config').doc('maintenance').get();
+    if (doc.exists && doc.data().active && !isAdmin()) {
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0e0a06;color:#ff9800;font-family:Cinzel,serif;text-align:center;padding:20px"><div><h1>🛠 Maintenance</h1><p style="color:#888;margin-top:12px;font-size:.85rem">' + (doc.data().message || 'Maintenance en cours...') + '</p></div></div>';
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+// ===== GLOBAL CONFIG =====
+async function loadAdminGlobalConfig() {
+  if (!db) return;
+  try {
+    const doc = await db.collection('config').doc('global').get();
+    if (doc.exists) {
+      const data = doc.data();
+      const xpEl = document.getElementById('admin-xp-mult');
+      const runeEl = document.getElementById('admin-rune-mult');
+      if (xpEl) xpEl.value = data.xpMultiplier || 1;
+      if (runeEl) runeEl.value = data.runeMultiplier || 1;
+    }
+  } catch(e) {}
+}
+
+async function adminSetXpMultiplier() {
+  if (!db || !isAdmin()) return;
+  const val = parseFloat(document.getElementById('admin-xp-mult')?.value) || 1;
+  try {
+    await db.collection('config').doc('global').set({ xpMultiplier: val }, { merge: true });
+    adminLog('XP mult → ' + val + 'x');
+    showToast('Admin', 'Multiplicateur XP: ' + val + 'x');
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function adminSetRuneMultiplier() {
+  if (!db || !isAdmin()) return;
+  const val = parseFloat(document.getElementById('admin-rune-mult')?.value) || 1;
+  try {
+    await db.collection('config').doc('global').set({ runeMultiplier: val }, { merge: true });
+    adminLog('Rune mult → ' + val + 'x');
+    showToast('Admin', 'Multiplicateur Runes: ' + val + 'x');
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+// ===== PUSH NOTIFICATIONS =====
+async function adminSendPush() {
+  if (!db || !isAdmin()) return;
+  const title = (document.getElementById('admin-push-title')?.value || 'Stakr 🪶').trim();
+  const msg = (document.getElementById('admin-push-msg')?.value || '').trim();
+  const target = document.getElementById('admin-push-target')?.value || 'all';
+  if (!msg) { showToast('Erreur', 'Message requis'); return; }
+  try {
+    await db.collection('pushQueue').add({
+      title, body: msg,
+      target: target === 'selected' ? adminSelectedUid : 'all',
+      at: new Date().toISOString(),
+      sentBy: currentUser.uid
+    });
+    adminLog('Push envoyee: "' + msg.slice(0,30) + '" → ' + (target === 'selected' ? adminSelectedUid?.slice(0,8) : 'TOUS'));
+    showToast('Admin', 'Notification en file d\'envoi');
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+// ===== PROMO CODE REDEEM (user-facing) =====
+async function redeemPromoCode(code) {
+  if (!db || !currentUser) return;
+  code = code.trim().toUpperCase();
+  if (!code) return;
+  try {
+    const doc = await db.collection('promoCodes').doc(code).get();
+    if (!doc.exists) { showToast('Erreur', 'Code invalide'); return; }
+    const data = doc.data();
+    if (data.usedBy && data.usedBy.includes(currentUser.uid)) { showToast('Erreur', 'Code deja utilise'); return; }
+    if (data.maxUses > 0 && data.uses >= data.maxUses) { showToast('Erreur', 'Code expire'); return; }
+    await db.collection('promoCodes').doc(code).update({
+      uses: firebase.firestore.FieldValue.increment(1),
+      usedBy: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
+    });
+    if (data.xp > 0) {
+      state.quests.xp = (state.quests.xp || 0) + data.xp;
+      state.quests.totalXp = (state.quests.totalXp || 0) + data.xp;
+    }
+    if (data.runes > 0) state.quests.runes = (state.quests.runes || 0) + data.runes;
+    saveState();
+    showToast('🎁 Code valide !', '+' + data.xp + ' XP' + (data.runes ? ' +' + data.runes + ' 💎' : ''));
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+// ===== CHECK FUNCTIONS =====
 async function checkBroadcast() {
   if (!db || !currentUser) return;
   try {
@@ -15917,12 +16622,11 @@ async function checkBroadcast() {
     if (!doc.exists) return;
     const data = doc.data();
     if (!data.message) return;
-    // Check if user already saw this broadcast
     const lastSeen = localStorage.getItem('stakr_broadcast_seen') || '';
     if (lastSeen === data.at) return;
     localStorage.setItem('stakr_broadcast_seen', data.at);
-    showToast(`📢 ${data.from || 'Admin'}`, data.message);
-    addMessage('stakr', `📢 **${t('jarlAnnouncement')}** : ${data.message}`);
+    showToast('📢 ' + (data.from || 'Admin'), data.message);
+    addMessage('stakr', '📢 **' + t('jarlAnnouncement') + '** : ' + data.message);
   } catch(e) { console.warn('Broadcast check:', e); }
 }
 
@@ -15931,7 +16635,7 @@ async function checkBanStatus() {
   try {
     const doc = await db.collection('users').doc(currentUser.uid).get();
     if (doc.exists && doc.data().banned) {
-      document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0e0a06;color:#e53935;font-family:Cinzel,serif;text-align:center;padding:20px"><div><h1>🚫 ${t('banned')}</h1><p style="color:#888;margin-top:12px;font-size:.85rem">${t('bannedMsg')}</p></div></div>`;
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0e0a06;color:#e53935;font-family:Cinzel,serif;text-align:center;padding:20px"><div><h1>🚫 ' + t('banned') + '</h1><p style="color:#888;margin-top:12px;font-size:.85rem">' + t('bannedMsg') + '</p></div></div>';
       return true;
     }
   } catch(e) { console.warn('Ban check:', e); }
