@@ -1079,6 +1079,101 @@ header button{flex-shrink:0}
 .bt-bmi{text-align:center;padding:8px;background:rgba(196,154,60,.06);border-radius:8px;margin-bottom:8px}
 .bt-bmi-val{font-size:1.2rem;font-weight:700}
 .bt-bmi-lbl{font-size:.6rem;color:var(--text-dim);margin-top:2px}
+/* Timer fullscreen */
+.timer-overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:20000;background:rgba(10,8,4,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn .3s}
+.timer-display{font-size:5rem;font-weight:800;color:var(--gold);font-family:'Cinzel',serif;text-shadow:0 0 40px rgba(196,154,60,.4);letter-spacing:4px}
+.timer-label{font-size:.9rem;color:var(--text-dim);margin-bottom:20px;text-transform:uppercase;letter-spacing:3px}
+.timer-progress-ring{position:relative;width:280px;height:280px;margin-bottom:30px}
+.timer-progress-ring svg{transform:rotate(-90deg)}
+.timer-progress-ring circle{fill:none;stroke-width:6}
+.timer-progress-ring .ring-bg{stroke:rgba(196,154,60,.15)}
+.timer-progress-ring .ring-fill{stroke:var(--gold);stroke-linecap:round;transition:stroke-dashoffset .3s linear}
+.timer-time-inside{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.timer-btns{display:flex;gap:12px;margin-top:20px}
+.timer-btn{padding:14px 28px;border:none;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit}
+.timer-btn-pause{background:linear-gradient(135deg,#d4a017,var(--gold));color:#0e0a06}
+.timer-btn-stop{background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff}
+.timer-btn-start{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff}
+/* Level up overlay */
+.levelup-overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:25000;background:rgba(10,8,4,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn .4s;pointer-events:auto}
+.levelup-glow{width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(196,154,60,.3),transparent 70%);animation:levelGlow 2s ease-in-out infinite;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.levelup-number{font-size:4rem;font-weight:900;color:var(--gold);font-family:'Cinzel',serif;text-shadow:0 0 30px rgba(196,154,60,.5)}
+.levelup-title{font-size:1.5rem;color:var(--gold);font-family:'Cinzel',serif;font-weight:700;margin-bottom:6px;text-shadow:0 0 20px rgba(196,154,60,.3)}
+.levelup-rank{font-size:.85rem;color:var(--text-dim);margin-bottom:24px;letter-spacing:2px;text-transform:uppercase}
+.levelup-close{padding:12px 32px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;border:none;border-radius:10px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:'Cinzel',serif}
+@keyframes levelGlow{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.15);opacity:1}}
+/* Daily summary */
+.summary-overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:24000;background:rgba(10,8,4,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn .4s;padding:20px;overflow-y:auto}
+.summary-card{background:var(--card-bg);border:2px solid var(--gold-dim);border-radius:16px;padding:24px;max-width:400px;width:100%}
+.summary-card h2{font-size:1rem;color:var(--gold);font-family:'Cinzel',serif;text-align:center;margin:0 0 4px}
+.summary-card .summary-date{font-size:.65rem;color:var(--text-dim);text-align:center;margin-bottom:16px}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.summary-item{background:rgba(196,154,60,.06);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.summary-item-val{font-size:1.2rem;color:var(--gold);font-weight:700}
+.summary-item-lbl{font-size:.6rem;color:var(--text-dim);margin-top:2px}
+.summary-close{width:100%;padding:12px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;border:none;border-radius:10px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:'Cinzel',serif;margin-top:8px}
+/* Achievements */
+.achieve-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:10px}
+.achieve-card{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;position:relative;transition:all .3s}
+.achieve-card.unlocked{border-color:var(--gold-dim);background:rgba(196,154,60,.06)}
+.achieve-card.locked{opacity:.4;filter:grayscale(.8)}
+.achieve-icon{font-size:1.5rem;margin-bottom:4px}
+.achieve-name{font-size:.65rem;color:var(--text);font-weight:700;margin-bottom:2px}
+.achieve-desc{font-size:.5rem;color:var(--text-dim)}
+.achieve-date{font-size:.45rem;color:var(--gold-dim);margin-top:3px}
+.achieve-new{position:absolute;top:-4px;right:-4px;width:12px;height:12px;background:var(--gold);border-radius:50%;animation:pulse 1.5s infinite}
+/* Bet system */
+.bet-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.bet-card.active{border-color:var(--gold-dim)}
+.bet-card.won{border-color:#2ecc71}
+.bet-card.lost{border-color:#e74c3c}
+.bet-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.bet-stake{font-size:.9rem;font-weight:700;color:var(--gold)}
+.bet-obj{font-size:.7rem;color:var(--text);margin-bottom:6px}
+.bet-progress{height:4px;background:rgba(196,154,60,.15);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.bet-progress-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .3s}
+/* Activity feed */
+.feed-item{display:flex;gap:10px;align-items:flex-start;padding:10px;border-bottom:1px solid var(--border)}
+.feed-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
+.feed-content{flex:1}
+.feed-name{font-size:.7rem;font-weight:700;color:var(--gold)}
+.feed-text{font-size:.65rem;color:var(--text);margin-top:2px}
+.feed-time{font-size:.5rem;color:var(--text-dim);margin-top:2px}
+/* DM Reactions */
+.convo-reactions{display:flex;gap:4px;margin-top:4px}
+.convo-reaction{font-size:.7rem;padding:2px 6px;background:rgba(196,154,60,.1);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s}
+.convo-reaction:hover,.convo-reaction.active{border-color:var(--gold-dim);background:rgba(196,154,60,.2)}
+.convo-reaction-count{font-size:.55rem;color:var(--text-dim);margin-left:2px}
+.convo-react-picker{display:flex;gap:2px;position:absolute;bottom:100%;left:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:4px 6px;box-shadow:0 -4px 12px rgba(0,0,0,.4)}
+.convo-react-btn{font-size:1rem;cursor:pointer;padding:2px 4px;border-radius:4px;border:none;background:none;transition:transform .15s}
+.convo-react-btn:hover{transform:scale(1.3)}
+/* Weather on map */
+.route-weather{position:absolute;top:8px;left:8px;z-index:1001;background:rgba(14,10,6,.8);border:1px solid var(--border);border-radius:8px;padding:6px 10px;backdrop-filter:blur(6px);display:flex;align-items:center;gap:6px}
+.route-weather-temp{font-size:.8rem;font-weight:700;color:var(--gold)}
+.route-weather-desc{font-size:.55rem;color:var(--text-dim);text-transform:capitalize}
+.route-weather-bonus{font-size:.5rem;color:#2ecc71;font-weight:600;margin-top:1px}
+/* Training programs */
+.program-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.program-card:hover,.program-card.active{border-color:var(--gold-dim)}
+.program-header{display:flex;justify-content:space-between;align-items:center}
+.program-name{font-size:.8rem;font-weight:700;color:var(--text)}
+.program-week{font-size:.6rem;color:var(--gold);font-weight:600}
+.program-desc{font-size:.6rem;color:var(--text-dim);margin-top:4px}
+.program-progress{height:4px;background:rgba(196,154,60,.15);border-radius:2px;overflow:hidden;margin-top:8px}
+.program-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:2px;transition:width .3s}
+/* Duel system */
+.duel-card{background:var(--card-bg);border:2px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.duel-card.pending{border-color:#d4a017}
+.duel-card.active{border-color:var(--gold);animation:pulse 2s infinite}
+.duel-card.won{border-color:#2ecc71}
+.duel-card.lost{border-color:#e74c3c}
+.duel-vs{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.duel-player{text-align:center;flex:1}
+.duel-player-name{font-size:.7rem;font-weight:700;color:var(--text)}
+.duel-player-score{font-size:1rem;font-weight:800;color:var(--gold)}
+.duel-middle{font-size:.8rem;color:var(--text-dim);font-weight:700;padding:0 8px}
+.duel-obj{font-size:.65rem;color:var(--text-dim);text-align:center;margin-bottom:6px}
+.duel-time{font-size:.55rem;color:var(--text-dim);text-align:center}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1380,6 +1475,11 @@ header button{flex-shrink:0}
       <button class="quest-tab" data-qtab="talents" onclick="switchQuestTab('talents')"><span class="tab-icon">&#9733;</span><span data-i18n="talents">Talents</span></button>
       <button class="quest-tab" data-qtab="evolve" onclick="switchQuestTab('evolve')"><span class="tab-icon">&#11014;</span><span data-i18n="evolve">Evoluer</span></button>
       <button class="quest-tab" data-qtab="stats" onclick="switchQuestTab('stats')"><span class="tab-icon">&#128200;</span><span data-i18n="stats">Stats</span></button>
+      <button class="quest-tab" data-qtab="trophees" onclick="switchQuestTab('trophees')"><span class="tab-icon">&#127942;</span><span data-i18n="achieveTitle">Trophees</span></button>
+      <button class="quest-tab" data-qtab="paris" onclick="switchQuestTab('paris')"><span class="tab-icon">&#127922;</span><span data-i18n="betTitle">Paris</span></button>
+      <button class="quest-tab" data-qtab="programmes" onclick="switchQuestTab('programmes')"><span class="tab-icon">&#128203;</span><span data-i18n="programTitle">Programmes</span></button>
+      <button class="quest-tab" data-qtab="duels" onclick="switchQuestTab('duels')"><span class="tab-icon">&#9876;</span><span data-i18n="duelTitle">Duels</span></button>
+      <button class="quest-tab" data-qtab="feed" onclick="switchQuestTab('feed')"><span class="tab-icon">&#128240;</span><span data-i18n="feedTitle">Activite</span></button>
     </div>
     <div id="quest-list-daily"></div>
     <div id="quest-list-weekly" style="display:none"></div>
@@ -1394,6 +1494,11 @@ header button{flex-shrink:0}
     <div id="quest-talents-tab" style="display:none"></div>
     <div id="quest-evolve-tab" style="display:none"></div>
     <div id="quest-stats-tab" style="display:none"></div>
+    <div id="quest-trophees-tab" style="display:none"></div>
+    <div id="quest-paris-tab" style="display:none"></div>
+    <div id="quest-programmes-tab" style="display:none"></div>
+    <div id="quest-duels-tab" style="display:none"></div>
+    <div id="quest-feed-tab" style="display:none"></div>
   </div>
 </div>
 
@@ -1720,6 +1825,79 @@ const TRANSLATIONS = {
     routeAutoPause: 'Pause auto — pas de mouvement detecte',
     routeKmReached: 'Kilometre franchi !',
     routeHistory: 'Historique des courses',
+    // Timer
+    timerTitle: 'Chronometre',
+    timerStart: 'Demarrer',
+    timerPause: 'Pause',
+    timerResume: 'Reprendre',
+    timerStop: 'Arreter',
+    timerDone: 'Temps ecoule !',
+    // Level up
+    levelUpTitle: 'NIVEAU SUPERIEUR',
+    levelUpNew: 'Niveau',
+    levelUpContinue: 'Continuer',
+    // Daily summary
+    summaryTitle: 'Resume du jour',
+    summaryXp: 'XP gagnes',
+    summaryQuests: 'Quetes completees',
+    summaryStreak: 'Streak',
+    summaryCalBurned: 'Calories brulees',
+    summaryWorkouts: 'Seances',
+    summaryLevel: 'Niveau',
+    summaryNoActivity: 'Pas d\'activite aujourd\'hui — demain sera ton jour, Viking !',
+    // Achievements
+    achieveTitle: 'Trophees',
+    achieveUnlocked: 'Debloques',
+    achieveNew: 'Nouveau trophee !',
+    // Bets
+    betTitle: 'Paris Viking',
+    betDesc: 'Mise du XP sur un objectif personnel. Reussi = XP double, rate = XP perdu.',
+    betNew: 'Nouveau pari',
+    betStake: 'Mise (XP)',
+    betObjective: 'Objectif',
+    betTarget: 'Cible',
+    betPlace: 'Placer le pari',
+    betActive: 'En cours',
+    betWon: 'Gagne !',
+    betLost: 'Perdu',
+    betHistory: 'Historique des paris',
+    betNoActive: 'Aucun pari en cours.',
+    // Feed
+    feedTitle: 'Activite',
+    feedEmpty: 'Aucune activite recente.',
+    feedLevelUp: 'a atteint le niveau {level}',
+    feedBoss: 'a vaincu le boss',
+    feedRune: 'a trouve la rune {rune}',
+    feedRun: 'a couru {dist} km',
+    feedPrestige: 'a accompli le rituel de Prestige',
+    feedEpic: 'a complete la quete epique',
+    // DM Reactions
+    reactToMsg: 'Reagir',
+    // Weather
+    weatherBonus: '+15% XP meteo Viking',
+    // Programs
+    programTitle: 'Programmes',
+    programDesc: 'Plans d\'entrainement structures sur plusieurs semaines.',
+    programWeek: 'Semaine {w}/{total}',
+    programStart: 'Commencer',
+    programActive: 'Actif',
+    programCompleted: 'Termine',
+    programDay: 'Jour {d}',
+    programRestDay: 'Jour de repos',
+    // Duels
+    duelTitle: 'Duels Viking',
+    duelDesc: 'Defie un Viking du classement ! Le perdant perd du XP, le gagnant en gagne le double.',
+    duelChallenge: 'Defier',
+    duelAccept: 'Accepter',
+    duelDecline: 'Decliner',
+    duelPending: 'En attente',
+    duelActive: 'En cours',
+    duelWon: 'Victoire !',
+    duelLost: 'Defaite',
+    duelStake: 'Mise',
+    duelTimeLeft: 'Temps restant',
+    duelNoActive: 'Aucun duel en cours.',
+    duelSend: 'Envoyer le defi',
     // Solo Leveling
     soloTitle: 'Solo Leveling', systemWatches: 'Le Systeme t\'observe',
     soloDesc: 'Inspire de Solo Leveling. Chaque jour : pompes, squats, abdos, et course. Les quotas augmentent chaque semaine.',
@@ -2079,6 +2257,16 @@ const TRANSLATIONS = {
     routeAutoPause: 'Auto-paused — no movement detected',
     routeKmReached: 'Kilometer reached!',
     routeHistory: 'Run History',
+    timerTitle: 'Timer', timerStart: 'Start', timerPause: 'Pause', timerResume: 'Resume', timerStop: 'Stop', timerDone: 'Time\'s up!',
+    levelUpTitle: 'LEVEL UP', levelUpNew: 'Level', levelUpContinue: 'Continue',
+    summaryTitle: 'Daily Summary', summaryXp: 'XP earned', summaryQuests: 'Quests completed', summaryStreak: 'Streak', summaryCalBurned: 'Calories burned', summaryWorkouts: 'Workouts', summaryLevel: 'Level', summaryNoActivity: 'No activity today — tomorrow is your day, Viking!',
+    achieveTitle: 'Trophies', achieveUnlocked: 'Unlocked', achieveNew: 'New trophy!',
+    betTitle: 'Viking Bets', betDesc: 'Stake XP on a personal goal. Succeed = double XP, fail = XP lost.', betNew: 'New bet', betStake: 'Stake (XP)', betObjective: 'Objective', betTarget: 'Target', betPlace: 'Place bet', betActive: 'Active', betWon: 'Won!', betLost: 'Lost', betHistory: 'Bet history', betNoActive: 'No active bets.',
+    feedTitle: 'Activity', feedEmpty: 'No recent activity.', feedLevelUp: 'reached level {level}', feedBoss: 'defeated the boss', feedRune: 'found rune {rune}', feedRun: 'ran {dist} km', feedPrestige: 'completed the Prestige ritual', feedEpic: 'completed an epic quest',
+    reactToMsg: 'React',
+    weatherBonus: '+15% XP Viking weather',
+    programTitle: 'Programs', programDesc: 'Structured multi-week training plans.', programWeek: 'Week {w}/{total}', programStart: 'Start', programActive: 'Active', programCompleted: 'Completed', programDay: 'Day {d}', programRestDay: 'Rest day',
+    duelTitle: 'Viking Duels', duelDesc: 'Challenge a Viking from the leaderboard! Loser loses XP, winner earns double.', duelChallenge: 'Challenge', duelAccept: 'Accept', duelDecline: 'Decline', duelPending: 'Pending', duelActive: 'Active', duelWon: 'Victory!', duelLost: 'Defeat', duelStake: 'Stake', duelTimeLeft: 'Time left', duelNoActive: 'No active duels.', duelSend: 'Send challenge',
     soloTitle: 'Solo Leveling', systemWatches: 'The System watches you',
     soloDesc: 'Inspired by Solo Leveling. Every day: push-ups, squats, abs, and running. Quotas increase each week.',
     soloFailWarning: 'The System does not tolerate weakness.',
@@ -2414,6 +2602,16 @@ const TRANSLATIONS = {
     routeAutoPause: 'Pausa auto — sin movimiento detectado',
     routeKmReached: '¡Kilómetro alcanzado!',
     routeHistory: 'Historial de carreras',
+    timerTitle: 'Cronómetro', timerStart: 'Iniciar', timerPause: 'Pausa', timerResume: 'Reanudar', timerStop: 'Detener', timerDone: '¡Tiempo!',
+    levelUpTitle: 'NIVEL SUPERIOR', levelUpNew: 'Nivel', levelUpContinue: 'Continuar',
+    summaryTitle: 'Resumen del día', summaryXp: 'XP ganados', summaryQuests: 'Misiones completadas', summaryStreak: 'Racha', summaryCalBurned: 'Calorías quemadas', summaryWorkouts: 'Entrenamientos', summaryLevel: 'Nivel', summaryNoActivity: '¡Sin actividad hoy — mañana será tu día, Viking!',
+    achieveTitle: 'Trofeos', achieveUnlocked: 'Desbloqueados', achieveNew: '¡Nuevo trofeo!',
+    betTitle: 'Apuestas Viking', betDesc: 'Apuesta XP en un objetivo personal. Éxito = XP doble, fallo = XP perdido.', betNew: 'Nueva apuesta', betStake: 'Apuesta (XP)', betObjective: 'Objetivo', betTarget: 'Meta', betPlace: 'Apostar', betActive: 'Activa', betWon: '¡Ganada!', betLost: 'Perdida', betHistory: 'Historial de apuestas', betNoActive: 'Sin apuestas activas.',
+    feedTitle: 'Actividad', feedEmpty: 'Sin actividad reciente.', feedLevelUp: 'alcanzó el nivel {level}', feedBoss: 'derrotó al jefe', feedRune: 'encontró la runa {rune}', feedRun: 'corrió {dist} km', feedPrestige: 'completó el ritual de Prestigio', feedEpic: 'completó una misión épica',
+    reactToMsg: 'Reaccionar',
+    weatherBonus: '+15% XP clima Viking',
+    programTitle: 'Programas', programDesc: 'Planes de entrenamiento de varias semanas.', programWeek: 'Semana {w}/{total}', programStart: 'Comenzar', programActive: 'Activo', programCompleted: 'Completado', programDay: 'Día {d}', programRestDay: 'Día de descanso',
+    duelTitle: 'Duelos Viking', duelDesc: '¡Desafía a un Viking del ranking! El perdedor pierde XP, el ganador gana el doble.', duelChallenge: 'Desafiar', duelAccept: 'Aceptar', duelDecline: 'Rechazar', duelPending: 'Pendiente', duelActive: 'Activo', duelWon: '¡Victoria!', duelLost: 'Derrota', duelStake: 'Apuesta', duelTimeLeft: 'Tiempo restante', duelNoActive: 'Sin duelos activos.', duelSend: 'Enviar desafío',
     soloTitle: 'Solo Leveling', systemWatches: 'El Sistema te observa',
     soloDesc: 'Inspirado en Solo Leveling. Cada día: flexiones, sentadillas, abdominales y carrera. Las cuotas aumentan cada semana.',
     soloFailWarning: 'El Sistema no tolera la debilidad.',
@@ -2749,6 +2947,16 @@ const TRANSLATIONS = {
     routeAutoPause: 'Pausa auto — nenhum movimento detectado',
     routeKmReached: 'Quilômetro alcançado!',
     routeHistory: 'Histórico de corridas',
+    timerTitle: 'Cronômetro', timerStart: 'Iniciar', timerPause: 'Pausar', timerResume: 'Retomar', timerStop: 'Parar', timerDone: 'Tempo esgotado!',
+    levelUpTitle: 'NÍVEL SUPERIOR', levelUpNew: 'Nível', levelUpContinue: 'Continuar',
+    summaryTitle: 'Resumo do dia', summaryXp: 'XP ganhos', summaryQuests: 'Missões completadas', summaryStreak: 'Sequência', summaryCalBurned: 'Calorias queimadas', summaryWorkouts: 'Treinos', summaryLevel: 'Nível', summaryNoActivity: 'Sem atividade hoje — amanhã será seu dia, Viking!',
+    achieveTitle: 'Troféus', achieveUnlocked: 'Desbloqueados', achieveNew: 'Novo troféu!',
+    betTitle: 'Apostas Viking', betDesc: 'Aposte XP em um objetivo pessoal. Sucesso = XP dobrado, falha = XP perdido.', betNew: 'Nova aposta', betStake: 'Aposta (XP)', betObjective: 'Objetivo', betTarget: 'Meta', betPlace: 'Apostar', betActive: 'Ativa', betWon: 'Ganha!', betLost: 'Perdida', betHistory: 'Histórico de apostas', betNoActive: 'Sem apostas ativas.',
+    feedTitle: 'Atividade', feedEmpty: 'Sem atividade recente.', feedLevelUp: 'alcançou o nível {level}', feedBoss: 'derrotou o chefe', feedRune: 'encontrou a runa {rune}', feedRun: 'correu {dist} km', feedPrestige: 'completou o ritual de Prestígio', feedEpic: 'completou uma missão épica',
+    reactToMsg: 'Reagir',
+    weatherBonus: '+15% XP clima Viking',
+    programTitle: 'Programas', programDesc: 'Planos de treino de várias semanas.', programWeek: 'Semana {w}/{total}', programStart: 'Iniciar', programActive: 'Ativo', programCompleted: 'Concluído', programDay: 'Dia {d}', programRestDay: 'Dia de descanso',
+    duelTitle: 'Duelos Viking', duelDesc: 'Desafie um Viking do ranking! O perdedor perde XP, o vencedor ganha o dobro.', duelChallenge: 'Desafiar', duelAccept: 'Aceitar', duelDecline: 'Recusar', duelPending: 'Pendente', duelActive: 'Ativo', duelWon: 'Vitória!', duelLost: 'Derrota', duelStake: 'Aposta', duelTimeLeft: 'Tempo restante', duelNoActive: 'Sem duelos ativos.', duelSend: 'Enviar desafio',
     soloTitle: 'Solo Leveling', systemWatches: 'O Sistema te observa',
     soloDesc: 'Inspirado em Solo Leveling. Todo dia: flexões, agachamentos, abdominais e corrida. As cotas aumentam a cada semana.',
     soloFailWarning: 'O Sistema não tolera fraqueza.',
@@ -4965,6 +5173,12 @@ function init() {
   // Spontaneous thoughts
   setInterval(spontaneousThought, 15 * 60 * 1000);
 
+  // Check achievements on load
+  setTimeout(() => checkAchievements(), 3000);
+  // Check daily summary at night
+  setTimeout(() => checkDailySummary(), 5000);
+  setInterval(() => checkDailySummary(), 600000); // every 10 min
+
   // Show onboarding for first-time users
   showOnboarding();
 }
@@ -6784,6 +6998,15 @@ function initQuests() {
   if (!q.bodyTracker) q.bodyTracker = { height: null, weightLog: [], calorieLog: [], burnedLog: [] };
   if (!q.runHistory) q.runHistory = [];
 
+  // Achievements, bets, programs, duels
+  if (!q.achievements) q.achievements = {};
+  if (!q.bets) q.bets = [];
+  if (!q.programs) q.programs = {};
+  if (!q.duels) q.duels = [];
+  initBets();
+  initPrograms();
+  initDuels();
+
   // Rest days (2 per week, disables penalties)
   if (!q.restDays) q.restDays = { enabled: false, weekDays: [], usedThisWeek: 0, weekKey: null, mode: 'all', categories: { quests: true, challenges: true, sessions: true, solo: true } };
   // Migration: add mode + categories for existing saves
@@ -7484,6 +7707,7 @@ function renderDailyChallenges() {
     <button class="defis-subtab ${subTab === 'challenges' ? 'active' : ''}" onclick="switchDefisSubTab('challenges')">⚔ ${t('challenges')}</button>
     <button class="defis-subtab ${subTab === 'workout' ? 'active' : ''}" onclick="switchDefisSubTab('workout')">💪 ${t('sessions')}</button>
     <button class="defis-subtab ${subTab === 'route' ? 'active' : ''}" onclick="switchDefisSubTab('route')">🏃 ${t('routePlanner')}</button>
+    <button class="defis-subtab" onclick="launchQuickTimer()" style="opacity:.7">⏱ ${t('timerTitle')}</button>
   </div>`;
 
   if (subTab === 'route') {
@@ -8975,6 +9199,15 @@ function getUserLocation() {
         routeMap.setView([routeState.lat, routeState.lng], 14);
         placeStartMarker(routeState.lat, routeState.lng);
       }
+      // Fetch weather for this location
+      fetchRouteWeather(routeState.lat, routeState.lng).then(() => {
+        const wrap = document.getElementById('route-map-wrap');
+        if (wrap && routeWeather) {
+          const old = wrap.querySelector('.route-weather');
+          if (old) old.remove();
+          wrap.insertAdjacentHTML('beforeend', renderWeatherWidget());
+        }
+      });
     },
     (err) => {
       routeState.error = t('routeGeoError');
@@ -9547,10 +9780,15 @@ function stopRunTracking() {
   }
 
   // Award XP based on distance (100 XP per km, capped at route distance * 120)
+  const weatherMult = routeWeather?.bonus ? 1.15 : 1;
   const maxXp = Math.round((routeState.stats?.distance || routeState.distance) * 120);
-  const earnedXp = Math.min(maxXp, Math.round(distKm * 100));
+  const earnedXp = Math.min(maxXp, Math.round(distKm * 100 * weatherMult));
   if (earnedXp > 0 && state.quests) {
     addQuestXp(earnedXp);
+    // Post to activity feed
+    postActivityFeed('run_completed', { distance: distKm.toFixed(2) });
+    // Check achievements
+    checkAchievements();
     const elMin = Math.floor(elapsed / 60);
     const elSec = Math.floor(elapsed % 60);
     addMessage('stakr', t('routeRunCompleteMsg')
@@ -9633,6 +9871,796 @@ function releaseWakeLock() {
     wakeLockSentinel.release().catch(() => {});
     wakeLockSentinel = null;
   }
+}
+
+// ===== FULLSCREEN TIMER =====
+let timerState = { active: false, paused: false, total: 0, remaining: 0, interval: null, label: '', onDone: null };
+
+function openTimer(seconds, label, onDone) {
+  timerState = { active: true, paused: false, total: seconds, remaining: seconds, interval: null, label: label || '', onDone: onDone || null };
+  const circumference = 2 * Math.PI * 130;
+  const overlay = document.createElement('div');
+  overlay.className = 'timer-overlay';
+  overlay.id = 'timer-overlay';
+  overlay.innerHTML = `
+    <div class="timer-label">${label}</div>
+    <div class="timer-progress-ring">
+      <svg width="280" height="280"><circle class="ring-bg" cx="140" cy="140" r="130"/><circle class="ring-fill" id="timer-ring" cx="140" cy="140" r="130" stroke-dasharray="${circumference}" stroke-dashoffset="0"/></svg>
+      <div class="timer-time-inside"><div class="timer-display" id="timer-display">${formatTimer(seconds)}</div></div>
+    </div>
+    <div class="timer-btns">
+      <button class="timer-btn timer-btn-pause" id="timer-pause-btn" onclick="toggleTimerPause()">⏸ ${t('timerPause')}</button>
+      <button class="timer-btn timer-btn-stop" onclick="closeTimer(false)">⏹ ${t('timerStop')}</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  timerState.interval = setInterval(tickTimer, 1000);
+}
+
+function formatTimer(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${m}:${String(sec).padStart(2, '0')}`;
+}
+
+function tickTimer() {
+  if (timerState.paused) return;
+  timerState.remaining--;
+  const display = document.getElementById('timer-display');
+  const ring = document.getElementById('timer-ring');
+  if (display) display.textContent = formatTimer(Math.max(0, timerState.remaining));
+  if (ring) {
+    const circumference = 2 * Math.PI * 130;
+    const progress = 1 - (timerState.remaining / timerState.total);
+    ring.setAttribute('stroke-dashoffset', -circumference * progress);
+  }
+  if (timerState.remaining <= 3 && timerState.remaining > 0) {
+    haptic([100]);
+  }
+  if (timerState.remaining <= 0) {
+    closeTimer(true);
+  }
+}
+
+function toggleTimerPause() {
+  timerState.paused = !timerState.paused;
+  const btn = document.getElementById('timer-pause-btn');
+  if (btn) {
+    btn.innerHTML = timerState.paused ? `▶ ${t('timerResume')}` : `⏸ ${t('timerPause')}`;
+    btn.className = timerState.paused ? 'timer-btn timer-btn-start' : 'timer-btn timer-btn-pause';
+  }
+}
+
+function closeTimer(completed) {
+  if (timerState.interval) clearInterval(timerState.interval);
+  const overlay = document.getElementById('timer-overlay');
+  if (overlay) overlay.remove();
+  if (completed) {
+    haptic([200, 100, 200]);
+    showToast(t('timerDone'), timerState.label);
+    playSfx('levelup');
+    if (timerState.onDone) timerState.onDone();
+  }
+  timerState.active = false;
+}
+
+// Quick timer launch from quest panel
+function launchQuickTimer() {
+  const mins = parseInt(prompt(t('timerTitle') + ' (minutes):', '1'));
+  if (!mins || mins < 0 || mins > 120) return;
+  openTimer(mins * 60, t('timerTitle'));
+}
+
+// ===== LEVEL UP FULLSCREEN ANIMATION =====
+function showLevelUpAnimation(level, rankName) {
+  const overlay = document.createElement('div');
+  overlay.className = 'levelup-overlay';
+  overlay.id = 'levelup-overlay';
+  overlay.innerHTML = `
+    <div class="levelup-glow"><div class="levelup-number">${level}</div></div>
+    <div class="levelup-title">${t('levelUpTitle')}</div>
+    <div class="levelup-rank">${rankName}</div>
+    <button class="levelup-close" onclick="closeLevelUpAnimation()">${t('levelUpContinue')}</button>`;
+  document.body.appendChild(overlay);
+  spawnGoldRain(60);
+  // Auto-close after 6s
+  setTimeout(() => closeLevelUpAnimation(), 6000);
+}
+
+function closeLevelUpAnimation() {
+  const overlay = document.getElementById('levelup-overlay');
+  if (overlay) overlay.remove();
+}
+
+// ===== DAILY SUMMARY =====
+function showDailySummary() {
+  const q = state.quests;
+  if (!q) return;
+  const today = getTodayStr();
+  const dailyXp = q.dailyXpToday || 0;
+  const streak = q.streak || 0;
+  const level = q.level || 1;
+
+  // Count quests completed today
+  const questsDone = (q.objectives || []).filter(o => o.period === 'daily' && o.progress >= o.target).length;
+
+  // Calories burned today
+  const bt = q.bodyTracker || {};
+  const todayBurned = (bt.burnedLog || []).filter(e => e.date === today).reduce((s, e) => s + (e.amount || 0), 0);
+
+  // Workouts today
+  const w = q.workout || {};
+  const workoutsToday = w.sessionDate === today ? 1 : 0;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'summary-overlay';
+  overlay.id = 'summary-overlay';
+  overlay.innerHTML = `<div class="summary-card">
+    <h2>📜 ${t('summaryTitle')}</h2>
+    <div class="summary-date">${new Date().toLocaleDateString()}</div>
+    ${dailyXp > 0 || questsDone > 0 ? `<div class="summary-grid">
+      <div class="summary-item"><div class="summary-item-val">⚡ ${dailyXp}</div><div class="summary-item-lbl">${t('summaryXp')}</div></div>
+      <div class="summary-item"><div class="summary-item-val">✅ ${questsDone}</div><div class="summary-item-lbl">${t('summaryQuests')}</div></div>
+      <div class="summary-item"><div class="summary-item-val">🔥 ${streak}</div><div class="summary-item-lbl">${t('summaryStreak')}</div></div>
+      <div class="summary-item"><div class="summary-item-val">⭐ ${level}</div><div class="summary-item-lbl">${t('summaryLevel')}</div></div>
+      <div class="summary-item"><div class="summary-item-val">🏋️ ${workoutsToday}</div><div class="summary-item-lbl">${t('summaryWorkouts')}</div></div>
+      <div class="summary-item"><div class="summary-item-val">🔥 ${todayBurned}</div><div class="summary-item-lbl">${t('summaryCalBurned')}</div></div>
+    </div>` : `<p style="text-align:center;color:var(--text-dim);font-size:.75rem;padding:20px 0">${t('summaryNoActivity')}</p>`}
+    <button class="summary-close" onclick="closeDailySummary()">OK</button>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+
+function closeDailySummary() {
+  const o = document.getElementById('summary-overlay');
+  if (o) o.remove();
+}
+
+// Auto-show daily summary at night (after 21:00) if not shown yet today
+function checkDailySummary() {
+  const now = new Date();
+  if (now.getHours() >= 21) {
+    const todayKey = getTodayStr();
+    if (state.quests && state.quests._lastSummaryDate !== todayKey) {
+      state.quests._lastSummaryDate = todayKey;
+      saveState();
+      showDailySummary();
+    }
+  }
+}
+
+// ===== ACHIEVEMENTS / TROPHIES =====
+const ACHIEVEMENTS = [
+  { id: 'first_quest', icon: '⚔️', name: 'Premier Pas', desc: 'Completer ta premiere quete', check: q => (q.history || []).length > 0 },
+  { id: 'streak_7', icon: '🔥', name: '7 Jours de Feu', desc: 'Streak de 7 jours', check: q => (q.streak || 0) >= 7 },
+  { id: 'streak_30', icon: '🌋', name: 'Volcan Viking', desc: 'Streak de 30 jours', check: q => (q.streak || 0) >= 30 },
+  { id: 'streak_100', icon: '💎', name: 'Diamant Inébranlable', desc: 'Streak de 100 jours', check: q => (q.streak || 0) >= 100 },
+  { id: 'level_10', icon: '⭐', name: 'Guerrier', desc: 'Atteindre le niveau 10', check: q => (q.level || 1) >= 10 },
+  { id: 'level_25', icon: '🏅', name: 'Champion', desc: 'Atteindre le niveau 25', check: q => (q.level || 1) >= 25 },
+  { id: 'level_50', icon: '👑', name: 'Legende', desc: 'Atteindre le niveau 50', check: q => (q.level || 1) >= 50 },
+  { id: 'xp_10k', icon: '💰', name: 'Tresor Viking', desc: 'Accumuler 10 000 XP total', check: q => (q.totalXp || 0) >= 10000 },
+  { id: 'xp_100k', icon: '🏆', name: 'Fortune d\'Odin', desc: 'Accumuler 100 000 XP total', check: q => (q.totalXp || 0) >= 100000 },
+  { id: 'boss_1', icon: '🐉', name: 'Tueur de Bête', desc: 'Vaincre ton premier boss', check: q => (q.worldMap?.bossVictories || 0) >= 1 },
+  { id: 'boss_10', icon: '⚡', name: 'Fléau des Boss', desc: 'Vaincre 10 boss', check: q => (q.worldMap?.bossVictories || 0) >= 10 },
+  { id: 'rune_5', icon: '᛭', name: 'Apprenti Runique', desc: 'Collecter 5 runes', check: q => (q.runes || []).length >= 5 },
+  { id: 'rune_all', icon: '✦', name: 'Maître des Runes', desc: 'Collecter les 24 runes', check: q => (q.runes || []).length >= 24 },
+  { id: 'run_first', icon: '🏃', name: 'Premier Sprint', desc: 'Completer ta premiere course', check: q => (q.runHistory || []).length > 0 },
+  { id: 'run_100km', icon: '🗺️', name: 'Centurion', desc: 'Courir 100 km au total', check: q => (q.runHistory || []).reduce((s, r) => s + (r.distance || 0), 0) >= 100 },
+  { id: 'workout_10', icon: '💪', name: 'Habitué', desc: '10 seances de sport', check: q => (q.workout?.totalSessions || 0) >= 10 },
+  { id: 'workout_100', icon: '🏋️', name: 'Machine de Guerre', desc: '100 seances de sport', check: q => (q.workout?.totalSessions || 0) >= 100 },
+  { id: 'prestige_1', icon: '🌟', name: 'Ascension', desc: 'Accomplir le premier Prestige', check: q => (q.prestige || 0) >= 1 },
+  { id: 'prestige_3', icon: '🔱', name: 'Transcendance', desc: 'Prestige 3', check: q => (q.prestige || 0) >= 3 },
+  { id: 'epic_1', icon: '📜', name: 'Saga Viking', desc: 'Completer une quete epique', check: q => Object.values(q.epicQuests || {}).some(e => e.completed) },
+  { id: 'solo_7', icon: '⚡', name: 'Elu du Systeme', desc: '7 jours Solo Leveling reussis', check: q => (q.soloLeveling?.completedDays || 0) >= 7 },
+  { id: 'bet_won', icon: '🎲', name: 'Parieur Chanceux', desc: 'Gagner ton premier pari', check: q => (q.bets || []).some(b => b.status === 'won') },
+  { id: 'duel_won', icon: '⚔️', name: 'Duelliste', desc: 'Gagner ton premier duel', check: q => (q.duels || []).some(d => d.status === 'won') },
+];
+
+function checkAchievements() {
+  const q = state.quests;
+  if (!q) return;
+  if (!q.achievements) q.achievements = {};
+  let newUnlocks = 0;
+
+  ACHIEVEMENTS.forEach(a => {
+    if (q.achievements[a.id]) return; // already unlocked
+    try {
+      if (a.check(q)) {
+        q.achievements[a.id] = { date: getTodayStr(), seen: false };
+        newUnlocks++;
+        showToast(t('achieveNew'), `${a.icon} ${a.name}`);
+        playSfx('record'); haptic([40, 20, 40, 20, 60]); goldFlash();
+        // Post to activity feed
+        postActivityFeed('achievement', { name: a.name, icon: a.icon });
+      }
+    } catch(e) {}
+  });
+  if (newUnlocks > 0) saveState();
+}
+
+function renderAchievements() {
+  const q = state.quests;
+  const unlocked = q?.achievements || {};
+  const count = Object.keys(unlocked).length;
+
+  let html = `<div style="padding:12px">
+    <h3 style="font-size:.9rem;color:var(--gold);margin:0 0 4px;font-variant:small-caps">🏆 ${t('achieveTitle')}</h3>
+    <p style="font-size:.65rem;color:var(--text-dim);margin:0 0 12px">${count}/${ACHIEVEMENTS.length} ${t('achieveUnlocked')}</p>
+    <div class="achieve-grid">`;
+
+  ACHIEVEMENTS.forEach(a => {
+    const u = unlocked[a.id];
+    html += `<div class="achieve-card ${u ? 'unlocked' : 'locked'}">
+      ${u && !u.seen ? '<div class="achieve-new"></div>' : ''}
+      <div class="achieve-icon">${a.icon}</div>
+      <div class="achieve-name">${a.name}</div>
+      <div class="achieve-desc">${a.desc}</div>
+      ${u ? `<div class="achieve-date">${u.date}</div>` : ''}
+    </div>`;
+  });
+
+  html += `</div></div>`;
+  return html;
+}
+
+function markAchievementsSeen() {
+  const q = state.quests;
+  if (!q?.achievements) return;
+  Object.keys(q.achievements).forEach(k => { q.achievements[k].seen = true; });
+  saveState();
+}
+
+// ===== BET SYSTEM (PARIS XP) =====
+function initBets() {
+  const q = state.quests;
+  if (!q.bets) q.bets = [];
+  // Check expired bets
+  const today = getTodayStr();
+  q.bets.forEach(b => {
+    if (b.status !== 'active') return;
+    if (b.deadline && b.deadline < today) {
+      // Failed — lose XP
+      b.status = 'lost';
+      q.xp = Math.max(0, (q.xp || 0) - b.stake);
+      q.totalXp = Math.max(0, (q.totalXp || 0) - b.stake);
+      showToast(t('betLost'), `-${b.stake} XP`);
+      haptic([200, 100, 200]);
+      postActivityFeed('bet_lost', { stake: b.stake });
+    }
+  });
+}
+
+function placeBet(objective, target, stake, days) {
+  const q = state.quests;
+  if (!q.bets) q.bets = [];
+  if (stake > (q.xp || 0) || stake <= 0) return;
+
+  const deadline = new Date();
+  deadline.setDate(deadline.getDate() + (days || 1));
+  const deadlineStr = deadline.toISOString().slice(0, 10);
+
+  q.bets.push({
+    id: Date.now(),
+    objective,
+    target,
+    stake,
+    progress: 0,
+    deadline: deadlineStr,
+    status: 'active',
+    createdAt: getTodayStr()
+  });
+  saveState();
+  showToast(t('betTitle'), `${stake} XP — ${objective}`);
+}
+
+function winBet(betId) {
+  const q = state.quests;
+  const bet = (q.bets || []).find(b => b.id === betId);
+  if (!bet || bet.status !== 'active') return;
+  bet.status = 'won';
+  const reward = bet.stake * 2;
+  addQuestXp(reward);
+  showToast(t('betWon'), `+${reward} XP`);
+  playSfx('record'); haptic([50, 30, 50, 30, 80]); spawnGoldRain(30);
+  postActivityFeed('bet_won', { stake: bet.stake });
+  saveState();
+}
+
+function renderBetSystem() {
+  const q = state.quests;
+  const bets = q?.bets || [];
+  const activeBets = bets.filter(b => b.status === 'active');
+  const historyBets = bets.filter(b => b.status !== 'active').slice(-10);
+
+  let html = `<div style="padding:12px">
+    <h3 style="font-size:.9rem;color:var(--gold);margin:0 0 4px;font-variant:small-caps">🎲 ${t('betTitle')}</h3>
+    <p style="font-size:.65rem;color:var(--text-dim);margin:0 0 12px">${t('betDesc')}</p>`;
+
+  // New bet form
+  html += `<div class="bet-card" style="margin-bottom:14px">
+    <div style="font-size:.7rem;color:var(--gold);font-weight:700;margin-bottom:8px">${t('betNew')}</div>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input id="bet-obj-input" class="bt-input" placeholder="${t('betObjective')}" style="flex:2"/>
+      <input id="bet-target-input" class="bt-input" type="number" placeholder="${t('betTarget')}" style="flex:1"/>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <input id="bet-stake-input" class="bt-input" type="number" placeholder="${t('betStake')}" style="flex:1"/>
+      <select id="bet-days-input" class="bt-input" style="flex:1"><option value="1">24h</option><option value="3">3 jours</option><option value="7">7 jours</option></select>
+      <button class="bt-btn bt-btn-gold" onclick="placeBetFromForm()">${t('betPlace')}</button>
+    </div>
+  </div>`;
+
+  // Active bets
+  if (activeBets.length === 0) {
+    html += `<p style="text-align:center;color:var(--text-dim);font-size:.7rem;padding:10px">${t('betNoActive')}</p>`;
+  }
+  activeBets.forEach(b => {
+    const progress = b.target > 0 ? Math.min(100, (b.progress / b.target) * 100) : 0;
+    html += `<div class="bet-card active">
+      <div class="bet-header"><div class="bet-stake">🎲 ${b.stake} XP</div><div style="font-size:.55rem;color:var(--text-dim)">⏳ ${b.deadline}</div></div>
+      <div class="bet-obj">${b.objective} — ${b.progress}/${b.target}</div>
+      <div class="bet-progress"><div class="bet-progress-fill" style="width:${progress}%"></div></div>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <button class="bt-btn bt-btn-gold" onclick="updateBetProgress(${b.id})" style="flex:1;font-size:.6rem">+1</button>
+        ${b.progress >= b.target ? `<button class="bt-btn" style="flex:1;font-size:.6rem;background:#2ecc71;color:#fff" onclick="winBet(${b.id})">✓ ${t('betWon')}</button>` : ''}
+      </div>
+    </div>`;
+  });
+
+  // History
+  if (historyBets.length > 0) {
+    html += `<h4 style="font-size:.7rem;color:var(--text-dim);margin:12px 0 6px;text-transform:uppercase">${t('betHistory')}</h4>`;
+    historyBets.reverse().forEach(b => {
+      html += `<div class="bet-card ${b.status}">
+        <div class="bet-header"><div class="bet-stake">${b.status === 'won' ? '✅' : '❌'} ${b.stake} XP</div><div style="font-size:.55rem;color:var(--text-dim)">${b.createdAt}</div></div>
+        <div class="bet-obj">${b.objective}</div>
+      </div>`;
+    });
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function placeBetFromForm() {
+  const obj = document.getElementById('bet-obj-input')?.value?.trim();
+  const target = parseInt(document.getElementById('bet-target-input')?.value);
+  const stake = parseInt(document.getElementById('bet-stake-input')?.value);
+  const days = parseInt(document.getElementById('bet-days-input')?.value) || 1;
+  if (!obj || !target || !stake) return;
+  placeBet(obj, target, stake, days);
+  renderDailyChallenges();
+}
+
+function updateBetProgress(betId) {
+  const q = state.quests;
+  const bet = (q.bets || []).find(b => b.id === betId);
+  if (!bet || bet.status !== 'active') return;
+  bet.progress++;
+  saveState();
+  renderDailyChallenges();
+}
+
+// ===== ACTIVITY FEED =====
+function postActivityFeed(type, data) {
+  if (!currentUser || !db) return;
+  const q = state.quests || {};
+  const entry = {
+    uid: currentUser.uid,
+    name: state.pseudo || currentUser.displayName || 'Viking',
+    avatar: currentUser.photoURL || '',
+    type,
+    data: data || {},
+    level: q.level || 1,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  db.collection('activityFeed').add(entry).catch(() => {});
+}
+
+async function loadActivityFeed() {
+  if (!db) return [];
+  try {
+    const snap = await db.collection('activityFeed')
+      .orderBy('timestamp', 'desc')
+      .limit(30)
+      .get();
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch(e) { return []; }
+}
+
+function renderActivityFeed(feedItems) {
+  if (!feedItems || feedItems.length === 0) {
+    return `<p style="text-align:center;color:var(--text-dim);font-size:.7rem;padding:20px">${t('feedEmpty')}</p>`;
+  }
+
+  let html = '';
+  feedItems.forEach(item => {
+    let text = '';
+    const d = item.data || {};
+    switch(item.type) {
+      case 'level_up': text = t('feedLevelUp').replace('{level}', d.level || '?'); break;
+      case 'boss_defeated': text = t('feedBoss'); break;
+      case 'rune_found': text = t('feedRune').replace('{rune}', d.rune || '?'); break;
+      case 'run_completed': text = t('feedRun').replace('{dist}', d.distance || '?'); break;
+      case 'prestige': text = t('feedPrestige'); break;
+      case 'epic_completed': text = t('feedEpic'); break;
+      case 'achievement': text = `${d.icon || '🏆'} ${d.name || t('achieveNew')}`; break;
+      case 'bet_won': text = `🎲 ${t('betWon')} +${(d.stake || 0) * 2} XP`; break;
+      case 'duel_won': text = `⚔️ ${t('duelWon')}`; break;
+      default: text = item.type;
+    }
+    const time = item.timestamp?.toDate?.();
+    const timeStr = time ? time.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    const initial = (item.name || 'V')[0];
+    const avatarHtml = item.avatar
+      ? '<img class="feed-avatar" src="' + item.avatar + '" alt=""/>'
+      : '<div class="feed-avatar" style="background:var(--gold-dim);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#0e0a06;font-weight:700">' + initial + '</div>';
+    html += '<div class="feed-item">' + avatarHtml +
+      '<div class="feed-content">' +
+        '<div class="feed-name">' + (item.name || 'Viking') + ' <span style="font-size:.55rem;color:var(--text-dim);font-weight:400">Lv.' + (item.level || 1) + '</span></div>' +
+        '<div class="feed-text">' + text + '</div>' +
+        '<div class="feed-time">' + timeStr + '</div>' +
+      '</div></div>';
+  });
+  return html;
+}
+
+// ===== DM REACTIONS =====
+const VIKING_REACTIONS = ['⚔️', '🛡️', '🪓', '🏆', '🔥', '💀'];
+
+function toggleReactionPicker(msgId) {
+  const existing = document.getElementById('react-picker-' + msgId);
+  if (existing) { existing.remove(); return; }
+  // Remove any other open picker
+  document.querySelectorAll('.convo-react-picker').forEach(p => p.remove());
+  const msgEl = document.querySelector(`[data-msg-id="${msgId}"]`);
+  if (!msgEl) return;
+  const picker = document.createElement('div');
+  picker.className = 'convo-react-picker';
+  picker.id = 'react-picker-' + msgId;
+  VIKING_REACTIONS.forEach(emoji => {
+    const btn = document.createElement('button');
+    btn.className = 'convo-react-btn';
+    btn.textContent = emoji;
+    btn.onclick = () => { addReaction(msgId, emoji); picker.remove(); };
+    picker.appendChild(btn);
+  });
+  msgEl.style.position = 'relative';
+  msgEl.appendChild(picker);
+}
+
+async function addReaction(msgId, emoji) {
+  if (!currentUser || !db || !_currentConvoId) return;
+  try {
+    const ref = db.collection('conversations').doc(_currentConvoId)
+      .collection('messages').doc(msgId);
+    const key = `reactions.${emoji}.${currentUser.uid}`;
+    await ref.set({ [key]: true }, { merge: true });
+  } catch(e) {}
+}
+
+// ===== WEATHER ON MAP =====
+let routeWeather = null;
+
+async function fetchRouteWeather(lat, lng) {
+  try {
+    const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,weather_code,wind_speed_10m&timezone=auto`);
+    const data = await resp.json();
+    const c = data.current;
+    const weatherCodes = {
+      0: '☀️ Ciel clair', 1: '🌤️ Peu nuageux', 2: '⛅ Partiellement nuageux', 3: '☁️ Couvert',
+      45: '🌫️ Brouillard', 48: '🌫️ Givre', 51: '🌦️ Bruine legere', 53: '🌦️ Bruine', 55: '🌧️ Bruine forte',
+      61: '🌧️ Pluie legere', 63: '🌧️ Pluie', 65: '🌧️ Pluie forte',
+      71: '🌨️ Neige legere', 73: '🌨️ Neige', 75: '❄️ Neige forte',
+      80: '🌦️ Averses', 81: '🌧️ Averses modérées', 82: '⛈️ Averses fortes',
+      95: '⛈️ Orage', 96: '⛈️ Orage grêle', 99: '⛈️ Orage grêle forte'
+    };
+    const desc = weatherCodes[c.weather_code] || '🌤️ Inconnu';
+    const isHardWeather = [61, 63, 65, 71, 73, 75, 80, 81, 82, 95, 96, 99].includes(c.weather_code);
+    routeWeather = {
+      temp: Math.round(c.temperature_2m),
+      desc,
+      wind: Math.round(c.wind_speed_10m),
+      bonus: isHardWeather
+    };
+  } catch(e) {
+    routeWeather = null;
+  }
+}
+
+function renderWeatherWidget() {
+  if (!routeWeather) return '';
+  return `<div class="route-weather">
+    <div>
+      <div class="route-weather-temp">${routeWeather.temp}°C</div>
+      <div class="route-weather-desc">${routeWeather.desc}</div>
+      ${routeWeather.bonus ? `<div class="route-weather-bonus">${t('weatherBonus')}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+// ===== TRAINING PROGRAMS =====
+const TRAINING_PROGRAMS = [
+  {
+    id: 'couch5k', name: 'Couch to 5K', icon: '🏃', totalWeeks: 8,
+    desc: 'De zero a 5 km en 8 semaines',
+    weeks: [
+      { days: [{ run: 1, walk: 1.5, sets: 8 }, null, { run: 1, walk: 1.5, sets: 8 }, null, { run: 1, walk: 1.5, sets: 8 }, null, null] },
+      { days: [{ run: 1.5, walk: 2, sets: 6 }, null, { run: 1.5, walk: 2, sets: 6 }, null, { run: 1.5, walk: 2, sets: 6 }, null, null] },
+      { days: [{ run: 2, walk: 2, sets: 5 }, null, { run: 2, walk: 2, sets: 5 }, null, { run: 2, walk: 2, sets: 5 }, null, null] },
+      { days: [{ run: 3, walk: 1.5, sets: 4 }, null, { run: 3, walk: 1.5, sets: 4 }, null, { run: 3, walk: 1.5, sets: 4 }, null, null] },
+      { days: [{ run: 5, walk: 2, sets: 3 }, null, { run: 5, walk: 2, sets: 3 }, null, { run: 8, walk: 0, sets: 1 }, null, null] },
+      { days: [{ run: 8, walk: 0, sets: 1 }, null, { run: 10, walk: 0, sets: 1 }, null, { run: 8, walk: 0, sets: 1 }, null, null] },
+      { days: [{ run: 12, walk: 0, sets: 1 }, null, { run: 12, walk: 0, sets: 1 }, null, { run: 15, walk: 0, sets: 1 }, null, null] },
+      { days: [{ run: 15, walk: 0, sets: 1 }, null, { run: 18, walk: 0, sets: 1 }, null, { run: 25, walk: 0, sets: 1 }, null, null] },
+    ]
+  },
+  {
+    id: 'pushup100', name: '100 Pompes en 30j', icon: '💪', totalWeeks: 4,
+    desc: 'De debutant a 100 pompes d\'affilee',
+    weeks: [
+      { days: [{ exercise: 'Pompes', reps: [5,5,5,5,5] }, null, { exercise: 'Pompes', reps: [8,8,6,6,7] }, null, { exercise: 'Pompes', reps: [10,10,8,8,10] }, null, null] },
+      { days: [{ exercise: 'Pompes', reps: [12,12,10,10,12] }, null, { exercise: 'Pompes', reps: [15,13,12,12,15] }, null, { exercise: 'Pompes', reps: [18,15,15,13,18] }, null, null] },
+      { days: [{ exercise: 'Pompes', reps: [20,18,16,16,20] }, null, { exercise: 'Pompes', reps: [22,20,18,18,25] }, null, { exercise: 'Pompes', reps: [25,22,20,20,28] }, null, null] },
+      { days: [{ exercise: 'Pompes', reps: [30,25,25,22,35] }, null, { exercise: 'Pompes', reps: [35,30,30,25,40] }, null, { exercise: 'Pompes', reps: [100] }, null, null] },
+    ]
+  },
+  {
+    id: 'abs30', name: 'Abdos d\'Acier 30j', icon: '🔥', totalWeeks: 4,
+    desc: 'Programme abdominaux progressif 4 semaines',
+    weeks: [
+      { days: [{ exercise: 'Crunchs+Planche', reps: [15,15,'30s','30s'] }, null, { exercise: 'Crunchs+Planche', reps: [20,15,'30s','30s'] }, null, { exercise: 'Crunchs+Planche', reps: [20,20,'45s','30s'] }, null, null] },
+      { days: [{ exercise: 'Crunchs+Planche', reps: [25,20,'45s','45s'] }, null, { exercise: 'Crunchs+Planche', reps: [25,25,'60s','45s'] }, null, { exercise: 'Crunchs+Planche', reps: [30,25,'60s','60s'] }, null, null] },
+      { days: [{ exercise: 'Crunchs+Planche', reps: [30,30,'60s','60s'] }, null, { exercise: 'Crunchs+Planche', reps: [35,30,'75s','60s'] }, null, { exercise: 'Crunchs+Planche', reps: [35,35,'75s','75s'] }, null, null] },
+      { days: [{ exercise: 'Crunchs+Planche', reps: [40,35,'90s','75s'] }, null, { exercise: 'Crunchs+Planche', reps: [40,40,'90s','90s'] }, null, { exercise: 'Crunchs+Planche', reps: [50,50,'120s','120s'] }, null, null] },
+    ]
+  }
+];
+
+function initPrograms() {
+  const q = state.quests;
+  if (!q.programs) q.programs = {};
+}
+
+function startProgram(programId) {
+  const q = state.quests;
+  if (!q.programs) q.programs = {};
+  q.programs[programId] = { week: 1, day: 0, startDate: getTodayStr(), completedDays: [], status: 'active' };
+  saveState();
+  showToast(t('programStart'), TRAINING_PROGRAMS.find(p => p.id === programId)?.name || '');
+}
+
+function advanceProgramDay(programId) {
+  const q = state.quests;
+  const prog = q.programs?.[programId];
+  const def = TRAINING_PROGRAMS.find(p => p.id === programId);
+  if (!prog || !def || prog.status !== 'active') return;
+
+  prog.completedDays.push(getTodayStr());
+  prog.day++;
+  if (prog.day >= 7) {
+    prog.day = 0;
+    prog.week++;
+    if (prog.week > def.totalWeeks) {
+      prog.status = 'completed';
+      addQuestXp(500);
+      showToast(t('programCompleted'), `${def.name} — +500 XP`);
+      playSfx('levelup'); spawnGoldRain(40);
+    }
+  }
+  saveState();
+}
+
+function renderPrograms() {
+  const q = state.quests;
+  const progs = q?.programs || {};
+
+  let html = `<div style="padding:12px">
+    <h3 style="font-size:.9rem;color:var(--gold);margin:0 0 4px;font-variant:small-caps">📋 ${t('programTitle')}</h3>
+    <p style="font-size:.65rem;color:var(--text-dim);margin:0 0 12px">${t('programDesc')}</p>`;
+
+  TRAINING_PROGRAMS.forEach(p => {
+    const userProg = progs[p.id];
+    const isActive = userProg?.status === 'active';
+    const isCompleted = userProg?.status === 'completed';
+    const week = userProg?.week || 1;
+    const progress = isActive ? ((week - 1) / p.totalWeeks) * 100 : isCompleted ? 100 : 0;
+
+    html += `<div class="program-card ${isActive ? 'active' : ''}">
+      <div class="program-header">
+        <div class="program-name">${p.icon} ${p.name}</div>
+        <div class="program-week">${isCompleted ? `✅ ${t('programCompleted')}` : isActive ? t('programWeek').replace('{w}', week).replace('{total}', p.totalWeeks) : ''}</div>
+      </div>
+      <div class="program-desc">${p.desc}</div>
+      <div class="program-progress"><div class="program-progress-fill" style="width:${progress}%"></div></div>`;
+
+    if (isActive) {
+      const weekData = p.weeks[week - 1];
+      if (weekData) {
+        const today = new Date().getDay(); // 0=Sun...6=Sat
+        const dayIndex = today === 0 ? 6 : today - 1; // 0=Mon...6=Sun
+        const dayPlan = weekData.days[dayIndex];
+        if (dayPlan) {
+          html += `<div style="margin-top:8px;padding:8px;background:rgba(196,154,60,.06);border-radius:6px;font-size:.65rem;color:var(--text)">
+            <div style="font-weight:700;color:var(--gold);margin-bottom:4px">${t('programDay').replace('{d}', dayIndex + 1)}</div>`;
+          if (dayPlan.run != null) {
+            html += `<div>🏃 Course : ${dayPlan.run} min run / ${dayPlan.walk} min marche × ${dayPlan.sets}</div>`;
+          }
+          if (dayPlan.exercise) {
+            html += `<div>💪 ${dayPlan.exercise} : ${dayPlan.reps.join(' / ')}</div>`;
+          }
+          const alreadyDone = userProg.completedDays.includes(getTodayStr());
+          if (!alreadyDone) {
+            html += `<button class="bt-btn bt-btn-gold" style="margin-top:6px;width:100%" onclick="advanceProgramDay('${p.id}');renderDailyChallenges()">✓ ${t('programCompleted')}</button>`;
+          } else {
+            html += `<div style="text-align:center;color:#2ecc71;margin-top:4px">✅</div>`;
+          }
+          html += `</div>`;
+        } else {
+          html += `<div style="margin-top:6px;font-size:.6rem;color:var(--text-dim);text-align:center">${t('programRestDay')}</div>`;
+        }
+      }
+    } else if (!isCompleted) {
+      html += `<button class="bt-btn bt-btn-gold" style="margin-top:8px;width:100%" onclick="startProgram('${p.id}');renderDailyChallenges()">${t('programStart')}</button>`;
+    }
+
+    html += `</div>`;
+  });
+
+  html += `</div>`;
+  return html;
+}
+
+// ===== DUEL SYSTEM =====
+function initDuels() {
+  const q = state.quests;
+  if (!q.duels) q.duels = [];
+}
+
+const DUEL_OBJECTIVES = [
+  { id: 'pushups', label: 'Pompes', unit: 'reps', target: 100 },
+  { id: 'squats', label: 'Squats', unit: 'reps', target: 100 },
+  { id: 'running', label: 'Course', unit: 'km', target: 5 },
+  { id: 'xp', label: 'XP du jour', unit: 'XP', target: 500 },
+  { id: 'quests', label: 'Quêtes completées', unit: '', target: 5 },
+];
+
+async function sendDuelChallenge(targetUid, targetName, objectiveId, stake) {
+  if (!currentUser || !db) return;
+  const q = state.quests;
+  const obj = DUEL_OBJECTIVES.find(o => o.id === objectiveId);
+  if (!obj) return;
+  if (stake > (q.xp || 0) || stake <= 0) return;
+
+  const deadline = new Date();
+  deadline.setDate(deadline.getDate() + 1);
+
+  const duelData = {
+    challengerUid: currentUser.uid,
+    challengerName: state.pseudo || currentUser.displayName || 'Viking',
+    challengerAvatar: currentUser.photoURL || '',
+    targetUid,
+    targetName,
+    objective: obj.label,
+    objectiveId: obj.id,
+    target: obj.target,
+    stake,
+    challengerProgress: 0,
+    targetProgress: 0,
+    status: 'pending', // pending → active → resolved
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    deadline: deadline.toISOString().slice(0, 10),
+  };
+
+  try {
+    await db.collection('duels').add(duelData);
+    showToast(t('duelTitle'), `${t('duelChallenge')} ${targetName}`);
+    // Save local ref
+    if (!q.duels) q.duels = [];
+    q.duels.push({ id: Date.now(), targetName, objective: obj.label, stake, status: 'pending', date: getTodayStr() });
+    saveState();
+  } catch(e) {
+    showToast('Erreur', 'Impossible d\'envoyer le defi.');
+  }
+}
+
+async function loadDuels() {
+  if (!currentUser || !db) return [];
+  try {
+    const snap1 = await db.collection('duels')
+      .where('challengerUid', '==', currentUser.uid)
+      .orderBy('createdAt', 'desc').limit(20).get();
+    const snap2 = await db.collection('duels')
+      .where('targetUid', '==', currentUser.uid)
+      .orderBy('createdAt', 'desc').limit(20).get();
+    const all = [...snap1.docs, ...snap2.docs].map(d => ({ id: d.id, ...d.data() }));
+    // Sort by recency
+    all.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    return all.slice(0, 20);
+  } catch(e) { return []; }
+}
+
+async function acceptDuel(duelId) {
+  if (!db) return;
+  try {
+    await db.collection('duels').doc(duelId).update({ status: 'active' });
+    showToast(t('duelAccept'), '');
+  } catch(e) {}
+}
+
+async function declineDuel(duelId) {
+  if (!db) return;
+  try {
+    await db.collection('duels').doc(duelId).update({ status: 'declined' });
+  } catch(e) {}
+}
+
+async function updateDuelProgress(duelId, progressField, value) {
+  if (!db) return;
+  try {
+    await db.collection('duels').doc(duelId).update({ [progressField]: value });
+  } catch(e) {}
+}
+
+function renderDuelSystem(duels) {
+  duels = duels || [];
+
+  let html = `<div style="padding:12px">
+    <h3 style="font-size:.9rem;color:var(--gold);margin:0 0 4px;font-variant:small-caps">⚔️ ${t('duelTitle')}</h3>
+    <p style="font-size:.65rem;color:var(--text-dim);margin:0 0 12px">${t('duelDesc')}</p>`;
+
+  // Quick duel form
+  html += `<div class="duel-card" style="margin-bottom:14px">
+    <div style="font-size:.7rem;color:var(--gold);font-weight:700;margin-bottom:8px">${t('duelSend')}</div>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input id="duel-target-input" class="bt-input" placeholder="UID du Viking" style="flex:2"/>
+      <select id="duel-obj-select" class="bt-input" style="flex:1">${DUEL_OBJECTIVES.map(o => `<option value="${o.id}">${o.label}</option>`).join('')}</select>
+    </div>
+    <div style="display:flex;gap:6px">
+      <input id="duel-stake-input" class="bt-input" type="number" placeholder="${t('duelStake')} (XP)" style="flex:1"/>
+      <button class="bt-btn bt-btn-gold" onclick="sendDuelFromForm()">${t('duelSend')}</button>
+    </div>
+  </div>`;
+
+  if (duels.length === 0) {
+    html += `<p style="text-align:center;color:var(--text-dim);font-size:.7rem;padding:10px">${t('duelNoActive')}</p>`;
+  }
+
+  duels.forEach(d => {
+    const isChallenger = d.challengerUid === currentUser?.uid;
+    const myProgress = isChallenger ? d.challengerProgress : d.targetProgress;
+    const theirProgress = isChallenger ? d.targetProgress : d.challengerProgress;
+    const opponentName = isChallenger ? d.targetName : d.challengerName;
+    const statusClass = d.status === 'pending' ? 'pending' : d.status === 'active' ? 'active' : d.status === 'won' ? 'won' : d.status === 'lost' ? 'lost' : '';
+
+    html += `<div class="duel-card ${statusClass}">
+      <div class="duel-vs">
+        <div class="duel-player"><div class="duel-player-name">${state.pseudo || 'Toi'}</div><div class="duel-player-score">${myProgress || 0}</div></div>
+        <div class="duel-middle">VS</div>
+        <div class="duel-player"><div class="duel-player-name">${opponentName}</div><div class="duel-player-score">${theirProgress || 0}</div></div>
+      </div>
+      <div class="duel-obj">${d.objective} — ${t('duelStake')}: ${d.stake} XP</div>
+      <div class="duel-time">${d.status === 'pending' ? t('duelPending') : d.status === 'active' ? `⏳ ${d.deadline}` : d.status}</div>`;
+
+    if (d.status === 'pending' && !isChallenger) {
+      html += `<div style="display:flex;gap:6px;margin-top:8px">
+        <button class="bt-btn bt-btn-gold" style="flex:1" onclick="acceptDuel('${d.id}');renderDailyChallenges()">${t('duelAccept')}</button>
+        <button class="bt-btn" style="flex:1;background:#e74c3c;color:#fff;border:none;border-radius:6px;cursor:pointer" onclick="declineDuel('${d.id}');renderDailyChallenges()">${t('duelDecline')}</button>
+      </div>`;
+    }
+
+    html += `</div>`;
+  });
+
+  html += `</div>`;
+  return html;
+}
+
+function sendDuelFromForm() {
+  const targetUid = document.getElementById('duel-target-input')?.value?.trim();
+  const objId = document.getElementById('duel-obj-select')?.value;
+  const stake = parseInt(document.getElementById('duel-stake-input')?.value);
+  if (!targetUid || !objId || !stake) return;
+  sendDuelChallenge(targetUid, targetUid, objId, stake);
 }
 
 // ===== SOLO LEVELING SYSTEM =====
@@ -10033,7 +11061,7 @@ function toggleMapPanel() {
 
 function switchQuestTab(tab) {
   document.querySelectorAll('.quest-tab').forEach(t => t.classList.toggle('active', t.dataset.qtab === tab));
-  ['daily','weekly','defis','solo','saison','epiques','stakr','stats','arbre','talents','boss','evolve'].forEach(t => {
+  ['daily','weekly','defis','solo','saison','epiques','stakr','stats','arbre','talents','boss','evolve','trophees','paris','programmes','duels','feed'].forEach(t => {
     const el = $(`#quest-list-${t}`) || $(`#quest-${t}-tab`);
     if (el) el.style.display = 'none';
   });
@@ -10050,6 +11078,19 @@ function switchQuestTab(tab) {
   else if (tab === 'talents') { $('#quest-talents-tab').style.display = 'block'; renderSpecializations(); }
   else if (tab === 'evolve') { $('#quest-evolve-tab').style.display = 'block'; renderQuestEvolution(); }
   else if (tab === 'stats') { $('#quest-stats-tab').style.display = 'block'; renderQuestStats(); }
+  else if (tab === 'trophees') { const el = $('#quest-trophees-tab'); el.style.display = 'block'; el.innerHTML = renderAchievements(); markAchievementsSeen(); }
+  else if (tab === 'paris') { const el = $('#quest-paris-tab'); el.style.display = 'block'; el.innerHTML = renderBetSystem(); }
+  else if (tab === 'programmes') { const el = $('#quest-programmes-tab'); el.style.display = 'block'; el.innerHTML = renderPrograms(); }
+  else if (tab === 'duels') {
+    const el = $('#quest-duels-tab'); el.style.display = 'block';
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:.7rem">Chargement...</div>';
+    loadDuels().then(d => { el.innerHTML = renderDuelSystem(d); });
+  }
+  else if (tab === 'feed') {
+    const el = $('#quest-feed-tab'); el.style.display = 'block';
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:.7rem">Chargement...</div>';
+    loadActivityFeed().then(items => { el.innerHTML = '<div style="padding:12px"><h3 style="font-size:.9rem;color:var(--gold);margin:0 0 12px;font-variant:small-caps">📰 ' + t('feedTitle') + '</h3>' + renderActivityFeed(items) + '</div>'; });
+  }
 }
 
 function getVikingAvatarSVG(level, prestige) {
@@ -11106,6 +12147,12 @@ function addQuestXp(amount, category) {
     addMessage('stakr', msg + ' [MOOD:excite]');
     showToast('NIVEAU SUPERIEUR !', `Niveau ${q.level} — ${rank.name}`);
     playSfx('levelup'); haptic([50, 30, 50, 30, 80]); spawnGoldRain(40); screenShake();
+    // Fullscreen level-up animation
+    setTimeout(() => showLevelUpAnimation(q.level, rank.name), 300);
+    // Post to activity feed
+    postActivityFeed('level_up', { level: q.level });
+    // Check achievements
+    checkAchievements();
     // Check if a specialization milestone was reached
     const specMilestone = SPEC_MILESTONES.find(m => m.level === q.level && !q.specializations?.chosen?.[m.level]);
     if (specMilestone) {
@@ -11153,6 +12200,8 @@ function prestigeUp() {
   showToast(`PRESTIGE ${q.prestige} !`, `${stars} ${title} — l'ascension recommence.`);
   addMessage('stakr', `*hurlement guerrier* PAR ODIN ! Tu as accompli le rituel — tu es desormais **${title}** ${stars}. Les sagas te connaissent par ce nom. Mais ne te repose pas, mortel : l'ascension recommence, et les epreuves seront plus rudes. [MOOD:excite]`);
 
+  postActivityFeed('prestige', { level: q.prestige });
+  checkAchievements();
   if (currentUser) syncToCloud();
   saveState();
   renderQuests();
@@ -12503,6 +13552,8 @@ function checkBossVictory() {
       .replace('{xp}', boss.xpReward);
     addMessage('stakr', msg);
     addQuestXp(boss.xpReward);
+    postActivityFeed('boss_defeated', { boss: boss.name });
+    checkAchievements();
     checkWorldMapUnlocks();
 
     // Bonus rune chance on boss kill
@@ -15770,6 +16821,7 @@ async function syncToCloud() {
       daysActive: q.startDate ? Math.max(1, Math.ceil((Date.now() - new Date(q.startDate).getTime()) / 86400000)) : 0,
       epicTitles: q.epicTitles || [],
       epicQuestsCompleted: Object.values(q.epicQuests || {}).filter(e => e.completed).length,
+      achievements: Object.keys(q.achievements || {}).length,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     await db.collection('users').doc(currentUser.uid).set(profileData, { merge: true });
@@ -16289,10 +17341,26 @@ async function openConversation(convoId, otherUid, otherName, otherAvatar) {
           const isMine = m.sender === currentUser?.uid;
           const time = m.sentAt?.toDate?.();
           const timeStr = time ? time.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
-          html += `<div class="convo-msg ${isMine ? 'sent' : 'received'}">
-            <div>${escapeHtml(m.text)}</div>
-            <div class="convo-msg-time">${timeStr}</div>
-          </div>`;
+          // Reactions display
+          let reactHtml = '';
+          if (m.reactions) {
+            const reactCounts = {};
+            Object.entries(m.reactions).forEach(([emoji, users]) => {
+              if (typeof users === 'object') reactCounts[emoji] = Object.keys(users).length;
+            });
+            if (Object.keys(reactCounts).length > 0) {
+              reactHtml = '<div class="convo-reactions">';
+              Object.entries(reactCounts).forEach(([emoji, count]) => {
+                reactHtml += '<span class="convo-reaction">' + emoji + '<span class="convo-reaction-count">' + count + '</span></span>';
+              });
+              reactHtml += '</div>';
+            }
+          }
+          html += '<div class="convo-msg ' + (isMine ? 'sent' : 'received') + '" data-msg-id="' + doc.id + '" onclick="toggleReactionPicker(\'' + doc.id + '\')">' +
+            '<div>' + escapeHtml(m.text) + '</div>' +
+            reactHtml +
+            '<div class="convo-msg-time">' + timeStr + '</div>' +
+          '</div>';
         });
         if (!html) html = '<div style="text-align:center;color:var(--text-dim);padding:30px;font-size:.7rem">Aucun message. Envoie le premier !</div>';
         messagesEl.innerHTML = html;
