@@ -1488,6 +1488,7 @@ header button{flex-shrink:0}
       <div class="quest-stats">
         <div class="quest-stat"><span class="stat-val" id="quest-streak-val">0</span><span class="stat-label" data-i18n="consecutiveDays">Jours de suite</span></div>
         <div class="quest-stat"><span class="stat-val" id="quest-total-xp">0</span><span class="stat-label" data-i18n="totalXpLabel">XP total</span></div>
+        <div class="quest-stat"><span class="stat-val" id="quest-plumes-val" style="color:#c49a3c">🪶 0</span><span class="stat-label" data-i18n="plumesLabel">Plumes</span></div>
         <div class="quest-stat"><span class="stat-val" id="quest-completed-today">0</span><span class="stat-label" data-i18n="doneToday">Fait aujourd'hui</span></div>
       </div>
     </div>
@@ -1518,6 +1519,7 @@ header button{flex-shrink:0}
     <div id="quest-programmes-tab" style="display:none"></div>
     <div id="quest-duels-tab" style="display:none"></div>
     <div id="quest-feed-tab" style="display:none"></div>
+    <div id="quest-boutique-tab" style="display:none"></div>
   </div>
 </div>
 
@@ -1864,6 +1866,23 @@ const TRANSLATIONS = {
     achieveTitle: 'Trophees',
     achieveUnlocked: 'Debloques',
     achieveNew: 'Nouveau trophee !',
+    // Shop
+    shopTitle: 'Boutique',
+    plumesLabel: 'Plumes',
+    shopBalance: 'Ton solde',
+    shopBuy: 'Acheter',
+    shopOwned: 'Possede',
+    shopNotEnough: 'Pas assez de plumes !',
+    shopPurchased: 'Achat effectue !',
+    shopStreakShield: 'Bouclier de Streak',
+    shopStreakShieldDesc: 'Protege ta streak pendant 1 jour de repos sans penalite. S\'active automatiquement.',
+    shopXpBoost: 'Boost XP',
+    shopXpBoostDesc: 'Gagne instantanement de l\'experience.',
+    shopRestDay: 'Jour de repos protege',
+    shopRestDayDesc: 'Ajoute 1 jour de repos supplementaire cette semaine sans casser ta streak.',
+    shopHowToEarn: 'Comment gagner des plumes ?',
+    shopEarnStreak: 'Chaque jour de streak : 1-5 plumes (augmente avec la streak)',
+    shopEarnMilestone: 'Palier de streak (7j, 14j, 21j...) : 10+ plumes bonus',
     // Bets
     betTitle: 'Paris Viking',
     betDesc: 'Mise du XP sur un objectif personnel. Reussi = XP double, rate = XP perdu.',
@@ -2293,6 +2312,11 @@ const TRANSLATIONS = {
     levelUpTitle: 'LEVEL UP', levelUpNew: 'Level', levelUpContinue: 'Continue',
     summaryTitle: 'Daily Summary', summaryXp: 'XP earned', summaryQuests: 'Quests completed', summaryStreak: 'Streak', summaryCalBurned: 'Calories burned', summaryWorkouts: 'Workouts', summaryLevel: 'Level', summaryNoActivity: 'No activity today — tomorrow is your day, Viking!',
     achieveTitle: 'Trophies', achieveUnlocked: 'Unlocked', achieveNew: 'New trophy!',
+    shopTitle: 'Shop', plumesLabel: 'Plumes', shopBalance: 'Your balance', shopBuy: 'Buy', shopOwned: 'Owned', shopNotEnough: 'Not enough plumes!', shopPurchased: 'Purchase complete!',
+    shopStreakShield: 'Streak Shield', shopStreakShieldDesc: 'Protects your streak for 1 rest day without penalty. Activates automatically.',
+    shopXpBoost: 'XP Boost', shopXpBoostDesc: 'Gain experience instantly.',
+    shopRestDay: 'Protected rest day', shopRestDayDesc: 'Adds 1 extra rest day this week without breaking your streak.',
+    shopHowToEarn: 'How to earn plumes?', shopEarnStreak: 'Each streak day: 1-5 plumes (increases with streak)', shopEarnMilestone: 'Streak milestone (7d, 14d, 21d...): 10+ bonus plumes',
     betTitle: 'Viking Bets', betDesc: 'Stake XP on a personal goal. Succeed = double XP, fail = XP lost.', betNew: 'New bet', betStake: 'Stake (XP)', betObjective: 'Objective', betTarget: 'Target', betPlace: 'Place bet', betActive: 'Active', betWon: 'Won!', betLost: 'Lost', betHistory: 'Bet history', betNoActive: 'No active bets.',
     feedTitle: 'Activity', feedEmpty: 'No recent activity.', feedLevelUp: 'reached level {level}', feedBoss: 'defeated the boss', feedRune: 'found rune {rune}', feedRun: 'ran {dist} km', feedPrestige: 'completed the Prestige ritual', feedEpic: 'completed an epic quest',
     reactToMsg: 'React',
@@ -2655,6 +2679,11 @@ const TRANSLATIONS = {
     levelUpTitle: 'NIVEL SUPERIOR', levelUpNew: 'Nivel', levelUpContinue: 'Continuar',
     summaryTitle: 'Resumen del día', summaryXp: 'XP ganados', summaryQuests: 'Misiones completadas', summaryStreak: 'Racha', summaryCalBurned: 'Calorías quemadas', summaryWorkouts: 'Entrenamientos', summaryLevel: 'Nivel', summaryNoActivity: '¡Sin actividad hoy — mañana será tu día, Viking!',
     achieveTitle: 'Trofeos', achieveUnlocked: 'Desbloqueados', achieveNew: '¡Nuevo trofeo!',
+    shopTitle: 'Tienda', plumesLabel: 'Plumas', shopBalance: 'Tu saldo', shopBuy: 'Comprar', shopOwned: 'Poseido', shopNotEnough: '¡No hay suficientes plumas!', shopPurchased: '¡Compra realizada!',
+    shopStreakShield: 'Escudo de Racha', shopStreakShieldDesc: 'Protege tu racha durante 1 dia de descanso sin penalizacion.',
+    shopXpBoost: 'Impulso XP', shopXpBoostDesc: 'Gana experiencia al instante.',
+    shopRestDay: 'Dia de descanso protegido', shopRestDayDesc: 'Añade 1 dia de descanso extra esta semana sin romper tu racha.',
+    shopHowToEarn: 'Como ganar plumas?', shopEarnStreak: 'Cada dia de racha: 1-5 plumas', shopEarnMilestone: 'Hito de racha (7d, 14d...): 10+ plumas bonus',
     betTitle: 'Apuestas Viking', betDesc: 'Apuesta XP en un objetivo personal. Éxito = XP doble, fallo = XP perdido.', betNew: 'Nueva apuesta', betStake: 'Apuesta (XP)', betObjective: 'Objetivo', betTarget: 'Meta', betPlace: 'Apostar', betActive: 'Activa', betWon: '¡Ganada!', betLost: 'Perdida', betHistory: 'Historial de apuestas', betNoActive: 'Sin apuestas activas.',
     feedTitle: 'Actividad', feedEmpty: 'Sin actividad reciente.', feedLevelUp: 'alcanzó el nivel {level}', feedBoss: 'derrotó al jefe', feedRune: 'encontró la runa {rune}', feedRun: 'corrió {dist} km', feedPrestige: 'completó el ritual de Prestigio', feedEpic: 'completó una misión épica',
     reactToMsg: 'Reaccionar',
@@ -3017,6 +3046,11 @@ const TRANSLATIONS = {
     levelUpTitle: 'NÍVEL SUPERIOR', levelUpNew: 'Nível', levelUpContinue: 'Continuar',
     summaryTitle: 'Resumo do dia', summaryXp: 'XP ganhos', summaryQuests: 'Missões completadas', summaryStreak: 'Sequência', summaryCalBurned: 'Calorias queimadas', summaryWorkouts: 'Treinos', summaryLevel: 'Nível', summaryNoActivity: 'Sem atividade hoje — amanhã será seu dia, Viking!',
     achieveTitle: 'Troféus', achieveUnlocked: 'Desbloqueados', achieveNew: 'Novo troféu!',
+    shopTitle: 'Loja', plumesLabel: 'Plumas', shopBalance: 'Seu saldo', shopBuy: 'Comprar', shopOwned: 'Possuido', shopNotEnough: 'Plumas insuficientes!', shopPurchased: 'Compra realizada!',
+    shopStreakShield: 'Escudo de Sequencia', shopStreakShieldDesc: 'Protege sua sequencia durante 1 dia de descanso sem penalidade.',
+    shopXpBoost: 'Impulso XP', shopXpBoostDesc: 'Ganhe experiencia instantaneamente.',
+    shopRestDay: 'Dia de descanso protegido', shopRestDayDesc: 'Adiciona 1 dia de descanso extra esta semana sem quebrar sua sequencia.',
+    shopHowToEarn: 'Como ganhar plumas?', shopEarnStreak: 'Cada dia de sequencia: 1-5 plumas', shopEarnMilestone: 'Marco de sequencia (7d, 14d...): 10+ plumas bonus',
     betTitle: 'Apostas Viking', betDesc: 'Aposte XP em um objetivo pessoal. Sucesso = XP dobrado, falha = XP perdido.', betNew: 'Nova aposta', betStake: 'Aposta (XP)', betObjective: 'Objetivo', betTarget: 'Meta', betPlace: 'Apostar', betActive: 'Ativa', betWon: 'Ganha!', betLost: 'Perdida', betHistory: 'Histórico de apostas', betNoActive: 'Sem apostas ativas.',
     feedTitle: 'Atividade', feedEmpty: 'Sem atividade recente.', feedLevelUp: 'alcançou o nível {level}', feedBoss: 'derrotou o chefe', feedRune: 'encontrou a runa {rune}', feedRun: 'correu {dist} km', feedPrestige: 'completou o ritual de Prestígio', feedEpic: 'completou uma missão épica',
     reactToMsg: 'Reagir',
@@ -5285,6 +5319,8 @@ function loadState() {
       if (!state.memories) state.memories = {};
       if (!state.quests) state.quests = { level:1, xp:0, totalXp:0, streak:0, lastActiveDate:null, weekStartDate:null, objectives:[], history:[], prestige:0 };
       if (typeof state.quests.prestige !== 'number') state.quests.prestige = 0;
+      if (typeof state.quests.plumes !== 'number') state.quests.plumes = 0;
+      if (!state.quests.shop) state.quests.shop = { streakShields: 0, purchaseLog: [] };
       // Migrate old global memory to per-companion
       if (state.memory && Array.isArray(state.memory) && state.memory.length > 0) {
         const cid = state.companion || 'raven';
@@ -5497,6 +5533,8 @@ function importFullBackup(event) {
       state = { ...state, ...newState };
       if (!state.quests) state.quests = { level:1, xp:0, totalXp:0, streak:0, lastActiveDate:null, weekStartDate:null, objectives:[], history:[], lifetimeTotals:{}, startDate:null, prestige:0 };
       if (typeof state.quests.prestige !== 'number') state.quests.prestige = 0;
+      if (typeof state.quests.plumes !== 'number') state.quests.plumes = 0;
+      if (!state.quests.shop) state.quests.shop = { streakShields: 0, purchaseLog: [] };
       if (!state.projects) state.projects = [];
 
       // Save (this handles image separation automatically)
@@ -7307,6 +7345,9 @@ function initQuests() {
         if (!q.skillTree) q.skillTree = { unlockedNodes: [], activeBoosts: {}, unlockedQuests: [] };
         q.skillTree.shieldUsedWeek = getWeekStart();
         addMessage('stakr', 'Le **Bouclier de Streak** de Freya t\'a protege ! Ton streak est sauf. (1x par semaine) [MOOD:protecteur]');
+      } else if (q.shop?.streakShields > 0 && diffDays <= 2) {
+        q.shop.streakShields--;
+        addMessage('stakr', '🛡️ Un **Bouclier de Streak** (boutique) t\'a protege ! Ton streak est sauf. Il t\'en reste ' + q.shop.streakShields + '. [MOOD:protecteur]');
       } else {
         q.streak = 0;
       }
@@ -7384,6 +7425,7 @@ function activateRestDay() {
     q.restDays.weekKey = currentWeekKey;
     q.restDays.weekDays = [];
     q.restDays.usedThisWeek = 0;
+    if (q.shop) q.shop.extraRestDays = 0; // Reset bought rest days each week
   }
 
   // Already a rest day today?
@@ -7392,8 +7434,8 @@ function activateRestDay() {
     return;
   }
 
-  // Max 2 per week + bonus from specs
-  const maxRestDays = 2 + (getSpecBoosts().bonusRestDays || 0);
+  // Max 2 per week + bonus from specs + bought rest days
+  const maxRestDays = 2 + (getSpecBoosts().bonusRestDays || 0) + (q.shop?.extraRestDays || 0);
   if (q.restDays.usedThisWeek >= maxRestDays) {
     showToast(t('restDayLimitReached'), t('restDayLimitMsg').replace('{max}', maxRestDays));
     return;
@@ -11845,6 +11887,7 @@ const QUEST_CATEGORIES = {
       { id: 'talents', icon: '★', label: 'talents' },
       { id: 'programmes', icon: '📋', label: 'programTitle' },
       { id: 'trophees', icon: '🏆', label: 'achieveTitle' },
+      { id: 'boutique', icon: '🛒', label: 'shopTitle' },
     ]
   },
   social: {
@@ -11910,6 +11953,7 @@ function switchQuestTab(tab) {
     el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:.7rem">Chargement...</div>';
     loadActivityFeed().then(items => { el.innerHTML = '<div style="padding:12px"><h3 style="font-size:.9rem;color:var(--gold);margin:0 0 12px;font-variant:small-caps">📰 ' + t('feedTitle') + '</h3>' + renderActivityFeed(items) + '</div>'; });
   }
+  else if (tab === 'boutique') { const el = $('#quest-boutique-tab'); el.style.display = 'block'; el.innerHTML = renderShop(); }
 }
 
 function getVikingAvatarSVG(level, prestige) {
@@ -12129,6 +12173,8 @@ function renderQuests() {
   }
   $('#quest-streak-val').textContent = q.streak;
   $('#quest-total-xp').textContent = q.totalXp;
+  const plumesEl = $('#quest-plumes-val');
+  if (plumesEl) plumesEl.textContent = '🪶 ' + (q.plumes || 0);
 
   // Count completed today
   const today = getTodayStr();
@@ -12310,16 +12356,27 @@ function logQuestProgress(id) {
       const diffDays = Math.floor((todayDate - lastDate) / 86400000);
       if (diffDays === 1) {
         q.streak++;
+        // Daily plumes reward based on streak
+        const dailyPlumes = Math.min(5, 1 + Math.floor(q.streak / 7));
+        q.plumes = (q.plumes || 0) + dailyPlumes;
         // Streak milestones
         if (q.streak % 7 === 0) {
+          const bonusPlumes = 10 + Math.floor(q.streak / 7) * 2;
+          q.plumes = (q.plumes || 0) + bonusPlumes;
           const msg = STREAK_MSGS[Math.floor(Math.random() * STREAK_MSGS.length)]
             .replace('{days}', q.streak);
-          addMessage('stakr', msg + ' [MOOD:excite]');
+          addMessage('stakr', msg + ` (+${bonusPlumes} 🪶) [MOOD:excite]`);
           addQuestXp(q.streak * 5); // Streak bonus
           playSfx('thunder'); haptic([60, 30, 60, 30, 100]); flameBurst(); screenShake();
         }
       } else if (diffDays > 1) {
-        q.streak = 1;
+        // Check shop streak shields before resetting
+        if (q.shop?.streakShields > 0 && diffDays <= 2) {
+          q.shop.streakShields--;
+          q.streak++;
+        } else {
+          q.streak = 1;
+        }
       }
     } else {
       q.streak = 1;
@@ -16649,6 +16706,133 @@ async function checkBanStatus() {
   return false;
 }
 
+// ===== SHOP — PLUMES CURRENCY STORE =====
+const SHOP_ITEMS = [
+  { id: 'xp_50',       name: 'shopXpBoost',       desc: 'shopXpBoostDesc',       icon: '⚡', price: 10,  category: 'xp',    xpReward: 50,   label: '+50 XP' },
+  { id: 'xp_200',      name: 'shopXpBoost',       desc: 'shopXpBoostDesc',       icon: '⚡', price: 35,  category: 'xp',    xpReward: 200,  label: '+200 XP' },
+  { id: 'xp_500',      name: 'shopXpBoost',       desc: 'shopXpBoostDesc',       icon: '💎', price: 75,  category: 'xp',    xpReward: 500,  label: '+500 XP' },
+  { id: 'xp_1000',     name: 'shopXpBoost',       desc: 'shopXpBoostDesc',       icon: '🔥', price: 130, category: 'xp',    xpReward: 1000, label: '+1000 XP' },
+  { id: 'shield_1',    name: 'shopStreakShield',   desc: 'shopStreakShieldDesc',   icon: '🛡️', price: 25,  category: 'streak', shields: 1, label: '×1' },
+  { id: 'shield_3',    name: 'shopStreakShield',   desc: 'shopStreakShieldDesc',   icon: '🛡️', price: 60,  category: 'streak', shields: 3, label: '×3' },
+  { id: 'shield_7',    name: 'shopStreakShield',   desc: 'shopStreakShieldDesc',   icon: '🛡️', price: 120, category: 'streak', shields: 7, label: '×7' },
+  { id: 'rest_day',    name: 'shopRestDay',        desc: 'shopRestDayDesc',        icon: '🛌', price: 20,  category: 'rest',   label: '+1 jour' },
+];
+
+function renderShop() {
+  const q = state.quests;
+  const plumes = q.plumes || 0;
+  const shields = q.shop?.streakShields || 0;
+
+  let html = '<div style="padding:12px">';
+  html += '<h3 style="font-size:.9rem;color:var(--gold);margin:0 0 4px;font-variant:small-caps;letter-spacing:1px">🛒 ' + t('shopTitle') + '</h3>';
+
+  // Balance display
+  html += '<div style="text-align:center;padding:12px;margin-bottom:12px;background:rgba(196,154,60,.08);border:1px solid var(--border);border-radius:10px">';
+  html += '<div style="font-size:1.4rem;font-weight:700;color:var(--gold)">🪶 ' + plumes + '</div>';
+  html += '<div style="font-size:.6rem;color:var(--text-dim);margin-top:2px">' + t('shopBalance') + '</div>';
+  if (shields > 0) html += '<div style="font-size:.6rem;color:#4caf50;margin-top:4px">🛡️ ' + shields + ' bouclier' + (shields > 1 ? 's' : '') + ' actif' + (shields > 1 ? 's' : '') + '</div>';
+  html += '</div>';
+
+  // XP Boosts
+  html += '<div style="font-size:.65rem;color:var(--gold);font-weight:600;margin:8px 0 6px">⚡ ' + t('shopXpBoost') + '</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px">';
+  SHOP_ITEMS.filter(i => i.category === 'xp').forEach(item => {
+    const canBuy = plumes >= item.price;
+    html += '<div style="padding:10px;background:rgba(196,154,60,.06);border:1px solid ' + (canBuy ? 'var(--border)' : 'rgba(255,255,255,.05)') + ';border-radius:8px;text-align:center;opacity:' + (canBuy ? '1' : '.5') + '">';
+    html += '<div style="font-size:1.2rem">' + item.icon + '</div>';
+    html += '<div style="font-size:.75rem;font-weight:700;color:var(--gold);margin:4px 0">' + item.label + '</div>';
+    html += '<button onclick="shopBuy(\'' + item.id + '\')" style="width:100%;padding:6px;border:1px solid ' + (canBuy ? 'var(--gold-dim)' : 'var(--border)') + ';border-radius:6px;background:' + (canBuy ? 'linear-gradient(135deg,var(--gold-dim),var(--gold))' : 'var(--wood-dark)') + ';color:' + (canBuy ? '#0e0a06' : 'var(--text-dim)') + ';font-size:.65rem;font-weight:700;cursor:' + (canBuy ? 'pointer' : 'not-allowed') + ';font-family:inherit">🪶 ' + item.price + '</button>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Streak Shields
+  html += '<div style="font-size:.65rem;color:var(--gold);font-weight:600;margin:8px 0 6px">🛡️ ' + t('shopStreakShield') + '</div>';
+  html += '<div style="font-size:.55rem;color:var(--text-dim);margin-bottom:6px">' + t('shopStreakShieldDesc') + '</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">';
+  SHOP_ITEMS.filter(i => i.category === 'streak').forEach(item => {
+    const canBuy = plumes >= item.price;
+    html += '<div style="padding:10px;background:rgba(196,154,60,.06);border:1px solid ' + (canBuy ? 'var(--border)' : 'rgba(255,255,255,.05)') + ';border-radius:8px;text-align:center;opacity:' + (canBuy ? '1' : '.5') + '">';
+    html += '<div style="font-size:1rem">🛡️ ' + item.label + '</div>';
+    html += '<button onclick="shopBuy(\'' + item.id + '\')" style="width:100%;padding:6px;margin-top:6px;border:1px solid ' + (canBuy ? 'var(--gold-dim)' : 'var(--border)') + ';border-radius:6px;background:' + (canBuy ? 'linear-gradient(135deg,var(--gold-dim),var(--gold))' : 'var(--wood-dark)') + ';color:' + (canBuy ? '#0e0a06' : 'var(--text-dim)') + ';font-size:.65rem;font-weight:700;cursor:' + (canBuy ? 'pointer' : 'not-allowed') + ';font-family:inherit">🪶 ' + item.price + '</button>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Rest Day
+  html += '<div style="font-size:.65rem;color:var(--gold);font-weight:600;margin:8px 0 6px">🛌 ' + t('shopRestDay') + '</div>';
+  const restItem = SHOP_ITEMS.find(i => i.category === 'rest');
+  const canBuyRest = plumes >= restItem.price;
+  html += '<div style="padding:10px;background:rgba(196,154,60,.06);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;gap:10px;margin-bottom:12px">';
+  html += '<div style="font-size:1.5rem">🛌</div>';
+  html += '<div style="flex:1"><div style="font-size:.7rem;font-weight:600;color:var(--text)">' + t('shopRestDay') + '</div><div style="font-size:.55rem;color:var(--text-dim)">' + t('shopRestDayDesc') + '</div></div>';
+  html += '<button onclick="shopBuy(\'rest_day\')" style="padding:6px 12px;border:1px solid ' + (canBuyRest ? 'var(--gold-dim)' : 'var(--border)') + ';border-radius:6px;background:' + (canBuyRest ? 'linear-gradient(135deg,var(--gold-dim),var(--gold))' : 'var(--wood-dark)') + ';color:' + (canBuyRest ? '#0e0a06' : 'var(--text-dim)') + ';font-size:.65rem;font-weight:700;cursor:' + (canBuyRest ? 'pointer' : 'not-allowed') + ';font-family:inherit;white-space:nowrap">🪶 ' + restItem.price + '</button>';
+  html += '</div>';
+
+  // How to earn
+  html += '<div style="padding:10px;background:rgba(196,154,60,.04);border:1px solid var(--border);border-radius:8px">';
+  html += '<div style="font-size:.65rem;color:var(--gold);font-weight:600;margin-bottom:6px">' + t('shopHowToEarn') + '</div>';
+  html += '<div style="font-size:.6rem;color:var(--text-dim);line-height:1.5">';
+  html += '🔥 ' + t('shopEarnStreak') + '<br>';
+  html += '🏆 ' + t('shopEarnMilestone');
+  html += '</div></div>';
+
+  // Purchase history (last 10)
+  const log = (q.shop?.purchaseLog || []).slice(-10).reverse();
+  if (log.length > 0) {
+    html += '<div style="margin-top:12px;font-size:.55rem;color:var(--text-dim)">';
+    html += '<div style="font-weight:600;margin-bottom:4px">Historique</div>';
+    log.forEach(l => {
+      html += '<div style="padding:2px 0;border-bottom:1px solid rgba(255,255,255,.03)">' + new Date(l.at).toLocaleDateString('fr-FR') + ' — ' + l.item + ' (−' + l.cost + ' 🪶)</div>';
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function shopBuy(itemId) {
+  const q = state.quests;
+  const item = SHOP_ITEMS.find(i => i.id === itemId);
+  if (!item) return;
+  if ((q.plumes || 0) < item.price) {
+    showToast('🪶', t('shopNotEnough'));
+    return;
+  }
+
+  q.plumes -= item.price;
+
+  if (!q.shop) q.shop = { streakShields: 0, purchaseLog: [] };
+  if (!q.shop.purchaseLog) q.shop.purchaseLog = [];
+
+  if (item.category === 'xp') {
+    q.xp = (q.xp || 0) + item.xpReward;
+    q.totalXp = (q.totalXp || 0) + item.xpReward;
+    showToast('⚡ ' + t('shopPurchased'), '+' + item.xpReward + ' XP');
+    q.shop.purchaseLog.push({ item: item.label, cost: item.price, at: new Date().toISOString() });
+  } else if (item.category === 'streak') {
+    q.shop.streakShields = (q.shop.streakShields || 0) + item.shields;
+    showToast('🛡️ ' + t('shopPurchased'), item.shields + ' bouclier' + (item.shields > 1 ? 's' : '') + ' ajoute' + (item.shields > 1 ? 's' : ''));
+    q.shop.purchaseLog.push({ item: '🛡️ ×' + item.shields, cost: item.price, at: new Date().toISOString() });
+  } else if (item.category === 'rest') {
+    // Add an extra rest day to this week's allowance
+    if (!q.restDays) q.restDays = { enabled: true, weekDays: [], usedThisWeek: 0, weekKey: null, mode: 'all', categories: { quests: true, challenges: true, sessions: true, solo: true } };
+    q.shop.extraRestDays = (q.shop.extraRestDays || 0) + 1;
+    showToast('🛌 ' + t('shopPurchased'), '+1 jour de repos protege');
+    q.shop.purchaseLog.push({ item: '🛌 Repos', cost: item.price, at: new Date().toISOString() });
+  }
+
+  if (q.shop.purchaseLog.length > 50) q.shop.purchaseLog = q.shop.purchaseLog.slice(-50);
+  saveState();
+
+  // Refresh shop and stats
+  const el = document.getElementById('quest-boutique-tab');
+  if (el) el.innerHTML = renderShop();
+  const plumesEl = document.getElementById('quest-plumes-val');
+  if (plumesEl) plumesEl.textContent = '🪶 ' + (q.plumes || 0);
+}
+
 function checkAdminPenaltiesDisabled() {
   const q = state.quests;
   return q.penaltiesDisabled === true;
@@ -18259,6 +18443,7 @@ async function syncToCloud() {
       dailyDate: today,
       streak: q.streak || 0,
       runes: (q.runes || []).length,
+      plumes: q.plumes || 0,
       rank: getRank(q.level || 1).name,
       // Extended stats for profile viewer
       workoutSessions: w.totalSessions || 0,
