@@ -224,12 +224,20 @@ header button{flex-shrink:0}
 .quest-stat .stat-val{font-size:1.1rem;color:var(--gold);font-weight:700;font-family:'Cinzel',serif;line-height:1.1;text-shadow:0 0 4px rgba(196,154,60,.3)}
 .quest-stat .stat-label{font-size:.55rem;color:var(--text-dim);display:block;margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
 
-.quest-tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-bottom:12px;padding:5px;background:linear-gradient(180deg,var(--wood-dark),var(--wood-mid));border-radius:10px;border:1px solid var(--border);box-shadow:inset 0 2px 4px rgba(0,0,0,.4)}
-.quest-tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px;background:none;border:none;border-radius:7px;color:var(--text-dim);font-size:.55rem;cursor:pointer;font-family:inherit;transition:all .2s;line-height:1.1;font-weight:600}
-.quest-tab .tab-icon{font-size:1rem;line-height:1;transition:transform .2s}
-.quest-tab.active{color:var(--gold);background:linear-gradient(180deg,rgba(196,154,60,.2),rgba(196,154,60,.05));box-shadow:0 0 0 1px var(--gold-dim),0 2px 8px rgba(196,154,60,.2);text-shadow:0 0 6px rgba(196,154,60,.4)}
-.quest-tab.active .tab-icon{transform:scale(1.15)}
-.quest-tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,.04)}
+/* Quest nav — 2-level: categories + sub-tabs */
+.quest-nav{margin-bottom:14px}
+.quest-cats{display:flex;gap:4px;padding:4px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;background:linear-gradient(180deg,var(--wood-dark),var(--wood-mid));border-radius:10px;border:1px solid var(--border);box-shadow:inset 0 2px 4px rgba(0,0,0,.4)}
+.quest-cats::-webkit-scrollbar{display:none}
+.quest-cat{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:8px 14px;background:none;border:none;border-radius:7px;color:var(--text-dim);font-size:.7rem;cursor:pointer;font-family:inherit;font-weight:700;transition:all .2s;white-space:nowrap;letter-spacing:.3px}
+.quest-cat.active{color:var(--gold);background:linear-gradient(180deg,rgba(196,154,60,.2),rgba(196,154,60,.05));box-shadow:0 0 0 1px var(--gold-dim);text-shadow:0 0 6px rgba(196,154,60,.4)}
+.quest-cat:hover:not(.active){color:var(--text);background:rgba(255,255,255,.04)}
+.quest-cat-icon{font-size:1rem}
+.quest-subtabs{display:flex;gap:3px;padding:3px;margin-top:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.quest-subtabs::-webkit-scrollbar{display:none}
+.quest-tab{flex-shrink:0;display:flex;align-items:center;gap:4px;padding:7px 12px;background:rgba(255,255,255,.03);border:1px solid transparent;border-radius:8px;color:var(--text-dim);font-size:.65rem;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:600;white-space:nowrap}
+.quest-tab .tab-icon{font-size:.85rem;line-height:1}
+.quest-tab.active{color:var(--gold);background:rgba(196,154,60,.1);border-color:var(--gold-dim);text-shadow:0 0 6px rgba(196,154,60,.3)}
+.quest-tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,.06);border-color:var(--border)}
 
 .quest-category{font-size:.7rem;color:var(--gold);font-variant:small-caps;letter-spacing:1.5px;margin:14px 0 8px;padding:6px 10px;background:linear-gradient(90deg,rgba(196,154,60,.1),transparent);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;font-weight:700}
 
@@ -1461,25 +1469,14 @@ header button{flex-shrink:0}
         <div class="quest-stat"><span class="stat-val" id="quest-completed-today">0</span><span class="stat-label" data-i18n="doneToday">Fait aujourd'hui</span></div>
       </div>
     </div>
-    <div class="quest-tabs">
-      <button class="quest-tab active" data-qtab="daily" onclick="switchQuestTab('daily')"><span class="tab-icon">&#9876;</span><span data-i18n="day">Jour</span></button>
-      <button class="quest-tab" data-qtab="weekly" onclick="switchQuestTab('weekly')"><span class="tab-icon">&#128197;</span><span data-i18n="weekTab">Semaine</span></button>
-      <button class="quest-tab" data-qtab="defis" onclick="switchQuestTab('defis')"><span class="tab-icon">&#9888;</span><span data-i18n="challenges">Defis</span></button>
-      <button class="quest-tab" data-qtab="solo" onclick="switchQuestTab('solo')"><span class="tab-icon">&#128165;</span><span data-i18n="solo">Solo</span></button>
-      <button class="quest-tab" data-qtab="saison" onclick="switchQuestTab('saison')"><span class="tab-icon">&#127793;</span><span data-i18n="season">Saison</span></button>
-      <button class="quest-tab" data-qtab="epiques" onclick="switchQuestTab('epiques')"><span class="tab-icon">&#127942;</span><span data-i18n="epics">Epiques</span></button>
-      <button class="quest-tab" data-qtab="boss" onclick="switchQuestTab('boss')"><span class="tab-icon">&#128009;</span>Boss</button>
-      <button class="quest-tab" data-qtab="stakr" onclick="switchQuestTab('stakr')"><span class="tab-icon">&#129718;</span>Stakr</button>
-      <button class="quest-tab" data-qtab="runes" onclick="switchQuestTab('runes')"><span class="tab-icon">&#9883;</span><span data-i18n="runesTab">Runes</span></button>
-      <button class="quest-tab" data-qtab="arbre" onclick="switchQuestTab('arbre')"><span class="tab-icon">&#127794;</span><span data-i18n="tree">Arbre</span></button>
-      <button class="quest-tab" data-qtab="talents" onclick="switchQuestTab('talents')"><span class="tab-icon">&#9733;</span><span data-i18n="talents">Talents</span></button>
-      <button class="quest-tab" data-qtab="evolve" onclick="switchQuestTab('evolve')"><span class="tab-icon">&#11014;</span><span data-i18n="evolve">Evoluer</span></button>
-      <button class="quest-tab" data-qtab="stats" onclick="switchQuestTab('stats')"><span class="tab-icon">&#128200;</span><span data-i18n="stats">Stats</span></button>
-      <button class="quest-tab" data-qtab="trophees" onclick="switchQuestTab('trophees')"><span class="tab-icon">&#127942;</span><span data-i18n="achieveTitle">Trophees</span></button>
-      <button class="quest-tab" data-qtab="paris" onclick="switchQuestTab('paris')"><span class="tab-icon">&#127922;</span><span data-i18n="betTitle">Paris</span></button>
-      <button class="quest-tab" data-qtab="programmes" onclick="switchQuestTab('programmes')"><span class="tab-icon">&#128203;</span><span data-i18n="programTitle">Programmes</span></button>
-      <button class="quest-tab" data-qtab="duels" onclick="switchQuestTab('duels')"><span class="tab-icon">&#9876;</span><span data-i18n="duelTitle">Duels</span></button>
-      <button class="quest-tab" data-qtab="feed" onclick="switchQuestTab('feed')"><span class="tab-icon">&#128240;</span><span data-i18n="feedTitle">Activite</span></button>
+    <div class="quest-nav" id="quest-nav">
+      <div class="quest-cats">
+        <button class="quest-cat active" data-qcat="missions" onclick="switchQuestCat('missions')"><span class="quest-cat-icon">⚔️</span> <span data-i18n="catMissions">Missions</span></button>
+        <button class="quest-cat" data-qcat="combat" onclick="switchQuestCat('combat')"><span class="quest-cat-icon">💪</span> <span data-i18n="catCombat">Combat</span></button>
+        <button class="quest-cat" data-qcat="progression" onclick="switchQuestCat('progression')"><span class="quest-cat-icon">🌳</span> <span data-i18n="catProgression">Progression</span></button>
+        <button class="quest-cat" data-qcat="social" onclick="switchQuestCat('social')"><span class="quest-cat-icon">📊</span> <span data-i18n="catSocial">Social</span></button>
+      </div>
+      <div class="quest-subtabs" id="quest-subtabs"></div>
     </div>
     <div id="quest-list-daily"></div>
     <div id="quest-list-weekly" style="display:none"></div>
@@ -1826,6 +1823,7 @@ const TRANSLATIONS = {
     routeKmReached: 'Kilometre franchi !',
     routeHistory: 'Historique des courses',
     // Timer
+    catMissions: 'Missions', catCombat: 'Combat', catProgression: 'Progression', catSocial: 'Social',
     timerTitle: 'Chronometre',
     timerStart: 'Demarrer',
     timerPause: 'Pause',
@@ -2257,6 +2255,7 @@ const TRANSLATIONS = {
     routeAutoPause: 'Auto-paused — no movement detected',
     routeKmReached: 'Kilometer reached!',
     routeHistory: 'Run History',
+    catMissions: 'Missions', catCombat: 'Combat', catProgression: 'Progression', catSocial: 'Social',
     timerTitle: 'Timer', timerStart: 'Start', timerPause: 'Pause', timerResume: 'Resume', timerStop: 'Stop', timerDone: 'Time\'s up!',
     levelUpTitle: 'LEVEL UP', levelUpNew: 'Level', levelUpContinue: 'Continue',
     summaryTitle: 'Daily Summary', summaryXp: 'XP earned', summaryQuests: 'Quests completed', summaryStreak: 'Streak', summaryCalBurned: 'Calories burned', summaryWorkouts: 'Workouts', summaryLevel: 'Level', summaryNoActivity: 'No activity today — tomorrow is your day, Viking!',
@@ -2602,6 +2601,7 @@ const TRANSLATIONS = {
     routeAutoPause: 'Pausa auto — sin movimiento detectado',
     routeKmReached: '¡Kilómetro alcanzado!',
     routeHistory: 'Historial de carreras',
+    catMissions: 'Misiones', catCombat: 'Combate', catProgression: 'Progresión', catSocial: 'Social',
     timerTitle: 'Cronómetro', timerStart: 'Iniciar', timerPause: 'Pausa', timerResume: 'Reanudar', timerStop: 'Detener', timerDone: '¡Tiempo!',
     levelUpTitle: 'NIVEL SUPERIOR', levelUpNew: 'Nivel', levelUpContinue: 'Continuar',
     summaryTitle: 'Resumen del día', summaryXp: 'XP ganados', summaryQuests: 'Misiones completadas', summaryStreak: 'Racha', summaryCalBurned: 'Calorías quemadas', summaryWorkouts: 'Entrenamientos', summaryLevel: 'Nivel', summaryNoActivity: '¡Sin actividad hoy — mañana será tu día, Viking!',
@@ -2947,6 +2947,7 @@ const TRANSLATIONS = {
     routeAutoPause: 'Pausa auto — nenhum movimento detectado',
     routeKmReached: 'Quilômetro alcançado!',
     routeHistory: 'Histórico de corridas',
+    catMissions: 'Missões', catCombat: 'Combate', catProgression: 'Progressão', catSocial: 'Social',
     timerTitle: 'Cronômetro', timerStart: 'Iniciar', timerPause: 'Pausar', timerResume: 'Retomar', timerStop: 'Parar', timerDone: 'Tempo esgotado!',
     levelUpTitle: 'NÍVEL SUPERIOR', levelUpNew: 'Nível', levelUpContinue: 'Continuar',
     summaryTitle: 'Resumo do dia', summaryXp: 'XP ganhos', summaryQuests: 'Missões completadas', summaryStreak: 'Sequência', summaryCalBurned: 'Calorias queimadas', summaryWorkouts: 'Treinos', summaryLevel: 'Nível', summaryNoActivity: 'Sem atividade hoje — amanhã será seu dia, Viking!',
@@ -5157,6 +5158,7 @@ function init() {
   startWingFlap();
   checkReminders();
   initQuests();
+  renderQuestSubtabs('missions');
   setMood(state.mood);
 
   const msgs = getCurrentMessages();
@@ -11059,13 +11061,74 @@ function toggleMapPanel() {
   if (panel.classList.contains('open')) renderWorldMap();
 }
 
+// Quest nav — category definitions
+const QUEST_CATEGORIES = {
+  missions: {
+    tabs: [
+      { id: 'daily', icon: '⚔️', label: 'day' },
+      { id: 'weekly', icon: '📅', label: 'weekTab' },
+      { id: 'saison', icon: '🌱', label: 'season' },
+      { id: 'epiques', icon: '🏆', label: 'epics' },
+      { id: 'stakr', icon: '🪶', label: 'stakr' },
+    ]
+  },
+  combat: {
+    tabs: [
+      { id: 'defis', icon: '⚠️', label: 'challenges' },
+      { id: 'solo', icon: '💥', label: 'solo' },
+      { id: 'boss', icon: '🐉', label: 'boss' },
+      { id: 'duels', icon: '⚔️', label: 'duelTitle' },
+      { id: 'paris', icon: '🎲', label: 'betTitle' },
+    ]
+  },
+  progression: {
+    tabs: [
+      { id: 'evolve', icon: '⬆', label: 'evolve' },
+      { id: 'runes', icon: '⚛', label: 'runesTab' },
+      { id: 'arbre', icon: '🌴', label: 'tree' },
+      { id: 'talents', icon: '★', label: 'talents' },
+      { id: 'programmes', icon: '📋', label: 'programTitle' },
+      { id: 'trophees', icon: '🏆', label: 'achieveTitle' },
+    ]
+  },
+  social: {
+    tabs: [
+      { id: 'stats', icon: '📈', label: 'stats' },
+      { id: 'feed', icon: '📰', label: 'feedTitle' },
+    ]
+  }
+};
+
+let currentQuestCat = 'missions';
+
+function switchQuestCat(cat) {
+  currentQuestCat = cat;
+  document.querySelectorAll('.quest-cat').forEach(c => c.classList.toggle('active', c.dataset.qcat === cat));
+  renderQuestSubtabs(cat);
+  // Auto-select first tab in category
+  const firstTab = QUEST_CATEGORIES[cat]?.tabs[0];
+  if (firstTab) switchQuestTab(firstTab.id);
+}
+
+function renderQuestSubtabs(cat) {
+  const container = document.getElementById('quest-subtabs');
+  if (!container) return;
+  const tabs = QUEST_CATEGORIES[cat]?.tabs || [];
+  container.innerHTML = tabs.map(tb =>
+    `<button class="quest-tab" data-qtab="${tb.id}" onclick="switchQuestTab('${tb.id}')"><span class="tab-icon">${tb.icon}</span> ${t(tb.label) || tb.label}</button>`
+  ).join('');
+}
+
 function switchQuestTab(tab) {
   document.querySelectorAll('.quest-tab').forEach(t => t.classList.toggle('active', t.dataset.qtab === tab));
+  // Hide all tab content
   ['daily','weekly','defis','solo','saison','epiques','stakr','stats','arbre','talents','boss','evolve','trophees','paris','programmes','duels','feed'].forEach(t => {
     const el = $(`#quest-list-${t}`) || $(`#quest-${t}-tab`);
     if (el) el.style.display = 'none';
   });
-  $('#quest-runes-tab').style.display = 'none';
+  const runesEl = $('#quest-runes-tab');
+  if (runesEl) runesEl.style.display = 'none';
+
   if (tab === 'daily' || tab === 'weekly') $(`#quest-list-${tab}`).style.display = 'block';
   else if (tab === 'defis') { $('#quest-defis-tab').style.display = 'block'; renderDailyChallenges(); }
   else if (tab === 'solo') { $('#quest-solo-tab').style.display = 'block'; renderSoloLeveling(); }
