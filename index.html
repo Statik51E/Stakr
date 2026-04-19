@@ -1560,6 +1560,13 @@ header button{flex-shrink:0}
           <button onclick="savePseudo()" style="padding:8px 14px;border:1px solid var(--gold-dim);border-radius:6px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;font-size:.7rem;cursor:pointer;font-family:inherit;font-weight:700">OK</button>
         </div>
       </div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:.7rem;color:var(--text-dim);display:block;margin-bottom:4px" data-i18n="promoLabel">🎫 Code promo</label>
+        <div style="display:flex;gap:6px">
+          <input type="text" id="account-promo-code" placeholder="Ex: VIKING2026" maxlength="20" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--wood-mid);color:var(--text);font-size:.8rem;font-family:inherit;text-transform:uppercase"/>
+          <button onclick="redeemPromoCode(document.getElementById('account-promo-code').value)" style="padding:8px 14px;border:1px solid var(--gold-dim);border-radius:6px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;font-size:.7rem;cursor:pointer;font-family:inherit;font-weight:700" data-i18n="promoValidate">Valider</button>
+        </div>
+      </div>
       <div id="body-tracker-section"></div>
       <div style="display:flex;gap:8px">
         <button onclick="syncToCloud()" style="flex:1;padding:10px;border:1px solid var(--gold-dim);border-radius:8px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:600" data-i18n="syncNow">☁️ Sync maintenant</button>
@@ -1765,7 +1772,7 @@ const TRANSLATIONS = {
     loginPrompt: 'Connecte-toi pour sauvegarder ta progression et apparaitre dans le classement !',
     loginGoogle: 'Connexion avec Google',
     downloadCard: 'Telecharger ma carte',
-    pseudoLabel: 'Pseudo pour le classement', pseudoPlaceholder: 'Ton pseudo viking...',
+    pseudoLabel: 'Pseudo pour le classement', pseudoPlaceholder: 'Ton pseudo viking...', promoLabel: 'Code promo', promoValidate: 'Valider',
     syncNow: 'Sync maintenant', logout: 'Deconnexion',
     loginSuccess: 'Connexion reussie', welcomeViking: 'Bienvenue, Viking !',
     pseudoSaved: 'Pseudo sauvegarde',
@@ -2219,7 +2226,7 @@ const TRANSLATIONS = {
     loginPrompt: 'Log in to save your progress and appear in the leaderboard!',
     loginGoogle: 'Login with Google',
     downloadCard: 'Download my card',
-    pseudoLabel: 'Leaderboard nickname', pseudoPlaceholder: 'Your viking name...',
+    pseudoLabel: 'Leaderboard nickname', pseudoPlaceholder: 'Your viking name...', promoLabel: 'Promo code', promoValidate: 'Redeem',
     syncNow: 'Sync now', logout: 'Logout',
     loginSuccess: 'Login successful', welcomeViking: 'Welcome, Viking!',
     pseudoSaved: 'Nickname saved',
@@ -2581,7 +2588,7 @@ const TRANSLATIONS = {
     loginPrompt: '¡Inicia sesión para guardar tu progreso y aparecer en la clasificación!',
     loginGoogle: 'Iniciar sesión con Google',
     downloadCard: 'Descargar mi tarjeta',
-    pseudoLabel: 'Apodo para la clasificación', pseudoPlaceholder: 'Tu nombre vikingo...',
+    pseudoLabel: 'Apodo para la clasificación', pseudoPlaceholder: 'Tu nombre vikingo...', promoLabel: 'Codigo promocional', promoValidate: 'Validar',
     syncNow: 'Sincronizar ahora', logout: 'Cerrar sesión',
     loginSuccess: 'Conexión exitosa', welcomeViking: '¡Bienvenido, Viking!',
     pseudoSaved: 'Apodo guardado',
@@ -2943,7 +2950,7 @@ const TRANSLATIONS = {
     loginPrompt: 'Faça login para salvar seu progresso e aparecer na classificação!',
     loginGoogle: 'Entrar com Google',
     downloadCard: 'Baixar meu cartão',
-    pseudoLabel: 'Apelido para classificação', pseudoPlaceholder: 'Seu nome viking...',
+    pseudoLabel: 'Apelido para classificação', pseudoPlaceholder: 'Seu nome viking...', promoLabel: 'Codigo promocional', promoValidate: 'Validar',
     syncNow: 'Sincronizar agora', logout: 'Sair',
     loginSuccess: 'Login realizado', welcomeViking: 'Bem-vindo, Viking!',
     pseudoSaved: 'Apelido salvo',
