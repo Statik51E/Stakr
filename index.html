@@ -1970,6 +1970,15 @@ const TRANSLATIONS = {
     btNoFood: 'Aucun aliment enregistre',
     btServing: 'portion',
     btDeleteFood: 'Supprimer',
+    btGoalLabel: 'Objectif calorique',
+    btGoalBulk: 'Prise de masse',
+    btGoalMaintain: 'Maintien',
+    btGoalCut: 'Seche',
+    btGoalCustom: 'Personnalise',
+    btGoalRemaining: 'restantes',
+    btGoalReached: 'Objectif atteint !',
+    btGoalOver: 'au dessus',
+    btGoalNeedWeight: 'Renseigne ton poids pour calculer l\'objectif',
     bmiUnder: 'Insuffisant',
     bmiNormal: 'Normal',
     bmiOver: 'Surpoids',
@@ -2338,6 +2347,15 @@ const TRANSLATIONS = {
     btNoFood: 'No food logged',
     btServing: 'serving',
     btDeleteFood: 'Delete',
+    btGoalLabel: 'Calorie goal',
+    btGoalBulk: 'Bulk',
+    btGoalMaintain: 'Maintain',
+    btGoalCut: 'Cut',
+    btGoalCustom: 'Custom',
+    btGoalRemaining: 'remaining',
+    btGoalReached: 'Goal reached!',
+    btGoalOver: 'over',
+    btGoalNeedWeight: 'Enter your weight to calculate the goal',
     bmiUnder: 'Underweight',
     bmiNormal: 'Normal',
     bmiOver: 'Overweight',
@@ -2691,6 +2709,15 @@ const TRANSLATIONS = {
     btNoFood: 'Ningun alimento registrado',
     btServing: 'porcion',
     btDeleteFood: 'Eliminar',
+    btGoalLabel: 'Objetivo calorico',
+    btGoalBulk: 'Volumen',
+    btGoalMaintain: 'Mantenimiento',
+    btGoalCut: 'Definicion',
+    btGoalCustom: 'Personalizado',
+    btGoalRemaining: 'restantes',
+    btGoalReached: 'Objetivo alcanzado!',
+    btGoalOver: 'por encima',
+    btGoalNeedWeight: 'Introduce tu peso para calcular el objetivo',
     bmiUnder: 'Bajo peso',
     bmiNormal: 'Normal',
     bmiOver: 'Sobrepeso',
@@ -3044,6 +3071,15 @@ const TRANSLATIONS = {
     btNoFood: 'Nenhum alimento registrado',
     btServing: 'porção',
     btDeleteFood: 'Excluir',
+    btGoalLabel: 'Objetivo calorico',
+    btGoalBulk: 'Volume',
+    btGoalMaintain: 'Manutencao',
+    btGoalCut: 'Corte',
+    btGoalCustom: 'Personalizado',
+    btGoalRemaining: 'restantes',
+    btGoalReached: 'Objetivo atingido!',
+    btGoalOver: 'acima',
+    btGoalNeedWeight: 'Informe seu peso para calcular o objetivo',
     bmiUnder: 'Abaixo do peso',
     bmiNormal: 'Normal',
     bmiOver: 'Sobrepeso',
@@ -8844,7 +8880,8 @@ function completeCustomSession() {
 
 function getBodyTracker() {
   const q = state.quests;
-  if (!q.bodyTracker) q.bodyTracker = { height: null, weightLog: [], calorieLog: [], burnedLog: [] };
+  if (!q.bodyTracker) q.bodyTracker = { height: null, weightLog: [], calorieLog: [], burnedLog: [], calorieGoalMode: 'bulk', calorieGoalCustom: null };
+  if (!q.bodyTracker.calorieGoalMode) q.bodyTracker.calorieGoalMode = 'bulk';
   if (!q.runHistory) q.runHistory = [];
   return q.bodyTracker;
 }
@@ -8961,52 +8998,195 @@ const EXERCISE_KCAL = {
 
 // Food calorie database (kcal per 100g unless noted)
 const FOOD_DATABASE = {
-  // Proteins
+  // === PROTEINS — Viandes ===
   poulet: 165, chicken: 165, pollo: 165, frango: 165,
   boeuf: 250, beef: 250, res: 250, carne: 250,
   porc: 242, pork: 242, cerdo: 242, porco: 242,
-  saumon: 208, salmon: 208,
-  thon: 130, tuna: 130, atun: 130, atum: 130,
-  oeuf: 155, egg: 155, huevo: 155, ovo: 155,
-  oeufs: 155, eggs: 155, huevos: 155, ovos: 155,
+  agneau: 294, lamb: 294, cordero: 294, cordeiro: 294,
+  veau: 172, veal: 172, ternera: 172, vitela: 172,
+  canard: 337, duck: 337, pato: 337,
+  biche: 120, venison: 120, ciervo: 120, veado: 120,
+  chevreuil: 120, roedeer: 120,
+  sanglier: 160, wildboar: 160, jabali: 160, javali: 160,
+  lapin: 173, rabbit: 173, conejo: 173, coelho: 173,
   dinde: 135, turkey: 135, pavo: 135, peru: 135,
-  crevette: 85, shrimp: 85, gamba: 85, camarao: 85,
-  tofu: 76,
+  oie: 305, goose: 305, ganso: 305,
+  caille: 134, quail: 134, codorniz: 134,
+  autruche: 145, ostrich: 145, avestruz: 145,
+  foie: 136, liver: 136, higado: 136, figado: 136,
+  foiegras: 462,
+  boudin: 379, bloodsausage: 379, morcilla: 379, morcela: 379,
+  saucisse: 301, sausage: 301, salchicha: 301, linguica: 301,
+  saucisson: 420,
+  merguez: 280,
+  andouillette: 263,
+  lardons: 350, bacon: 541,
   jambon: 145, ham: 145, jamon: 145, presunto: 145,
   steak: 271, bifteck: 271,
-  // Dairy
+  entrecote: 291, ribeye: 291,
+  filetmignon: 267,
+  rotideboeuf: 180, roastbeef: 180,
+  steakhache: 250, groundbeef: 250,
+  blancdepoulet: 110, chickenbreast: 110,
+  cuissedepoulet: 185, chickenthigh: 185,
+  aile: 203, wing: 203, chickenwing: 203,
+  cordonbleu: 230,
+  escalope: 160,
+  brochette: 150, skewer: 150,
+  // === PROTEINS — Poissons & Fruits de mer ===
+  saumon: 208, salmon: 208,
+  thon: 130, tuna: 130, atun: 130, atum: 130,
+  cabillaud: 82, cod: 82, bacalao: 82, bacalhau: 82,
+  truite: 141, trout: 141, trucha: 141, truta: 141,
+  sardine: 208, sardina: 208, sardinha: 208,
+  maquereau: 205, mackerel: 205, caballa: 205, cavala: 205,
+  bar: 97, seabass: 97, lubina: 97, robalo: 97,
+  dorade: 96, seabream: 96, dorada: 96, dourada: 96,
+  sole: 86,
+  merlu: 82, hake: 82, merluza: 82,
+  lieu: 92, pollock: 92,
+  perche: 91, perch: 91, perca: 91,
+  raie: 95, skate: 95, raya: 95, raia: 95,
+  lotte: 76, monkfish: 76, rape: 76, tamboril: 76,
+  espadon: 144, swordfish: 144, pezespada: 144,
+  anchois: 131, anchovy: 131, anchoa: 131,
+  hareng: 158, herring: 158, arenque: 158,
+  crevette: 85, shrimp: 85, gamba: 85, camarao: 85,
+  crabe: 97, crab: 97, cangrejo: 97, caranguejo: 97,
+  homard: 89, lobster: 89, langosta: 89, lagosta: 89,
+  moule: 86, mussel: 86, mejillon: 86, mexilhao: 86,
+  huitre: 81, oyster: 81, ostra: 81,
+  calamar: 92, squid: 92, pulpo: 92, lula: 92,
+  poulpe: 82, octopus: 82,
+  coquillestjacques: 88, scallop: 88, vieira: 88,
+  surimi: 95,
+  poisson: 96, fish: 96, pescado: 96, peixe: 96,
+  poissonpane: 220, fishstick: 220,
+  // === PROTEINS — Oeufs ===
+  oeuf: 155, egg: 155, huevo: 155, ovo: 155,
+  oeufs: 155, eggs: 155, huevos: 155, ovos: 155,
+  omelette: 154, tortillaespanola: 126,
+  oeufbrouille: 148, scrambledegg: 148,
+  oeufpoche: 143, poachedegg: 143,
+  oeufaufour: 155,
+  // === PROTEINS — Vegetaux ===
+  tofu: 76,
+  tempeh: 192,
+  seitan: 370,
+  lentilles: 116, lentils: 116, lentejas: 116, lentilhas: 116,
+  poischiche: 164, chickpea: 164, garbanzo: 164, graodebico: 164,
+  haricotrouge: 127, kidneybean: 127,
+  haricotblanc: 139, whitebean: 139,
+  edamame: 121,
+  falafel: 333,
+  // === DAIRY — Produits laitiers ===
   lait: 42, milk: 42, leche: 42, leite: 42,
+  laitecreme: 60, wholemilk: 60,
+  laitdamande: 17, almondmilk: 17,
+  laitdavoine: 43, oatmilk: 43,
+  laitdesoja: 33, soymilk: 33,
   fromage: 350, cheese: 350, queso: 350, queijo: 350,
+  camembert: 299,
+  brie: 334,
+  gruyere: 413, emmental: 380,
+  comite: 418,
+  chevre: 364, goatcheese: 364,
+  mozzarella: 280,
+  parmesan: 431,
+  roquefort: 369, bleuecheese: 353,
+  raclette: 357,
+  feta: 264,
+  ricotta: 174,
+  boursin: 370,
+  cheddar: 403,
+  gouda: 356,
+  mascarpone: 429,
+  cremefraiche: 292,
   yaourt: 59, yogurt: 59, yogur: 59, iogurte: 59,
+  yaourtgrec: 97, greekyogurt: 97,
+  fromagerape: 380, gratedcheese: 380,
+  fromageblanc: 48, quarkcheese: 48,
+  petitsuisse: 120,
   beurre: 717, butter: 717, mantequilla: 717, manteiga: 717,
   creme: 195, cream: 195, crema: 195,
-  // Grains & Carbs
+  // === GRAINS & CARBS — Feculents ===
   riz: 130, rice: 130, arroz: 130,
+  rizcomplet: 111, brownrice: 111,
+  rizsauvage: 101, wildrice: 101,
+  rizbasmati: 121, basmati: 121,
   pates: 131, pasta: 131, macarrao: 131,
+  spaghetti: 131, tagliatelles: 131, penne: 131, fusilli: 131,
+  nouilles: 138, noodle: 138, noodles: 138,
+  ravioli: 220,
+  lasagne: 135, lasagna: 135,
+  gnocchi: 133,
   pain: 265, bread: 265, pan: 265, pao: 265,
+  paincomplet: 247, wholebread: 247,
+  paindemie: 274,
+  paindeseigle: 259, ryebread: 259,
+  paindepice: 350, gingerbread: 350,
   cereales: 379, cereal: 379,
+  muesli: 340,
+  granola: 471,
   avoine: 389, oats: 389, avena: 389, aveia: 389,
+  porridge: 68,
   quinoa: 120,
   couscous: 112,
+  boulgour: 83, bulgur: 83,
+  semoule: 360, semolina: 360,
+  polenta: 70,
   tortilla: 237,
   croissant: 406,
   baguette: 274,
-  // Fruits
+  brioche: 374,
+  painauchocolat: 414, chocolatine: 414,
+  chausson: 290, chauxsonnauxpommes: 290,
+  // === CREPES & PATISSERIE — Sucre/Sale ===
+  crepe: 227, crepes: 227, pancake: 227,
+  crepesucre: 230,
+  crepenutel: 340,
+  crepeconfiture: 260,
+  crepejambon: 195,
+  crepefromage: 270,
+  galette: 130, galetteble: 130,
+  gaufre: 312, waffle: 312,
+  // === FRUITS ===
   pomme: 52, apple: 52, manzana: 52, maca: 52,
   banane: 89, banana: 89, platano: 89,
   orange: 47, naranja: 47, laranja: 47,
+  clementine: 47, mandarin: 53, mandarine: 53,
+  pamplemousse: 42, grapefruit: 42, pomelo: 42,
   fraise: 32, strawberry: 32, fresa: 32, morango: 32,
+  framboise: 52, raspberry: 52, frambuesa: 52,
+  cerise: 50, cherry: 50, cereza: 50, cereja: 50,
   raisin: 67, grape: 67, uva: 67,
   mangue: 60, mango: 60, manga: 60,
   peche: 39, peach: 39, melocoton: 39, pessego: 39,
+  nectarine: 44,
+  abricot: 48, apricot: 48, albaricoque: 48, damasco: 48,
+  prune: 46, plum: 46, ciruela: 46, ameixa: 46,
   poire: 57, pear: 57, pera: 57,
   ananas: 50, pineapple: 50, pina: 50, abacaxi: 50,
   pasteque: 30, watermelon: 30, sandia: 30, melancia: 30,
+  melon: 34, cantaloupe: 34,
   myrtille: 57, blueberry: 57, arandano: 57, mirtilo: 57,
+  cassis: 63, blackcurrant: 63,
+  groseille: 56,
+  mure: 43, blackberry: 43, mora: 43, amora: 43,
   kiwi: 61,
   citron: 29, lemon: 29, limon: 29, limao: 29,
   avocat: 160, avocado: 160, aguacate: 160, abacate: 160,
-  // Vegetables
+  figue: 74, fig: 74, higo: 74, figo: 74,
+  datte: 282, date: 282, datil: 282, tamara: 282,
+  noixdecoco: 354, coconut: 354, coco: 354,
+  litchi: 66, lychee: 66,
+  grenade: 83, pomegranate: 83, granada: 83, roma: 83,
+  papaye: 43, papaya: 43,
+  fruit: 50, fruits: 50, frutas: 50,
+  compote: 70, applesauce: 70,
+  saladdefruits: 50, fruitsalad: 50,
+  smoothie: 55,
+  // === VEGETABLES — Legumes ===
   tomate: 18, tomato: 18,
   carotte: 41, carrot: 41, zanahoria: 41, cenoura: 41,
   brocoli: 34, broccoli: 34,
@@ -9015,55 +9195,226 @@ const FOOD_DATABASE = {
   concombre: 16, cucumber: 16, pepino: 16,
   poivron: 31, pepper: 31, pimiento: 31, pimentao: 31,
   oignon: 40, onion: 40, cebolla: 40, cebola: 40,
-  champignon: 22, mushroom: 22, champiñon: 22, cogumelo: 22,
+  ail: 149, garlic: 149, ajo: 149, alho: 149,
+  echalote: 72, shallot: 72,
+  champignon: 22, mushroom: 22, cogumelo: 22,
   courgette: 17, zucchini: 17, calabacin: 17, abobrinha: 17,
+  aubergine: 25, eggplant: 25, berenjena: 25, berinjela: 25,
   haricot: 31, bean: 31, judia: 31, feijao: 31,
+  haricotvert: 31, greenbean: 31,
   petitpois: 81, pea: 81, guisante: 81, ervilha: 81,
   choufleur: 25, cauliflower: 25, coliflor: 25,
+  chou: 25, cabbage: 25, col: 25, repolho: 25,
+  chouxdebruxelles: 43, brusselssprouts: 43,
+  chourave: 27, kohlrabi: 27,
+  poireau: 31, leek: 31, puerro: 31, alhofrances: 31,
+  celeri: 16, celery: 16, apio: 16,
+  radis: 16, radish: 16, rabano: 16,
+  navet: 28, turnip: 28, nabo: 28,
+  betterave: 43, beet: 43, remolacha: 43, beterraba: 43,
   patatedouce: 86, sweetpotato: 86, batata_doce: 86,
   pommedeterre: 77, potato: 77, patata: 77, batata: 77,
   mais: 86, corn: 86, maiz: 86, milho: 86,
-  // Prepared / Fast food (per serving ~portion)
-  pizza: 266, // per slice
+  artichaut: 47, artichoke: 47, alcachofa: 47, alcachofra: 47,
+  asperge: 20, asparagus: 20, esparrago: 20, aspargo: 20,
+  fenouil: 31, fennel: 31, hinojo: 31, funcho: 31,
+  endive: 17, chicory: 17, endivia: 17,
+  roquette: 25, arugula: 25, rucula: 25,
+  cresson: 11, watercress: 11, berro: 11,
+  chouvert: 49, kale: 49,
+  ratatouille: 40,
+  legume: 30, vegetable: 30, verdura: 30, legumes: 30,
+  soupe: 35, soup: 35, sopa: 35,
+  potage: 35, bouillon: 10, broth: 10, caldo: 10,
+  // === PREPARED / FAST FOOD — Plats ===
+  pizza: 266,
   hamburger: 295, burger: 295,
+  cheeseburger: 303,
   frites: 312, fries: 312, patatasfritas: 312,
   sandwich: 250,
-  kebab: 550,
+  kebab: 550, doner: 550,
   tacos: 210, taco: 210,
-  sushi: 40, // per piece
+  burrito: 206,
+  sushi: 40,
+  maki: 40,
+  sashimi: 127,
   hotdog: 290,
   nuggets: 296, nugget: 296,
   wrap: 280,
   quiche: 300,
-  croque: 350,
-  // Snacks & Sweets
+  quichelorraine: 300,
+  croque: 350, croquemonsieur: 350, croquemadame: 400,
+  friand: 320, friandaufromage: 330, friandalaviande: 315,
+  feuillete: 340,
+  pateencroute: 340,
+  panini: 260,
+  jamboneur: 310,
+  croquetomat: 310,
+  tarteflambee: 200, flammekueche: 200,
+  gratin: 140, gratindauphinois: 140,
+  hachisparmentier: 130,
+  blanquette: 130,
+  boeufbourguignon: 160,
+  potaufeu: 90,
+  couscousplat: 150,
+  tajine: 120,
+  paella: 140,
+  risotto: 166,
+  currydepoulet: 150, chickencurry: 150,
+  poulefrites: 230,
+  steakfrites: 250,
+  pouletfrites: 230,
+  fishchips: 230, fishandchips: 230,
+  pouletroti: 190, roastchicken: 190,
+  canardconfit: 337,
+  magret: 160, magretdecanard: 160,
+  tartare: 200,
+  carpaccio: 150,
+  saladecesar: 127, caesarsalad: 127,
+  saladenicoise: 110,
+  taboulé: 160, tabouleh: 160,
+  souperamen: 75, ramen: 75,
+  pho: 45,
+  padthai: 130,
+  friedrice: 163, rizcantonais: 163,
+  springroll: 210, nemsrouleaux: 210, nem: 210,
+  samosa: 262,
+  naan: 262,
+  pita: 275,
+  hummus: 166, houmous: 166,
+  guacamole: 160,
+  tzatziki: 55,
+  // === SNACKS & BOULANGERIE — Sucre ===
   chocolat: 546, chocolate: 546,
+  chocolatnoir: 546, darkchocolate: 546,
+  chocolatlait: 535, milkchocolate: 535,
+  chocolatblanc: 539, whitechocolate: 539,
   biscuit: 480, cookie: 480, galleta: 480, biscoito: 480,
+  madeleine: 447,
+  financier: 440,
+  eclair: 262, eclairchocolat: 262,
+  profiterole: 230,
+  milleeuille: 350,
+  tarteauxfruits: 220, fruittart: 220,
+  tarteauxpommes: 237, appletart: 237,
+  tarteaucitron: 280, lemontart: 280,
+  fondantchocolat: 350,
+  moelleux: 330, moelleuxchocolat: 330,
+  brownie: 466,
+  tiramisu: 283,
+  crembrulee: 263,
+  pannacotta: 240,
+  mousse: 195, moussechocolat: 195,
+  clafoutis: 175,
+  farabreton: 240,
+  cannele: 320,
+  macaron: 400,
+  donut: 452, beignet: 289,
+  churros: 370,
   gateau: 350, cake: 350, pastel: 350, bolo: 350,
+  tarte: 280, pie: 280,
   glace: 207, icecream: 207, helado: 207, sorvete: 207,
-  chips: 536, crisps: 536, patatas: 536,
+  sorbet: 130,
+  chips: 536, crisps: 536,
+  bretzel: 338, pretzel: 338,
+  popcorn: 375,
   bonbon: 380, candy: 380, caramelo: 380, doce: 380,
   miel: 304, honey: 304, mel: 304,
   confiture: 250, jam: 250, mermelada: 250, geleia: 250,
   nutella: 539,
-  barre: 450, bar: 450, // cereal/protein bar
-  // Nuts & Seeds
+  beurredecacahuete: 588, peanutbutter: 588,
+  barre: 450,
+  barrecereal: 400, cerealbar: 400,
+  barreprotein: 350, proteinbar: 350,
+  compoteapommes: 70,
+  crepenutella: 340,
+  painperdu: 250, frenchtoast: 250,
+  tartine: 200,
+  tartinemiel: 220,
+  tartineconfiture: 230,
+  // === NUTS & SEEDS — Noix et graines ===
   amande: 579, almond: 579, almendra: 579, amendoa: 579,
   noix: 654, walnut: 654, nuez: 654, noz: 654,
   cacahuete: 567, peanut: 567, amendoim: 567,
   noisette: 628, hazelnut: 628, avellana: 628, avela: 628,
-  // Drinks
+  pistache: 560, pistachio: 560,
+  noixdecajou: 553, cashew: 553,
+  noixdepecan: 691, pecan: 691,
+  noixdebresil: 659, brazilnut: 659,
+  noixdemacadamia: 718, macadamia: 718,
+  graindetournesol: 584, sunflowerseed: 584,
+  grainedelin: 534, flaxseed: 534,
+  grainedecia: 486, chiaseed: 486,
+  grainedecourge: 559, pumpkinseed: 559,
+  sesame: 573,
+  pinyon: 673, pinenut: 673,
+  // === DRINKS — Boissons ===
   jus: 45, juice: 45, jugo: 45, suco: 45,
-  soda: 42, coca: 42,
+  jusdorange: 45, orangejuice: 45,
+  jusdepomme: 46, applejuice: 46,
+  soda: 42, coca: 42, cocacola: 42,
+  fanta: 39, sprite: 39, orangina: 39,
+  limonade: 40, lemonade: 40,
+  eaupetillante: 0, sparklingwater: 0,
+  eau: 0, water: 0, agua: 0,
   biere: 43, beer: 43, cerveza: 43, cerveja: 43,
   vin: 83, wine: 83, vino: 83, vinho: 83,
+  vinrouge: 85, redwine: 85,
+  vinblanc: 82, whitewine: 82,
+  champagne: 76,
+  cidre: 40, cider: 40, sidra: 40,
+  whisky: 250, whiskey: 250,
+  vodka: 231,
+  rhum: 231, rum: 231,
+  gin: 263,
+  tequila: 231,
+  aperol: 118,
+  mojito: 217,
+  sangria: 100,
   cafe: 2, coffee: 2,
+  cafelait: 40, caffelatte: 40, latte: 40,
+  cappuccino: 45,
+  espresso: 2,
+  americano: 2,
   the: 1, tea: 1,
-  // Oils & Sauces
+  theglace: 33, icedtea: 33,
+  chocolatchaud: 77, hotchocolate: 77,
+  milkshake: 112,
+  energydrink: 45, redbull: 45, monster: 47,
+  // === OILS & SAUCES — Huiles et sauces ===
   huile: 884, oil: 884, aceite: 884, oleo: 884,
+  huiledolive: 884, oliveoil: 884,
+  huiledecolza: 884, canolaoil: 884,
   mayonnaise: 680, mayo: 680,
   ketchup: 112,
   moutarde: 66, mustard: 66, mostaza: 66, mostarda: 66,
+  sojasauce: 53, soysauce: 53,
+  vinaigre: 18, vinegar: 18,
+  vinaigrette: 100,
+  bechamel: 130,
+  pesto: 387,
+  bolognaise: 80, bolognese: 80,
+  saucetomate: 35, tomatosauce: 35,
+  barbecue: 172, bbqsauce: 172,
+  aioli: 680,
+  harissa: 76,
+  tapenade: 300,
+  saucecurry: 80,
+  // === PETIT-DEJEUNER — Breakfast ===
+  confiture: 250,
+  cerealescomplet: 350,
+  cornflakes: 378,
+  pancakes: 227,
+  frenchtoast: 250,
+  oeufbacon: 270,
+  oeufsbrouilles: 148,
+  omelettejambon: 175,
+  tartinebeurre: 350,
+  cruesli: 450,
+  // === DIVERS ===
+  proteinepoudre: 380, proteinpowder: 380, whey: 380,
+  creatiine: 0,
+  bcaa: 0,
 };
 
 // Normalize food name for lookup
@@ -9162,6 +9513,35 @@ function btGetWeeklyData() {
   return days;
 }
 
+// Calculate daily calorie goal based on weight and mode
+// Bulk: weight × 37 kcal | Maintain: weight × 30 | Cut: weight × 24
+function btCalcCalorieGoal() {
+  const bt = getBodyTracker();
+  const w = btGetLatestWeight();
+  if (!w) return null;
+  const mode = bt.calorieGoalMode || 'bulk';
+  if (mode === 'custom') return bt.calorieGoalCustom || 2500;
+  const multipliers = { bulk: 37, maintain: 30, cut: 24 };
+  return Math.round(w * (multipliers[mode] || 37));
+}
+
+function btSetGoalMode(mode) {
+  const bt = getBodyTracker();
+  bt.calorieGoalMode = mode;
+  saveState();
+  refreshBodyTracker();
+}
+
+function btSetCustomGoal(val) {
+  const bt = getBodyTracker();
+  const v = parseInt(val);
+  if (isNaN(v) || v < 500 || v > 10000) return;
+  bt.calorieGoalCustom = v;
+  bt.calorieGoalMode = 'custom';
+  saveState();
+  refreshBodyTracker();
+}
+
 function renderBodyTrackerSection() {
   const bt = getBodyTracker();
   const today = getTodayStr();
@@ -9198,6 +9578,43 @@ function renderBodyTrackerSection() {
       <div class="bt-bmi-val" style="color:${bmiCat.color}">${bmi.toFixed(1)}</div>
       <div class="bt-bmi-lbl">IMC — ${bmiCat.label} ${weightTrend}</div>
     </div>`;
+  }
+
+  // Calorie goal selector + progress
+  const calorieGoal = btCalcCalorieGoal();
+  const goalMode = bt.calorieGoalMode || 'bulk';
+  html += `<div style="font-size:.65rem;color:var(--gold);font-weight:600;margin:10px 0 6px">${t('btGoalLabel')}</div>`;
+  html += `<div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap">`;
+  ['bulk', 'maintain', 'cut', 'custom'].forEach(m => {
+    const labels = { bulk: t('btGoalBulk'), maintain: t('btGoalMaintain'), cut: t('btGoalCut'), custom: t('btGoalCustom') };
+    const active = goalMode === m;
+    html += '<button onclick="btSetGoalMode(\'' + m + '\')" style="flex:1;min-width:60px;padding:5px 8px;border:1px solid ' + (active ? 'var(--gold)' : 'var(--border)') + ';border-radius:6px;background:' + (active ? 'rgba(196,154,60,.2)' : 'var(--wood-dark)') + ';color:' + (active ? 'var(--gold)' : 'var(--text-dim)') + ';font-size:.6rem;cursor:pointer;font-family:inherit;font-weight:' + (active ? '700' : '400') + '">' + labels[m] + '</button>';
+  });
+  html += `</div>`;
+
+  if (goalMode === 'custom') {
+    html += `<div class="bt-row" style="margin-bottom:8px">
+      <input type="number" class="bt-input" id="bt-custom-goal" placeholder="kcal" value="${bt.calorieGoalCustom || ''}" min="500" max="10000" style="max-width:120px" />
+      <button class="bt-btn bt-btn-gold" onclick="btSetCustomGoal(document.getElementById('bt-custom-goal').value)">✓</button>
+    </div>`;
+  }
+
+  if (calorieGoal && latestWeight) {
+    const progress = Math.min(100, Math.round((todayEaten / calorieGoal) * 100));
+    const remaining = calorieGoal - todayEaten;
+    const progressColor = remaining > 0 ? '#c49a3c' : '#2ecc71';
+    const statusText = remaining > 0 ? remaining + ' kcal ' + t('btGoalRemaining') : (remaining === 0 ? t('btGoalReached') : Math.abs(remaining) + ' kcal ' + t('btGoalOver'));
+    html += `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+        <span style="font-size:.6rem;color:var(--text-dim)">${todayEaten} / ${calorieGoal} kcal</span>
+        <span style="font-size:.6rem;color:${progressColor};font-weight:600">${statusText}</span>
+      </div>
+      <div style="width:100%;height:8px;background:var(--wood-dark);border-radius:4px;overflow:hidden;border:1px solid var(--border)">
+        <div style="width:${Math.min(progress, 100)}%;height:100%;background:linear-gradient(90deg,${progressColor},${remaining <= 0 ? '#2ecc71' : 'var(--gold)'});border-radius:4px;transition:width .3s"></div>
+      </div>
+    </div>`;
+  } else if (!latestWeight) {
+    html += `<div style="font-size:.6rem;color:var(--text-dim);margin-bottom:8px;text-align:center;font-style:italic">${t('btGoalNeedWeight')}</div>`;
   }
 
   // Today's calories — food name input with auto-suggestions
