@@ -1042,6 +1042,20 @@ header button{flex-shrink:0}
 .route-run-pause{background:linear-gradient(135deg,#d4a017,var(--gold));color:#0e0a06}
 .route-run-btns{display:flex;gap:8px}
 .route-run-btns .route-run-btn{flex:1}
+.route-km-marker{background:var(--gold);color:#0e0a06;font-size:9px;font-weight:800;padding:2px 5px;border-radius:10px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2)}
+.route-progress-bar{position:absolute;top:60px;left:16px;right:16px;z-index:10002;height:6px;background:rgba(14,10,6,.7);border-radius:3px;overflow:hidden;backdrop-filter:blur(4px);border:1px solid var(--border)}
+.route-progress-fill{height:100%;background:linear-gradient(90deg,#2ecc71,var(--gold));border-radius:3px;transition:width .5s ease;min-width:0}
+.route-progress-label{position:absolute;top:70px;left:16px;z-index:10002;font-size:.6rem;color:var(--text-dim);text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.route-autopause{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10003;background:rgba(14,10,6,.9);border:2px solid var(--gold);border-radius:16px;padding:24px 32px;text-align:center;backdrop-filter:blur(12px);animation:fadeIn .3s}
+.route-autopause-icon{font-size:2rem;margin-bottom:8px}
+.route-autopause-text{color:var(--text);font-size:.8rem;font-weight:600}
+.route-history{margin-top:16px}
+.route-history h4{font-size:.75rem;color:var(--text-dim);margin:0 0 8px;text-transform:uppercase;letter-spacing:1px}
+.route-history-item{display:flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:6px}
+.route-history-date{font-size:.6rem;color:var(--text-dim);min-width:60px}
+.route-history-stats{display:flex;gap:12px;flex:1;font-size:.75rem;color:var(--text)}
+.route-history-val{color:var(--gold);font-weight:700}
+@keyframes routeDraw{from{stroke-dashoffset:var(--route-length)}to{stroke-dashoffset:0}}
 @keyframes pulse{0%,100%{box-shadow:0 0 4px rgba(46,204,113,.6)}50%{box-shadow:0 0 16px rgba(46,204,113,1)}}
 /* Body tracker */
 .bt-section{margin:16px 0;padding:12px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px}
@@ -1702,6 +1716,10 @@ const TRANSLATIONS = {
     routePace: 'Allure',
     routeRunComplete: 'Course terminee !',
     routeRunCompleteMsg: 'KRAA ! Belle course, Viking ! **{dist} km** en **{time}** — tu gagnes **+{xp} XP** ! Tes jambes sont dignes d\'un guerrier.',
+    routeRemaining: 'Restant',
+    routeAutoPause: 'Pause auto — pas de mouvement detecte',
+    routeKmReached: 'Kilometre franchi !',
+    routeHistory: 'Historique des courses',
     // Solo Leveling
     soloTitle: 'Solo Leveling', systemWatches: 'Le Systeme t\'observe',
     soloDesc: 'Inspire de Solo Leveling. Chaque jour : pompes, squats, abdos, et course. Les quotas augmentent chaque semaine.',
@@ -2057,6 +2075,10 @@ const TRANSLATIONS = {
     routePace: 'Pace',
     routeRunComplete: 'Run complete!',
     routeRunCompleteMsg: 'KRAAW! Great run, Viking! **{dist} km** in **{time}** — you earn **+{xp} XP**! Your legs are worthy of a warrior.',
+    routeRemaining: 'Remaining',
+    routeAutoPause: 'Auto-paused — no movement detected',
+    routeKmReached: 'Kilometer reached!',
+    routeHistory: 'Run History',
     soloTitle: 'Solo Leveling', systemWatches: 'The System watches you',
     soloDesc: 'Inspired by Solo Leveling. Every day: push-ups, squats, abs, and running. Quotas increase each week.',
     soloFailWarning: 'The System does not tolerate weakness.',
@@ -2388,6 +2410,10 @@ const TRANSLATIONS = {
     routePace: 'Ritmo',
     routeRunComplete: '¡Carrera terminada!',
     routeRunCompleteMsg: '¡KRAAW! ¡Gran carrera, Viking! **{dist} km** en **{time}** — ganas **+{xp} XP**. ¡Tus piernas son dignas de un guerrero!',
+    routeRemaining: 'Restante',
+    routeAutoPause: 'Pausa auto — sin movimiento detectado',
+    routeKmReached: '¡Kilómetro alcanzado!',
+    routeHistory: 'Historial de carreras',
     soloTitle: 'Solo Leveling', systemWatches: 'El Sistema te observa',
     soloDesc: 'Inspirado en Solo Leveling. Cada día: flexiones, sentadillas, abdominales y carrera. Las cuotas aumentan cada semana.',
     soloFailWarning: 'El Sistema no tolera la debilidad.',
@@ -2719,6 +2745,10 @@ const TRANSLATIONS = {
     routePace: 'Ritmo',
     routeRunComplete: 'Corrida concluída!',
     routeRunCompleteMsg: 'KRAAW! Bela corrida, Viking! **{dist} km** em **{time}** — você ganha **+{xp} XP**! Suas pernas são dignas de um guerreiro.',
+    routeRemaining: 'Restante',
+    routeAutoPause: 'Pausa auto — nenhum movimento detectado',
+    routeKmReached: 'Quilômetro alcançado!',
+    routeHistory: 'Histórico de corridas',
     soloTitle: 'Solo Leveling', systemWatches: 'O Sistema te observa',
     soloDesc: 'Inspirado em Solo Leveling. Todo dia: flexões, agachamentos, abdominais e corrida. As cotas aumentam a cada semana.',
     soloFailWarning: 'O Sistema não tolera fraqueza.',
@@ -6752,6 +6782,7 @@ function initQuests() {
 
   // Body tracker — physical evolution
   if (!q.bodyTracker) q.bodyTracker = { height: null, weightLog: [], calorieLog: [], burnedLog: [] };
+  if (!q.runHistory) q.runHistory = [];
 
   // Rest days (2 per week, disables penalties)
   if (!q.restDays) q.restDays = { enabled: false, weekDays: [], usedThisWeek: 0, weekKey: null, mode: 'all', categories: { quests: true, challenges: true, sessions: true, solo: true } };
@@ -8559,6 +8590,7 @@ function completeCustomSession() {
 function getBodyTracker() {
   const q = state.quests;
   if (!q.bodyTracker) q.bodyTracker = { height: null, weightLog: [], calorieLog: [], burnedLog: [] };
+  if (!q.runHistory) q.runHistory = [];
   return q.bodyTracker;
 }
 
@@ -8860,6 +8892,9 @@ function renderRoutePlanner() {
     </div>`;
   }
 
+  // Run history
+  html += renderRunHistory();
+
   html += `</div>`;
   return html;
 }
@@ -8876,6 +8911,7 @@ function initRouteMap() {
 
   // Cleanup previous map + tracking layers
   if (routeMap) {
+    if (routeTracking.trailGlow) { routeMap.removeLayer(routeTracking.trailGlow); routeTracking.trailGlow = null; }
     if (routeTracking.trailLayer) { routeMap.removeLayer(routeTracking.trailLayer); routeTracking.trailLayer = null; }
     if (routeTracking.runnerMarker) { routeMap.removeLayer(routeTracking.runnerMarker); routeTracking.runnerMarker = null; }
     routeMap.remove();
@@ -8884,10 +8920,13 @@ function initRouteMap() {
   routeLayer = null;
   routeArrows = [];
 
-  routeMap = L.map('route-map', { zoomControl: true, attributionControl: false }).setView([48.8566, 2.3522], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap',
-    maxZoom: 19
+  routeMap = L.map('route-map', {
+    zoomControl: true, attributionControl: false,
+    zoomAnimation: true, fadeAnimation: true, markerZoomAnimation: true,
+    zoomSnap: 0.5, zoomDelta: 0.5, wheelPxPerZoomLevel: 100
+  }).setView([48.8566, 2.3522], 13);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 20, subdomains: 'abcd'
   }).addTo(routeMap);
 
   // Try to get user location immediately
@@ -8902,12 +8941,21 @@ function initRouteMap() {
   if (routeState._lastGeojson && routeState.stats) {
     setTimeout(() => {
       if (!routeMap) return;
-      routeLayer = L.geoJSON(routeState._lastGeojson, {
-        style: { color: '#c49a3c', weight: 4, opacity: 0.9 }
-      }).addTo(routeMap);
-      routeMap.fitBounds(routeLayer.getBounds(), { padding: [30, 30] });
-      if (routeState.lat && routeState.lng) placeStartMarker(routeState.lat, routeState.lng);
-      addRouteArrows(routeState._lastGeojson.coordinates);
+      if (routeState._animateNext) {
+        routeState._animateNext = false;
+        animateRouteDrawing(routeState._lastGeojson.coordinates, routeState.lat, routeState.lng);
+      } else {
+        routeLayer = L.geoJSON(routeState._lastGeojson, {
+          style: { color: '#c49a3c', weight: 4, opacity: 0.9 }
+        }).addTo(routeMap);
+        // Glow effect
+        const glowLine = L.polyline(routeState._lastGeojson.coordinates.map(c => [c[1], c[0]]), { color: '#c49a3c', weight: 8, opacity: 0.2 });
+        glowLine.addTo(routeMap);
+        routeArrows.push(glowLine);
+        routeMap.fitBounds(routeLayer.getBounds(), { padding: [30, 30] });
+        if (routeState.lat && routeState.lng) placeStartMarker(routeState.lat, routeState.lng);
+        addRouteArrows(routeState._lastGeojson.coordinates);
+      }
     }, 200);
   }
 }
@@ -8939,7 +8987,7 @@ function getUserLocation() {
 function placeStartMarker(lat, lng) {
   if (routeMarkerStart) routeMap.removeLayer(routeMarkerStart);
   const icon = L.divIcon({
-    html: '<div style="background:var(--gold);width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 8px rgba(196,154,60,.8)"></div>',
+    html: '<div style="background:#c49a3c;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 12px rgba(196,154,60,.9),0 0 24px rgba(196,154,60,.4)"></div>',
     iconSize: [20, 20],
     iconAnchor: [10, 10],
     className: ''
@@ -8948,21 +8996,22 @@ function placeStartMarker(lat, lng) {
 }
 
 function generateLoopWaypoints(lat, lng, distKm, scaleFactor) {
-  // Generate waypoints in a clean loop (no crossing)
-  // Place points at cardinal + intercardinal directions for a natural shape
+  // Generate waypoints in circular order for a true loop (no backtracking)
   const factor = scaleFactor || 0.38;
   const radiusKm = (distKm / (2 * Math.PI)) * factor;
-  // Fewer points = simpler loop = less chance of crossing
-  const numPoints = distKm < 3 ? 3 : distKm < 8 ? 4 : 5;
+  // More points for longer routes = smoother loop
+  const numPoints = distKm < 3 ? 4 : distKm < 8 ? 5 : 6;
   const waypoints = [];
 
   // Random rotation offset so routes vary between generations
   const rotOffset = Math.random() * 2 * Math.PI;
-  // Uniform radius — no random variation to prevent route crossing
+  // Slight radius variation (0.85-1.15x) for natural shape, but points stay in order
   for (let i = 0; i < numPoints; i++) {
     const angle = rotOffset + (2 * Math.PI * i) / numPoints;
-    const dLat = (radiusKm / 111.32) * Math.cos(angle);
-    const dLng = (radiusKm / (111.32 * Math.cos(lat * Math.PI / 180))) * Math.sin(angle);
+    const rVariation = 0.85 + Math.random() * 0.3;
+    const r = radiusKm * rVariation;
+    const dLat = (r / 111.32) * Math.cos(angle);
+    const dLng = (r / (111.32 * Math.cos(lat * Math.PI / 180))) * Math.sin(angle);
     waypoints.push([lat + dLat, lng + dLng]);
   }
 
@@ -9018,18 +9067,19 @@ async function fetchRoute(lat, lng, distKm, attempt, scaleFactor) {
   scaleFactor = scaleFactor || 0.38;
   const waypoints = generateLoopWaypoints(lat, lng, distKm, scaleFactor);
 
-  // Use OSRM trip endpoint — solves round-trip optimization (no crossing)
-  const coords = [[lng, lat], ...waypoints.map(w => [w[1], w[0]])];
+  // Use OSRM route endpoint with waypoints in circular order + close the loop back to start
+  // This forces: start → wp1 → wp2 → ... → start (true loop, no backtracking)
+  const coords = [[lng, lat], ...waypoints.map(w => [w[1], w[0]]), [lng, lat]];
   const coordStr = coords.map(c => c.join(',')).join(';');
-  const url = `https://router.project-osrm.org/trip/v1/foot/${coordStr}?overview=full&geometries=geojson&source=first&destination=last&roundtrip=true`;
+  const url = `https://router.project-osrm.org/route/v1/foot/${coordStr}?overview=full&geometries=geojson&steps=false`;
 
   const resp = await fetch(url);
   if (!resp.ok) throw new Error('OSRM error');
   const data = await resp.json();
 
-  if (!data.trips || data.trips.length === 0) throw new Error('No route');
+  if (!data.routes || data.routes.length === 0) throw new Error('No route');
 
-  const route = data.trips[0];
+  const route = data.routes[0];
   const geojson = route.geometry;
   const distanceKm = route.distance / 1000;
   const durationMin = route.duration / 60;
@@ -9044,53 +9094,24 @@ async function fetchRoute(lat, lng, distKm, attempt, scaleFactor) {
   // Estimate calories (avg ~60 kcal/km running)
   const calories = distanceKm * 60;
 
-  // Draw on map — clear previous
-  if (routeLayer) routeMap.removeLayer(routeLayer);
-  routeArrows.forEach(a => routeMap.removeLayer(a));
-  routeArrows = [];
-  routeLayer = L.geoJSON(geojson, {
-    style: { color: '#c49a3c', weight: 4, opacity: 0.9, dashArray: null }
-  }).addTo(routeMap);
-
-  // Fit map to route
-  routeMap.fitBounds(routeLayer.getBounds(), { padding: [30, 30] });
-  placeStartMarker(lat, lng);
-
-  // Direction arrows along route
-  addRouteArrows(geojson.coordinates);
-
   routeState.stats = { distance: distanceKm, duration: durationMin, calories };
   routeState.loading = false;
   routeState.error = null;
-  // Store geometry so we can redraw after re-render
   routeState._lastGeojson = geojson;
+  routeState._animateNext = true;
 
   // Full re-render to show expand/start buttons + stats, then re-attach map
   renderDailyChallenges();
   // initRouteMap is called by renderDailyChallenges via setTimeout
-  // But we need to re-draw the route on the new map instance
-  setTimeout(() => {
-    if (routeMap && routeState._lastGeojson) {
-      if (routeLayer) routeMap.removeLayer(routeLayer);
-      routeArrows.forEach(a => routeMap.removeLayer(a));
-      routeArrows = [];
-      routeLayer = L.geoJSON(routeState._lastGeojson, {
-        style: { color: '#c49a3c', weight: 4, opacity: 0.9 }
-      }).addTo(routeMap);
-      routeMap.fitBounds(routeLayer.getBounds(), { padding: [30, 30] });
-      placeStartMarker(lat, lng);
-      addRouteArrows(routeState._lastGeojson.coordinates);
-    }
-  }, 300);
+  // Route will be re-drawn via initRouteMap's _lastGeojson check
 }
 
 function addRouteArrows(coordinates) {
-  // Add direction arrows along the route — bigger and clearer
+  // Add direction arrows along the route
   const numArrows = 10;
   const step = Math.max(1, Math.floor(coordinates.length / numArrows));
   for (let i = step; i < coordinates.length - step; i += step) {
     const curr = coordinates[i];
-    // Average direction over a few points for smoother angle
     const lookAhead = Math.min(i + Math.max(3, Math.floor(step / 3)), coordinates.length - 1);
     const next = coordinates[lookAhead];
     const angle = Math.atan2(next[0] - curr[0], next[1] - curr[1]) * 180 / Math.PI;
@@ -9104,7 +9125,7 @@ function addRouteArrows(coordinates) {
     routeArrows.push(arrow);
   }
 
-  // Add START label at first coordinate
+  // Add START label
   if (coordinates.length > 0) {
     const startIcon = L.divIcon({
       html: `<div style="background:#c49a3c;color:#0e0a06;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.5)">START</div>`,
@@ -9115,6 +9136,72 @@ function addRouteArrows(coordinates) {
     const startLabel = L.marker([coordinates[0][1], coordinates[0][0]], { icon: startIcon, interactive: false, zIndexOffset: 500 }).addTo(routeMap);
     routeArrows.push(startLabel);
   }
+
+  // Add km markers along the route
+  addKmMarkers(coordinates);
+}
+
+function addKmMarkers(coordinates) {
+  if (!coordinates || coordinates.length < 2) return;
+  let cumDist = 0;
+  let nextKm = 1;
+  for (let i = 1; i < coordinates.length; i++) {
+    const prev = coordinates[i-1];
+    const curr = coordinates[i];
+    cumDist += haversineDistance(prev[1], prev[0], curr[1], curr[0]);
+    if (cumDist / 1000 >= nextKm) {
+      const kmIcon = L.divIcon({
+        html: `<div class="route-km-marker">${nextKm} km</div>`,
+        iconSize: [32, 16],
+        iconAnchor: [16, 8],
+        className: ''
+      });
+      const kmMarker = L.marker([curr[1], curr[0]], { icon: kmIcon, interactive: false, zIndexOffset: 400 }).addTo(routeMap);
+      routeArrows.push(kmMarker);
+      nextKm++;
+    }
+  }
+}
+
+function animateRouteDrawing(coordinates, lat, lng) {
+  if (!routeMap || !coordinates || coordinates.length < 2) return;
+  const latLngs = coordinates.map(c => [c[1], c[0]]);
+  // Create a glow effect behind the main line
+  const glowLine = L.polyline([], { color: '#c49a3c', weight: 8, opacity: 0.2 }).addTo(routeMap);
+  routeArrows.push(glowLine);
+  routeLayer = L.polyline([], { color: '#c49a3c', weight: 4, opacity: 0.9 }).addTo(routeMap);
+
+  // Animate drawing the line progressively
+  const totalPoints = latLngs.length;
+  const duration = 1200; // ms
+  const startTime = performance.now();
+
+  function step(now) {
+    const progress = Math.min(1, (now - startTime) / duration);
+    // Ease-out curve
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const idx = Math.floor(eased * totalPoints);
+    const slice = latLngs.slice(0, idx + 1);
+    routeLayer.setLatLngs(slice);
+    glowLine.setLatLngs(slice);
+
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      // Final: ensure all points drawn
+      routeLayer.setLatLngs(latLngs);
+      glowLine.setLatLngs(latLngs);
+      // Fit bounds after animation
+      routeMap.fitBounds(routeLayer.getBounds(), { padding: [30, 30], animate: true });
+      placeStartMarker(lat, lng);
+      addRouteArrows(coordinates);
+    }
+  }
+
+  // Fit bounds immediately to show the area
+  const tempBounds = L.latLngBounds(latLngs);
+  routeMap.fitBounds(tempBounds, { padding: [30, 30], animate: true });
+  requestAnimationFrame(step);
 }
 
 // ===== ROUTE — Fullscreen & Live Tracking =====
@@ -9190,12 +9277,20 @@ function updateFsControls(ctrl) {
   const paceMin = Math.floor(pace);
   const paceSec = Math.round((pace - paceMin) * 60);
   const cal = Math.round(dist * 60);
+  const totalDist = routeState.stats?.distance || routeState.distance;
+  const remaining = Math.max(0, totalDist - dist);
+  const progress = Math.min(100, (dist / totalDist) * 100);
+
+  // Update progress bar if running
+  if (rt.active) {
+    updateRunProgressBar(progress, dist, totalDist);
+  }
 
   let html = `<div class="route-live-stats">
     <div class="route-live-stat"><div class="route-live-stat-val">${dist.toFixed(2)}</div><div class="route-live-stat-lbl">km</div></div>
     <div class="route-live-stat"><div class="route-live-stat-val">${elMin}:${String(elSec).padStart(2,'0')}</div><div class="route-live-stat-lbl">${t('routeTime')}</div></div>
     <div class="route-live-stat"><div class="route-live-stat-val">${dist > 0.01 ? paceMin + ':' + String(paceSec).padStart(2,'0') : '--'}</div><div class="route-live-stat-lbl">${t('routePace')}</div></div>
-    <div class="route-live-stat"><div class="route-live-stat-val">${cal}</div><div class="route-live-stat-lbl">kcal</div></div>
+    <div class="route-live-stat"><div class="route-live-stat-val">${remaining.toFixed(1)}</div><div class="route-live-stat-lbl">${t('routeRemaining')}</div></div>
   </div>`;
 
   if (!rt.active) {
@@ -9215,6 +9310,79 @@ function updateFsControls(ctrl) {
   ctrl.innerHTML = html;
 }
 
+function updateRunProgressBar(progress, dist, totalDist) {
+  const wrap = document.getElementById('route-map-wrap');
+  if (!wrap) return;
+  let bar = wrap.querySelector('.route-progress-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.className = 'route-progress-bar';
+    bar.innerHTML = '<div class="route-progress-fill"></div>';
+    wrap.appendChild(bar);
+    const lbl = document.createElement('div');
+    lbl.className = 'route-progress-label';
+    lbl.id = 'route-progress-lbl';
+    wrap.appendChild(lbl);
+  }
+  const fill = bar.querySelector('.route-progress-fill');
+  if (fill) fill.style.width = progress + '%';
+  const lbl = document.getElementById('route-progress-lbl');
+  if (lbl) lbl.textContent = `${dist.toFixed(2)} / ${totalDist.toFixed(2)} km`;
+}
+
+function removeRunProgressBar() {
+  const wrap = document.getElementById('route-map-wrap');
+  if (!wrap) return;
+  const bar = wrap.querySelector('.route-progress-bar');
+  if (bar) bar.remove();
+  const lbl = document.getElementById('route-progress-lbl');
+  if (lbl) lbl.remove();
+}
+
+// Auto-pause: detect when runner has stopped
+let autoPauseTimeout = null;
+let lastMovementTime = null;
+let autoPauseShown = false;
+
+function checkAutoPause() {
+  const rt = routeTracking;
+  if (!rt.active || rt.paused) return;
+  if (!lastMovementTime) return;
+  const elapsed = Date.now() - lastMovementTime;
+  if (elapsed > 30000 && !autoPauseShown) {
+    // Auto-pause after 30s of no movement
+    autoPauseShown = true;
+    pauseRunTracking();
+    showAutoPauseOverlay();
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+  }
+}
+
+function showAutoPauseOverlay() {
+  const wrap = document.getElementById('route-map-wrap');
+  if (!wrap) return;
+  const old = wrap.querySelector('.route-autopause');
+  if (old) old.remove();
+  const overlay = document.createElement('div');
+  overlay.className = 'route-autopause';
+  overlay.innerHTML = `<div class="route-autopause-icon">⏸</div><div class="route-autopause-text">${t('routeAutoPause')}</div>`;
+  overlay.onclick = () => { overlay.remove(); resumeRunTracking(); autoPauseShown = false; };
+  wrap.appendChild(overlay);
+  setTimeout(() => { if (overlay.parentNode) overlay.remove(); }, 5000);
+}
+
+// Km crossing notification
+let lastKmNotified = 0;
+
+function checkKmCrossing(distKm) {
+  const currentKm = Math.floor(distKm);
+  if (currentKm > lastKmNotified && currentKm > 0) {
+    lastKmNotified = currentKm;
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    showToast(`${currentKm} km`, t('routeKmReached'));
+  }
+}
+
 function getRunElapsed() {
   const rt = routeTracking;
   if (!rt.startTime) return 0;
@@ -9232,16 +9400,25 @@ function startRunTracking() {
   rt.positions = [];
   rt.distanceCovered = 0;
 
+  // Reset auto-pause and km tracking
+  lastMovementTime = Date.now();
+  autoPauseShown = false;
+  lastKmNotified = 0;
+  if (autoPauseTimeout) clearInterval(autoPauseTimeout);
+  autoPauseTimeout = setInterval(checkAutoPause, 5000);
+
   // Remove old trail
+  if (rt.trailGlow && routeMap) routeMap.removeLayer(rt.trailGlow);
   if (rt.trailLayer && routeMap) routeMap.removeLayer(rt.trailLayer);
+  rt.trailGlow = L.polyline([], { color: '#2ecc71', weight: 10, opacity: 0.2 }).addTo(routeMap);
   rt.trailLayer = L.polyline([], { color: '#2ecc71', weight: 5, opacity: 0.8 }).addTo(routeMap);
 
   // Runner marker
   if (rt.runnerMarker && routeMap) routeMap.removeLayer(rt.runnerMarker);
   const runIcon = L.divIcon({
-    html: '<div style="background:#2ecc71;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 12px rgba(46,204,113,.9);animation:pulse 1.5s infinite"></div>',
-    iconSize: [22, 22],
-    iconAnchor: [11, 11],
+    html: '<div style="background:#2ecc71;width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 16px rgba(46,204,113,.9),0 0 32px rgba(46,204,113,.4);animation:pulse 1.5s infinite"></div>',
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
     className: ''
   });
   const startPos = routeState.lat && routeState.lng ? [routeState.lat, routeState.lng] : [48.8566, 2.3522];
@@ -9288,6 +9465,10 @@ function onRunPosition(pos) {
       return;
     }
     rt.distanceCovered += d;
+    lastMovementTime = Date.now();
+    autoPauseShown = false;
+    // Check km crossing
+    checkKmCrossing(rt.distanceCovered / 1000);
   }
 
   rt.positions.push(newPos);
@@ -9296,10 +9477,11 @@ function onRunPosition(pos) {
   if (rt.runnerMarker) rt.runnerMarker.setLatLng(newPos);
 
   // Update trail — only add when there's real movement
+  if (rt.trailGlow) rt.trailGlow.addLatLng(newPos);
   if (rt.trailLayer) rt.trailLayer.addLatLng(newPos);
 
-  // Center map on runner
-  if (routeMap) routeMap.panTo(newPos, { animate: true, duration: 0.5 });
+  // Smooth map follow with slight offset toward heading
+  if (routeMap) routeMap.panTo(newPos, { animate: true, duration: 0.8, easeLinearity: 0.3 });
 }
 
 function haversineDistance(lat1, lon1, lat2, lon2) {
@@ -9341,6 +9523,10 @@ function stopRunTracking() {
     clearInterval(rt.statsInterval);
     rt.statsInterval = null;
   }
+  if (autoPauseTimeout) {
+    clearInterval(autoPauseTimeout);
+    autoPauseTimeout = null;
+  }
 
   const elapsed = getRunElapsed();
   const distKm = rt.distanceCovered / 1000;
@@ -9351,6 +9537,14 @@ function stopRunTracking() {
 
   rt.active = false;
   rt.paused = false;
+
+  // Remove progress bar
+  removeRunProgressBar();
+
+  // Save run to history
+  if (distKm > 0.05) {
+    saveRunHistory(distKm, elapsed, cal);
+  }
 
   // Award XP based on distance (100 XP per km, capped at route distance * 120)
   const maxXp = Math.round((routeState.stats?.distance || routeState.distance) * 120);
@@ -9371,6 +9565,47 @@ function stopRunTracking() {
   // Update fullscreen controls to show "Start" again
   updateFsControls();
   releaseWakeLock();
+}
+
+// ===== RUN HISTORY =====
+function saveRunHistory(distKm, elapsedSec, cal) {
+  if (!state.quests) return;
+  if (!state.quests.runHistory) state.quests.runHistory = [];
+  const pace = distKm > 0.01 ? (elapsedSec / 60) / distKm : 0;
+  state.quests.runHistory.unshift({
+    date: new Date().toISOString().slice(0, 10),
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    distance: Math.round(distKm * 100) / 100,
+    duration: Math.round(elapsedSec),
+    pace: Math.round(pace * 100) / 100,
+    calories: cal
+  });
+  // Keep last 50 runs
+  if (state.quests.runHistory.length > 50) state.quests.runHistory.length = 50;
+  saveState();
+}
+
+function renderRunHistory() {
+  if (!state.quests?.runHistory?.length) return '';
+  const runs = state.quests.runHistory.slice(0, 10);
+  let html = `<div class="route-history"><h4>${t('routeHistory')}</h4>`;
+  for (const run of runs) {
+    const durMin = Math.floor(run.duration / 60);
+    const durSec = Math.floor(run.duration % 60);
+    const paceMin = Math.floor(run.pace);
+    const paceSec = Math.round((run.pace - paceMin) * 60);
+    html += `<div class="route-history-item">
+      <div class="route-history-date">${run.date}<br><span style="font-size:.55rem;opacity:.6">${run.time || ''}</span></div>
+      <div class="route-history-stats">
+        <span><span class="route-history-val">${run.distance}</span> km</span>
+        <span><span class="route-history-val">${durMin}:${String(durSec).padStart(2,'0')}</span></span>
+        <span><span class="route-history-val">${paceMin}:${String(paceSec).padStart(2,'0')}</span>/km</span>
+        <span><span class="route-history-val">${run.calories}</span> kcal</span>
+      </div>
+    </div>`;
+  }
+  html += `</div>`;
+  return html;
 }
 
 function recenterRouteMap() {
