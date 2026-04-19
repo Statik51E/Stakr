@@ -1538,6 +1538,7 @@ header button{flex-shrink:0}
           <button onclick="savePseudo()" style="padding:8px 14px;border:1px solid var(--gold-dim);border-radius:6px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;font-size:.7rem;cursor:pointer;font-family:inherit;font-weight:700">OK</button>
         </div>
       </div>
+      <div id="body-tracker-section"></div>
       <div style="display:flex;gap:8px">
         <button onclick="syncToCloud()" style="flex:1;padding:10px;border:1px solid var(--gold-dim);border-radius:8px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:#0e0a06;font-size:.75rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:600" data-i18n="syncNow">☁️ Sync maintenant</button>
         <button onclick="logoutUser()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--wood-mid);color:var(--text);font-size:.75rem;cursor:pointer;font-family:'Cinzel',serif" data-i18n="logout">Deconnexion</button>
@@ -1962,6 +1963,13 @@ const TRANSLATIONS = {
     btWeeklyEvolution: 'Evolution de la semaine',
     btWeightEvolution: 'Evolution du poids',
     btStable: 'Stable',
+    btFoodPlaceholder: 'Ex: poulet, riz, pomme...',
+    btFoodQuantity: 'Quantite (g)',
+    btAddFood: 'Ajouter',
+    btFoodLog: 'Aliments du jour',
+    btNoFood: 'Aucun aliment enregistre',
+    btServing: 'portion',
+    btDeleteFood: 'Supprimer',
     bmiUnder: 'Insuffisant',
     bmiNormal: 'Normal',
     bmiOver: 'Surpoids',
@@ -2323,6 +2331,13 @@ const TRANSLATIONS = {
     btWeeklyEvolution: 'Weekly evolution',
     btWeightEvolution: 'Weight evolution',
     btStable: 'Stable',
+    btFoodPlaceholder: 'E.g. chicken, rice, apple...',
+    btFoodQuantity: 'Quantity (g)',
+    btAddFood: 'Add',
+    btFoodLog: 'Today\'s food',
+    btNoFood: 'No food logged',
+    btServing: 'serving',
+    btDeleteFood: 'Delete',
     bmiUnder: 'Underweight',
     bmiNormal: 'Normal',
     bmiOver: 'Overweight',
@@ -2669,6 +2684,13 @@ const TRANSLATIONS = {
     btWeeklyEvolution: 'Evolución semanal',
     btWeightEvolution: 'Evolución del peso',
     btStable: 'Estable',
+    btFoodPlaceholder: 'Ej: pollo, arroz, manzana...',
+    btFoodQuantity: 'Cantidad (g)',
+    btAddFood: 'Añadir',
+    btFoodLog: 'Alimentos del dia',
+    btNoFood: 'Ningun alimento registrado',
+    btServing: 'porcion',
+    btDeleteFood: 'Eliminar',
     bmiUnder: 'Bajo peso',
     bmiNormal: 'Normal',
     bmiOver: 'Sobrepeso',
@@ -3015,6 +3037,13 @@ const TRANSLATIONS = {
     btWeeklyEvolution: 'Evolução semanal',
     btWeightEvolution: 'Evolução do peso',
     btStable: 'Estável',
+    btFoodPlaceholder: 'Ex: frango, arroz, maça...',
+    btFoodQuantity: 'Quantidade (g)',
+    btAddFood: 'Adicionar',
+    btFoodLog: 'Alimentos do dia',
+    btNoFood: 'Nenhum alimento registrado',
+    btServing: 'porção',
+    btDeleteFood: 'Excluir',
     bmiUnder: 'Abaixo do peso',
     bmiNormal: 'Normal',
     bmiOver: 'Sobrepeso',
@@ -8896,7 +8925,18 @@ function btGetTodayEaten() {
   const bt = getBodyTracker();
   const today = getTodayStr();
   const entry = bt.calorieLog.find(e => e.date === today);
-  return entry ? entry.value : 0;
+  if (!entry) return 0;
+  // Support new items format
+  if (entry.items && entry.items.length) return entry.items.reduce((s, i) => s + i.kcal, 0);
+  return entry.value || 0;
+}
+
+function btGetTodayFoodItems() {
+  const bt = getBodyTracker();
+  const today = getTodayStr();
+  const entry = bt.calorieLog.find(e => e.date === today);
+  if (!entry || !entry.items) return [];
+  return entry.items;
 }
 
 function btGetLatestWeight() {
@@ -8918,6 +8958,172 @@ const EXERCISE_KCAL = {
   jumping_jacks: 0.3,
   default: 0.35
 };
+
+// Food calorie database (kcal per 100g unless noted)
+const FOOD_DATABASE = {
+  // Proteins
+  poulet: 165, chicken: 165, pollo: 165, frango: 165,
+  boeuf: 250, beef: 250, res: 250, carne: 250,
+  porc: 242, pork: 242, cerdo: 242, porco: 242,
+  saumon: 208, salmon: 208,
+  thon: 130, tuna: 130, atun: 130, atum: 130,
+  oeuf: 155, egg: 155, huevo: 155, ovo: 155,
+  oeufs: 155, eggs: 155, huevos: 155, ovos: 155,
+  dinde: 135, turkey: 135, pavo: 135, peru: 135,
+  crevette: 85, shrimp: 85, gamba: 85, camarao: 85,
+  tofu: 76,
+  jambon: 145, ham: 145, jamon: 145, presunto: 145,
+  steak: 271, bifteck: 271,
+  // Dairy
+  lait: 42, milk: 42, leche: 42, leite: 42,
+  fromage: 350, cheese: 350, queso: 350, queijo: 350,
+  yaourt: 59, yogurt: 59, yogur: 59, iogurte: 59,
+  beurre: 717, butter: 717, mantequilla: 717, manteiga: 717,
+  creme: 195, cream: 195, crema: 195,
+  // Grains & Carbs
+  riz: 130, rice: 130, arroz: 130,
+  pates: 131, pasta: 131, macarrao: 131,
+  pain: 265, bread: 265, pan: 265, pao: 265,
+  cereales: 379, cereal: 379,
+  avoine: 389, oats: 389, avena: 389, aveia: 389,
+  quinoa: 120,
+  couscous: 112,
+  tortilla: 237,
+  croissant: 406,
+  baguette: 274,
+  // Fruits
+  pomme: 52, apple: 52, manzana: 52, maca: 52,
+  banane: 89, banana: 89, platano: 89,
+  orange: 47, naranja: 47, laranja: 47,
+  fraise: 32, strawberry: 32, fresa: 32, morango: 32,
+  raisin: 67, grape: 67, uva: 67,
+  mangue: 60, mango: 60, manga: 60,
+  peche: 39, peach: 39, melocoton: 39, pessego: 39,
+  poire: 57, pear: 57, pera: 57,
+  ananas: 50, pineapple: 50, pina: 50, abacaxi: 50,
+  pasteque: 30, watermelon: 30, sandia: 30, melancia: 30,
+  myrtille: 57, blueberry: 57, arandano: 57, mirtilo: 57,
+  kiwi: 61,
+  citron: 29, lemon: 29, limon: 29, limao: 29,
+  avocat: 160, avocado: 160, aguacate: 160, abacate: 160,
+  // Vegetables
+  tomate: 18, tomato: 18,
+  carotte: 41, carrot: 41, zanahoria: 41, cenoura: 41,
+  brocoli: 34, broccoli: 34,
+  epinard: 23, spinach: 23, espinaca: 23, espinafre: 23,
+  salade: 15, lettuce: 15, lechuga: 15, alface: 15,
+  concombre: 16, cucumber: 16, pepino: 16,
+  poivron: 31, pepper: 31, pimiento: 31, pimentao: 31,
+  oignon: 40, onion: 40, cebolla: 40, cebola: 40,
+  champignon: 22, mushroom: 22, champiñon: 22, cogumelo: 22,
+  courgette: 17, zucchini: 17, calabacin: 17, abobrinha: 17,
+  haricot: 31, bean: 31, judia: 31, feijao: 31,
+  petitpois: 81, pea: 81, guisante: 81, ervilha: 81,
+  choufleur: 25, cauliflower: 25, coliflor: 25,
+  patatedouce: 86, sweetpotato: 86, batata_doce: 86,
+  pommedeterre: 77, potato: 77, patata: 77, batata: 77,
+  mais: 86, corn: 86, maiz: 86, milho: 86,
+  // Prepared / Fast food (per serving ~portion)
+  pizza: 266, // per slice
+  hamburger: 295, burger: 295,
+  frites: 312, fries: 312, patatasfritas: 312,
+  sandwich: 250,
+  kebab: 550,
+  tacos: 210, taco: 210,
+  sushi: 40, // per piece
+  hotdog: 290,
+  nuggets: 296, nugget: 296,
+  wrap: 280,
+  quiche: 300,
+  croque: 350,
+  // Snacks & Sweets
+  chocolat: 546, chocolate: 546,
+  biscuit: 480, cookie: 480, galleta: 480, biscoito: 480,
+  gateau: 350, cake: 350, pastel: 350, bolo: 350,
+  glace: 207, icecream: 207, helado: 207, sorvete: 207,
+  chips: 536, crisps: 536, patatas: 536,
+  bonbon: 380, candy: 380, caramelo: 380, doce: 380,
+  miel: 304, honey: 304, mel: 304,
+  confiture: 250, jam: 250, mermelada: 250, geleia: 250,
+  nutella: 539,
+  barre: 450, bar: 450, // cereal/protein bar
+  // Nuts & Seeds
+  amande: 579, almond: 579, almendra: 579, amendoa: 579,
+  noix: 654, walnut: 654, nuez: 654, noz: 654,
+  cacahuete: 567, peanut: 567, amendoim: 567,
+  noisette: 628, hazelnut: 628, avellana: 628, avela: 628,
+  // Drinks
+  jus: 45, juice: 45, jugo: 45, suco: 45,
+  soda: 42, coca: 42,
+  biere: 43, beer: 43, cerveza: 43, cerveja: 43,
+  vin: 83, wine: 83, vino: 83, vinho: 83,
+  cafe: 2, coffee: 2,
+  the: 1, tea: 1,
+  // Oils & Sauces
+  huile: 884, oil: 884, aceite: 884, oleo: 884,
+  mayonnaise: 680, mayo: 680,
+  ketchup: 112,
+  moutarde: 66, mustard: 66, mostaza: 66, mostarda: 66,
+};
+
+// Normalize food name for lookup
+function normalizeFoodName(name) {
+  return name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]/g, '').trim();
+}
+
+// Search food database — returns matches sorted by relevance
+function searchFood(query) {
+  if (!query || query.length < 2) return [];
+  const norm = normalizeFoodName(query);
+  const results = [];
+  const seen = new Set();
+  for (const [key, kcal] of Object.entries(FOOD_DATABASE)) {
+    const normKey = normalizeFoodName(key);
+    if (normKey.includes(norm) || norm.includes(normKey)) {
+      if (!seen.has(kcal + '_' + normKey.slice(0,3))) {
+        results.push({ name: key, kcal });
+        seen.add(kcal + '_' + normKey.slice(0,3));
+      }
+    }
+  }
+  return results.slice(0, 8);
+}
+
+// Add a food item to today's calorie log
+function btAddFoodItem(name, grams) {
+  const bt = getBodyTracker();
+  const norm = normalizeFoodName(name);
+  const kcalPer100 = FOOD_DATABASE[name] || FOOD_DATABASE[norm] || null;
+  if (!kcalPer100) return false;
+  const g = parseInt(grams) || 100;
+  const kcal = Math.round((kcalPer100 * g) / 100);
+  const today = getTodayStr();
+  let entry = bt.calorieLog.find(e => e.date === today);
+  if (!entry) {
+    entry = { date: today, value: 0, items: [] };
+    bt.calorieLog.push(entry);
+  }
+  // Migrate old format (no items array)
+  if (!entry.items) entry.items = [];
+  entry.items.push({ name: name, grams: g, kcal: kcal, id: Date.now() });
+  entry.value = entry.items.reduce((s, i) => s + i.kcal, 0);
+  if (bt.calorieLog.length > 90) bt.calorieLog = bt.calorieLog.slice(-90);
+  saveState();
+  refreshBodyTracker();
+  return true;
+}
+
+// Remove a food item from today's log
+function btRemoveFoodItem(itemId) {
+  const bt = getBodyTracker();
+  const today = getTodayStr();
+  const entry = bt.calorieLog.find(e => e.date === today);
+  if (!entry || !entry.items) return;
+  entry.items = entry.items.filter(i => i.id !== itemId);
+  entry.value = entry.items.reduce((s, i) => s + i.kcal, 0);
+  saveState();
+  refreshBodyTracker();
+}
 
 function btEstimateWorkoutCalories(session) {
   let total = 0;
@@ -8994,12 +9200,31 @@ function renderBodyTrackerSection() {
     </div>`;
   }
 
-  // Today's calories
+  // Today's calories — food name input with auto-suggestions
   html += `<div style="font-size:.65rem;color:var(--gold);font-weight:600;margin:10px 0 6px">${t('btTodayCalories')}</div>`;
-  html += `<div class="bt-row">
-    <input type="number" class="bt-input" id="bt-cal-eaten" placeholder="${t('btCalEaten')} (kcal)" value="${todayEaten || ''}" min="0" max="15000" />
-    <button class="bt-btn bt-btn-gold" onclick="btLogCaloriesEaten(document.getElementById('bt-cal-eaten').value)">✓</button>
+  html += `<div style="position:relative">
+    <div class="bt-row">
+      <input type="text" class="bt-input" id="bt-food-name" placeholder="${t('btFoodPlaceholder')}" autocomplete="off" oninput="btShowFoodSuggestions(this.value)" style="flex:2" />
+      <input type="number" class="bt-input" id="bt-food-grams" placeholder="${t('btFoodQuantity')}" value="100" min="1" max="5000" style="max-width:80px" />
+      <button class="bt-btn bt-btn-gold" onclick="btHandleAddFood()">${t('btAddFood')}</button>
+    </div>
+    <div id="bt-food-suggestions" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:50;background:var(--wood-dark);border:1px solid var(--border);border-radius:0 0 8px 8px;max-height:180px;overflow-y:auto"></div>
   </div>`;
+
+  // Today's food items list
+  const foodItems = btGetTodayFoodItems();
+  if (foodItems.length > 0) {
+    html += '<div style="font-size:.6rem;color:var(--text-dim);margin:8px 0 4px">' + t('btFoodLog') + '</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:3px">';
+    foodItems.forEach(item => {
+      html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px;background:rgba(196,154,60,.06);border:1px solid var(--border);border-radius:6px;font-size:.65rem">'
+        + '<div style="flex:1;color:var(--text)">' + item.name + ' <span style="color:var(--text-dim)">(' + item.grams + 'g)</span></div>'
+        + '<div style="color:var(--gold);font-weight:600;margin:0 8px">' + item.kcal + ' kcal</div>'
+        + '<button onclick="btRemoveFoodItem(' + item.id + ')" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:.7rem;padding:2px 4px">✕</button>'
+        + '</div>';
+    });
+    html += '</div>';
+  }
 
   const balance = todayEaten - todayBurned;
   const balColor = balance > 0 ? '#f39c12' : balance < 0 ? '#2ecc71' : 'var(--text-dim)';
@@ -9057,6 +9282,48 @@ function renderBodyTrackerSection() {
 function refreshBodyTracker() {
   const container = document.getElementById('body-tracker-section');
   if (container) container.innerHTML = renderBodyTrackerSection();
+}
+
+// Food suggestion dropdown
+function btShowFoodSuggestions(query) {
+  const box = document.getElementById('bt-food-suggestions');
+  if (!box) return;
+  if (!query || query.length < 2) { box.style.display = 'none'; return; }
+  const results = searchFood(query);
+  if (!results.length) { box.style.display = 'none'; return; }
+  box.innerHTML = results.map(function(r) {
+    return '<div onclick="btSelectFood(\'' + r.name.replace(/'/g, "\\'") + '\',' + r.kcal + ')" style="padding:8px 10px;cursor:pointer;font-size:.7rem;color:var(--text);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center" onmouseover="this.style.background=\'rgba(196,154,60,.15)\'" onmouseout="this.style.background=\'none\'">'
+      + '<span>' + r.name + '</span>'
+      + '<span style="color:var(--gold);font-weight:600">' + r.kcal + ' kcal/100g</span>'
+      + '</div>';
+  }).join('');
+  box.style.display = 'block';
+}
+
+function btSelectFood(name, kcal) {
+  const input = document.getElementById('bt-food-name');
+  if (input) input.value = name;
+  const box = document.getElementById('bt-food-suggestions');
+  if (box) box.style.display = 'none';
+}
+
+function btHandleAddFood() {
+  const nameEl = document.getElementById('bt-food-name');
+  const gramsEl = document.getElementById('bt-food-grams');
+  if (!nameEl || !nameEl.value.trim()) return;
+  const name = nameEl.value.trim();
+  const grams = gramsEl ? parseInt(gramsEl.value) || 100 : 100;
+  const success = btAddFoodItem(name, grams);
+  if (!success) {
+    // If exact match not found, try normalized search
+    const results = searchFood(name);
+    if (results.length > 0) {
+      btAddFoodItem(results[0].name, grams);
+    } else {
+      nameEl.style.borderColor = '#e74c3c';
+      setTimeout(function() { nameEl.style.borderColor = ''; }, 1500);
+    }
+  }
 }
 
 // ===== ROUTE PLANNER — Loop running route generator =====
@@ -17105,7 +17372,10 @@ function toggleAccountPanel() {
   const overlay = document.getElementById('settings-overlay');
   panel.classList.toggle('open');
   overlay.classList.toggle('open');
-  if (panel.classList.contains('open')) updateAccountUI();
+  if (panel.classList.contains('open')) {
+    updateAccountUI();
+    refreshBodyTracker();
+  }
 }
 
 function toggleLeaderboardPanel() {
@@ -17214,7 +17484,6 @@ async function openPlayerProfile(uid) {
         <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center">${(profile.epicTitles || []).map(ti => `<span class="spec-badge">🏆 ${ti}</span>`).join('')}</div>
       ` : ''}
 
-      ${isMe ? `<div id="body-tracker-section">${renderBodyTrackerSection()}</div>` : ''}
 
       ${profile.companion ? `<div style="text-align:center;margin:14px 0 6px;font-size:.7rem;color:var(--text-dim)">${t('companionLabel')} : ${companionEmoji} ${companionData ? companionData.name : profile.companion}</div>` : ''}
 
