@@ -7194,7 +7194,8 @@ function initQuests() {
   initSeason();
 
   // Solo Leveling state
-  if (!q.soloLeveling) q.soloLeveling = { startDate: null, currentWeek: 1, dayDate: null, pushups: 0, squats: 0, abs: 0, km: 0, completedDays: 0, missedDays: 0, lastPenaltyCheck: null };
+  if (!q.soloLeveling) q.soloLeveling = { startDate: null, currentWeek: 1, dayDate: null, pushups: 0, squats: 0, abs: 0, km: 0, completedDays: 0, missedDays: 0, lastPenaltyCheck: null, weekOffsetDays: 0 };
+  if (q.soloLeveling.weekOffsetDays == null) q.soloLeveling.weekOffsetDays = 0;
   // Migration: add stats & activity log for existing saves
   if (!q.soloLeveling.stats) q.soloLeveling.stats = { str: 0, agi: 0, vit: 0, end: 0, per: 0 };
   if (!q.soloLeveling.activityLog) q.soloLeveling.activityLog = [];
@@ -11539,12 +11540,16 @@ function checkSoloLeveling() {
   // Not started yet — wait for first interaction
   if (!sl.startDate) return;
 
-  // Compute current week based on days since start (auto-progression)
+  // Compute current week based on days since start MINUS missed days (each miss delays by 1 day)
+  // Manual offset (admin demotions) further delays progression.
   const daysSince = daysBetween(sl.startDate, today);
-  const autoWeek = Math.min(10, Math.floor(daysSince / 7) + 1);
-  if (autoWeek > sl.currentWeek) {
+  const offset = (sl.missedDays || 0) + (sl.weekOffsetDays || 0);
+  const effectiveDays = Math.max(0, daysSince - offset);
+  const autoWeek = Math.min(10, Math.floor(effectiveDays / 7) + 1);
+  if (autoWeek !== sl.currentWeek) {
+    const goingUp = autoWeek > sl.currentWeek;
     sl.currentWeek = autoWeek;
-    if (autoWeek <= 10) {
+    if (goingUp && autoWeek <= 10) {
       const tgt = getSoloTargets(autoWeek);
       addMessage('stakr', `KRAA ! Semaine ${autoWeek} du Solo Leveling — les quotas montent : **${tgt.pushups} pompes, ${tgt.squats} squats, ${tgt.abs} abdos, ${tgt.km} km**. Leve-toi, guerrier ! [MOOD:excite]`);
       showToast(`Solo Leveling — Semaine ${autoWeek}`, `${tgt.pushups}p / ${tgt.squats}s / ${tgt.abs}a / ${tgt.km}km`);
@@ -15980,6 +15985,14 @@ function renderAdminActions() {
       </div>
 
       <div class="admin-action-group">
+        <label>⚔ Solo Leveling — Semaine ${u.soloWeek || 0}</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="admin-btn admin-btn-warn" onclick="adminSoloShiftWeek(-1)">← Reculer 1 semaine</button>
+          <button class="admin-btn admin-btn-ok" onclick="adminSoloShiftWeek(1)">Avancer 1 semaine →</button>
+        </div>
+      </div>
+
+      <div class="admin-action-group">
         <label>💎 Runes</label>
         <div style="display:flex;gap:6px"><input type="number" id="admin-runes-val" value="${u.runes||0}" min="0" style="flex:1"/>
         <button class="admin-btn admin-btn-ok" onclick="adminSetRunes()">Appliquer</button></div>
@@ -16260,6 +16273,31 @@ async function adminSetStreak() {
     }
     adminLog('Streak → ' + val + ' pour ' + adminSelectedUid.slice(0,8));
     showToast('Admin', 'Streak mis a ' + val);
+    await loadAdminUsers();
+    selectAdminUser(adminSelectedUid);
+  } catch(e) { showToast('Erreur', e.message); }
+}
+
+async function adminSoloShiftWeek(delta) {
+  if (!adminSelectedUid || !db) return;
+  try {
+    const ref = db.collection('users').doc(adminSelectedUid).collection('data').doc('quests');
+    const qdoc = await ref.get();
+    if (!qdoc.exists) { showToast('Erreur', 'Pas de donnees Solo Leveling'); return; }
+    const q = qdoc.data();
+    const sl = q.soloLeveling || {};
+    if (!sl.startDate) { showToast('Erreur', 'Solo Leveling pas demarre'); return; }
+    const newWeek = Math.max(1, Math.min(10, (sl.currentWeek || 1) + delta));
+    // Adjust weekOffsetDays so the auto-progression algo respects the new week.
+    // effective = floor((daysSince - missed - offset)/7)+1 → offset = daysSince - missed - 7*(newWeek-1)
+    const daysSince = Math.floor((Date.now() - new Date(sl.startDate).getTime()) / 86400000);
+    const newOffset = Math.max(0, daysSince - (sl.missedDays || 0) - 7 * (newWeek - 1));
+    sl.currentWeek = newWeek;
+    sl.weekOffsetDays = newOffset;
+    await ref.update({ soloLeveling: sl });
+    await db.collection('users').doc(adminSelectedUid).update({ soloWeek: newWeek });
+    adminLog('Solo week ' + (delta > 0 ? '+' : '') + delta + ' → S' + newWeek + ' pour ' + adminSelectedUid.slice(0,8));
+    showToast('Admin', 'Semaine Solo Leveling : ' + newWeek);
     await loadAdminUsers();
     selectAdminUser(adminSelectedUid);
   } catch(e) { showToast('Erreur', e.message); }
