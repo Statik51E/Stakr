@@ -11540,12 +11540,14 @@ function checkSoloLeveling() {
   // Not started yet — wait for first interaction
   if (!sl.startDate) return;
 
-  // Compute current week based on days since start MINUS missed days (each miss delays by 1 day)
-  // Manual offset (admin demotions) further delays progression.
+  // Week progression: each missed day delays by 1 day BUT a week never lasts more than 9 calendar days.
+  // - compensatedWeek: pushes back based on missed days (so 7 successful days = 1 week)
+  // - minWeek: forces advance after 9 calendar days max per week (no infinite stall)
   const daysSince = daysBetween(sl.startDate, today);
   const offset = (sl.missedDays || 0) + (sl.weekOffsetDays || 0);
-  const effectiveDays = Math.max(0, daysSince - offset);
-  const autoWeek = Math.min(10, Math.floor(effectiveDays / 7) + 1);
+  const compensatedWeek = Math.min(10, Math.floor(Math.max(0, daysSince - offset) / 7) + 1);
+  const minWeek = Math.min(10, Math.floor(daysSince / 9) + 1);
+  const autoWeek = Math.max(minWeek, compensatedWeek);
   if (autoWeek !== sl.currentWeek) {
     const goingUp = autoWeek > sl.currentWeek;
     sl.currentWeek = autoWeek;
