@@ -7201,6 +7201,21 @@ function initQuests() {
   if (q.soloLeveling.lastWeeklyCheck === undefined) q.soloLeveling.lastWeeklyCheck = null;
   // Backward-compat: drop the old user-configurable weekTarget (now fixed at 5).
   delete q.soloLeveling.weekTarget;
+  // Backfill completedDates from the legacy completedDays counter so existing successes count toward this week.
+  // Only runs once: if completedDates is empty but completedDays > 0, mark the most recent N days of the current week as completed.
+  if (q.soloLeveling.startDate && Object.keys(q.soloLeveling.completedDates).length === 0 && (q.soloLeveling.completedDays || 0) > 0 && !q.soloLeveling._backfilled) {
+    const todayStr = (new Date()).toISOString().slice(0, 10);
+    const td = new Date(todayStr + 'T00:00:00');
+    const dow = td.getDay() || 7; // Mon=1..Sun=7
+    const fillCount = Math.min(q.soloLeveling.completedDays, dow);
+    for (let i = 0; i < fillCount; i++) {
+      const d = new Date(td); d.setDate(td.getDate() - i);
+      const ds = d.toISOString().slice(0, 10);
+      q.soloLeveling.completedDates[ds] = true;
+      q.soloLeveling.activeDays[ds] = true;
+    }
+    q.soloLeveling._backfilled = true;
+  }
   // Migration: add stats & activity log for existing saves
   if (!q.soloLeveling.stats) q.soloLeveling.stats = { str: 0, agi: 0, vit: 0, end: 0, per: 0 };
   if (!q.soloLeveling.activityLog) q.soloLeveling.activityLog = [];
@@ -11651,6 +11666,23 @@ function activateSoloDay() {
   renderSoloLeveling();
 }
 
+function deactivateSoloDay() {
+  const q = state.quests;
+  const sl = q.soloLeveling;
+  if (!sl.startDate) return;
+  const today = getTodayStr();
+  if (!sl.activeDays || !sl.activeDays[today]) return;
+  // Block if today is already validated as completed — can't dodge a success retroactively.
+  if (sl.completedDates && sl.completedDates[today]) {
+    showToast('Solo Leveling', 'Jour deja valide, impossible de desactiver.');
+    return;
+  }
+  delete sl.activeDays[today];
+  saveState();
+  showToast('Solo Leveling', 'Jour desactive');
+  renderSoloLeveling();
+}
+
 function logSoloProgress(key) {
   const q = state.quests;
   const sl = q.soloLeveling;
@@ -11702,6 +11734,12 @@ function logSoloProgress(key) {
   const allDone = sl.pushups >= targets.pushups && sl.squats >= targets.squats && sl.abs >= targets.abs && sl.km >= targets.km;
   if (allDone && !sl._completedToast) {
     sl._completedToast = true;
+    // Mark today as a successful day so it counts toward the weekly 5/7 immediately.
+    if (!sl.completedDates) sl.completedDates = {};
+    if (!sl.completedDates[getTodayStr()]) {
+      sl.completedDates[getTodayStr()] = true;
+      sl.completedDays = (sl.completedDays || 0) + 1;
+    }
     // XP reward: 500 base + 100 per additional week (500/600/700/.../1400)
     const soloXpReward = 500 + (sl.currentWeek - 1) * 100;
     addQuestXp(soloXpReward);
@@ -11813,7 +11851,10 @@ function renderSoloLeveling() {
       <div style="width:${Math.min(100, (weekSuccessCount/REQUIRED_DAYS)*100)}%;height:100%;background:linear-gradient(90deg,#7aa2f7,${successColor});transition:width .3s"></div>
     </div>
     ${todayActive
-      ? `<div style="font-size:.65rem;color:#4caf50;font-weight:600;text-align:center">✓ Defi active aujourd'hui — complete tes quotas avant minuit ou penalite.</div>`
+      ? `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <div style="font-size:.65rem;color:#4caf50;font-weight:600;flex:1;min-width:0">✓ Defi active aujourd'hui</div>
+          ${sl.completedDates && sl.completedDates[todayStr] ? '' : `<button onclick="deactivateSoloDay()" style="padding:4px 10px;border:1px solid rgba(231,76,60,.4);border-radius:6px;background:transparent;color:#e74c3c;font-size:.6rem;font-weight:600;cursor:pointer;font-family:inherit">Desactiver</button>`}
+        </div>`
       : `<button onclick="activateSoloDay()" style="width:100%;padding:10px;border:1px solid #7aa2f7;border-radius:8px;background:linear-gradient(135deg,#1e3a8a,#3b5998);color:#fff;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.5px">⚡ Activer le defi aujourd'hui</button>`
     }
     <div style="font-size:.55rem;color:var(--text-dim);margin-top:8px;text-align:center;line-height:1.5">Minimum <strong>5/7</strong> jours reussis pour passer en semaine ${Math.min(10, sl.currentWeek+1)}.<br>Sinon : tu restes en semaine ${sl.currentWeek} + penalite par jour manquant.</div>
