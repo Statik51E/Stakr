@@ -7194,15 +7194,13 @@ function initQuests() {
   initSeason();
 
   // Solo Leveling state
-  if (!q.soloLeveling) q.soloLeveling = { startDate: null, currentWeek: 1, dayDate: null, pushups: 0, squats: 0, abs: 0, km: 0, completedDays: 0, missedDays: 0, lastPenaltyCheck: null, weekOffsetDays: 0, weekTarget: 7, activeDays: {}, lastWeeklyCheck: null };
+  if (!q.soloLeveling) q.soloLeveling = { startDate: null, currentWeek: 1, dayDate: null, pushups: 0, squats: 0, abs: 0, km: 0, completedDays: 0, missedDays: 0, lastPenaltyCheck: null, weekOffsetDays: 0, activeDays: {}, completedDates: {}, lastWeeklyCheck: null };
   if (q.soloLeveling.weekOffsetDays == null) q.soloLeveling.weekOffsetDays = 0;
-  if (q.soloLeveling.weekTarget == null) q.soloLeveling.weekTarget = 7;
   if (!q.soloLeveling.activeDays || typeof q.soloLeveling.activeDays !== 'object' || Array.isArray(q.soloLeveling.activeDays)) q.soloLeveling.activeDays = {};
+  if (!q.soloLeveling.completedDates || typeof q.soloLeveling.completedDates !== 'object' || Array.isArray(q.soloLeveling.completedDates)) q.soloLeveling.completedDates = {};
   if (q.soloLeveling.lastWeeklyCheck === undefined) q.soloLeveling.lastWeeklyCheck = null;
-  // One-time migration: if no activeDays recorded but solo leveling started, mark today as active so existing users don't get a stale penalty.
-  if (q.soloLeveling.startDate && Object.keys(q.soloLeveling.activeDays).length === 0 && q.soloLeveling.dayDate) {
-    q.soloLeveling.activeDays[q.soloLeveling.dayDate] = true;
-  }
+  // Backward-compat: drop the old user-configurable weekTarget (now fixed at 5).
+  delete q.soloLeveling.weekTarget;
   // Migration: add stats & activity log for existing saves
   if (!q.soloLeveling.stats) q.soloLeveling.stats = { str: 0, agi: 0, vit: 0, end: 0, per: 0 };
   if (!q.soloLeveling.activityLog) q.soloLeveling.activityLog = [];
@@ -11547,33 +11545,17 @@ function checkSoloLeveling() {
   // Not started yet — wait for first interaction
   if (!sl.startDate) return;
 
-  // Week progression: each missed day delays by 1 day BUT a week never lasts more than 9 calendar days.
-  // - compensatedWeek: pushes back based on missed days (so 7 successful days = 1 week)
-  // - minWeek: forces advance after 9 calendar days max per week (no infinite stall)
-  const daysSince = daysBetween(sl.startDate, today);
-  const offset = (sl.missedDays || 0) + (sl.weekOffsetDays || 0);
-  const compensatedWeek = Math.min(10, Math.floor(Math.max(0, daysSince - offset) / 7) + 1);
-  const minWeek = Math.min(10, Math.floor(daysSince / 9) + 1);
-  const autoWeek = Math.max(minWeek, compensatedWeek);
-  if (autoWeek !== sl.currentWeek) {
-    const goingUp = autoWeek > sl.currentWeek;
-    sl.currentWeek = autoWeek;
-    if (goingUp && autoWeek <= 10) {
-      const tgt = getSoloTargets(autoWeek);
-      addMessage('stakr', `KRAA ! Semaine ${autoWeek} du Solo Leveling — les quotas montent : **${tgt.pushups} pompes, ${tgt.squats} squats, ${tgt.abs} abdos, ${tgt.km} km**. Leve-toi, guerrier ! [MOOD:excite]`);
-      showToast(`Solo Leveling — Semaine ${autoWeek}`, `${tgt.pushups}p / ${tgt.squats}s / ${tgt.abs}a / ${tgt.km}km`);
-    }
-  }
-
-  // Penalty for the previous day: only triggers if the user had activated that day and didn't complete it.
-  // Inactive days (not activated) carry no penalty.
+  // Penalty for the previous day: only triggers if the user activated that day and didn't complete the targets.
+  // Non-activated days = no penalty, no credit.
   if (sl.dayDate && sl.dayDate !== today && sl.lastPenaltyCheck !== today) {
     const wasActivated = !!(sl.activeDays && sl.activeDays[sl.dayDate]);
     const soloSpecB = getSpecBoosts();
     const prevTargets = getSoloTargets(sl.currentWeek);
     const done = sl.pushups >= prevTargets.pushups && sl.squats >= prevTargets.squats && sl.abs >= prevTargets.abs && sl.km >= prevTargets.km;
+    if (!sl.completedDates) sl.completedDates = {};
     if (wasActivated && done) {
       sl.completedDays = (sl.completedDays || 0) + 1;
+      sl.completedDates[sl.dayDate] = true;
     } else if (wasActivated && !done && !soloSpecB.penaltyImmune && !checkAdminPenaltiesDisabled()) {
       sl.missedDays = (sl.missedDays || 0) + 1;
       let soloPenalty = SOLO_PENALTY_XP;
@@ -11586,30 +11568,45 @@ function checkSoloLeveling() {
     sl.lastPenaltyCheck = today;
   }
 
-  // Weekly tally: every Monday, audit the previous week. If active days < weekTarget, penalty per missing day.
-  // Uses ISO week boundaries (Monday → Sunday).
+  // Weekly check (every Monday): count successful days in the previous week.
+  // - 5+ successful → advance to next difficulty week
+  // - <5 → stay at same difficulty + penalty per missing day
   const todayDate = new Date(today + 'T00:00:00');
   const dayOfWeek = todayDate.getDay(); // 0=Sun, 1=Mon
   if (dayOfWeek === 1 && sl.lastWeeklyCheck !== today) {
-    // Compute previous week's Monday → Sunday range
     const prevMonday = new Date(todayDate); prevMonday.setDate(todayDate.getDate() - 7);
     const prevSunday = new Date(todayDate); prevSunday.setDate(todayDate.getDate() - 1);
-    let activeCount = 0;
-    for (let d = new Date(prevMonday); d <= prevSunday; d.setDate(d.getDate() + 1)) {
-      const ds = d.toISOString().slice(0, 10);
-      if (sl.activeDays && sl.activeDays[ds]) activeCount++;
-    }
-    const target = sl.weekTarget || 7;
-    const shortfall = Math.max(0, target - activeCount);
-    if (shortfall > 0 && !getSpecBoosts().penaltyImmune && !checkAdminPenaltiesDisabled()) {
-      const weeklyPenalty = SOLO_PENALTY_XP * shortfall;
-      q.xp = Math.max(0, q.xp - weeklyPenalty);
-      q.totalXp = Math.max(0, q.totalXp - weeklyPenalty);
-      sl.missedDays = (sl.missedDays || 0) + shortfall;
-      addMessage('stakr', `Bilan hebdomadaire : seulement **${activeCount}/${target}** jours actives la semaine passee. Penalite : **-${weeklyPenalty} XP** (${shortfall} jour${shortfall>1?'s':''} manquant${shortfall>1?'s':''}). [MOOD:triste]`);
-      showToast('Bilan Solo Leveling', `${activeCount}/${target} jours — -${weeklyPenalty} XP`);
-    } else if (activeCount >= target) {
-      addMessage('stakr', `Bilan hebdomadaire : **${activeCount}/${target}** jours actives ! Objectif tenu, guerrier. [MOOD:fier]`);
+    // Only count weeks that fall after startDate
+    if (prevMonday >= new Date(sl.startDate + 'T00:00:00')) {
+      let successCount = 0;
+      if (!sl.completedDates) sl.completedDates = {};
+      for (let d = new Date(prevMonday); d <= prevSunday; d.setDate(d.getDate() + 1)) {
+        const ds = d.toISOString().slice(0, 10);
+        if (sl.completedDates[ds]) successCount++;
+      }
+      const required = 5;
+      if (successCount >= required) {
+        // Advance difficulty week
+        if (sl.currentWeek < 10) {
+          sl.currentWeek++;
+          const tgt = getSoloTargets(sl.currentWeek);
+          addMessage('stakr', `Bilan hebdomadaire : **${successCount}/7** jours reussis ! Tu passes en **semaine ${sl.currentWeek}** : ${tgt.pushups} pompes, ${tgt.squats} squats, ${tgt.abs} abdos, ${tgt.km} km. [MOOD:fier]`);
+          showToast(`Solo Leveling — Semaine ${sl.currentWeek}`, `${tgt.pushups}p / ${tgt.squats}s / ${tgt.abs}a / ${tgt.km}km`);
+        } else {
+          addMessage('stakr', `Bilan hebdomadaire : **${successCount}/7** jours reussis. Tu maintiens la semaine 10 — niveau maximum. [MOOD:fier]`);
+        }
+      } else {
+        const shortfall = required - successCount;
+        if (!getSpecBoosts().penaltyImmune && !checkAdminPenaltiesDisabled()) {
+          const weeklyPenalty = SOLO_PENALTY_XP * shortfall;
+          q.xp = Math.max(0, q.xp - weeklyPenalty);
+          q.totalXp = Math.max(0, q.totalXp - weeklyPenalty);
+          addMessage('stakr', `Bilan hebdomadaire : seulement **${successCount}/7** jours reussis (minimum 5 requis). Tu restes en **semaine ${sl.currentWeek}** + penalite **-${weeklyPenalty} XP**. [MOOD:triste]`);
+          showToast('Bilan Solo Leveling', `${successCount}/7 reussis — -${weeklyPenalty} XP`);
+        } else {
+          addMessage('stakr', `Bilan hebdomadaire : **${successCount}/7** jours reussis. Tu restes en semaine ${sl.currentWeek}. [MOOD:triste]`);
+        }
+      }
     }
     sl.lastWeeklyCheck = today;
   }
@@ -11654,26 +11651,16 @@ function activateSoloDay() {
   renderSoloLeveling();
 }
 
-function setSoloWeekTarget(val) {
-  const q = state.quests;
-  const sl = q.soloLeveling;
-  if (!sl.startDate) return;
-  const v = parseInt(val);
-  if (isNaN(v) || v < 5 || v > 7) return;
-  sl.weekTarget = v;
-  saveState();
-  showToast('Solo Leveling', `Objectif : ${v} jour${v>1?'s':''} actif${v>1?'s':''} par semaine`);
-  renderSoloLeveling();
-}
-
 function logSoloProgress(key) {
   const q = state.quests;
   const sl = q.soloLeveling;
   if (!sl.startDate) return;
-  // Auto-activate today when the user starts logging — they can't penalty-dodge by skipping the activation step.
+  // Require explicit activation — logging without activating doesn't count.
   const today = getTodayStr();
-  if (!sl.activeDays) sl.activeDays = {};
-  if (!sl.activeDays[today]) sl.activeDays[today] = true;
+  if (!sl.activeDays || !sl.activeDays[today]) {
+    showToast('Solo Leveling', 'Active d\'abord ton defi du jour.');
+    return;
+  }
   const input = document.getElementById('solo-input-' + key);
   const value = parseFloat(input.value);
   if (!value || value <= 0) return;
@@ -11781,16 +11768,22 @@ function renderSoloLeveling() {
   // Activation status for today + weekly progress
   const todayStr = getTodayStr();
   if (!sl.activeDays) sl.activeDays = {};
+  if (!sl.completedDates) sl.completedDates = {};
   const todayActive = !!sl.activeDays[todayStr];
-  const weekTarget = sl.weekTarget || 7;
-  // Count activated days for the current ISO week (Monday → today)
+  const REQUIRED_DAYS = 5;
+  // Count successful days for the current ISO week (Monday → today)
   const todayDateObj = new Date(todayStr + 'T00:00:00');
-  const dow = todayDateObj.getDay() || 7; // Sun=7
+  const dow = todayDateObj.getDay() || 7;
   const monday = new Date(todayDateObj); monday.setDate(todayDateObj.getDate() - (dow - 1));
   let weekActiveCount = 0;
+  let weekSuccessCount = 0;
   for (let d = new Date(monday); d <= todayDateObj; d.setDate(d.getDate() + 1)) {
-    if (sl.activeDays[d.toISOString().slice(0, 10)]) weekActiveCount++;
+    const ds = d.toISOString().slice(0, 10);
+    if (sl.activeDays[ds]) weekActiveCount++;
+    if (sl.completedDates[ds]) weekSuccessCount++;
   }
+  // Today counts as success if activated AND quotas met right now
+  if (todayActive && allDone && !sl.completedDates[todayStr]) weekSuccessCount++;
 
   let html = `<div class="solo-header ${allDone ? 'done' : ''}">
     <div class="solo-header-top">
@@ -11809,26 +11802,28 @@ function renderSoloLeveling() {
     <div class="solo-overall-bar"><div class="solo-overall-fill" style="width:${overallPct}%"></div></div>
   </div>`;
 
-  // Weekly target + activation panel
+  // Activation panel + weekly progress (5/7 minimum to advance)
+  const successColor = weekSuccessCount >= REQUIRED_DAYS ? '#4caf50' : '#7aa2f7';
   html += `<div style="background:rgba(10,18,35,.5);border:1px solid rgba(80,120,200,.3);border-radius:10px;padding:12px;margin:10px 0">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
-      <div style="font-size:.7rem;color:#7aa2f7;font-weight:600">📅 Cette semaine : ${weekActiveCount}/${weekTarget} jour${weekTarget>1?'s':''} actif${weekTarget>1?'s':''}</div>
-      <div style="display:flex;gap:4px;align-items:center">
-        <span style="font-size:.6rem;color:var(--text-dim)">Objectif :</span>
-        ${[5,6,7].map(n => `<button onclick="setSoloWeekTarget(${n})" style="padding:4px 10px;border:1px solid ${weekTarget===n?'#7aa2f7':'rgba(80,120,200,.3)'};border-radius:6px;background:${weekTarget===n?'rgba(122,162,247,.15)':'transparent'};color:${weekTarget===n?'#7aa2f7':'var(--text-dim)'};font-size:.65rem;font-weight:700;cursor:pointer;font-family:inherit">${n}</button>`).join('')}
-      </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+      <div style="font-size:.7rem;color:${successColor};font-weight:700">📅 ${weekSuccessCount}/${REQUIRED_DAYS} jours reussis cette semaine ${weekSuccessCount >= REQUIRED_DAYS ? '✓' : ''}</div>
+      <div style="font-size:.55rem;color:var(--text-dim)">${weekActiveCount} active${weekActiveCount>1?'s':''}</div>
+    </div>
+    <div style="height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin-bottom:10px">
+      <div style="width:${Math.min(100, (weekSuccessCount/REQUIRED_DAYS)*100)}%;height:100%;background:linear-gradient(90deg,#7aa2f7,${successColor});transition:width .3s"></div>
     </div>
     ${todayActive
-      ? `<div style="font-size:.65rem;color:#4caf50;font-weight:600">✓ Jour active aujourd'hui — accomplis tes quotas avant minuit ou penalite.</div>`
-      : `<button onclick="activateSoloDay()" style="width:100%;padding:10px;border:1px solid #7aa2f7;border-radius:8px;background:linear-gradient(135deg,#1e3a8a,#3b5998);color:#fff;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.5px">⚡ Activer aujourd'hui</button>`
+      ? `<div style="font-size:.65rem;color:#4caf50;font-weight:600;text-align:center">✓ Defi active aujourd'hui — complete tes quotas avant minuit ou penalite.</div>`
+      : `<button onclick="activateSoloDay()" style="width:100%;padding:10px;border:1px solid #7aa2f7;border-radius:8px;background:linear-gradient(135deg,#1e3a8a,#3b5998);color:#fff;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.5px">⚡ Activer le defi aujourd'hui</button>`
     }
+    <div style="font-size:.55rem;color:var(--text-dim);margin-top:8px;text-align:center;line-height:1.5">Minimum <strong>5/7</strong> jours reussis pour passer en semaine ${Math.min(10, sl.currentWeek+1)}.<br>Sinon : tu restes en semaine ${sl.currentWeek} + penalite par jour manquant.</div>
   </div>`;
 
   // Warning card — only show if day is activated
   if (todayActive) {
     html += `<div class="solo-warning">⚠ Non accompli avant minuit : <strong>-${SOLO_PENALTY_XP} XP</strong> — le Systeme ne pardonne pas.</div>`;
   } else {
-    html += `<div style="background:rgba(80,120,200,.08);border:1px dashed rgba(80,120,200,.3);border-radius:8px;padding:10px;margin:0 0 10px;font-size:.65rem;color:var(--text-dim);text-align:center">Active ton jour pour engager ta journee. Sans activation, aucune penalite — mais aussi aucun progres compte.</div>`;
+    html += `<div style="background:rgba(80,120,200,.08);border:1px dashed rgba(80,120,200,.3);border-radius:8px;padding:10px;margin:0 0 10px;font-size:.65rem;color:var(--text-dim);text-align:center">Sans activation : aucune penalite, mais ce jour ne compte pas dans tes 5/7.</div>`;
   }
 
   // Exercise cards
@@ -16390,12 +16385,7 @@ async function adminSoloShiftWeek(delta) {
     const sl = q.soloLeveling || {};
     if (!sl.startDate) { showToast('Erreur', 'Solo Leveling pas demarre'); return; }
     const newWeek = Math.max(1, Math.min(10, (sl.currentWeek || 1) + delta));
-    // Adjust weekOffsetDays so the auto-progression algo respects the new week.
-    // effective = floor((daysSince - missed - offset)/7)+1 → offset = daysSince - missed - 7*(newWeek-1)
-    const daysSince = Math.floor((Date.now() - new Date(sl.startDate).getTime()) / 86400000);
-    const newOffset = Math.max(0, daysSince - (sl.missedDays || 0) - 7 * (newWeek - 1));
     sl.currentWeek = newWeek;
-    sl.weekOffsetDays = newOffset;
     await ref.update({ soloLeveling: sl });
     await db.collection('users').doc(adminSelectedUid).update({ soloWeek: newWeek });
     adminLog('Solo week ' + (delta > 0 ? '+' : '') + delta + ' → S' + newWeek + ' pour ' + adminSelectedUid.slice(0,8));
